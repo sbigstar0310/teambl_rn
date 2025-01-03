@@ -1,0 +1,1 @@
+export const defaultAvatarImage = "https://teambl.net/media/profile_images/IMG_2868.jpeg";
