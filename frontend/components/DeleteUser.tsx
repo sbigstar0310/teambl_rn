@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Alert, StyleSheet, Text, TextInput, View} from 'react-native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import ConfirmPopUp from './ConfirmPopUp';
 import MessagePopUp from './MessagePopUp';
 import PrimeButton from './PrimeButton';

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
+import React, {useState} from 'react';
+import {Animated, Easing, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 interface TitleAndContentToggleProps {
   children: React.ReactNode;

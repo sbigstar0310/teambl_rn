@@ -1,20 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-// 네비게이션 경로 타입 정의
-type RootStackParamList = {
-  Login: undefined;
-  PasswordChange: undefined;
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'PasswordChange'>;
+import {router} from "expo-router";
 
 const PasswordChange: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
-  const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -103,7 +93,7 @@ const PasswordChange: React.FC = () => {
       setTimeout(async () => {
         Alert.alert("성공", "비밀번호가 변경되었습니다.");
         await AsyncStorage.clear();
-        navigation.navigate("Login");
+        router.push("/login")
         setIsLoading(false);
       }, 1000);
     } catch (error) {

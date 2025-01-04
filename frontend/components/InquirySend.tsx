@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-// import PrimeButton from '../../components/PrimeButton';
+import React, {useEffect, useState} from 'react';
+import {ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 
 /** Teamble email */
 const TEAMBLE_EMAIL = "contact.teambl.net";

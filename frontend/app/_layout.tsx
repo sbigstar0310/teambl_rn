@@ -1,24 +1,34 @@
 import {Stack} from "expo-router";
 import {StatusBar} from "expo-status-bar";
-import React from 'react';
+import {Fragment} from 'react';
 import {StyleSheet} from "react-native";
 
 export default function RootLayout() {
-    return <React.Fragment>
+    return <Fragment>
         {/* Main Stack navigation router */}
-        <Stack/>
+        <Stack screenOptions={{headerShown: false}}/>
         <StatusBar style="light" translucent={false} backgroundColor="black"/>
-    </React.Fragment>;
+    </Fragment>;
 }
 
 export const sharedStyles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: '#ffffff'
     },
-    title: {
-        fontSize: 24,
-        marginBottom: 20,
+    horizontalPadding: {
+        paddingHorizontal: 16
+    },
+    contentCentered: {
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    primaryText: {
+        fontSize: 16,
+        fontWeight: "bold"
+    },
+    secondaryText: {
+        fontSize: 12,
+        color: "gray"
     },
 })

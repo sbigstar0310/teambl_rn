@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import {Linking, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 const POLICY_LINKS = {
     PRIVACY: "https://grateful-steel-1e5.notion.site/Personal-Information-Terms-da10ebf1ada6470780d6ba9ab260916b",
