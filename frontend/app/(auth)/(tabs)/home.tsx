@@ -18,7 +18,7 @@ export default function HomeScreen() {
         onPress={() => router.push("/notification")}
       />
       <Button title="Go to Settings" onPress={() => router.push("/settings")} />
-      <Button title="Go to Profile" onPress={() => router.push("/profile")} />
+      <Button title="Go to Profile" onPress={() => router.push("/profiles")} />
       <Button title="Go to Search" onPress={() => router.push("/search")} />
       <Button
         title="Go to Messages Inbox"
