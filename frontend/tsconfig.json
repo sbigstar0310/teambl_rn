@@ -6,10 +6,7 @@
       "@/*": ["./*"],
       "@/app/(auth)/*": ["./app/(auth)/*"] // 괄호 포함 경로 지원
     },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./types"
-    ],
+    "typeRoots": ["./node_modules/@types", "./types"],
     "module": "es2022",
     "target": "es2022",
     "moduleResolution": "node",
