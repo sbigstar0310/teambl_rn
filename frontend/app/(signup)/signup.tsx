@@ -8,12 +8,12 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
-import { sharedStyles } from "./_layout";
+import { sharedStyles } from "../_layout";
 import PrimeButton from "@/components/PrimeButton";
 import SuccessMark from "@/assets/successExclamation.svg";
 import ErrorMark from "@/assets/errorExclamation.svg";
 
-const ResetPasswordScreen = () => {
+const SignUpScreen = () => {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -49,7 +49,7 @@ const ResetPasswordScreen = () => {
 
     console.log("비밀번호 재설정: ", newPassword);
     // API 요청 추가 예정
-    router.push("/login");
+    router.push("/profileCreateForm");
   };
 
   const getCodeConfirmText = (isVerified: Boolean, isActive: Boolean) => {
@@ -81,7 +81,7 @@ const ResetPasswordScreen = () => {
       <ScreenHeader />
 
       {/* Title */}
-      <Text style={styles.title}>비밀번호 재설정</Text>
+      <Text style={styles.title}>회원가입</Text>
 
       {/* 이메일 입력 */}
       <Text style={styles.label}>학교 이메일</Text>
@@ -245,4 +245,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ResetPasswordScreen;
+export default SignUpScreen;
