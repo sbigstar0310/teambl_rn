@@ -1,4 +1,3 @@
-// app/auth/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
 import { Text, View } from 'react-native';
 import HomeIcon from '@/assets/bottomtab/HomeIcon.svg';
@@ -16,6 +15,7 @@ const TabsLayout = () => {
         headerShown: false,
         tabBarStyle: {
           height: 54,
+          backgroundColor: '#fff',
         },
         tabBarIcon: ({ focused }) => {
           switch (route.name) {
