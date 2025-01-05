@@ -25,7 +25,7 @@ const TabsLayout = () => {
               return focused ? <ProjIconActive width={24} height={24} /> : <ProjIcon width={24} height={24} />;
             case 'search':
               return focused ? <SearchIconActive width={20} height={20} /> : <SearchIcon width={20} height={20} />;
-            case 'profile':
+            case 'myprofile':
               return (
                 <View
                   style={{
@@ -49,7 +49,7 @@ const TabsLayout = () => {
             {route.name === "home" && "홈"}
             {route.name === "projects" && "프로젝트"}
             {route.name === "search" && "탐색"}
-            {route.name === "profile" && "마이페이지"}
+            {route.name === "myprofile" && "마이페이지"}
           </Text>
         ),
       })}
@@ -57,7 +57,7 @@ const TabsLayout = () => {
       <Tabs.Screen name="home"/>
       <Tabs.Screen name="projects"/>
       <Tabs.Screen name="search"/>
-      <Tabs.Screen name="profile"/>
+      <Tabs.Screen name="myprofile"/>
     </Tabs>
   );
 };

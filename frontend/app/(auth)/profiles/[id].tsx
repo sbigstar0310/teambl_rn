@@ -11,7 +11,7 @@ export default function ProfileView() {
     const myId = "1"; // TODO: get my id from the auth context
     
     if (id === myId) {
-        router.replace("/profiles/myprofile");
+        router.replace("../(tabs)/myprofile");
         return null;
     } else {
         return (
