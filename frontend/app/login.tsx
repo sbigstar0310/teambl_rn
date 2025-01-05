@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -17,15 +17,17 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
   const [showWarning, setShowWarning] = useState(false);
   const [isLoginButtonActive, setIsLoginButtonActive] = useState(false);
+
   const handleLogin = async () => {
-    router.push("/login");
+    router.push("/home");
   };
 
   const checkPasswordCorrect = async (password: String) => {
     if (email.length > 0 && password.length > 0) {
-      setShowWarning(true);
-    } else {
+      setIsLoginButtonActive(true);
       setShowWarning(false);
+    } else {
+      setShowWarning(true);
     }
   };
 
@@ -74,12 +76,17 @@ const LoginScreen = () => {
       <PrimeButton
         text="로그인"
         onClickCallback={handleLogin}
-        isActive={false}
+        isActive={isLoginButtonActive}
         isLoading={false}
       />
 
       {/* 비밀번호 재설정 */}
-      <TouchableOpacity style={styles.resetPassword}>
+      <TouchableOpacity
+        style={styles.resetPassword}
+        onPress={() => {
+          router.push("/resetPassword"); // 경로 이동
+        }}
+      >
         <Text style={styles.resetPasswordText}>비밀번호 재설정</Text>
       </TouchableOpacity>
     </View>
