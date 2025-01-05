@@ -1,18 +1,10 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {Alert, StyleSheet, Text, TextInput, View} from 'react-native';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
-import ConfirmPopUp from './ConfirmPopUp';
-import MessagePopUp from './MessagePopUp';
 import PrimeButton from './PrimeButton';
-
-// Define navigation type
-type RootStackParamList = {
-  Login: undefined;
-};
+import {router} from "expo-router";
+import Popup from "@/components/Popup";
 
 const DeleteUser: React.FC = () => {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
     const [passwd, setPasswd] = useState<string>("");
     const [isPrevPasswdValid, setIsPrevPasswdValid] = useState<boolean | null>(null);
     const [isPasswordVerificationLoading, setIsPasswordVerificationLoading] = useState<boolean>(false);
@@ -26,8 +18,8 @@ const DeleteUser: React.FC = () => {
         if (isPrevPasswdValid === null) return "";
 
         return isPrevPasswdValid
-            ? { status: "good", message: "비밀번호가 일치합니다" }
-            : { status: "bad", message: "비밀번호가 일치하지 않습니다" };
+            ? {status: "good", message: "비밀번호가 일치합니다"}
+            : {status: "bad", message: "비밀번호가 일치하지 않습니다"};
     }, [passwd, isLoading, isPasswordVerificationLoading, isPrevPasswdValid]);
 
     /** Check password */
@@ -63,7 +55,7 @@ const DeleteUser: React.FC = () => {
             // Simulate API call
             setTimeout(() => {
                 Alert.alert("성공", "회원 탈퇴가 완료되었습니다.");
-                navigation.navigate("Login"); // Navigate to Login screen
+                router.push("/login");
             }, 1000);
         } catch (error) {
             console.error("회원 탈퇴 오류:", error);
@@ -105,67 +97,63 @@ const DeleteUser: React.FC = () => {
                 onClickCallback={deleteUserWrapper}
                 isActive={!(isLoading || isPasswordVerificationLoading)}
                 isLoading={isLoading || isPasswordVerificationLoading}
-                styleOv={{ marginTop: 18 }}
+                styleOv={{marginTop: 18}}
             />
 
             {/* Confirmation Modal */}
-            <ConfirmPopUp
-                isOpen={isConfirmModalOpen}
-                setIsOpen={setIsConfirmModalOpen}
-                message="정말 회원 탈퇴하시겠어요?"
+            <Popup
+                title="정말 회원 탈퇴하시겠어요?"
+                isVisible={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
                 onConfirm={async () => {
                     setIsConfirmModalOpen(false);
                     await deleteUser();
                 }}
-                onReject={() => setIsConfirmModalOpen(false)}
-                confirmLabel="확인"
-                rejectLabel="취소"
             />
-
             {/* Failure Message */}
-            {isFailModalOpen && (
-                <MessagePopUp
-                    setIsOpen={setIsFailModalOpen}
-                    message="회원 탈퇴에 실패했어요."
-                    subMessages={["서버 상의", "오류가 발생했습니다."]}
-                />
-            )}
+            <Popup
+                title="회원 탈퇴에 실패했어요."
+                description="서버 상의 오류가 발생했습니다."
+                isVisible={isFailModalOpen}
+                onClose={() => setIsFailModalOpen(false)}
+                closeLabel="확인"
+            />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    color: '#121212',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    backgroundColor: '#f5f5f5',
-  },
-  infoMessage: {
-    marginTop: 8,
-    fontSize: 12,
-  },
-  good: {
-    color: 'green',
-  },
-  bad: {
-    color: 'red',
-  },
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#fff',
+    },
+    inputContainer: {
+        marginBottom: 16,
+    },
+    inputLabel: {
+        fontSize: 14,
+        color: '#121212',
+        marginBottom: 8,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        fontSize: 16,
+        backgroundColor: '#f5f5f5',
+    },
+    infoMessage: {
+        marginTop: 8,
+        fontSize: 12,
+    },
+    good: {
+        color: 'green',
+    },
+    bad: {
+        color: 'red',
+    },
 });
 
 export default DeleteUser;

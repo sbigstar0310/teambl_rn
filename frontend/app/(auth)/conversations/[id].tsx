@@ -1,33 +1,45 @@
 import {Image, Text, TouchableOpacity, View} from "react-native";
 import {sharedStyles} from "@/app/_layout";
-import {useLocalSearchParams} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {useEffect, useState} from "react";
 import {mockConversation1} from "@/shared/mock-data";
 import {combineUserDetails, shorten} from "@/shared/utils";
+import Popup from "@/components/Popup";
 
 export default function Conversation() {
     const {id} = useLocalSearchParams();
     const [conversation, setConversation] = useState<api.Conversation>();
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
 
     useEffect(() => {
         // TODO: fetch conversation data from api
         setConversation(mockConversation1);
     }, []);
 
+    const handleExitButtonPress = () => setIsPopupVisible(true);
     const handleExit = () => {
+        // TODO: make api to request and exit the chat
+        router.back();
     }
 
     return (
         <View style={sharedStyles.container}>
             <ScreenHeader
                 title={() => <ConversationHeaderTitle conversation={conversation}/>}
-                actionButton={() => <ExitConversationButton onPress={handleExit}/>}
+                actionButton={() => <ExitConversationButton onPress={handleExitButtonPress}/>}
             />
             <View>
                 {/*    Messages list */}
                 {/*    Input */}
             </View>
+            <Popup
+                title="대화창을 나가겠습니까?"
+                description="대화창에서 나가면 이전 대화 내용들은 삭제 됩니다."
+                isVisible={isPopupVisible}
+                onClose={() => setIsPopupVisible(false)}
+                onConfirm={handleExit}
+            />
         </View>
     )
 }
