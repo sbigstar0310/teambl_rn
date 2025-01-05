@@ -14,7 +14,7 @@ export default function RootLayout() {
 export const sharedStyles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
     },
     horizontalPadding: {
         paddingHorizontal: 16
