@@ -31,4 +31,7 @@ export const sharedStyles = StyleSheet.create({
         fontSize: 12,
         color: "gray"
     },
+    rounded: {
+        borderRadius: 500
+    },
 })
