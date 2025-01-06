@@ -7,6 +7,8 @@ import {
   Keyboard,
   Dimensions,
 } from "react-native";
+import ModalTopBar from "@/assets/modal-top-bar.svg";
+import { sharedStyles } from "@/app/_layout";
 
 interface BottomModalProps {
   visible: boolean;
@@ -40,6 +42,7 @@ const BottomModal: React.FC<BottomModalProps> = ({
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
             <View style={[styles.modalContainer, { height: modalHeight }]}>
+              <ModalTopBar style={[styles.modalTopBar]} />
               {body}
             </View>
           </TouchableWithoutFeedback>
@@ -50,6 +53,12 @@ const BottomModal: React.FC<BottomModalProps> = ({
 };
 
 const styles = StyleSheet.create({
+  modalTopBar: {
+    width: 40,
+    height: 4,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
   overlay: {
     flex: 1,
     justifyContent: "flex-end",
@@ -61,6 +70,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,
+    paddingHorizontal: 32,
   },
 });
 

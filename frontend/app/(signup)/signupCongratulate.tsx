@@ -1,10 +1,16 @@
 import { Button, StyleSheet, Text, View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { sharedStyles } from "@/app/_layout";
 import PrimeButton from "@/components/PrimeButton";
 
-export default function SignUpCongradulateScreen() {
-  // 로그인 이동 콜백
+// 화면 컴포넌트
+const SignUpCongradulateScreen = () => {
+  const params = useLocalSearchParams(); // params 가져오기
+  const profile = params.profile
+    ? JSON.parse(params.profile as string) // JSON 문자열 변환
+    : null;
+
+  // 홈 이동 콜백
   const goHome = async () => {
     router.push("/home");
   };
@@ -18,7 +24,9 @@ export default function SignUpCongradulateScreen() {
       ]}
     >
       {/* Title */}
-      <Text style={[styles.title, styles.paddingHorizontal20]}>김희수님,</Text>
+      <Text style={[styles.title, styles.paddingHorizontal20]}>
+        {profile.user_name}님,
+      </Text>
       <Text style={[styles.title, styles.paddingHorizontal20]}>
         가입을 축하합니다!
       </Text>
@@ -35,7 +43,12 @@ export default function SignUpCongradulateScreen() {
       </Text>
 
       {/* Additional Profile */}
-      <Text style={styles.addProfileText}>프로필 추가로 작성하기</Text>
+      <Text
+        style={styles.addProfileText}
+        onPress={() => router.push("/profileCreateForm")}
+      >
+        프로필 추가로 작성하기
+      </Text>
 
       {/* Button */}
       <PrimeButton
@@ -46,7 +59,7 @@ export default function SignUpCongradulateScreen() {
       />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   // Title 스타일
@@ -101,3 +114,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
+
+export default SignUpCongradulateScreen;

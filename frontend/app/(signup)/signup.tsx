@@ -12,6 +12,7 @@ import { sharedStyles } from "../_layout";
 import PrimeButton from "@/components/PrimeButton";
 import SuccessMark from "@/assets/successExclamation.svg";
 import ErrorMark from "@/assets/errorExclamation.svg";
+import ConfirmText from "@/components/ConfirmText";
 
 const SignUpScreen = () => {
   const [email, setEmail] = useState("");
@@ -52,131 +53,106 @@ const SignUpScreen = () => {
     router.push("/profileCreateForm");
   };
 
-  const getCodeConfirmText = (isVerified: Boolean, isActive: Boolean) => {
-    // Make it as a empty text
-    if (!isActive) {
-      return <></>;
-    }
-
-    if (isVerified) {
-      return (
-        <>
-          <SuccessMark />
-          <Text> 인증코드가 일치합니다.</Text>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <ErrorMark />
-          <Text> 인증코드가 일치하지 않습니다.</Text>
-        </>
-      );
-    }
-  };
-
   return (
-    <View style={[sharedStyles.container, sharedStyles.horizontalPadding]}>
+    <View style={sharedStyles.container}>
       {/* Shared Header */}
       <ScreenHeader />
 
-      {/* Title */}
-      <Text style={styles.title}>회원가입</Text>
+      <View style={sharedStyles.horizontalPadding}>
+        {/* Title */}
+        <Text style={styles.title}>회원가입</Text>
 
-      {/* 이메일 입력 */}
-      <Text style={styles.label}>학교 이메일</Text>
-      <View style={styles.inputRow}>
-        <TextInput
-          style={[styles.input, styles.emailInput]}
-          placeholder="이메일 입력"
-          placeholderTextColor="#A8A8A8"
-          value={email}
-          onChangeText={setEmail}
+        {/* 이메일 입력 */}
+        <Text style={styles.label}>학교 이메일</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, styles.emailInput]}
+            placeholder="이메일 입력"
+            placeholderTextColor="#A8A8A8"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <PrimeButton
+            text="인증코드 받기"
+            onClickCallback={sendCode}
+            isActive={email.length > 0}
+            isLoading={false}
+            styleOv={styles.smallButton}
+          ></PrimeButton>
+        </View>
+
+        {/* Margin 8 */}
+        <View style={styles.marginTop8} />
+
+        {/* 인증코드 입력 */}
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, styles.emailInput]}
+            placeholder="인증코드 입력"
+            placeholderTextColor="#A8A8A8"
+            value={code}
+            onChangeText={setCode}
+          />
+          <PrimeButton
+            text="인증코드 확인"
+            onClickCallback={verifyCode}
+            isActive={code.length > 0}
+            isLoading={false}
+            styleOv={styles.smallButton}
+          ></PrimeButton>
+        </View>
+
+        {/* 인증코드 확인 */}
+        <ConfirmText
+          isVerified={codeIsVerified}
+          isActive={email.length > 0 && code.length > 0}
+          successText="인증코드가 일치합니다"
+          errorText="인증코드가 일치하지 않습니다."
         />
+
+        {/* 비밀번호 입력 */}
+        <Text style={styles.label}>비밀번호</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, styles.emailInput]}
+            placeholder="새 비밀번호 입력"
+            placeholderTextColor="#A8A8A8"
+            secureTextEntry
+            value={newPassword}
+            onChangeText={setNewPassword}
+          />
+        </View>
+
+        {/* Margin 8 */}
+        <View style={styles.marginTop8} />
+
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, styles.emailInput]}
+            placeholder="새 비밀번호 확인"
+            placeholderTextColor="#A8A8A8"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+        </View>
+
+        {/* 비밀번호 확인 */}
+        <ConfirmText
+          isVerified={passwordIsVerified}
+          isActive={newPassword.length > 0 && confirmPassword.length > 0}
+          successText="비밀번호가 일치합니다"
+          errorText="비밀번호가 일치하지 않습니다."
+        />
+
+        {/* 재설정 버튼 */}
         <PrimeButton
-          text="인증코드 받기"
-          onClickCallback={sendCode}
-          isActive={email.length > 0}
+          text="재설정"
+          onClickCallback={resetPassword}
+          isActive={codeIsVerified && passwordIsVerified}
           isLoading={false}
-          styleOv={styles.smallButton}
         ></PrimeButton>
       </View>
-
-      {/* Margin 8 */}
-      <View style={styles.marginTop8} />
-
-      {/* 인증코드 입력 */}
-      <View style={styles.inputRow}>
-        <TextInput
-          style={[styles.input, styles.emailInput]}
-          placeholder="인증코드 입력"
-          placeholderTextColor="#A8A8A8"
-          value={code}
-          onChangeText={setCode}
-        />
-        <PrimeButton
-          text="인증코드 확인"
-          onClickCallback={verifyCode}
-          isActive={code.length > 0}
-          isLoading={false}
-          styleOv={styles.smallButton}
-        ></PrimeButton>
-      </View>
-
-      {/* Code Confirm Text */}
-      <Text
-        style={[
-          styles.confirmText,
-          codeIsVerified ? styles.successText : styles.errorText,
-        ]}
-      >
-        {getCodeConfirmText(codeIsVerified, code.length > 0)}
-      </Text>
-
-      {/* 비밀번호 입력 */}
-      <Text style={styles.label}>비밀번호</Text>
-      <View style={styles.inputRow}>
-        <TextInput
-          style={[styles.input, styles.emailInput]}
-          placeholder="새 비밀번호 입력"
-          placeholderTextColor="#A8A8A8"
-          secureTextEntry
-          value={newPassword}
-          onChangeText={setNewPassword}
-        />
-      </View>
-
-      {/* Margin 8 */}
-      <View style={styles.marginTop8} />
-
-      <View style={styles.inputRow}>
-        <TextInput
-          style={[styles.input, styles.emailInput]}
-          placeholder="새 비밀번호 확인"
-          placeholderTextColor="#A8A8A8"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-      </View>
-
-      {/* Code Confirm Text */}
-      <Text
-        style={[
-          styles.confirmText,
-          passwordIsVerified ? styles.successText : styles.errorText,
-        ]}
-      >
-        {getCodeConfirmText(passwordIsVerified, newPassword.length > 0)}
-      </Text>
-
-      {/* 재설정 버튼 */}
-      <PrimeButton
-        text="재설정"
-        onClickCallback={resetPassword}
-        isActive={codeIsVerified && passwordIsVerified}
-        isLoading={false}
-      ></PrimeButton>
     </View>
   );
 };
