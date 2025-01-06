@@ -34,4 +34,7 @@ export const sharedStyles = StyleSheet.create({
     rounded: {
         borderRadius: 500
     },
+    roundedSm: {
+        borderRadius: 5
+    }
 })

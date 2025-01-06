@@ -58,7 +58,6 @@ export default function Conversation() {
                 {/*    Messages list */}
                 <FlatList
                     ref={listRef}
-                    style={sharedStyles.horizontalPadding}
                     contentContainerStyle={styles.listContainer}
                     data={messages}
                     keyExtractor={(_, i) => i.toString()}
@@ -139,7 +138,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     listContainer: {
-        gap: 4
+        gap: 4,
+        paddingHorizontal: 8
     },
     body: {
         justifyContent: "space-between",
