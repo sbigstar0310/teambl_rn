@@ -30,8 +30,8 @@ export default function ProfileCreateFormScreen() {
   };
 
   // 로그인 이동 콜백
-  const handleSignUp = async () => {
-    router.push("/signup");
+  const handleCreateProfile = async () => {
+    router.push("/congratulate");
   };
 
   return (
@@ -95,7 +95,7 @@ export default function ProfileCreateFormScreen() {
       {/* Button */}
       <PrimeButton
         text="완료"
-        onClickCallback={handleSignUp}
+        onClickCallback={handleCreateProfile}
         isActive={isProfileVerified}
         isLoading={false}
         styleOv={{ marginTop: 12 }}
