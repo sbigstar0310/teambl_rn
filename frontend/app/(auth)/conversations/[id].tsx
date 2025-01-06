@@ -47,6 +47,14 @@ export default function Conversation() {
         };
         setMessages((messages) => [...messages, newMessage]);
     }
+    const handleMessageDelete = (message: api.Message) => {
+        //     TODO: make api request about deleting message
+        const newMessages = messages.map((m) => {
+            if (m.id === message.id) return {...m, message: "메시지가 삭제되었습니다", image: undefined}
+            else return m;
+        })
+        setMessages(newMessages);
+    }
 
     return (
         <View style={sharedStyles.container}>
@@ -65,6 +73,7 @@ export default function Conversation() {
                         <Message
                             message={item}
                             isSentByMe={item.sender === myId}
+                            onDelete={() => handleMessageDelete(item)}
                         />
                     }
                     ListEmptyComponent={NoMessagesFound}
