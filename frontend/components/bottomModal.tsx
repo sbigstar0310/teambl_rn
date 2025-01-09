@@ -6,22 +6,48 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Dimensions,
+  ViewStyle,
 } from "react-native";
-import ModalTopBar from "@/assets/modal-top-bar.svg";
+import ModalTopBarImage from "@/assets/modal-top-bar.svg";
 import { sharedStyles } from "@/app/_layout";
+import styled from "@emotion/native";
 
 interface BottomModalProps {
   visible: boolean;
   onClose: () => void;
   heightPercentage?: number; // Height as a percentage of screen height (default: 33%)
   body: React.ReactNode;
+  style?: ViewStyle;
 }
+
+const Overlay = styled(View)`
+  flex: 1;
+  justify-content: flex-end;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const ModalContainer = styled(View)`
+  width: 100%;
+  background-color: white;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 16px;
+  padding-horizontal: 32px;
+`;
+
+const ModalTopBar = styled(ModalTopBarImage)`
+  width: 40px;
+  height: 4px;
+  align-self: center;
+  margin-bottom: 16px;
+`;
 
 const BottomModal: React.FC<BottomModalProps> = ({
   visible,
   onClose,
   heightPercentage = 0.33,
   body,
+  style,
 }) => {
   const screenHeight = Dimensions.get("window").height;
   const modalHeight = screenHeight * heightPercentage;
@@ -37,41 +63,20 @@ const BottomModal: React.FC<BottomModalProps> = ({
       animationType="slide"
       visible={visible}
       onRequestClose={handleClose}
+      style={style}
     >
       <TouchableWithoutFeedback onPress={handleClose}>
-        <View style={styles.overlay}>
+        <Overlay>
           <TouchableWithoutFeedback>
-            <View style={[styles.modalContainer, { height: modalHeight }]}>
-              <ModalTopBar style={[styles.modalTopBar]} />
+            <ModalContainer style={{ height: modalHeight }}>
+              <ModalTopBar />
               {body}
-            </View>
+            </ModalContainer>
           </TouchableWithoutFeedback>
-        </View>
+        </Overlay>
       </TouchableWithoutFeedback>
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  modalTopBar: {
-    width: 40,
-    height: 4,
-    alignSelf: "center",
-    marginBottom: 16,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    width: "100%",
-    backgroundColor: "white",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: 16,
-    paddingHorizontal: 32,
-  },
-});
 
 export default BottomModal;

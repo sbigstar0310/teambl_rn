@@ -8,18 +8,15 @@ export default function HomeScreen() {
   return (
     <>
       <Header />
-      <View
-        style={[
-          sharedStyles.container,
-          sharedStyles.contentCentered,
-        ]}
-      >
-        <ScrollView style={{ 
-          width: "100%", 
-          borderTopWidth: 4,
-          borderColor: '#F5F5F5',
-          padding: 16,
-        }}>
+      <View style={[sharedStyles.container, sharedStyles.contentCentered]}>
+        <ScrollView
+          style={{
+            width: "100%",
+            borderTopWidth: 4,
+            borderColor: "#F5F5F5",
+            padding: 16,
+          }}
+        >
           <Text>Home Screen</Text>
           <Button
             title="Go to Notification"
@@ -85,6 +82,11 @@ export default function HomeScreen() {
             title="Go to Profile"
             onPress={() => router.push("/profiles")}
           />
+          <Button
+            title="Go to Profile Create Form"
+            onPress={() => router.push("/profileCreateForm")}
+          />
+
           <Button title="Go to Search" onPress={() => router.push("/search")} />
           <Button
             title="Go to Messages Inbox"

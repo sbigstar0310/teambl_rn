@@ -12,6 +12,10 @@ import PrimeButton from "@/components/PrimeButton";
 import React, { useState, useEffect } from "react";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import BottomModal from "@/components/BottomModal";
+import DegreeBottomModal from "@/components/DegreeBottomModal";
+import MajorBottomModal from "@/components/MajorBottomModal";
+import MajorSelectedItem from "@/components/MajorSelectedItem";
+import MajorSearchInput from "@/components/MajorSearchInput";
 
 export default function ProfileCreateFormScreen() {
   const [profile, setProfile] = useState<api.Profile>({
@@ -47,7 +51,8 @@ export default function ProfileCreateFormScreen() {
   }, [profile]);
 
   const verifyProfile = () => {
-    const { user_name, school, current_academic_degree, major1 } = profile;
+    const { user_name, school, current_academic_degree, major1, major2 } =
+      profile;
     setIsProfileVerified(
       user_name.length > 0 &&
         school.length > 0 &&
@@ -62,6 +67,43 @@ export default function ProfileCreateFormScreen() {
       params: { profile: JSON.stringify(profile) },
     });
   };
+
+  const handleMajorSelect = (major: string) => {
+    let currentMajors = [profile.major1];
+
+    if (profile.major2) {
+      currentMajors.push(profile.major2);
+    }
+
+    if (currentMajors.includes(major)) {
+      // Remove the major if it's already selected
+      currentMajors = currentMajors.filter((m) => m !== major);
+    } else {
+      // Add the new major
+      currentMajors.unshift(major);
+
+      // Ensure only two majors are selected
+      if (currentMajors.length > 2) {
+        currentMajors.pop(); // Remove the oldest selected major
+      }
+    }
+
+    // Update the profile state
+    handleSelect("major1", currentMajors[0]);
+    handleSelect("major2", currentMajors[1] || "");
+  };
+
+  const handleMajorRemove = (major: string) => {
+    if (profile.major1 === major) {
+      handleSelect("major1", "");
+    } else if (profile.major2 === major) {
+      handleSelect("major2", "");
+    }
+  };
+
+  const selectedMajors = [profile.major1, profile.major2]
+    .filter((major) => major !== "")
+    .filter((major) => major !== undefined);
 
   return (
     <View style={sharedStyles.container}>
@@ -116,14 +158,11 @@ export default function ProfileCreateFormScreen() {
 
         {/* Major */}
         <Text style={styles.semiTitle}>전공</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="전공 검색"
-          placeholderTextColor="#A8A8A8"
-          value={profile.major1}
+        <MajorSearchInput
+          selectedMajors={selectedMajors}
           onPress={() => toggleModal("major")}
-          readOnly={true}
-        ></TextInput>
+          onRemove={handleMajorRemove}
+        />
 
         {/* Button */}
         <PrimeButton
@@ -131,112 +170,25 @@ export default function ProfileCreateFormScreen() {
           onClickCallback={handleCreateProfile}
           isActive={isProfileVerified}
           isLoading={false}
-          styleOv={{ marginTop: 12 }}
+          styleOv={{ marginTop: 32 }}
         />
 
         {/* Current Degree BottomModal */}
-        <BottomModal
+        <DegreeBottomModal
+          handleDegreeSelect={(degree: string) =>
+            handleSelect("current_academic_degree", degree)
+          }
+          selectedDegree={profile.current_academic_degree}
           visible={currentDegreeModalVisible}
           onClose={() => toggleModal("degree")}
-          heightPercentage={0.3} // 모달 높이 비율
-          body={
-            <View>
-              {/* 제목과 설명 */}
-              <View style={[styles.hStack, styles.marginBottom32]}>
-                <Text
-                  style={{
-                    fontFamily: "pretendard",
-                    fontSize: 18,
-                    fontWeight: "medium",
-                    letterSpacing: -0.38,
-                    marginRight: 16,
-                  }}
-                >
-                  재학 과정
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "pretendard",
-                    fontSize: 12,
-                    fontWeight: "regular",
-                    letterSpacing: -0.38,
-                  }}
-                >
-                  현재 재학 중인 과정을 선택해 주세요.
-                </Text>
-              </View>
-
-              {/* 선택 옵션 */}
-              <View style={styles.vStack}>
-                {["학사", "석사", "박사"].map((option) => (
-                  <View key={option} style={styles.optionContainer}>
-                    <TouchableOpacity
-                      style={[
-                        styles.circle,
-                        {
-                          borderColor:
-                            profile["current_academic_degree"] === option
-                              ? "#A8A8A8"
-                              : "#E0E0E0",
-                          backgroundColor:
-                            profile["current_academic_degree"] === option
-                              ? "#4CAF50"
-                              : "transparent",
-                        },
-                      ]}
-                      onPress={() =>
-                        handleSelect("current_academic_degree", option)
-                      }
-                    >
-                      {profile["current_academic_degree"] === option && (
-                        <View style={styles.innerCircle} />
-                      )}
-                    </TouchableOpacity>
-                    <Text style={styles.optionalSemiTitle}>{option}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          }
         />
 
         {/* Major BottomModal */}
-        <BottomModal
+        <MajorBottomModal
           visible={majorModalVisible}
           onClose={() => toggleModal("major")}
-          heightPercentage={0.3}
-          body={
-            <View>
-              <Text style={styles.semiTitle}>전공 선택</Text>
-              <View style={styles.vStack}>
-                {["전산학부", "전자공학과", "생명공학과"].map((option) => (
-                  <View key={option} style={styles.optionContainer}>
-                    <TouchableOpacity
-                      style={[
-                        styles.circle,
-                        {
-                          borderColor:
-                            profile["major1"] === option
-                              ? "#A8A8A8"
-                              : "#E0E0E0",
-                          backgroundColor:
-                            profile["major1"] === option
-                              ? "#4CAF50"
-                              : "transparent",
-                        },
-                      ]}
-                      onPress={() => handleSelect("major1", option)}
-                    >
-                      {profile["major1"] === option && (
-                        <View style={styles.innerCircle} />
-                      )}
-                    </TouchableOpacity>
-                    <Text style={styles.optionalSemiTitle}>{option}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          }
+          handleMajorSelect={handleMajorSelect}
+          selectedMajors={[profile.major1, profile.major2 || ""]}
         />
       </View>
     </View>
