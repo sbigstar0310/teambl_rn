@@ -27,21 +27,27 @@ type Props = {
 const Title = styled.Text`
   font-family: "pretendard";
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.38px;
   margin-right: 16px;
 `;
 
-const Description = styled.Text`
-  font-family: "pretendard";
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: -0.38px;
+const MajorSearchInput = styled.View`
+  flex-direction: row;
+  align-items: center;
+  height: 40px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  padding-horizontal: 12px;
+  gap: 12px;
 `;
 
-const DegreeText = styled.Text`
-  margin-left: 8px;
-  font-size: 14px;
+const MajorSearchResult = styled.View`
+  flex-direction: row;
+  gap: 8px;
+  flex-wrap: wrap;
+  height: 80px;
+  margin-vertical: 16px;
 `;
 
 const MajorBottomModal: React.FC<Props> = ({
@@ -49,36 +55,34 @@ const MajorBottomModal: React.FC<Props> = ({
   visible,
   onClose,
   selectedMajors,
+  heightPercentage,
   style,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const majors = ["전산학부", "전자공학과", "수리과학부", "산업및시스템공학과"];
 
   const body = (
-    <View>
+    <View style={[style]}>
       {/* Title and Description */}
       <View style={{ marginBottom: 12 }}>
         <Title>전공</Title>
       </View>
 
       {/* 검색창 */}
-      <View style={styles.optionContainer}>
-        <TouchableOpacity>
-          <SearchIcon />
-        </TouchableOpacity>
+      <MajorSearchInput>
+        <SearchIcon width={15} height={15} />
         <TextInput
           placeholder={"전공을 검색해주세요"}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-      </View>
+      </MajorSearchInput>
 
       {/* 검색 결과 */}
-      <View
-        style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", height: 80 }}
-      >
+      <MajorSearchResult>
         {majors
           .filter((major) => major.includes(searchQuery))
+          .slice(0, 4)
           .map((major) => (
             <MajorItem
               key={major}
@@ -89,7 +93,7 @@ const MajorBottomModal: React.FC<Props> = ({
               isSelected={selectedMajors.includes(major)}
             />
           ))}
-      </View>
+      </MajorSearchResult>
 
       {/* 선택 완료 버튼 */}
       <PrimeButton
@@ -106,20 +110,17 @@ const MajorBottomModal: React.FC<Props> = ({
     </View>
   );
 
-  return <BottomModal visible={visible} onClose={onClose} body={body} />;
+  return (
+    <BottomModal
+      visible={visible}
+      onClose={onClose}
+      body={body}
+      heightPercentage={heightPercentage}
+    />
+  );
 };
 
 const styles = StyleSheet.create({
-  hStack: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  marginBottom32: {
-    marginBottom: 32,
-  },
-  vStack: {
-    flexDirection: "column",
-  },
   optionContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -127,24 +128,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
     padding: 10,
     gap: 5,
-  },
-  circle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  innerCircle: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#4CAF50",
-  },
-  optionalSemiTitle: {
-    marginLeft: 8,
-    fontSize: 14,
   },
 });
 

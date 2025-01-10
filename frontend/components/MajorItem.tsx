@@ -20,7 +20,7 @@ const Container = styled.Pressable`
 const MajorText = styled.Text`
   font-family: "pretendard";
   font-size: 18px;
-  font-weight: 600;
+  font-weight: medium;
   letter-spacing: -0.38px;
 `;
 

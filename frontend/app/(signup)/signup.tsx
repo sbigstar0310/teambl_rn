@@ -145,9 +145,9 @@ const SignUpScreen = () => {
           errorText="비밀번호가 일치하지 않습니다."
         />
 
-        {/* 재설정 버튼 */}
+        {/* 다음 버튼 */}
         <PrimeButton
-          text="재설정"
+          text="다음"
           onClickCallback={resetPassword}
           isActive={codeIsVerified && passwordIsVerified}
           isLoading={false}

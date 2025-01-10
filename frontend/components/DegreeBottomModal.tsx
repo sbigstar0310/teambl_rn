@@ -45,6 +45,7 @@ const DegreeBottomModal: React.FC<Props> = ({
   selectedDegree,
   visible,
   onClose,
+  heightPercentage,
   style,
 }) => {
   const degree_options = ["학사", "석사", "박사"];
@@ -73,7 +74,14 @@ const DegreeBottomModal: React.FC<Props> = ({
     </View>
   );
 
-  return <BottomModal visible={visible} onClose={onClose} body={body} />;
+  return (
+    <BottomModal
+      visible={visible}
+      onClose={onClose}
+      body={body}
+      heightPercentage={heightPercentage}
+    />
+  );
 };
 
 const styles = StyleSheet.create({

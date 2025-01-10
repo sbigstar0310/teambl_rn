@@ -7,6 +7,7 @@ import {
   Keyboard,
   Dimensions,
   ViewStyle,
+  useWindowDimensions,
 } from "react-native";
 import ModalTopBarImage from "@/assets/modal-top-bar.svg";
 import { sharedStyles } from "@/app/_layout";
@@ -45,12 +46,12 @@ const ModalTopBar = styled(ModalTopBarImage)`
 const BottomModal: React.FC<BottomModalProps> = ({
   visible,
   onClose,
-  heightPercentage = 0.33,
+  heightPercentage = 0.4,
   body,
   style,
 }) => {
-  const screenHeight = Dimensions.get("window").height;
-  const modalHeight = screenHeight * heightPercentage;
+  const { width, height } = useWindowDimensions();
+  const modalHeight = height * heightPercentage;
 
   const handleClose = () => {
     Keyboard.dismiss();

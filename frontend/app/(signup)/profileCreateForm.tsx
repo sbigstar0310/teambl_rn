@@ -1,5 +1,6 @@
 import {
   Button,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -22,7 +23,7 @@ export default function ProfileCreateFormScreen() {
     user_name: "",
     school: "",
     current_academic_degree: "",
-    year: 2024,
+    year: 2025,
     major1: "",
     major2: "",
     introduction: "",
@@ -34,7 +35,7 @@ export default function ProfileCreateFormScreen() {
     useState(false);
   const [majorModalVisible, setMajorModalVisible] = useState(false);
 
-  const handleSelect = (field: keyof api.Profile, value: string) => {
+  const handleSelect = (field: keyof api.Profile, value: string | number) => {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -136,14 +137,15 @@ export default function ProfileCreateFormScreen() {
 
         {/* Current Degree */}
         <Text style={styles.semiTitle}>재학 과정</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="재학 과정 선택"
-          placeholderTextColor="#A8A8A8"
-          value={profile.current_academic_degree}
-          onPress={() => toggleModal("degree")}
-          readOnly={true}
-        ></TextInput>
+        <Pressable onPress={() => toggleModal("degree")}>
+          <TextInput
+            style={styles.input}
+            placeholder="재학 과정 선택"
+            placeholderTextColor="#A8A8A8"
+            value={profile.current_academic_degree}
+            editable={false} // Prevent user editing
+          />
+        </Pressable>
 
         {/* Year */}
         <Text style={styles.semiTitle}>입학년도</Text>
@@ -152,7 +154,7 @@ export default function ProfileCreateFormScreen() {
           placeholder="입학년도 입력 (4자리)"
           placeholderTextColor="#A8A8A8"
           value={profile.year.toString()}
-          onChangeText={(text) => handleSelect("year", text)}
+          onChangeText={(text) => handleSelect("year", parseInt(text))}
           keyboardType="numeric"
         ></TextInput>
 
@@ -160,6 +162,7 @@ export default function ProfileCreateFormScreen() {
         <Text style={styles.semiTitle}>전공</Text>
         <MajorSearchInput
           selectedMajors={selectedMajors}
+          placeholder="전공을 검색해주세요"
           onPress={() => toggleModal("major")}
           onRemove={handleMajorRemove}
         />
@@ -175,12 +178,13 @@ export default function ProfileCreateFormScreen() {
 
         {/* Current Degree BottomModal */}
         <DegreeBottomModal
+          visible={currentDegreeModalVisible}
+          onClose={() => toggleModal("degree")}
           handleDegreeSelect={(degree: string) =>
             handleSelect("current_academic_degree", degree)
           }
           selectedDegree={profile.current_academic_degree}
-          visible={currentDegreeModalVisible}
-          onClose={() => toggleModal("degree")}
+          heightPercentage={0.33}
         />
 
         {/* Major BottomModal */}
