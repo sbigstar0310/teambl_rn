@@ -1,16 +1,14 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import {
   Modal,
-  StyleSheet,
   View,
   TouchableWithoutFeedback,
   Keyboard,
+  Animated,
   Dimensions,
   ViewStyle,
-  useWindowDimensions,
 } from "react-native";
 import ModalTopBarImage from "@/assets/modal-top-bar.svg";
-import { sharedStyles } from "@/app/_layout";
 import styled from "@emotion/native";
 
 interface BottomModalProps {
@@ -21,13 +19,7 @@ interface BottomModalProps {
   style?: ViewStyle;
 }
 
-const Overlay = styled(View)`
-  flex: 1;
-  justify-content: flex-end;
-  background-color: rgba(0, 0, 0, 0.5);
-`;
-
-const ModalContainer = styled(View)`
+const ModalContainer = styled(Animated.View)`
   width: 100%;
   background-color: white;
   border-top-left-radius: 16px;
@@ -50,31 +42,91 @@ const BottomModal: React.FC<BottomModalProps> = ({
   body,
   style,
 }) => {
-  const { width, height } = useWindowDimensions();
+  const { height } = Dimensions.get("window");
   const modalHeight = height * heightPercentage;
+
+  const overlayOpacity = useRef(new Animated.Value(0)).current; // Overlay opacity animation
+  const translateY = useRef(new Animated.Value(height)).current; // Container slide animation
+
+  useEffect(() => {
+    if (visible) {
+      // Show modal with animations
+      Animated.parallel([
+        Animated.timing(overlayOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(translateY, {
+          toValue: height - modalHeight,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Hide modal with animations
+      Animated.parallel([
+        Animated.timing(overlayOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(translateY, {
+          toValue: height,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
 
   const handleClose = () => {
     Keyboard.dismiss();
-    onClose();
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }),
+      Animated.timing(translateY, {
+        toValue: height,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      onClose();
+    });
   };
 
   return (
     <Modal
       transparent
-      animationType="slide"
       visible={visible}
+      animationType="none" // Disable default modal animation
       onRequestClose={handleClose}
-      style={style}
     >
       <TouchableWithoutFeedback onPress={handleClose}>
-        <Overlay>
+        <Animated.View
+          style={{
+            flex: 1,
+            backgroundColor: overlayOpacity.interpolate({
+              inputRange: [0, 1],
+              outputRange: ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.5)"],
+            }),
+          }}
+        >
           <TouchableWithoutFeedback>
-            <ModalContainer style={{ height: modalHeight }}>
+            <ModalContainer
+              style={{
+                height: modalHeight,
+                transform: [{ translateY }], // Slide animation
+              }}
+            >
               <ModalTopBar />
               {body}
             </ModalContainer>
           </TouchableWithoutFeedback>
-        </Overlay>
+        </Animated.View>
       </TouchableWithoutFeedback>
     </Modal>
   );

@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     bottomButtonIcon : {
         width: 20,
         height: 20,
-        marginRight: 4
+        marginRight: 5
     },
     bottomButtonText : {
         fontSize: theme.fontSizes.body2,

@@ -25,6 +25,7 @@ const MyProfileTabLayout = () => {
                         paddingBottom: 0,
                         paddingTop: 0,
                         height: 42,
+                        borderBottomWidth: 0,
                     },
                     tabBarItemStyle: {
                         paddingBottom: 0,
