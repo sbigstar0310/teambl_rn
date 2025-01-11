@@ -1,4 +1,5 @@
 import React from 'react';
+import {Text} from "react-native";
 
 const NewProfileHeader = (props: any) => {
 
@@ -13,7 +14,7 @@ const NewProfileHeader = (props: any) => {
 
     return (
         <>
-            {"Header : TODO"}
+            <Text>{"Header : TODO"}</Text>
         </>
     );
 };
