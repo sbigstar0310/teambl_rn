@@ -40,6 +40,8 @@ export const sharedStyles = StyleSheet.create({
     },
     coloredContainer : {
         backgroundColor: theme.colors.background2,
-        flex: 1
+        flex: 1,
+        paddingTop: 0,
+        paddingBottom: 0
     }
 })

@@ -5,7 +5,7 @@ const MyProfileProjectView = () => {
     return (
         <View>
             <Text>
-                Project
+                Project!
             </Text>
         </View>
     );
