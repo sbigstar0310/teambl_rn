@@ -19,7 +19,7 @@ export function timeAgo(date: Date): string {
     const diffInMonths = Math.floor(diffInDays / 30);
     if (diffInMonths === 1) return "1달 전";
     return `${diffInMonths}달 전`;
-};
+}
 
 export function shorten(text: string, maxLength: number = DEFAULT_TEXT_MAX_LENGTH): string {
     if (text.length <= maxLength) return text;
@@ -31,4 +31,43 @@ export function combineUserDetails(school?: string, department?: string) {
     if (school) return shorten(school);
     if (department) return shorten(department);
     return "";
+}
+
+export function isSameDay(date1: Date, date2: Date): boolean {
+    return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+    );
+}
+
+export type MessageEntity = {
+    type: "message",
+    data: api.Message
+} | {
+    type: "date",
+    data: Date
+} | {
+    type: "system_message",
+    data: api.Message
+};
+
+export const produceMessageEntities = (messages: api.Message[]) => {
+    const entities: MessageEntity[] = [];
+    let lastMessage: api.Message | null = null;
+    for (const message of messages) {
+        // Add date entity if day differs from last message
+        // (or if it's the very first message)
+        if (!lastMessage || !isSameDay(lastMessage.created_at, message.created_at)) {
+            entities.push({type: "date", data: message.created_at});
+        }
+        // Add system message entity if it's system message
+        if (message.is_system) {
+            entities.push({type: "system_message", data: message});
+        } else {
+            entities.push({type: "message", data: message});
+        }
+        lastMessage = message;
+    }
+    return entities;
 }

@@ -29,7 +29,7 @@ export default function Message(props: MessageProps) {
 
     const handleImagePreviewOpen = () => setIsImagePreviewVisible(true);
     const handleImagePreviewClose = () => setIsImagePreviewVisible(false);
-    const handleDeletePopupOpen = () => setIsDeletePopupVisible(true);
+    const handleDeletePopupOpen = () => props.isSentByMe && setIsDeletePopupVisible(true);
     const handleDeletePopupClose = () => setIsDeletePopupVisible(false);
 
     const handleDelete = () => {

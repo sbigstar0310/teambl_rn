@@ -8,6 +8,7 @@ interface PopupProps {
     onConfirm?: () => void;
     closeLabel?: string;
     confirmLabel?: string;
+    confirmLabelColor?: string;
 }
 
 export default function Popup({
@@ -17,7 +18,8 @@ export default function Popup({
                                   onClose,
                                   onConfirm,
                                   closeLabel = "취소",
-                                  confirmLabel = "확인"
+                                  confirmLabel = "확인",
+                                  confirmLabelColor = "#2546F3"
                               }: PopupProps) {
     return (
         <Modal
@@ -49,7 +51,7 @@ export default function Popup({
                                 style={styles.button}
                                 onPress={onConfirm}
                             >
-                                <Text style={[styles.buttonText, styles.highlightedText]}>{confirmLabel}</Text>
+                                <Text style={[styles.buttonText, {color: confirmLabelColor}]}>{confirmLabel}</Text>
                             </TouchableOpacity>
                         }
                     </View>
@@ -117,8 +119,5 @@ const styles = StyleSheet.create({
         color: '#121212',
         fontSize: 16,
         fontWeight: '700'
-    },
-    highlightedText: {
-        color: "#2546F3"
     }
 });

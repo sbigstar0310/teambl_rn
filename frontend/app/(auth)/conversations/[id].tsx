@@ -3,17 +3,18 @@ import {sharedStyles} from "@/app/_layout";
 import {router, useLocalSearchParams} from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {useEffect, useRef, useState} from "react";
-import {mockConversation1} from "@/shared/mock-data";
-import {combineUserDetails, shorten} from "@/shared/utils";
+import {mockConversation1, mockMessage1} from "@/shared/mock-data";
+import {combineUserDetails, MessageEntity, produceMessageEntities, shorten} from "@/shared/utils";
 import Popup from "@/components/Popup";
 import Message from "@/components/inbox/Message";
 import MessageInput from "@/components/inbox/MessageInput";
+import InfoMessage from "@/components/inbox/InfoMessage";
 
 export default function Conversation() {
     const {id} = useLocalSearchParams();
     const myId = 1;
     const [conversation, setConversation] = useState<api.Conversation>();
-    const [messages, setMessages] = useState<api.Message[]>([]);
+    const [entities, setEntities] = useState<MessageEntity[]>([]);
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const listRef = useRef<FlatList>(null);
 
@@ -22,15 +23,23 @@ export default function Conversation() {
         setConversation(mockConversation1);
     }, []);
 
+    useEffect(() => {
+        // TODO: fetch messages from api
+        const messages = [mockMessage1];
+        setEntities(produceMessageEntities(messages));
+    }, []);
+
     const scrollToEnd = () => listRef.current?.scrollToEnd({animated: true});
     const handleExitButtonPress = () => setIsPopupVisible(true);
     const handleExit = () => {
         // TODO: make api to request and exit the chat
         router.back();
     }
+
     const handleMessageSend = (text: string, image?: string) => {
         if (!conversation) return;
         // TODO: send message to backend
+        const messages = entities.filter(e => e.type !== "date").map(e => e.data);
         let newId = 1;
         if (messages.length > 0) {
             newId = messages[messages.length - 1].id + 1;
@@ -45,15 +54,17 @@ export default function Conversation() {
             is_system: false,
             created_at: new Date()
         };
-        setMessages((messages) => [...messages, newMessage]);
+        const updatedMessages = [...messages, newMessage];
+        setEntities(produceMessageEntities(updatedMessages));
     }
     const handleMessageDelete = (message: api.Message) => {
         //     TODO: make api request about deleting message
+        const messages = entities.filter(e => e.type !== "date").map(e => e.data);
         const newMessages = messages.map((m) => {
             if (m.id === message.id) return {...m, message: "메시지가 삭제되었습니다", image: undefined}
             else return m;
         })
-        setMessages(newMessages);
+        setEntities(produceMessageEntities(newMessages));
     }
 
     return (
@@ -67,14 +78,17 @@ export default function Conversation() {
                 <FlatList
                     ref={listRef}
                     contentContainerStyle={styles.listContainer}
-                    data={messages}
+                    data={entities}
                     keyExtractor={(_, i) => i.toString()}
                     renderItem={({item}) =>
-                        <Message
-                            message={item}
-                            isSentByMe={item.sender === myId}
-                            onDelete={() => handleMessageDelete(item)}
-                        />
+                        item.type === "message" ? (
+                            <Message
+                                message={item.data}
+                                isSentByMe={item.data.sender === myId}
+                                onDelete={() => handleMessageDelete(item)}
+                            />) : (
+                            <InfoMessage entity={item}/>
+                        )
                     }
                     ListEmptyComponent={NoMessagesFound}
                     /* New message arrival (list data update) triggers content size change */

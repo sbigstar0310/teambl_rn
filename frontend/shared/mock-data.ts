@@ -50,8 +50,8 @@ export const mockConversation3: api.Conversation = {
 export const mockMessage1: api.Message = {
     id: 1,
     conversation: 1,
-    sender: 1,
-    message: "Hello World! Hello World! Hello World! Hello World! Hello World!",
+    sender: 2,
+    message: "Hello World!",
     is_read: false,
     is_system: false,
     created_at: new Date("Thu, 02 Jan 2025 11:59:15 GMT")
