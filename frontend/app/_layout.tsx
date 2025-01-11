@@ -1,3 +1,4 @@
+import theme from "@/shared/styles/theme";
 import {Stack} from "expo-router";
 import {StatusBar} from "expo-status-bar";
 import {Fragment} from 'react';
@@ -36,5 +37,9 @@ export const sharedStyles = StyleSheet.create({
     },
     roundedSm: {
         borderRadius: 5
+    },
+    coloredContainer : {
+        backgroundColor: theme.colors.background2,
+        flex: 1
     }
 })
