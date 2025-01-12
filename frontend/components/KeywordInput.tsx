@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
+        alignContent: 'center',
         justifyContent: 'flex-start',
         minHeight: 40,
         backgroundColor: theme.colors.achromatic05,
@@ -153,7 +154,9 @@ const styles = StyleSheet.create({
     placeholder: {
         color: theme.colors.achromatic03,
         fontSize: theme.fontSizes.body1,
-        fontWeight: '400'
+        fontWeight: '400',
+        padding: 0,
+        margin: 0
     },
     badgeContainer: {
         backgroundColor: theme.colors.white,

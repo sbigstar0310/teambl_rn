@@ -6,7 +6,7 @@ import { ScrollView, View, Text, StyleSheet } from 'react-native';
 
 const MyProfileInfoView = () => {
 
-    const [currentSkillList, setCurrentSkillList] = useState(["관심사1", "관심사4", "관심사5", "긴이름을가진관심사"]);
+    const [currentSkillList, setCurrentSkillList] = useState(["관심사1", "관심사4", "관심사5", "긴이름을가진관심사99"]);
 
     return (
         <ScrollView
