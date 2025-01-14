@@ -74,5 +74,20 @@ declare module api {
     start_date?: Date;
     end_date?: Date;
     description: string;
+    posts: Post[];
+  };
+
+  type Post = {
+    id: number;
+    project_card_id: number;
+    user: User;
+    title: string;
+    content: string;
+    created_at: Date;
+    keywords: string[];
+    like_count: number;
+    tagged_users: User[];
+    contact: string;
+    liked_users: User[];
   };
 }
