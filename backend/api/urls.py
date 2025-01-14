@@ -407,6 +407,7 @@ urlpatterns += [
 
 # Others
 urlpatterns += [
+    path("health-check/", views.HealthCheckView.as_view(), name="health-check"),
     path("check-email/", views.CheckEmailExistsView.as_view(), name="check-email"),
     path("welcome/", views.WelcomeView.as_view(), name="welcome-view"),
     path("search/", views.SearchUsersAPIView.as_view(), name="search-view"),
