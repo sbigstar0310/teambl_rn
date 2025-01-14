@@ -3504,3 +3504,13 @@ class DeleteMessageView(generics.UpdateAPIView):
         message.save()
 
         return Response({"message": "Message deleted successfully."}, status=200)
+
+
+class HealthCheckView(generics.GenericAPIView):
+    """
+    API Health Check View: 단순히 호출 상태를 확인합니다.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        return Response({"message": "API is working!"}, status=200)
