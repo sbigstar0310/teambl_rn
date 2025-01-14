@@ -1,106 +1,167 @@
-import React, {useEffect} from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {timeAgo} from "@/shared/utils";
-import {mockNotificationItem1, mockNotificationItem2} from "@/shared/mock-data";
-import ScreenHeader from "@/components/common/ScreenHeader";
-import {sharedStyles} from "@/app/_layout";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Stack } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import api from "../../shared/api";
 
-const mockNotifications: api.NotificationItem[] = [
-    mockNotificationItem1,
-    mockNotificationItem2
-];
+// 알림 타입 정의
+type NotificationType = {
+    id: number;
+    message: string;
+    read: boolean;
+    createdAt: string;
+};
 
-export default function Notification() {
-    const [notifications, setNotifications] = React.useState<api.NotificationItem[]>([]);
+const Notification = ({ updateUnreadCount }: { updateUnreadCount: (count: number) => void }) => {
+    const navigation = useNavigation();
+    const [notifications, setNotifications] = useState<NotificationType[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        //     TODO: fetch notifications from api
-        setNotifications(mockNotifications);
+        fetchNotifications();
+        fetchHealthStatus();
     }, []);
 
+    const fetchHealthStatus = async () => {
+        try {
+            const response = await api.get(`http://192.168.138.85:8000/api/health-check/`);
+            console.log("API Response:", response.data);
+        } catch (error) {
+            console.error("Failed to fetch health status", error);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        try {
+            const response = await api.get("http://192.168.138.85:8000/api/notifications/");
+            setNotifications(response.data);
+            updateUnreadCount(response.data.filter((notif: NotificationType) => !notif.read).length);
+        } catch (error) {
+            console.error("Failed to fetch notifications", error);
+        } finally {
+            setLoading(false);
+        }
+
+    };
+
+    const updateNotification = async ({ id, isReadButtonClicked = false }: { id: number; isReadButtonClicked?: boolean }) => {
+        try {
+            const newData = isReadButtonClicked ? { read: true } : {};
+            const response = await api.patch(`http://192.168.138.85:8000/api/notifications/update/${id}/`, newData);
+
+            setNotifications((prevNotifications) =>
+                prevNotifications.map((notification) =>
+                    notification.id === id ? { ...notification, ...response.data } : notification
+                )
+            );
+
+            if (isReadButtonClicked) {
+                updateUnreadCount(
+                    notifications.reduce((count, notification) => count + (!notification.read && notification.id !== id ? 1 : 0), 0)
+                );
+            }
+        } catch (error) {
+            console.error("Failed to update notification", error);
+        }
+    };
+
+    const deleteNotification = async (id: number) => {
+        try {
+            await api.delete(`http://192.168.138.85:8000/api/notifications/delete/${id}/`);
+            setNotifications((prevNotifications) => prevNotifications.filter((notification) => notification.id !== id));
+        } catch (error) {
+            console.error("Failed to delete notification", error);
+        }
+    };
+
+    const timeAgo = (timestamp: string) => {
+        const now = new Date();
+        const notificationTime = new Date(timestamp);
+        const diffInMinutes = Math.floor((now.getTime() - notificationTime.getTime()) / 60000);
+
+        if (diffInMinutes < 1) return "방금 전";
+        if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}시간 전`;
+        return `${Math.floor(diffInMinutes / 1440)}일 전`;
+    };
+
+    if (loading) {
+        return <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />;
+    }
+
     return (
-        <View style={sharedStyles.container}>
-            <ScreenHeader/>
-            <View style={sharedStyles.horizontalPadding}>
+        <>
+            <Stack.Screen options={{ headerShown: false }} />
+            <View style={styles.container}>
                 <Text style={styles.header}>알림</Text>
                 <FlatList
                     data={notifications}
                     keyExtractor={(item) => item.id.toString()}
-                    renderItem={({item}) => (
-                        <View style={[styles.notification, item.read ? styles.read : styles.unread]}>
-                            <TouchableOpacity style={styles.deleteButton}>
-                                <Text style={styles.deleteText}>×</Text>
-                            </TouchableOpacity>
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={[styles.notification, item.read ? styles.read : styles.unread]}
+                            onPress={() => updateNotification({ id: item.id, isReadButtonClicked: true })}
+                        >
                             <View style={styles.notificationHeader}>
                                 <Text style={styles.message}>{item.message}</Text>
+                                <TouchableOpacity onPress={() => deleteNotification(item.id)}>
+                                    <Text style={styles.deleteText}>×</Text>
+                                </TouchableOpacity>
                             </View>
                             <Text style={styles.createdAt}>{timeAgo(item.createdAt)}</Text>
-                        </View>
+                        </TouchableOpacity>
                     )}
                 />
             </View>
-        </View>
+        </>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#ffffff",
+        padding: 20,
+    },
     header: {
-        fontFamily: 'Pretendard',
         fontSize: 20,
-        fontWeight: '600',
-        lineHeight: 28,
-        letterSpacing: -0.019,
-        color: '#121212',
+        fontWeight: "600",
+        color: "#121212",
         marginBottom: 20,
     },
     notification: {
-        flexDirection: 'column',
         padding: 15,
         borderBottomWidth: 0.7,
-        borderBottomColor: '#ddd',
-        marginBottom: 0,
-        position: 'relative',
-        justifyContent: 'center',
+        borderBottomColor: "#ddd",
     },
     read: {
-        backgroundColor: '#f5f5f5',
+        backgroundColor: "#f5f5f5",
     },
     unread: {
-        backgroundColor: '#eef4ff',
+        backgroundColor: "#eef4ff",
     },
     notificationHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: "row",
+        justifyContent: "space-between",
     },
     message: {
-        fontFamily: 'Pretendard',
         fontSize: 12,
-        fontWeight: '400',
-        lineHeight: 16.71,
-        color: '#121212',
-        maxWidth: '80%',
-        flexWrap: 'wrap',
-    },
-    deleteButton: {
-        width: 22,
-        height: 22,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute',
-        top: 5,
-        right: 5,
+        color: "#121212",
     },
     deleteText: {
         fontSize: 22,
-        lineHeight: 22,
-        color: '#A8A8A8',
+        color: "#A8A8A8",
     },
     createdAt: {
         fontSize: 12,
-        color: '#595959',
-        position: 'absolute',
-        right: 10,
-        bottom: 10,
+        color: "#595959",
+        marginTop: 5,
+    },
+    loader: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
+
+export default Notification;
