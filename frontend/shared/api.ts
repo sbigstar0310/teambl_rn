@@ -1,69 +1,77 @@
-import axios, { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosHeaders } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {ACCESS_TOKEN, REFRESH_TOKEN} from "@/shared/constants";
+import Constants from "expo-constants";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
+
+// const BASE_URL = Constants.expoConfig?.extra?.API_URL || "https://default-api-url.com";
+const BASE_URL = "https://localhost:8000";
 
 const api = axios.create({
-    baseURL: "http://192.168.0.16", // 수정 필요(현재는 대용 컴퓨터 ip 주소)
+    baseURL: BASE_URL,
 });
 
-// Request Interceptor: Attach Authorization header automatically
+// 요청 인터셉터 (헤더에 Authorization 자동 추가)
 api.interceptors.request.use(
-    async (config: InternalAxiosRequestConfig) => {
-        const token = await AsyncStorage.getItem(ACCESS_TOKEN); // Get token from AsyncStorage
-        if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
+    async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
+        try {
+            const token = await AsyncStorage.getItem(ACCESS_TOKEN);
+            if (token) {
+                if (!config.headers) {
+                    config.headers = new AxiosHeaders(); // headers 초기화
+                }
+                config.headers.set("Authorization", `Bearer ${token}`);
+            }
+        } catch (error) {
+            console.error("Error getting access token:", error);
         }
         return config;
     },
-    (error: AxiosError) => {
-        return Promise.reject(error);
-    }
+    (error: AxiosError) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401 errors and refresh tokens
+// 응답 인터셉터 (401 처리 및 토큰 갱신)
 api.interceptors.response.use(
-    (response: AxiosResponse) => response, // Pass successful responses directly
+    (response: AxiosResponse) => response,
     async (error: AxiosError) => {
-        if (error.response && error.response.status === 401) {
-            console.warn("Access token expired or unauthorized. Attempting to refresh token...");
-            const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN); // Get refresh token
-
-            if (refreshToken) {
-                try {
-                    const { data } = await axios.post(
-                        "http://192.168.0.16/refresh", // 수정 필요(현재는 대용 컴퓨터 ip 주소)
+        if (error.response?.status === 401) {
+            console.warn("Access token expired. Attempting to refresh...");
+            try {
+                const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN);
+                if (refreshToken) {
+                    const { data }: AxiosResponse<{ accessToken: string }> = await axios.post(
+                        `${BASE_URL}/refresh`,
                         { token: refreshToken }
                     );
 
-                    // Save new access token
                     await AsyncStorage.setItem(ACCESS_TOKEN, data.accessToken);
 
-                    // Retry the original request
-                    const originalConfig = error.config;
-                    if (originalConfig && originalConfig.headers) {
-                        originalConfig.headers.Authorization = `Bearer ${data.accessToken}`;
-                        return api.request(originalConfig as InternalAxiosRequestConfig);
+                    if (error.config) {
+                        if (!error.config.headers) {
+                            error.config.headers = new AxiosHeaders();
+                        }
+                        error.config.headers.set("Authorization", `Bearer ${data.accessToken}`);
+
+                        // error.config가 존재할 때만 요청 재시도
+                        return api.request(error.config);
                     }
-                } catch (refreshError) {
-                    console.error("Failed to refresh token:", refreshError);
+                } else {
+                    console.error("No refresh token available.");
                     handleTokenError();
                 }
-            } else {
-                console.error("No refresh token available. Redirecting to login.");
+            } catch (refreshError) {
+                console.error("Failed to refresh token:", refreshError);
                 handleTokenError();
             }
         }
-
         return Promise.reject(error);
     }
 );
 
-// Handle token errors: Remove tokens and redirect to login
+// 토큰 에러 처리 (로그아웃)
 async function handleTokenError(): Promise<void> {
     await AsyncStorage.removeItem(ACCESS_TOKEN);
     await AsyncStorage.removeItem(REFRESH_TOKEN);
-    // Replace with navigation logic if needed
-    console.warn("Redirecting to login...");
+    console.log("Redirecting to login...");
 }
 
 export default api;
