@@ -1,10 +1,16 @@
-import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosHeaders } from "axios";
+import axios, {
+    InternalAxiosRequestConfig,
+    AxiosResponse,
+    AxiosError,
+    AxiosHeaders,
+} from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 
 // const BASE_URL = Constants.expoConfig?.extra?.API_URL || "https://default-api-url.com";
-const BASE_URL = "https://localhost:8000";
+// const BASE_URL = "https://teambl.net/api"; // for production
+const BASE_URL = "http://localhost:8000/api";
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -12,7 +18,9 @@ const api = axios.create({
 
 // 요청 인터셉터 (헤더에 Authorization 자동 추가)
 api.interceptors.request.use(
-    async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
+    async (
+        config: InternalAxiosRequestConfig
+    ): Promise<InternalAxiosRequestConfig> => {
         try {
             const token = await AsyncStorage.getItem(ACCESS_TOKEN);
             if (token) {
@@ -38,10 +46,10 @@ api.interceptors.response.use(
             try {
                 const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN);
                 if (refreshToken) {
-                    const { data }: AxiosResponse<{ accessToken: string }> = await axios.post(
-                        `${BASE_URL}/refresh`,
-                        { token: refreshToken }
-                    );
+                    const { data }: AxiosResponse<{ accessToken: string }> =
+                        await axios.post(`${BASE_URL}/refresh`, {
+                            token: refreshToken,
+                        });
 
                     await AsyncStorage.setItem(ACCESS_TOKEN, data.accessToken);
 
@@ -49,7 +57,10 @@ api.interceptors.response.use(
                         if (!error.config.headers) {
                             error.config.headers = new AxiosHeaders();
                         }
-                        error.config.headers.set("Authorization", `Bearer ${data.accessToken}`);
+                        error.config.headers.set(
+                            "Authorization",
+                            `Bearer ${data.accessToken}`
+                        );
 
                         // error.config가 존재할 때만 요청 재시도
                         return api.request(error.config);

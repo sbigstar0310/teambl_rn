@@ -1,4 +1,5 @@
-import {DEFAULT_TEXT_MAX_LENGTH} from "@/shared/constants";
+import { DEFAULT_TEXT_MAX_LENGTH } from "@/shared/constants";
+import { useRouter, useSearchParams } from "expo-router/build/hooks";
 
 export function timeAgo(date: Date): string {
     const now = new Date();
@@ -21,13 +22,17 @@ export function timeAgo(date: Date): string {
     return `${diffInMonths}달 전`;
 }
 
-export function shorten(text: string, maxLength: number = DEFAULT_TEXT_MAX_LENGTH): string {
+export function shorten(
+    text: string,
+    maxLength: number = DEFAULT_TEXT_MAX_LENGTH
+): string {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength - 1) + "...";
 }
 
 export function combineUserDetails(school?: string, department?: string) {
-    if (school && department) return `${shorten(school)}・${shorten(department)}`;
+    if (school && department)
+        return `${shorten(school)}・${shorten(department)}`;
     if (school) return shorten(school);
     if (department) return shorten(department);
     return "";
@@ -41,16 +46,19 @@ export function isSameDay(date1: Date, date2: Date): boolean {
     );
 }
 
-export type MessageEntity = {
-    type: "message",
-    data: api.Message
-} | {
-    type: "date",
-    data: Date
-} | {
-    type: "system_message",
-    data: api.Message
-};
+export type MessageEntity =
+    | {
+          type: "message";
+          data: api.Message;
+      }
+    | {
+          type: "date";
+          data: Date;
+      }
+    | {
+          type: "system_message";
+          data: api.Message;
+      };
 
 export const produceMessageEntities = (messages: api.Message[]) => {
     const entities: MessageEntity[] = [];
@@ -58,16 +66,19 @@ export const produceMessageEntities = (messages: api.Message[]) => {
     for (const message of messages) {
         // Add date entity if day differs from last message
         // (or if it's the very first message)
-        if (!lastMessage || !isSameDay(lastMessage.created_at, message.created_at)) {
-            entities.push({type: "date", data: message.created_at});
+        if (
+            !lastMessage ||
+            !isSameDay(lastMessage.created_at, message.created_at)
+        ) {
+            entities.push({ type: "date", data: message.created_at });
         }
         // Add system message entity if it's system message
         if (message.is_system) {
-            entities.push({type: "system_message", data: message});
+            entities.push({ type: "system_message", data: message });
         } else {
-            entities.push({type: "message", data: message});
+            entities.push({ type: "message", data: message });
         }
         lastMessage = message;
     }
     return entities;
-}
+};

@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import (
@@ -26,6 +27,7 @@ from .models import (
     Message,
 )
 import os
+from django.db import transaction
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -295,6 +297,7 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Extract keywords from validated data
         keywords_data = validated_data.pop("keywords", [])
+        skills_data = validated_data.pop("skills", [])
 
         # Create the profile
         profile = Profile.objects.create(**validated_data)
@@ -303,6 +306,10 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
         for keyword in keywords_data:
             keyword_obj, created = Keyword.objects.get_or_create(keyword=keyword)
             profile.keywords.add(keyword_obj)
+
+        # Create skills
+        for skill_data in skills_data:
+            Skill.objects.create(profile=profile, **skill_data)
 
         return profile
 
@@ -589,29 +596,47 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         profile_data = validated_data.pop("profile", {})
         keywords_data = profile_data.pop("keywords", [])
+        skills_data = profile_data.pop("skills", [])
+        portfolioLink_data = profile_data.pop("portfolio_links", [])
 
-        # 키워드(관심사)가 2개 이상인지 체크
-        # if len(keywords_data) < 2:
-        #     raise serializers.ValidationError(
-        #         {"detail": "관심사는 최대 2개 이상 입력해야 합니다."}
-        #     )
+        try:
+            with transaction.atomic():
+                # Create CustomUser instance
+                user = CustomUser.objects.create_user(
+                    email=validated_data["email"],
+                    password=validated_data["password"],
+                    is_staff=validated_data.get("is_staff", False),
+                )
 
-        # CustomUser 인스턴스 생성
-        user = CustomUser.objects.create_user(
-            email=validated_data["email"],
-            password=validated_data["password"],
-            is_staff=validated_data.get("is_staff", False),
-        )
+                # Create Profile instance and associate it with the user
+                profile = Profile.objects.create(user=user, **profile_data)
 
-        # Profile 인스턴스 생성 및 CustomUser와 연결
-        profile = Profile.objects.create(user=user, **profile_data)
+                # Associate keywords with the profile
+                for keyword in keywords_data:
+                    keyword_obj, created = Keyword.objects.get_or_create(
+                        keyword=keyword
+                    )
+                    profile.keywords.add(keyword_obj)
 
-        # Keywords 추가
-        for keyword in keywords_data:
-            keyword_obj, created = Keyword.objects.get_or_create(keyword=keyword)
-            profile.keywords.add(keyword_obj)
+                # Create skills
+                print("skills_data: ", skills_data)
+                for skill_name in skills_data:
+                    Skill.objects.create(profile=profile, skill=skill_name)
 
-        return user
+                # Create portfolio links
+                for link_data in portfolioLink_data:
+                    PortfolioLink.objects.create(profile=profile, **link_data)
+
+                return user  # Ensure the created user is returned
+
+        except Exception as e:
+            # Log the exception for debugging
+            print(f"Error during user/profile creation: {e}")
+
+            # Rollback any partial changes (handled by transaction.atomic)
+            raise ValidationError(
+                {"detail": "An error occurred while creating the user or profile."}
+            )
 
     def update(self, instance, validated_data):
         if "password" in validated_data:
