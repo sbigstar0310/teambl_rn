@@ -8,13 +8,19 @@ export default function HomeScreen() {
   return (
     <>
       <Header />
-      <View style={[sharedStyles.container, sharedStyles.contentCentered]}>
-        <ScrollView
-          style={{
-            width: "100%",
+      <View 
+        style={[
+          sharedStyles.container, 
+          sharedStyles.contentCentered, 
+          {
             borderTopWidth: 4,
             borderColor: "#F5F5F5",
             padding: 16,
+          }
+        ]}>
+        <ScrollView
+          style={{
+            width: "100%",
           }}
         >
           <Text>Home Screen</Text>
