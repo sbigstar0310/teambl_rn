@@ -9,7 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const Header: React.FC = () => {
   return (
-    <SafeAreaView>
+    <SafeAreaView edges={["top"]}>
       <View style={styles.headerContainer}>
         {/* Left-aligned Icon */}
         <TouchableOpacity onPress={() => router.push("/home")}>
