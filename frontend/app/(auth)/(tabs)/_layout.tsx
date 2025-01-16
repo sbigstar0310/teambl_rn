@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const TabsLayout = () => {
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }} edges={["bottom"]}>
       <Tabs
         screenOptions={({ route }) => ({
           headerShown: false,

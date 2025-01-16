@@ -10,8 +10,7 @@ export default function HomeScreen() {
       <Header />
       <View 
         style={[
-          sharedStyles.container, 
-          sharedStyles.contentCentered, 
+          sharedStyles.container,
           {
             borderTopWidth: 4,
             borderColor: "#F5F5F5",
