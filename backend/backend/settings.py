@@ -98,7 +98,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "backend.wsgi.application"
-ASGI_APPLICATION = 'backend.asgi.application'
+ASGI_APPLICATION = "backend.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -206,13 +206,13 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # 암호화 키
-SECRET_KEY_FERNET = os.environ.get("SECRET_KEY_FERNET", "default_salt_key")
+SECRET_KEY_FERNET = os.getenv("SECRET_KEY_FERNET", "default_salt_key")
 
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
             "hosts": [("127.0.0.1", 6379)],
         },
     },

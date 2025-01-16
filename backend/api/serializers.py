@@ -4,6 +4,8 @@ from .models import (
     CustomUser,
     Project,
     ProjectImage,
+    ProjectCard,
+    ProjectCardInvitation,
     Keyword,
     Profile,
     InvitationLink,
@@ -650,7 +652,6 @@ class ProjectSerializer(serializers.ModelSerializer):
     liked_users = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CustomUser.objects.all(), required=False
     )
-    like_user_list = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -666,19 +667,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             "tagged_users",
             "contacts",
             "liked_users",
-            "like_user_list",
         ]
         extra_kwargs = {"user": {"read_only": True}}
-
-    def get_like_user_list(self, obj):
-        # Like 테이블에서 project_id에 해당하는 user_id 리스트 가져오기
-        user_ids = Like.objects.filter(project=obj).values_list('user', flat=True)
-
-        # user_ids를 이용해 CustomUser 객체들을 가져오기
-        users = CustomUser.objects.filter(id__in=user_ids)
-        
-        # CustomUser 객체들의 리스트 반환
-        return CustomUserSerializer(users, many=True).data  # CustomUser 객체들을 직렬화하여 반환
 
     def get_keywords(self, obj):
         return [keyword.keyword for keyword in obj.keywords.all()]
@@ -870,7 +860,13 @@ class UserSearchSerializer(serializers.Serializer):
 
 class ProjectSearchSerializer(serializers.Serializer):
     q = serializers.CharField(required=False, allow_blank=True)
+    degree = serializers.ListField(child=serializers.IntegerField(), required=False)
     keywords = serializers.ListField(child=serializers.CharField(), required=False)
+
+
+class ExperienceSearchSerializer(serializers.Serializer):
+    q = serializers.CharField(required=False, allow_blank=True)
+    degree = serializers.ListField(child=serializers.IntegerField(), required=False)
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -1002,6 +998,7 @@ class CommentSerializer(serializers.ModelSerializer):
 #         # Default for model instance
 #         return obj.user_2.profile.user_name if obj.user_2 else "탈퇴한 사용자"
 
+
 class ConversationSerializer(serializers.ModelSerializer):
     user_1_username = serializers.SerializerMethodField()
     user_2_username = serializers.SerializerMethodField()
@@ -1083,3 +1080,112 @@ class MessageSerializer(serializers.ModelSerializer):
         if obj.image:
             return obj.image.url  # 이미지 필드가 서버에 저장된 경로 반환
         return None
+
+
+class ProjectCardSerializer(serializers.ModelSerializer):
+    keywords = serializers.ListField(
+        child=serializers.CharField(), write_only=True  # 문자열 리스트 입력
+    )
+    accepted_users = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True  # 유저 ID 리스트 입력
+    )
+    posts = ProjectSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ProjectCard
+        fields = [
+            "id",
+            "title",
+            "keywords",  # 프로젝트 카드의 키워드들
+            "accepted_users",  # 프로젝트 카드에 참여된 사람들
+            "creator",
+            "created_at",
+            "start_date",
+            "end_date",
+            "description",
+            "posts",  # 프로젝트 카드의 게시물들
+        ]
+
+    def validate_keywords(self, keywords):
+        # 키워드 개수 검증
+        if len(keywords) < 2:
+            raise serializers.ValidationError(
+                "프로젝트 카드의 키워드 개수는 2개 이상이어야 합니다."
+            )
+        return keywords
+
+    def create(self, validated_data):
+        # Keywords와 accepted_users는 별도로 처리
+        keywords_data = validated_data.pop("keywords", [])
+        accepted_users_data = validated_data.pop("accepted_users", [])
+
+        # ProjectCard 생성
+        project_card = ProjectCard.objects.create(**validated_data)
+
+        # Keywords 처리
+        for keyword in keywords_data:
+            keyword_obj, created = Keyword.objects.get_or_create(name=keyword)
+            project_card.keywords.add(keyword_obj)
+
+        # Accepted Users 처리
+        for user_id in accepted_users_data:
+            try:
+                user = CustomUser.objects.get(id=user_id)
+                project_card.accepted_users.add(user)
+            except CustomUser.DoesNotExist:
+                raise serializers.ValidationError(
+                    f"User with ID {user_id} does not exist."
+                )
+
+        return project_card
+
+    def update(self, instance, validated_data):
+        # Keywords 처리
+        if "keywords" in validated_data:
+            keywords_data = validated_data.pop("keywords")
+            instance.keywords.clear()  # 기존 키워드 제거
+            for keyword in keywords_data:
+                keyword_obj, _ = Keyword.objects.get_or_create(name=keyword)
+                instance.keywords.add(keyword_obj)
+
+        # Accepted Users 처리
+        if "accepted_users" in validated_data:
+            accepted_users_data = validated_data.pop("accepted_users")
+            instance.accepted_users.clear()  # 기존 유저 제거
+            for user_id in accepted_users_data:
+                try:
+                    user = CustomUser.objects.get(id=user_id)
+                    instance.accepted_users.add(user)
+                except CustomUser.DoesNotExist:
+                    raise serializers.ValidationError(
+                        f"User with ID {user_id} does not exist."
+                    )
+
+        # 기타 필드 업데이트
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+
+class ProjectCardInvitationSerializer(serializers.ModelSerializer):
+    project_card = ProjectCardSerializer()
+    inviter = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all()
+    )  # 초대한 유저
+    invitee = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all()
+    )  # 초대받은 유저
+
+    class Meta:
+        model = ProjectCardInvitation
+        fields = [
+            "id",
+            "project_card",
+            "inviter",
+            "invitee",
+            "created_at",
+            "status",
+        ]
+        read_only_fields = ["id", "created_at"]

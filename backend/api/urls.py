@@ -8,7 +8,11 @@ urlpatterns = [
     path("user/<int:id>/", views.OtherUserView.as_view(), name="other-user"),
     path("latest-user-id/", views.LatestUserIdView.as_view(), name="latest-user-id"),
     path("users/", views.AllUsersView.as_view(), name="all-users"),
-    path("register-experience/", views.CreateUserByExperienceView.as_view(), name="register-experience"),
+    path(
+        "register-experience/",
+        views.CreateUserByExperienceView.as_view(),
+        name="register-experience",
+    ),
     path("register-alone/", views.CreateUserAloneView.as_view(), name="register-alone"),
     path(
         "check-user-login/", views.CheckUserLoginView.as_view(), name="check-user-login"
@@ -244,11 +248,6 @@ urlpatterns += [
         views.ProjectLikedListView.as_view(),
         name="project-liked-list",
     ),
-    path(
-        "search/projects/",
-        views.SearchProjectsAPIView.as_view(),
-        name="project-search",
-    ),
 ]
 
 # Invitation
@@ -405,9 +404,76 @@ urlpatterns += [
     ),
 ]
 
+# New User Suggestions (이번주 새로운 회원 소식)
+urlpatterns += [
+    path(
+        "new-user-suggestions/",
+        views.NewUserSuggestionView.as_view(),
+        name="new-user-suggestions",
+    ),
+]
+
+# Search
+urlpatterns += [
+    path("search/", views.SearchUsersAPIView.as_view(), name="user-search"),
+    path(
+        "search-users/", views.SearchUsersByNameAPIView.as_view(), name="search-by-name"
+    ),
+    path(
+        "search/projects/",
+        views.SearchProjectsAPIView.as_view(),
+        name="project-search",
+    ),
+    path(
+        "search/experiences/",
+        views.SearchExperienceAPIView.as_view(),
+        name="experience-search",
+    ),
+]
+
+# Project Cards
+urlpatterns += [
+    path(
+        "project-cards/", views.ProjectCardListView.as_view(), name="project-card-list"
+    ),
+    path(
+        "project-cards/create/",
+        views.ProjectCardCreateView.as_view(),
+        name="project-card-create",
+    ),
+    path(
+        "project-cards/<int:pk>/update/",
+        views.ProjectCardUpdateView.as_view(),
+        name="project-card-update",
+    ),
+    path(
+        "project-cards/<int:pk>/leave/",
+        views.ProjectCardLeaveView.as_view(),
+        name="project-card-leave",
+    ),
+    path(
+        "project-cards/<int:pk>/delete/",
+        views.ProjectCardDestroyView.as_view(),
+        name="project-card-delete",
+    ),
+]
+
+# Project Card Invitation
+urlpatterns += [
+    path(
+        "project-cards/invitation/create/",
+        views.ProjectCardInvitationCreateView.as_view(),
+        name="project-card-invitation-create",
+    ),
+    path(
+        "project-cards/invitation/<int:pk>/response/",
+        views.ProjectCardInvitationResponseView.as_view(),
+        name="project-card-invitation-response",
+    ),
+]
+
 # Others
 urlpatterns += [
-    path("health-check/", views.HealthCheckView.as_view(), name="health-check"),
     path("check-email/", views.CheckEmailExistsView.as_view(), name="check-email"),
     path("welcome/", views.WelcomeView.as_view(), name="welcome-view"),
     path("search/", views.SearchUsersAPIView.as_view(), name="search-view"),

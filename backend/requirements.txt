@@ -12,3 +12,4 @@ gunicorn
 Pillow
 celery
 hashids
+channels

@@ -9,6 +9,8 @@ from .models import (
     Keyword,
     Project,
     ProjectImage,
+    ProjectCard,
+    ProjectCardInvitation,
     Endorsement,
     Skill,
     Experience,
@@ -40,6 +42,9 @@ from .serializers import (
     FriendUpdateSerializer,
     UserSearchSerializer,
     ProjectSearchSerializer,
+    ProjectCardSerializer,
+    ProjectCardInvitationSerializer,
+    ExperienceSearchSerializer,
     NotificationSerializer,
     MyTokenObtainPairSerializer,
     RelatedUserSerializer,
@@ -60,16 +65,20 @@ from django.views import View
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import localtime
+from datetime import timedelta
 from uuid import uuid4
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .HelperFuntions import get_user_distance
+from .HelperFuntions import get_user_distance, get_user_distances, get_users_by_degree
 from django.db.models import Q
 import logging
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from collections import OrderedDict, deque
 from django.conf import settings
+import time
+from datetime import datetime
 
 # from cryptography.fernet import Fernet
 from hashids import Hashids
@@ -101,11 +110,46 @@ class MyTokenObtainPairView(TokenObtainPairView):
 from staff_emails import STAFF_EMAILS
 
 
+# 초대 없이 스스로 회원가입하는 뷰
+class CreateUserAloneView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
+
+    def perform_create(self, serializer):
+        email = serializer.validated_data.get("email")
+
+        # 새 사용자 저장 (회원가입 완료)
+        is_staff = email in STAFF_EMAILS
+        invitee = serializer.save(is_staff=is_staff)
+
+        # 회원가입 축하 이메일 보내기 (가입자)
+        email_body = f"""
+                    <p>안녕하세요. 팀블입니다.</p>
+                    <br>
+                    <p>신뢰기반의 팀빌딩 플랫폼에 오신 걸 환영합니다.</p>
+                    <p>팀블의 여러가지 기능들을 이용해보세요.</p>
+                    <br>
+                    <p>감사합니다. <br> 팀블 드림.</p>
+                    <p><a href="{settings.TEAMBL_URL}" target="_blank" style="color: #3498db; text-decoration: none;">팀블 바로가기</a></p>
+                    """
+        send_mail(
+            f"[Teambl] {invitee.profile.user_name}님 가입을 축하합니다!",
+            "",  # 텍스트 메시지는 사용하지 않음.
+            "info@teambl.net",
+            [invitee.email],
+            fail_silently=False,
+            html_message=email_body,  # HTML 형식 메시지 추가
+        )
+
+
 # 초대링크를 통해 회원가입하는 View
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
 
     def perform_create(self, serializer):
         code = self.request.data.get("code", "")
@@ -200,6 +244,7 @@ class CreateUserByExperienceView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
 
     def perform_create(self, serializer):
         # 프론트엔드에서 보내온 inviter_id, experience_id 확인
@@ -215,7 +260,7 @@ class CreateUserByExperienceView(generics.CreateAPIView):
         except CustomUser.DoesNotExist:
             # 초대자가 존재하지 않을 경우 예외 처리
             raise ValueError("유효하지 않은 초대자 ID입니다.")
-        
+
         try:
             experience = Experience.objects.get(id=experience_id)
         except Experience.DoesNotExist:
@@ -293,38 +338,6 @@ class CreateUserByExperienceView(generics.CreateAPIView):
                 html_message=email_body_2,  # HTML 형식 메시지 추가
             )
 
-# 초대 없이 스스로 회원가입하는 뷰
-class CreateUserAloneView(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
-    permission_classes = [AllowAny]
-
-    def perform_create(self, serializer):
-        email = serializer.validated_data.get("email")
-
-        # 새 사용자 저장 (회원가입 완료)
-        is_staff = email in STAFF_EMAILS
-        invitee = serializer.save(is_staff=is_staff)
-
-        # 회원가입 축하 이메일 보내기 (가입자)
-        email_body = f"""
-                    <p>안녕하세요. 팀블입니다.</p>
-                    <br>
-                    <p>신뢰기반의 팀빌딩 플랫폼에 오신 걸 환영합니다.</p>
-                    <p>팀블의 여러가지 기능들을 이용해보세요.</p>
-                    <br>
-                    <p>감사합니다. <br> 팀블 드림.</p>
-                    <p><a href="{settings.TEAMBL_URL}" target="_blank" style="color: #3498db; text-decoration: none;">팀블 바로가기</a></p>
-                    """
-        send_mail(
-            f"[Teambl] {invitee.profile.user_name}님 가입을 축하합니다!",
-            "",  # 텍스트 메시지는 사용하지 않음.
-            "info@teambl.net",
-            [invitee.email],
-            fail_silently=False,
-            html_message=email_body,  # HTML 형식 메시지 추가
-        )
-        
 
 class CurrentUserView(generics.RetrieveAPIView):
     serializer_class = CustomUserSerializer
@@ -347,6 +360,7 @@ class OtherUserView(generics.RetrieveAPIView):
 
 class CheckUserLoginView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]  # 모든 사용자가 접근 가능
+    authentication_classes = []  # 인증 비활성화
 
     def get(self, request, *args, **kwargs):
         # 유저가 인증되었는지 확인
@@ -369,6 +383,7 @@ class AllUsersView(generics.ListAPIView):
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
 
     def get_object(self):
         if self.request.user.is_authenticated:
@@ -653,7 +668,9 @@ class ProjectLikedListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        liked_projects = Project.objects.filter(likes__user=user)
+        liked_projects = Project.objects.filter(likes__user=user).order_by(
+            "-created_at"
+        )
         return liked_projects
 
 
@@ -828,7 +845,9 @@ class ExperienceUpdateView(generics.UpdateAPIView):
         data = request.data.copy()
 
         # 이전 상태 기록
-        previous_accepted_users = set(instance.accepted_users.values_list("id", flat=True))
+        previous_accepted_users = set(
+            instance.accepted_users.values_list("id", flat=True)
+        )
         previous_pending_invitations = set(
             instance.pending_invitations.filter(status="pending").values_list(
                 "invitee", flat=True
@@ -850,8 +869,12 @@ class ExperienceUpdateView(generics.UpdateAPIView):
 
         # 변경 사항 계산
         removed_users = previous_accepted_users - new_accepted_users
-        added_pending_invitations = new_pending_invitations - previous_pending_invitations
-        removed_pending_invitations = previous_pending_invitations - new_pending_invitations
+        added_pending_invitations = (
+            new_pending_invitations - previous_pending_invitations
+        )
+        removed_pending_invitations = (
+            previous_pending_invitations - new_pending_invitations
+        )
 
         # 알림 생성
         inviter = self.request.user
@@ -860,7 +883,9 @@ class ExperienceUpdateView(generics.UpdateAPIView):
         # 추가된 초대 알림
         for pending_invitation_id in added_pending_invitations:
             try:
-                pending_invitation = ExperienceInvitation.objects.get(id=pending_invitation_id)
+                pending_invitation = ExperienceInvitation.objects.get(
+                    id=pending_invitation_id
+                )
                 invitee = pending_invitation.invitee
                 Notification.objects.create(
                     user=invitee,
@@ -868,14 +893,20 @@ class ExperienceUpdateView(generics.UpdateAPIView):
                     notification_type="experience_request",
                 )
             except ExperienceInvitation.DoesNotExist:
-                print(f"ExperienceInvitation with ID {pending_invitation_id} does not exist.")
+                print(
+                    f"ExperienceInvitation with ID {pending_invitation_id} does not exist."
+                )
             except CustomUser.DoesNotExist:
-                print(f"Invitee does not exist for invitation ID {pending_invitation_id}.")
+                print(
+                    f"Invitee does not exist for invitation ID {pending_invitation_id}."
+                )
 
         # 삭제된 초대 알림 (취소된 초대)
         for pending_invitation_id in removed_pending_invitations:
             try:
-                pending_invitation = ExperienceInvitation.objects.get(id=pending_invitation_id)
+                pending_invitation = ExperienceInvitation.objects.get(
+                    id=pending_invitation_id
+                )
                 invitee = pending_invitation.invitee
                 Notification.objects.get_or_create(
                     user=invitee,
@@ -884,9 +915,13 @@ class ExperienceUpdateView(generics.UpdateAPIView):
                     related_user_id=inviter.id,
                 )
             except ExperienceInvitation.DoesNotExist:
-                print(f"ExperienceInvitation with ID {pending_invitation_id} does not exist.")
+                print(
+                    f"ExperienceInvitation with ID {pending_invitation_id} does not exist."
+                )
             except CustomUser.DoesNotExist:
-                print(f"Invitee does not exist for invitation ID {pending_invitation_id}.")
+                print(
+                    f"Invitee does not exist for invitation ID {pending_invitation_id}."
+                )
 
         # 삭제된 유저 알림 (수락 후 멤버에서 제거된 경우)
         for user_id in removed_users:
@@ -1288,7 +1323,7 @@ class ExperienceInvitationDeleteView(generics.DestroyAPIView):
 
         # 초대 삭제
         experience_invitation.delete()
-        
+
         try:
             Notification.objects.get_or_create(
                 user=experience_invitation.invitee,
@@ -1410,9 +1445,10 @@ class ExperienceInvitationResponseView(generics.GenericAPIView):
                 related_user_id=user.id,
             )
 
-            # 초대자와 유저와 1촌 관계 형성
-            # Friend 관계 추가
-            Friend.objects.create(from_user=inviter, to_user=invitee, status="accepted")
+            # 초대자와 유저와 1촌 관계 형성 또는 업데이트
+            Friend.create_or_replace_friendship(
+                from_user=inviter, to_user=invitee, status="accepted"
+            )
 
             # 초대자와 새 유저의 one_degree_count 업데이트
             update_profile_one_degree_count(inviter)
@@ -1536,6 +1572,7 @@ class ExperienceDetailFromLinkView(generics.RetrieveAPIView):
     """
 
     permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
 
     def get(self, request, *args, **kwargs):
         encrypted_id = self.kwargs.get("encrypted_id")  # 암호화된 ID를 URL에서 가져옴
@@ -1618,18 +1655,10 @@ class ExperienceAfterInvitationView(generics.RetrieveAPIView):
         experience.accepted_users.add(user)
         experience.save()
 
-        # 이미 1촌 관계인지 확인하기 (invitee, inviter)
-        existing_friendship = Friend.objects.filter(
-            Q(from_user=invitee, to_user=inviter)
-            | Q(from_user=inviter, to_user=invitee),
-            status="accepted",
-        ).exists()
-
-        # 아니라면, 1촌 관계 생성하기
-        if not existing_friendship:
-            Friend.create_or_replace_friendship(
-                from_user=invitee, to_user=inviter, status="accepted"
-            )
+        # 1촌 관계로 생성 또는 업데이트하기
+        Friend.create_or_replace_friendship(
+            from_user=invitee, to_user=inviter, status="accepted"
+        )
 
         return Response(
             {"detail": "success for adding invited experience"},
@@ -1673,6 +1702,7 @@ class ProjectRetrieveView(generics.RetrieveAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [AllowAny]
+    authentication_classes = []
 
 
 # 모든 User의 Project를 보여주는 View
@@ -2070,6 +2100,7 @@ class CreateInvitationLinkView(generics.CreateAPIView):
 
 class WelcomeView(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
 
     def get(self, request):
         code = request.query_params.get("code", None)
@@ -2378,6 +2409,7 @@ class FriendDeleteView(generics.DestroyAPIView):
         update_profile_one_degree_count(instance.from_user)
         update_profile_one_degree_count(instance.to_user)
 
+
 # 진행중(pending)인 친구 요청을 취소하는 뷰
 class FriendRequestCancelView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -2391,7 +2423,10 @@ class FriendRequestCancelView(generics.DestroyAPIView):
         instance.delete()
 
         # 삭제 성공 메시지 반환 (선택 사항)
-        return Response({"detail": "친구 요청이 성공적으로 취소되었습니다."}, status=204)
+        return Response(
+            {"detail": "친구 요청이 성공적으로 취소되었습니다."}, status=204
+        )
+
 
 class GetUserDistanceAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
@@ -2419,69 +2454,83 @@ class SearchUsersAPIView(generics.ListAPIView):
     # GET 요청 시 쿼리를 포함한 url이 너무 길어져서 반려.
     def post(self, request, *args, **kwargs):
         serializer = UserSearchSerializer(data=request.data)
-        print("request data:", request.data)
-        if serializer.is_valid():
-            query = serializer.validated_data.get("q", "")
-            degrees = serializer.validated_data.get("degree", [])
-            majors = serializer.validated_data.get("majors", [])
+        user = self.request.user
 
-            print("Received Degrees:", degrees)
-            print("Majors:", majors)
+        # 데이터 유효성 검증 (Serializer Validity)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            # 현재 사용자의 프로필을 제외한 전체 프로필을 가져옵니다.
-            print(request.user)
-            filtered_profiles = Profile.objects.exclude(user=request.user)
+        query = serializer.validated_data.get("q", "")
+        degrees = serializer.validated_data.get("degree", [])
+        majors = serializer.validated_data.get("majors", [])
 
-            # 1. 검색 쿼리로 필터링
-            if query != "":
-                filtered_profiles = filtered_profiles.filter(
-                    Q(keywords__keyword__icontains=query)  # 키워드 필터링
-                    | Q(user_name__icontains=query)  # 이름 필터링
-                    | Q(school__icontains=query)  # 학교 필터링
-                    | Q(current_academic_degree__icontains=query)  # 학력 필터링
-                    | Q(major1__icontains=query)  # 전공1 필터링
-                    | Q(major2__icontains=query)  # 전공2 필터링
-                ).distinct()  # distinct로 중복된 결과값 삭제
+        print("query: ", query)
+        print("degrees: ", degrees)
+        print("majors: ", majors)
 
-            # 2. 전공 필터링
-            print("Majors for filtering:", majors)
-            if majors:
-                filtered_profiles = filtered_profiles.filter(
-                    Q(major1__in=majors) | Q(major2__in=majors)
-                )
-            print("Profiles after major filtering:", filtered_profiles)
+        # 오늘의 날짜와 이번 주 월요일 날짜 계산
+        today = timezone.now().date()
+        monday = today - timedelta(days=today.weekday())
 
-            # 3. 촌수 필터링 (촌수 필터가 비어있는 경우 모든 촌수 유저 포함)
+        # 현재 사용자의 프로필을 제외한 전체 프로필을 가져옵니다.
+        filtered_profiles = Profile.objects.exclude(user=user)
+
+        # 1. 검색 쿼리로 필터링
+        if query != "":
+            filtered_profiles = filtered_profiles.filter(
+                Q(keywords__keyword__icontains=query)  # 키워드 필터링
+                | Q(user_name__icontains=query)  # 이름 필터링
+                | Q(school__icontains=query)  # 학교 필터링
+                | Q(current_academic_degree__icontains=query)  # 학력 필터링
+                | Q(major1__icontains=query)  # 전공1 필터링
+                | Q(major2__icontains=query)  # 전공2 필터링
+            ).distinct()  # distinct로 중복된 결과값 삭제
+        print("After query: ", filtered_profiles)
+
+        # 2. 전공 필터링
+        if majors:
+            filtered_profiles = filtered_profiles.filter(
+                Q(major1__in=majors) | Q(major2__in=majors)
+            )
+        print("After major: ", filtered_profiles)
+
+        # 3. 촌수 필터링
+        if degrees:
             degrees = list(map(int, degrees))
-            user = self.request.user
-            profile_with_distances = []
+            max_degree = max(degrees)
 
-            print("Filtered Degrees:", degrees)
-
-            for profile in filtered_profiles:
-                target_user = profile.user
-                distance = get_user_distance(user, target_user)
-                if len(degrees) == 0 or distance in degrees:
-                    # 촌수와 프로필을 함께 저장
-                    profile_with_distances.append((profile, distance))
-
-            # 정렬된 프로필 목록 추출
-            unique_profiles = [profile[0] for profile in profile_with_distances]
-
-            # 페이지네이션 적용
-            paginator = self.pagination_class()
-            paginated_profiles = paginator.paginate_queryset(unique_profiles, request)
-
-            # 정렬된 프로필을 기반으로 CustomUser를 수동으로 정렬
-            sorted_custom_users = [
-                CustomUser.objects.get(profile=profile)
-                for profile in paginated_profiles
+            start_time = time.time()
+            # filtered_profiles에서 user 필드만 리스트로 변환
+            target_users = list(filtered_profiles.values_list("user", flat=True))
+            # get_user_distance 호출
+            target_user_and_distance_dic = get_user_distances(
+                user, target_users, max_degree
+            )
+            filtered_profiles = [
+                Profile.objects.get(user__id=user_id)
+                for user_id, distance in target_user_and_distance_dic.items()
+                if distance is not None and distance in degrees
             ]
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+        print("After degree: ", filtered_profiles)
 
-            serializer = self.get_serializer(sorted_custom_users, many=True)
-            return paginator.get_paginated_response(serializer.data)
+        # 유저 필터링 및 최신 가입일 기준 정렬
+        filtered_users = User.objects.filter(
+            id__in=[profile.user.id for profile in filtered_profiles]
+        ).order_by("-date_joined")
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # 가입일 기준 new_user 추가
+        serialized_users = self.get_serializer(filtered_users, many=True).data
+        user_data = [
+            {"user": user, "new_user": user["date_joined"] >= monday.isoformat()}
+            for user in serialized_users
+        ]
+
+        # 페이지네이션
+        paginator = self.pagination_class()
+        paginated_users = paginator.paginate_queryset(user_data, request)
+        return paginator.get_paginated_response(paginated_users)
 
 
 class SearchProjectsAPIView(generics.ListAPIView):
@@ -2492,14 +2541,15 @@ class SearchProjectsAPIView(generics.ListAPIView):
     # 검색을 위해 POST 요청을 사용하여 쿼리를 JSON 형식으로 전달받음
     def post(self, request, *args, **kwargs):
         serializer = ProjectSearchSerializer(data=request.data)
-        print("Request data:", request.data)
+        user = request.user
 
         if serializer.is_valid():
             query = serializer.validated_data.get("q", "")
+            degrees = serializer.validated_data.get("degree", [])
             keywords = serializer.validated_data.get("keywords", [])
 
-            print("Search query:", query)
-            print("Keywords:", keywords)
+            print("query: ", query)
+            print("degrees: ", degrees)
 
             # 전체 프로젝트 목록에서 필터링 시작
             filtered_projects = Project.objects.all()
@@ -2510,17 +2560,42 @@ class SearchProjectsAPIView(generics.ListAPIView):
                     Q(title__icontains=query)  # 제목 필터링
                     | Q(content__icontains=query)  # 내용 필터링
                     | Q(keywords__keyword__icontains=query)  # 키워드 필터링
-                )
+                ).distinct()
+            print("After query: ", filtered_projects)
 
-            # # 2. 키워드 기반 추가 필터링
+            # 2. 촌수 필터링
+            if degrees:
+                degrees = list(map(int, degrees))
+                max_degree = max(degrees)
+
+                start_time = time.time()
+                # filtered_profiles에서 user 필드만 리스트로 변환
+                target_users = list(filtered_projects.values_list("user", flat=True))
+                # get_user_distance 호출
+                target_user_and_distance_dic = get_user_distances(
+                    user, target_users, max_degree
+                )
+                filtered_projects = Project.objects.filter(
+                    user__id__in=[
+                        user_id
+                        for user_id, distance in target_user_and_distance_dic.items()
+                        if distance is not None and distance in degrees
+                    ]
+                )
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+            print("After degree: ", filtered_projects)
+
+            # # 3. 키워드 기반 추가 필터링
             # if keywords:
             #     filtered_projects = filtered_projects.filter(keywords__keyword__in=keywords)
 
-            # 중복 제거 (ManyToMany 관계로 인해 중복될 수 있음)
-            filtered_projects = filtered_projects.distinct()
-
             # 페이지네이션 적용
             paginator = self.pagination_class()
+
+            # 최신순으로 정렬
+            filtered_projects = filtered_projects.order_by("-created_at")
+
             paginated_projects = paginator.paginate_queryset(filtered_projects, request)
 
             # 시리얼라이저를 사용하여 페이지네이션된 결과 반환
@@ -2529,6 +2604,90 @@ class SearchProjectsAPIView(generics.ListAPIView):
 
         # 유효하지 않은 요청 처리
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SearchExperienceAPIView(generics.ListAPIView):
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
+
+    def post(self, request, *args, **kwargs):
+        serializer = ExperienceSearchSerializer(data=request.data)
+        user = request.user
+
+        if not serializer.is_valid():
+            return Response(
+                {"error": "올바른 검색 요청 형식이 아닙니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        query = serializer.validated_data.get("q", "")
+        degrees = serializer.validated_data.get("degree", [])
+
+        # 오늘의 날짜와 이번 주 월요일 날짜 계산
+        today = timezone.now().date()
+        monday = today - timedelta(days=today.weekday())
+
+        # 상세 경험 필터링 (요청 유저의 상세 경험은 제외)
+        filtered_experience_detail = (
+            ExperienceDetail.objects.exclude(user=user)
+            .select_related("experience", "user")
+            .prefetch_related("tags", "skills_used")
+        )
+
+        # 1. Query 필터링
+        if query != "":
+            filtered_experience_detail = filtered_experience_detail.filter(
+                Q(experience__title__icontains=query)  # Experience의 title 필터
+                | Q(tags__keyword__icontains=query)  # ManyToManyField 관계 필터
+                | Q(description__icontains=query)  # TextField 필터
+                | Q(skills_used__skill__icontains=query)  # ManyToManyField 관계 필터
+            ).distinct()
+
+        # 2. 촌수 필터링
+        if degrees:
+            degrees = list(map(int, degrees))
+            max_degree = max(degrees)
+
+            start_time = time.time()
+            # filtered_experience_detail에서 user 필드만 리스트로 변환
+            target_users = list(
+                filtered_experience_detail.values_list("user", flat=True)
+            )
+            # get_user_distance 호출
+            target_user_and_distance_dic = get_user_distances(
+                user, target_users, max_degree
+            )
+            filtered_user_ids = [
+                user_id
+                for user_id, distance in target_user_and_distance_dic.items()
+                if distance is not None and distance in degrees
+            ]
+            filtered_experience_detail = filtered_experience_detail.filter(
+                user__id__in=filtered_user_ids
+            )
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+        print("After degree: ", filtered_experience_detail)
+
+        # 유저 필터링 및 최신 가입일 기준 정렬
+        filtered_users = User.objects.filter(
+            id__in=filtered_experience_detail.values_list("user", flat=True)
+        ).order_by("-date_joined")
+
+        # 가입일 기준 new_user 추가
+        user_data = [
+            {
+                "user": self.get_serializer(user).data,
+                "new_user": user.date_joined.date() >= monday,
+            }
+            for user in filtered_users
+        ]
+
+        # 페이지네이션
+        paginator = self.pagination_class()
+        paginated_users = paginator.paginate_queryset(user_data, request)
+        return paginator.get_paginated_response(paginated_users)
 
 
 # 이름으로 유저 검색 (1촌이 우선 정렬)
@@ -2651,6 +2810,7 @@ class NotificationAllReadView(generics.GenericAPIView):
 # 이미 존재하는 이메일인지 확인
 class CheckEmailExistsView(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
 
     def post(self, request, *args, **kwargs):
         email = request.data.get("email")
@@ -2895,14 +3055,15 @@ class GetUserAllPathsAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     lookup_url_kwarg = "target_user_id"  # user_id로 lookup
 
-    # BFS를 통해 start_user와 target_user의 모든 경로 배열을 반환합니다.
+    # BFS를 통해 start_user와 target_user의 모든 중간 경로 배열을 반환합니다.
     # 만약 경로가 4촌 이상인 경우 빈 리스트를 반환합니다.
-    # 예시, [[성대규, 카리나, 권대용], [성대규, 아이유, 권대용]]
+    # 예시, 성대규와 권대용의 모든 경로 배열이 다음과 같을 때,
+    # 성대규 -> 카리나 -> 권대용, 성대규 -> 아이유 -> 권대용인 경우.
+    # 반환값, [[카리나], [아이유]]
     def find_paths_to_target_user(self, start_user, target_user):
         # 결과 경로를 저장할 리스트
         result_paths = []
-        # 방문한 유저를 저장할 집합
-        visited = set()
+
         # BFS를 위한 큐 초기화 (시작 사용자, 경로 히스토리 배열)
         queue = deque([(start_user, [start_user])])
 
@@ -2914,35 +3075,35 @@ class GetUserAllPathsAPIView(generics.RetrieveAPIView):
             if len(path_history) >= 5:
                 return result_paths
 
-            # 타겟 유저에 도달한 경우, 결과에 추가
+            # 타겟 유저에 도달한 경우
             if last_path_user == target_user:
+                del path_history[0]  # start_user를 히스토리에서 제거
+                del path_history[-1]  # target_user를 히스토리에서 제거
                 result_paths.append(path_history)
                 continue
 
-            # 아직 방문하지 않은 경우 방문 처리
-            if last_path_user not in visited:
-                visited.add(last_path_user)
+            # 친구 관계 조회 (from_user 또는 to_user가 last_path_user인 경우)
+            friends = Friend.objects.filter(
+                Q(from_user=last_path_user) | Q(to_user=last_path_user),
+                status="accepted",
+            )
 
-                # 친구 관계 조회 (from_user 또는 to_user가 last_path_user인 경우)
-                friends = Friend.objects.filter(
-                    Q(from_user=last_path_user) | Q(to_user=last_path_user),
-                    status="accepted",
-                ).exclude(
-                    from_user__in=visited, to_user__in=visited
-                )  # 방문한 노드 제외 (최적화)
+            # 인접한 친구들을 큐에 추가
+            for friend in friends:
+                # friend가 from_user 또는 to_user 중 어떤 역할인지 판별
+                next_user = (
+                    friend.to_user
+                    if friend.from_user == last_path_user
+                    else friend.from_user
+                )
 
-                # 인접한 친구들을 큐에 추가
-                for friend in friends:
-                    # friend가 from_user 또는 to_user 중 어떤 역할인지 판별
-                    next_user = (
-                        friend.to_user
-                        if friend.from_user == last_path_user
-                        else friend.from_user
-                    )
+                # next_user가 기존 path 경로에 없어야 함.
+                if next_user in path_history:
+                    continue
 
-                    # 새로운 경로를 복사하여 큐에 추가
-                    new_path = path_history + [next_user]
-                    queue.append((next_user, new_path))
+                # 새로운 경로를 복사하여 큐에 추가
+                new_path = path_history + [next_user]
+                queue.append((next_user, new_path))
 
         return result_paths
 
@@ -2969,18 +3130,27 @@ class GetUserAllPathsAPIView(generics.RetrieveAPIView):
             # 최소 길이에 해당하는 경로만 필터링
             results_path = [path for path in results_path if len(path) == min_length]
 
-        print(results_path)
-
-        # user_id를 user_name으로 변환
-        paths_as_usernames = []
+        # CustomUser를 user_id로 변환
+        paths_as_ids = []
         for path in results_path:
-            path_usernames = [
+            path_ids = [CustomUser.objects.get(id=u.id).id for u in path]
+            paths_as_ids.append(path_ids)
+
+        # CustomUser를 user_id로 변환
+        paths_as_names = []
+        for path in results_path:
+            path_names = [
                 CustomUser.objects.get(id=u.id).profile.user_name for u in path
             ]
-            paths_as_usernames.append(path_usernames)
+            paths_as_names.append(path_names)
 
         return Response(
-            {"paths": paths_as_usernames, "current_user_id": current_user.id},
+            {
+                "paths_name": paths_as_names,
+                "paths_id": paths_as_ids,
+                "current_user_id": current_user.id,
+                "target_user_id": target_user.id,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -3111,6 +3281,7 @@ class CommentDeleteView(generics.DestroyAPIView):
 
 #         return Response(serialized_data)
 
+
 class ConversationListView(generics.ListAPIView):
     """
     현재 유저가 참여 중인 모든 대화 목록을 반환.
@@ -3155,7 +3326,6 @@ class ConversationListView(generics.ListAPIView):
         return Response(serialized_data)
 
 
-
 class CreateConversationView(generics.CreateAPIView):
     """
     1:1 대화방 생성. 이미 대화방이 존재하면 오류 반환.
@@ -3187,17 +3357,27 @@ class CreateConversationView(generics.CreateAPIView):
 
         if existing_conversation:
             # user_1가 삭제한 상태라면 복구
-            if existing_conversation.deleted_for_user1 and not existing_conversation.deleted_for_user2:
+            if (
+                existing_conversation.deleted_for_user1
+                and not existing_conversation.deleted_for_user2
+            ):
                 # 기존 메시지의 가시성을 업데이트
-                Message.objects.filter(conversation=existing_conversation).update(visible_for_user1=False)
+                Message.objects.filter(conversation=existing_conversation).update(
+                    visible_for_user1=False
+                )
                 existing_conversation.deleted_for_user1 = False
                 existing_conversation.save()
                 return  # 대화방 복구 후 새로운 대화방을 생성하지 않음
 
             # user_2가 삭제한 상태라면 복구
-            if existing_conversation.deleted_for_user2 and not existing_conversation.deleted_for_user1:
+            if (
+                existing_conversation.deleted_for_user2
+                and not existing_conversation.deleted_for_user1
+            ):
                 # 기존 메시지의 가시성을 업데이트
-                Message.objects.filter(conversation=existing_conversation).update(visible_for_user2=False)
+                Message.objects.filter(conversation=existing_conversation).update(
+                    visible_for_user2=False
+                )
                 existing_conversation.deleted_for_user2 = False
                 existing_conversation.save()
                 return  # 대화방 복구 후 새로운 대화방을 생성하지 않음
@@ -3216,6 +3396,7 @@ class CreateConversationView(generics.CreateAPIView):
             )
 
         return conversation
+
 
 class MessageListView(generics.ListAPIView):
     """
@@ -3242,32 +3423,31 @@ class MessageListView(generics.ListAPIView):
             user1_messages = Message.objects.filter(
                 conversation=conversation,
                 sender=conversation.user_1,
-                visible_for_user1=True
+                visible_for_user1=True,
             ).order_by("created_at")
             user2_messages = Message.objects.filter(
                 conversation=conversation,
                 sender=conversation.user_2,
-                visible_for_user1=True
+                visible_for_user1=True,
             ).order_by("created_at")
         elif user == conversation.user_2:
             # user2가 볼 수 있는 메시지만 가져오기
             user1_messages = Message.objects.filter(
                 conversation=conversation,
                 sender=conversation.user_1,
-                visible_for_user2=True
+                visible_for_user2=True,
             ).order_by("created_at")
             user2_messages = Message.objects.filter(
                 conversation=conversation,
                 sender=conversation.user_2,
-                visible_for_user2=True
+                visible_for_user2=True,
             ).order_by("created_at")
         else:
             raise ValidationError("You do not have access to this conversation.")
 
         # 시스템 메시지는 모든 사용자에게 보여야 함
         system_messages = Message.objects.filter(
-            conversation=conversation,
-            is_system=True
+            conversation=conversation, is_system=True
         ).order_by("created_at")
 
         # 메시지를 JSON 형식으로 응답
@@ -3284,6 +3464,7 @@ class LastMessageView(generics.RetrieveAPIView):
     """
     특정 대화방의 가장 최근 메시지 반환
     """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -3301,16 +3482,22 @@ class LastMessageView(generics.RetrieveAPIView):
         # 사용자별 가시성 필터링
         if user == conversation.user_1:
             # user1이 볼 수 있는 메시지 중 가장 최근 메시지
-            recent_message = Message.objects.filter(
-                conversation=conversation,
-                visible_for_user1=True
-            ).order_by("-created_at").first()
+            recent_message = (
+                Message.objects.filter(
+                    conversation=conversation, visible_for_user1=True
+                )
+                .order_by("-created_at")
+                .first()
+            )
         elif user == conversation.user_2:
             # user2가 볼 수 있는 메시지 중 가장 최근 메시지
-            recent_message = Message.objects.filter(
-                conversation=conversation,
-                visible_for_user2=True
-            ).order_by("-created_at").first()
+            recent_message = (
+                Message.objects.filter(
+                    conversation=conversation, visible_for_user2=True
+                )
+                .order_by("-created_at")
+                .first()
+            )
         else:
             raise ValidationError("You do not have access to this conversation.")
 
@@ -3319,9 +3506,7 @@ class LastMessageView(generics.RetrieveAPIView):
             return Response({"message": "No messages found in this conversation."})
 
         # 메시지를 JSON 형식으로 응답
-        return Response({
-            "last_message": MessageSerializer(recent_message).data
-        })
+        return Response({"last_message": MessageSerializer(recent_message).data})
 
 
 class ConversationReadView(generics.UpdateAPIView):
@@ -3400,12 +3585,16 @@ class CreateMessageView(generics.CreateAPIView):
 
         # 기존 메시지의 가시성 업데이트 (user1이 삭제한 상태라면 새 메시지를 보이도록 설정)
         if user == conversation.user_2 and conversation.deleted_for_user1:
-            Message.objects.filter(conversation=conversation).update(visible_for_user1=False)
+            Message.objects.filter(conversation=conversation).update(
+                visible_for_user1=False
+            )
             conversation.deleted_for_user1 = False  # user1이 대화방을 다시 활성화
             conversation.save()
 
         if user == conversation.user_1 and conversation.deleted_for_user2:
-            Message.objects.filter(conversation=conversation).update(visible_for_user2=False)
+            Message.objects.filter(conversation=conversation).update(
+                visible_for_user2=False
+            )
             conversation.deleted_for_user2 = False  # user2가 대화방을 다시 활성화
             conversation.save()
 
@@ -3496,21 +3685,267 @@ class DeleteMessageView(generics.UpdateAPIView):
 
         # 메시지 내용 변경
         message.message = "삭제된 메시지입니다."
-        
+
         # 메시지 이미지가 있으면 null로 설정
         if message.image:
             message.image = None
-        
+
         message.save()
 
         return Response({"message": "Message deleted successfully."}, status=200)
 
 
-class HealthCheckView(generics.GenericAPIView):
+class NewUserSuggestionView(generics.GenericAPIView):
     """
-    API Health Check View: 단순히 호출 상태를 확인합니다.
+    이번 주 새로운 회원 소식 정보들을 반환합니다.
+    1. 이번 주 추가되고, 2촌인 유저들
+    2. 이번 주 추가되고, 관심사가 일치하는 유저들
+    3. 이번 주 추가되고, 전공이 일치하는 유저들
+    4. 이번 주 추가되고, 스킬이 일치하는 유저들
+    5. 이번 주 추가되고, 경험 키워드가 일치하는 유저들
     """
-    permission_classes = [AllowAny]
 
-    def get(self, request, *args, **kwargs):
-        return Response({"message": "API is working!"}, status=200)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # 결과 저장 변수
+        secondDegreeList = []
+        keywordDic = {}
+        majorDic = {}
+        skillDic = {}
+        experienceKeywordDic = {}
+
+        # 이번 주 월요일 계산
+        today = timezone.now().date()
+        monday = today - timedelta(days=today.weekday())  # 이번 주 월요일
+
+        # 1. 이번 주 추가되고, 2촌인 유저들
+        second_degree_list = get_users_by_degree(user.id, 2)  # 2촌 유저 ID 리스트 반환
+        secondDegreeList = CustomUser.objects.filter(
+            id__in=second_degree_list, date_joined__date__gte=monday
+        )
+
+        # 2. 이번 주 추가되고, 관심사가 일치하는 유저들
+        user_keywords = Profile.objects.get(user=user).keywords.all()  # 관심사 키워드
+        for keyword in user_keywords:
+            new_keyword_users = CustomUser.objects.filter(
+                profile__keywords=keyword, date_joined__date__gte=monday
+            )
+            keywordDic[keyword.keyword] = new_keyword_users
+
+        # 3. 이번 주 추가되고, 전공이 일치하는 유저들
+        user_majors = [user.profile.major1, user.profile.major2]
+        for major in user_majors:
+            if not major:  # major가 blank 또는 null인 경우 건너뜀
+                continue
+
+            new_major_users = CustomUser.objects.filter(
+                Q(profile__major1=major) | Q(profile__major2=major),
+                date_joined__date__gte=monday,
+            )
+            majorDic[major] = new_major_users
+
+        # 4. 이번 주 추가되고, 스킬이 일치하는 유저들
+        user_skills = Skill.objects.filter(profile=user.profile)  # 유저의 스킬 가져오기
+        for skill in user_skills:
+            # ForeignKey 관계에서 필터링
+            new_skill_users = CustomUser.objects.filter(
+                profile__skills__skill__iexact=skill.skill,  # ForeignKey 관계에서 skill 값 비교
+                date_joined__date__gte=monday,
+            ).select_related(
+                "profile"
+            )  # 최적화
+
+            skillDic[skill.skill] = new_skill_users
+
+        # 5. 이번 주 추가되고, 경험 키워드가 일치하는 유저들
+        user_experience_keywords = (
+            ExperienceDetail.objects.filter(user=user)
+            .values_list("tags__keyword", flat=True)
+            .distinct()
+        )
+        for keyword in user_experience_keywords:
+            # 키워드 일치하는 유저 조회
+            new_experience_keyword_users = (
+                CustomUser.objects.filter(
+                    Q(
+                        experience_details__tags__keyword__iexact=keyword
+                    ),  # 키워드 정확히 일치
+                    date_joined__date__gte=monday,  # 가입일 필터
+                )
+                .distinct()
+                .prefetch_related("experience_details__tags")
+            )
+
+            experienceKeywordDic[keyword] = new_experience_keyword_users
+
+        # 결과 반환
+        return Response(
+            {
+                "secondDegree": secondDegreeList.values(
+                    "id", "profile__user_name", "date_joined"
+                ),
+                "keyword": {
+                    k: v.values("id", "profile__user_name", "date_joined")
+                    for k, v in keywordDic.items()
+                },
+                "major": {
+                    k: v.values("id", "profile__user_name", "date_joined")
+                    for k, v in majorDic.items()
+                },
+                "skill": {
+                    k: v.values("id", "profile__user_name", "date_joined")
+                    for k, v in skillDic.items()
+                },
+                "experience_keyword": {
+                    k: v.values("id", "profile__user_name", "date_joined")
+                    for k, v in experienceKeywordDic.items()
+                },
+            }
+        )
+
+
+## 프로젝트 카드 (ProjectCard) 관련 API 뷰
+
+
+# 프로젝트 카드 리스트 뷰 (전체 최신순 정렬)
+class ProjectCardListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        user = self.request.user
+        return ProjectCard.objects.all().order_by("-created_at")
+
+
+class ProjectCardCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+
+    def perform_create(self, serializer):
+        project_card = serializer.save(creator=self.request.user)
+        project_card.accepted_users.add(self.request.user)
+
+        return Response(
+            {
+                "message": "Project card created successfully.",
+                "project_card_id": project_card.id,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class ProjectCardUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    queryset = ProjectCard.objects.all()
+
+    def perform_update(self, serializer):
+        project_card = self.get_object()
+        if project_card.creator != self.request.user:
+            return Response(
+                {"error": "관리자만 프로젝트 카드를 수정할 수 있습니다."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer.save()
+
+
+# 프로젝트 카드에서 탈퇴하는 뷰
+class ProjectCardLeaveView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    queryset = ProjectCard.objects.all()
+
+    def perform_update(self, serializer):
+        project_card = self.get_object()
+        user = self.request.user
+        accepted_users = (
+            project_card.accepted_users.all()
+        )  # 프로젝트 카드에 참여 중인 사용자 목록
+
+        # 1. 프로젝트 카드에 참여 중인지 확인
+        if user not in project_card.accepted_users.all():
+            raise ValidationError("프로젝트 카드에 참여 중이 아닙니다.")
+
+        # 2. 관리자인 경우 처리
+        if project_card.creator == user:
+            if accepted_users.count() > 1:
+                new_creator = accepted_users.exclude(
+                    id=user.id
+                ).first()  # 다른 사용자에게 관리자 위임 TODO: 오래된 순서로 위임
+                project_card.creator = new_creator
+                project_card.accepted_users.remove(user)
+                project_card.save()
+            else:  # 마지막 사용자일 경우 카드 삭제
+                project_card.delete()
+        else:
+            # 관리자가 아닌 경우 탈퇴 처리
+            project_card.accepted_users.remove(user)
+
+        # 3. 프로젝트 카드 초대 이력 삭제
+        ProjectCardInvitation.objects.filter(
+            project_card=project_card, invitee=user
+        ).delete()
+
+        return Response(
+            {"message": "프로젝트 카드에서 성공적으로 탈퇴했습니다."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ProjectCardDestroyView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    queryset = ProjectCard.objects.all()
+
+    def perform_destroy(self, instance):
+        if instance.creator != self.request.user:
+            raise ValidationError("관리자만 프로젝트 카드를 삭제할 수 있습니다.")
+        super().perform_destroy(instance)
+
+
+class ProjectCardInvitationCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardInvitationSerializer
+
+    def perform_create(self, serializer):
+        return super().perform_create(serializer)
+
+
+class ProjectCardInvitationResponseView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardInvitationSerializer
+    queryset = ProjectCardInvitation.objects.all()
+
+    def perform_update(self, serializer):
+        invitation = self.get_object()
+        if invitation.invitee != self.request.user:
+            return Response(
+                {
+                    "error": "해당 프로젝트 카드를 수락 또는 거절할 수 있는 권한이 없습니다."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # 초대 수락 처리
+        if serializer.validated_data.get("status") == "accepted":
+            invitation.project_card.accepted_users.add(invitation.invitee)
+            return Response(
+                {"message": "프로젝트 카드 초대를 수락했습니다."},
+                status=status.HTTP_200_OK,
+            )
+        elif serializer.validated_data.get("status") == "rejected":
+            return Response(
+                {"message": "프로젝트 카드 초대를 거절했습니다."},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"error": "올바르지 않은 응답입니다. (accepted 또는 rejected)"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer.save()

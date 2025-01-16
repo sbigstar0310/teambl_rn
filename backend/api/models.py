@@ -142,14 +142,19 @@ class ProjectImage(models.Model):
         return f"Image for {self.project.title}"
 
 
+# 게시물 모델
+# TODO: POST로 모델 이름 변경하기.
 class Project(models.Model):
-    project_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
+    project_card = models.ForeignKey(
+        "ProjectCard", on_delete=models.CASCADE, related_name="posts", null=True
+    )  # 경험카드와 연결됨
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="projects",
+        related_name="posts",
     )
     title = models.CharField(max_length=100)
     content = models.TextField()
@@ -343,6 +348,63 @@ class Endorsement(models.Model):
         return f"{self.endorsed_by.username} endorsed {self.skill.skill}"
 
 
+# 프로젝트 카드
+class ProjectCard(models.Model):
+    title = models.TextField(max_length=100)  # 제목
+    keywords = models.ManyToManyField(
+        "Keyword", related_name="project_cards", blank=True
+    )
+    accepted_users = models.ManyToManyField(
+        "CustomUser", related_name="project_cards", blank=True
+    )
+    bookmarked_users = models.ManyToManyField(
+        "CustomUser", related_name="bookmarked_project_cards", blank=True
+    )
+    creator = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="created_project_cards",
+    )  # 관리자(생성자)
+    created_at = models.DateTimeField(auto_now_add=True)  # 생성 시간
+    start_date = models.DateField(null=True, blank=True)  # 시작 날짜 (선택적)
+    end_date = models.DateField(null=True, blank=True)  # 종료 날짜 (선택적)
+    description = models.TextField(null=True, blank=True, default="")  # 소개
+
+    def __str__(self):
+        return self.title
+
+
+class ProjectCardInvitation(models.Model):
+    # 좌: db 저장 형태, 우: 실제 표시 형태
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+    ]
+    project_card = models.ForeignKey(
+        ProjectCard,
+        on_delete=models.CASCADE,
+        related_name="invitations",
+        blank=True,
+        null=True,
+    )  # 초대와 연결된 경험
+    inviter = models.ForeignKey(
+        "CustomUser",
+        on_delete=models.CASCADE,
+        related_name="sent_projectCard_invitations",
+    )  # 초대 한 사람
+    invitee = models.ForeignKey(
+        "CustomUser",
+        on_delete=models.CASCADE,
+        related_name="received_projectCard_invitations",
+    )  # 초대 받은 사람
+    created_at = models.DateTimeField(auto_now_add=True)  # 경험 초대가 생성된 시각
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
+
+    def __str__(self):
+        return f"{self.project_card}, inviter: {self.inviter}, invitee: {self.invitee}, status: {self.status}"
+
+
 # 경험 (프로필과 M:N)
 class Experience(models.Model):
     title = models.TextField()  # 경험 제목
@@ -522,19 +584,29 @@ class Friend(models.Model):
 
     @classmethod
     def create_or_replace_friendship(cls, from_user, to_user, status="pending"):
-        # 거절된 상태의 친구 관계가 있는지 확인
+        # 거절 상태의 친구 관계는 항상 삭제
         rejected_friendship = cls.objects.filter(
             models.Q(from_user=from_user, to_user=to_user)
             | models.Q(from_user=to_user, to_user=from_user),
             status="rejected",
         ).first()
 
-        # 거절된 관계가 있으면 삭제
         if rejected_friendship:
             rejected_friendship.delete()
-            print("rejected friendship deleted!")
 
-        # 새로운 친구 관계 생성 (pending 상태로)
+        # 기존에 친구 관계가 있는지 확인
+        any_friendship = cls.objects.filter(
+            models.Q(from_user=from_user, to_user=to_user)
+            | models.Q(from_user=to_user, to_user=from_user)
+        ).first()
+
+        # 기존에 친구 관계가 있다면 상태만 status로 업데이트
+        if any_friendship:
+            any_friendship.status = status
+            any_friendship.save()  # 변경사항 저장
+            return any_friendship
+
+        # 기존 친구 관계가 없다면 status 상태로 생성
         new_friendship = cls.objects.create(
             from_user=from_user, to_user=to_user, status=status
         )
