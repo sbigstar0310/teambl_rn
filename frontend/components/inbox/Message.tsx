@@ -66,7 +66,7 @@ export default function Message(props: MessageProps) {
             {/* Time */}
             <Text style={sharedStyles.secondaryText}>{time}</Text>
             {/* Unread indicator */}
-            {isUnread && !props.isSentByMe && <TickIcon/>}
+            {isUnread && props.isSentByMe && <TickIcon/>}
             <Popup
                 title="이 메시지를 삭제하시겠습니까?"
                 description="메시지는 채팅에서 '메시지 삭제'로 표시됩니다."
