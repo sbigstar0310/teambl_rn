@@ -1,13 +1,33 @@
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import LeftArrowIcon from "@/assets/search/LeftArrowIcon.svg";
+import { useNavigation } from "@react-navigation/native";
 
-export default function SearchHeader() {
+type SearchHeaderProps = {
+    searchQuery: string;
+    setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+    onSearch: (query: string) => void;
+};
+
+export default function SearchHeader({
+    searchQuery,
+    setSearchQuery,
+    onSearch,
+}: SearchHeaderProps) {
+    const navigation = useNavigation();
     return (
         <View style={styles.headerContainer}>
-            <LeftArrowIcon width={20} height={16} />
+            {/* 뒤로가기 버튼 */}
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+                <LeftArrowIcon width={20} height={16} />
+            </TouchableOpacity>
+
+            {/* 검색 입력 필드 */}
             <TextInput
                 style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={(text) => setSearchQuery(text)} // 입력된 값만 업데이트
+                onSubmitEditing={() => onSearch(searchQuery)} // 입력 완료 시 검색 실행
                 placeholder="찾으시는 사람 또는 프로젝트가 있나요?"
                 placeholderTextColor="#A8A8A8"
             />
