@@ -135,7 +135,7 @@ const SignUpScreen = () => {
                 <View style={styles.inputRow}>
                     <TextInput
                         style={[styles.input, styles.emailInput]}
-                        placeholder="새 비밀번호 입력"
+                        placeholder="비밀번호 입력"
                         placeholderTextColor="#A8A8A8"
                         secureTextEntry
                         value={password}
@@ -149,7 +149,7 @@ const SignUpScreen = () => {
                 <View style={styles.inputRow}>
                     <TextInput
                         style={[styles.input, styles.emailInput]}
-                        placeholder="새 비밀번호 확인"
+                        placeholder="비밀번호 확인"
                         placeholderTextColor="#A8A8A8"
                         secureTextEntry
                         value={passwordRe}
