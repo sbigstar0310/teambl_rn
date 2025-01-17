@@ -56,6 +56,7 @@ export default function SearchScreen() {
     const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">("사람");
     const tabs: Array<"사람" | "프로젝트 + 게시물"> = ["사람", "프로젝트 + 게시물"];
     const [activeFilter, setActiveFilter] = useState<string | null>(null); // 필터 상태 // 필터링된 데이터를 계산
+    const [searchHistory, setSearchHistory] = useState<string[]>([]); // 검색 히스토리
     
     const filteredResults = React.useMemo(() => {
         if (activeFilter === null) {
@@ -92,33 +93,33 @@ export default function SearchScreen() {
                         },
                         new_user: false,
                     },
-                    {
-                        user: {
-                            id: 3,
-                            email: "testuser03@kaist.ac.kr",
-                            profile: {
-                                user_name: "유저3",
-                                relation_degree: "1",
-                                school: "카이스트",
-                                current_academic_degree: "석사",
-                                year: 2024,
-                                major1: "전산학부",
-                                major2: "물리학과",
-                                image: null,
-                                keywords: ["singing", "dancing", "acting"],
-                            },
-                            user_name: "유저3",
-                        },
-                        new_user: true,
-                    },
                 ],
             };
 
             // API 호출 결과를 상태로 업데이트
             setMockData(data);
+            setSearchHistory((prev) => [...prev, query]); // 히스토리 업데이트
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
         }
+    };
+
+    // 뒤로가기 함수
+    const handleGoBack = () => {
+        setSearchHistory((prev) => {
+            if (prev.length > 1) {
+                const updatedHistory = [...prev];
+                updatedHistory.pop(); // 가장 최근 검색어 제거
+                const lastQuery = updatedHistory[updatedHistory.length - 1]; // 이전 검색어
+                setSearchQuery(lastQuery); // 검색어 복원
+                fetchSearchResults(lastQuery); // 검색 결과 복원
+                return updatedHistory;
+            } else {
+                setSearchQuery(""); // 검색어 초기화
+                setMockData(initialData); // 초기 데이터로 복원
+                return [];
+            }
+        });
     };
 
     return (
@@ -128,6 +129,7 @@ export default function SearchScreen() {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 onSearch={fetchSearchResults}
+                onGoBack={handleGoBack}
             />
 
             {/* 탭 메뉴 */}

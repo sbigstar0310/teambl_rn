@@ -1,24 +1,24 @@
 import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import LeftArrowIcon from "@/assets/search/LeftArrowIcon.svg";
-import { useNavigation } from "@react-navigation/native";
 
 type SearchHeaderProps = {
     searchQuery: string;
     setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
     onSearch: (query: string) => void;
+    onGoBack: () => void; // 히스토리 기반 뒤로가기 함수
 };
 
 export default function SearchHeader({
     searchQuery,
     setSearchQuery,
     onSearch,
+    onGoBack,
 }: SearchHeaderProps) {
-    const navigation = useNavigation();
     return (
         <View style={styles.headerContainer}>
             {/* 뒤로가기 버튼 */}
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={onGoBack}>
                 <LeftArrowIcon width={20} height={16} />
             </TouchableOpacity>
 
