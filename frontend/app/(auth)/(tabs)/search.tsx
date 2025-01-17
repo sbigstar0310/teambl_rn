@@ -1,12 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
 import FilterTabs from "@/components/search/FilterTabs";
 import UserCard from "@/components/search/UserCard";
+import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 
 // 데이터 타입 정의
+interface SearchData {
+    results: SearchResult[];
+}
+
+interface SearchResult {
+    user: User;
+    new_user: boolean;
+}
+
+interface User {
+    id: number;
+    email: string;
+    profile: UserProfile;
+    user_name: string;
+}
+
 interface UserProfile {
     user_name: string;
     relation_degree: string;
@@ -19,29 +36,12 @@ interface UserProfile {
     keywords: string[];
 }
 
-interface User {
-    id: number;
-    email: string;
-    profile: UserProfile;
-    user_name: string;
-}
-
-interface SearchResult {
-    user: User;
-    new_user: boolean;
-}
-
-interface SearchData {
-    results: SearchResult[];
-}
-
 export default function SearchScreen() {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchData, setSearchData] = useState<SearchData>({ results: [] });
-    const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">("사람");
-    const tabs: Array<"사람" | "프로젝트 + 게시물"> = ["사람", "프로젝트 + 게시물"];
-    const [activeFilter, setActiveFilter] = useState<string | null>(null); // 필터 상태
     const [searchHistory, setSearchHistory] = useState<string[]>([]); // 검색 히스토리
+    const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">("사람");
+    const [activeFilter, setActiveFilter] = useState<string | null>(null); // 필터 상태
 
     const filteredResults = React.useMemo(() => {
         if (activeFilter === null) {
@@ -129,6 +129,10 @@ export default function SearchScreen() {
         });
     };
 
+    const handleFloatingButtonPress = () => {
+        console.log("플로팅 버튼 클릭됨");
+    };
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }} edges={["top"]}>
             {/* 상단 헤더 */}
@@ -140,7 +144,7 @@ export default function SearchScreen() {
             />
 
             {/* 탭 메뉴 */}
-            <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+            <Tabs tabs={["사람", "프로젝트 + 게시물"]} activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {/* 탭 내용 */}
             <View style={styles.contentContainer}>
@@ -167,6 +171,13 @@ export default function SearchScreen() {
                 )}
                 {activeTab === "프로젝트 + 게시물" && <Text>프로젝트 검색 결과</Text>}
             </View>
+            {/* 플로팅 버튼 */}
+            <TouchableOpacity
+                style={styles.floatingButton}
+                onPress={handleFloatingButtonPress}
+            >
+                <SurfingIcon/>
+            </TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -187,5 +198,15 @@ const styles = StyleSheet.create({
         fontWeight: "400",
         lineHeight: 17,
         color: "#595959",
+    },
+    floatingButton: {
+        position: "absolute",
+        bottom: 20,
+        right: 20,
+        justifyContent: "center",
+        alignItems: "center",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
     },
 });
