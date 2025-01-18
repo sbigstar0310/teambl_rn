@@ -30,6 +30,17 @@ declare module api {
         is_active: boolean;
         date_joined: Date;
     };
+
+    type UserSearchResult = {
+        id: number;
+        email: string;
+        last_login: string | null;
+        date_joined: string;
+        is_new_user: boolean;
+        relation_degree: number | null;
+        profile: api.Profile;
+    };
+
     type Skill = {
         id: number;
         skill: string;

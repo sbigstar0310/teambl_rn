@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 from django.forms import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -643,6 +645,41 @@ class CustomUserSerializer(serializers.ModelSerializer):
             instance.set_password(validated_data["password"])
             validated_data.pop("password")
         return super().update(instance, validated_data)
+
+
+# 검색을 통해 반환하는 유저 시리얼라이저
+class CustomUserSearchSerializer(serializers.ModelSerializer):
+    profile = ProfileCreateSerializer()
+    is_new_user = serializers.SerializerMethodField()  # 신규 사용자 여부
+    relation_degree = serializers.SerializerMethodField()  # 촌수 정보
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            "id",
+            "email",
+            "last_login",
+            "date_joined",
+            "is_new_user",
+            "relation_degree",
+            "profile",
+        ]
+
+    def get_is_new_user(self, obj):
+        """
+        오늘 날짜를 기준으로 이번 주에 가입했는지 확인
+        """
+        monday = timezone.now().date() - timedelta(days=timezone.now().date().weekday())
+        return obj.date_joined.date() >= monday
+
+    def get_relation_degree(self, obj):
+        """
+        요청의 컨텍스트에서 유저와 관련된 촌수 정보를 가져옴
+        """
+        target_user_and_distance_dic = self.context.get(
+            "target_user_and_distance_dic", {}
+        )
+        return target_user_and_distance_dic.get(obj.id, None)
 
 
 class ContactSerializer(serializers.ModelSerializer):

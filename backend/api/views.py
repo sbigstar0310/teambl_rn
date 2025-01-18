@@ -29,6 +29,7 @@ from .models import (
 )
 from .serializers import (
     CustomUserSerializer,
+    CustomUserSearchSerializer,
     ProfileCreateSerializer,
     ProfileUpdateSerializer,
     KeywordSerializer,
@@ -2446,91 +2447,79 @@ class GetUserDistanceAPIView(generics.RetrieveAPIView):
 
 
 class SearchUsersAPIView(generics.ListAPIView):
-    serializer_class = CustomUserSerializer
+    serializer_class = CustomUserSearchSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
 
     # 변수를 쿼리가 아닌 JSON 형식으로 전달받기 위해 POST 요청으로 변경
     # GET 요청 시 쿼리를 포함한 url이 너무 길어져서 반려.
     def post(self, request, *args, **kwargs):
-        serializer = UserSearchSerializer(data=request.data)
         user = self.request.user
+        data = request.data
+        print(data)
 
-        # 데이터 유효성 검증 (Serializer Validity)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # 요청 데이터 검증
+        if "q" not in data or "degree" not in data:
+            return Response(
+                {"error": "q와 degree가 요청에 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        query = serializer.validated_data.get("q", "")
-        degrees = serializer.validated_data.get("degree", [])
-        majors = serializer.validated_data.get("majors", [])
+        query = data.get("q", "")
+        degrees = data.get("degree", [])
 
         print("query: ", query)
         print("degrees: ", degrees)
-        print("majors: ", majors)
 
         # 오늘의 날짜와 이번 주 월요일 날짜 계산
         today = timezone.now().date()
         monday = today - timedelta(days=today.weekday())
 
         # 현재 사용자의 프로필을 제외한 전체 프로필을 가져옵니다.
-        filtered_profiles = Profile.objects.exclude(user=user)
+        filtered_users = CustomUser.objects.exclude(id=user.id)
 
-        # 1. 검색 쿼리로 필터링
-        if query != "":
-            filtered_profiles = filtered_profiles.filter(
-                Q(keywords__keyword__icontains=query)  # 키워드 필터링
-                | Q(user_name__icontains=query)  # 이름 필터링
-                | Q(school__icontains=query)  # 학교 필터링
-                | Q(current_academic_degree__icontains=query)  # 학력 필터링
-                | Q(major1__icontains=query)  # 전공1 필터링
-                | Q(major2__icontains=query)  # 전공2 필터링
-            ).distinct()  # distinct로 중복된 결과값 삭제
-        print("After query: ", filtered_profiles)
+        # 1. 검색어로 필터링 (역참조를 통해 Profile 필드 접근)
+        if query:
+            filtered_users = filtered_users.filter(
+                Q(profile__keywords__keyword__icontains=query)  # 키워드 필터링
+                | Q(profile__user_name__icontains=query)  # 이름 필터링
+                | Q(profile__school__icontains=query)  # 학교 필터링
+                | Q(profile__current_academic_degree__icontains=query)  # 학력 필터링
+                | Q(profile__major1__icontains=query)  # 전공1 필터링
+                | Q(profile__major2__icontains=query)  # 전공2 필터링
+            ).distinct()
+        print("After query: ", filtered_users)
 
-        # 2. 전공 필터링
-        if majors:
-            filtered_profiles = filtered_profiles.filter(
-                Q(major1__in=majors) | Q(major2__in=majors)
-            )
-        print("After major: ", filtered_profiles)
+        # 대상 유저 ID 추출 및 거리 계산
+        target_users = list(filtered_users.values_list("id", flat=True))
+        target_user_and_distance_dic = get_user_distances(user, target_users)
 
-        # 3. 촌수 필터링
+        # 2. 촌수 필터링
         if degrees:
-            degrees = list(map(int, degrees))
-            max_degree = max(degrees)
-
-            start_time = time.time()
-            # filtered_profiles에서 user 필드만 리스트로 변환
-            target_users = list(filtered_profiles.values_list("user", flat=True))
-            # get_user_distance 호출
-            target_user_and_distance_dic = get_user_distances(
-                user, target_users, max_degree
+            # 촌수 필터링
+            filtered_users = filtered_users.filter(
+                id__in=[
+                    user_id
+                    for user_id, distance in target_user_and_distance_dic.items()
+                    if distance in degrees
+                ]
             )
-            filtered_profiles = [
-                Profile.objects.get(user__id=user_id)
-                for user_id, distance in target_user_and_distance_dic.items()
-                if distance is not None and distance in degrees
-            ]
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-        print("After degree: ", filtered_profiles)
+        print("After degree: ", filtered_users)
 
-        # 유저 필터링 및 최신 가입일 기준 정렬
-        filtered_users = User.objects.filter(
-            id__in=[profile.user.id for profile in filtered_profiles]
-        ).order_by("-date_joined")
-
-        # 가입일 기준 new_user 추가
-        serialized_users = self.get_serializer(filtered_users, many=True).data
-        user_data = [
-            {"user": user, "new_user": user["date_joined"] >= monday.isoformat()}
-            for user in serialized_users
-        ]
-
-        # 페이지네이션
+        # 정렬 및 페이지네이션
+        filtered_users = filtered_users.order_by("-date_joined")
         paginator = self.pagination_class()
-        paginated_users = paginator.paginate_queryset(user_data, request)
-        return paginator.get_paginated_response(paginated_users)
+        paginated_users = paginator.paginate_queryset(filtered_users, request)
+
+        # 직렬화
+        serializer = self.get_serializer(
+            paginated_users,
+            many=True,
+            context={
+                "target_user_and_distance_dic": target_user_and_distance_dic,
+            },
+        )
+        return paginator.get_paginated_response(serializer.data)
 
 
 class SearchProjectsAPIView(generics.ListAPIView):

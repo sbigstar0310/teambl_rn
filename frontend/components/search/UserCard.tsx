@@ -18,7 +18,7 @@ type UserCardProps = {
     };
 };
 
-export default function UserCard({ user }: UserCardProps) {
+export default function UserCard(user: api.UserSearchResult) {
     const profile = user.profile;
 
     return (
@@ -26,7 +26,10 @@ export default function UserCard({ user }: UserCardProps) {
             {/* 이미지 */}
             <View style={styles.imageContainer}>
                 {profile.image ? (
-                    <Image source={{ uri: profile.image }} style={styles.image} />
+                    <Image
+                        source={{ uri: profile.image }}
+                        style={styles.image}
+                    />
                 ) : (
                     <DefaultProfile width={52} height={52} />
                 )}
@@ -35,7 +38,11 @@ export default function UserCard({ user }: UserCardProps) {
             <View style={styles.textContainer}>
                 <View style={[styles.infoContainer, styles.nameAndRelation]}>
                     <Text style={styles.userName}>{profile.user_name}</Text>
-                    <Text style={styles.relation}> · {profile.relation_degree}촌</Text>
+                    <Text style={styles.relation}>
+                        {user.relation_degree
+                            ? ` · ${user.relation_degree}촌`
+                            : " · 4촌 이상"}
+                    </Text>
                 </View>
                 <View style={styles.infoContainer}>
                     <Text style={styles.infoText}>
@@ -48,7 +55,9 @@ export default function UserCard({ user }: UserCardProps) {
                     </Text>
                 </View>
                 <View style={styles.infoContainer}>
-                    <Text style={styles.keywords}>{profile.keywords.join(" / ")}</Text>
+                    <Text style={styles.keywords}>
+                        {profile.keywords.join(" / ")}
+                    </Text>
                 </View>
             </View>
         </View>

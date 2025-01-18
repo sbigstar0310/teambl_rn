@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
 import FilterTabs from "@/components/search/FilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
+import searchUser from "@/libs/apis/searchUser";
 
 // 데이터 타입 정의
 interface SearchData {
@@ -38,68 +45,73 @@ interface UserProfile {
 
 export default function SearchScreen() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchData, setSearchData] = useState<SearchData>({ results: [] });
+    const [searchData, setSearchData] = useState<api.UserSearchResult[]>([]);
     const [searchHistory, setSearchHistory] = useState<string[]>([]); // 검색 히스토리
-    const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">("사람");
+    const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">(
+        "사람"
+    );
     const [activeFilter, setActiveFilter] = useState<string | null>(null); // 필터 상태
 
     const filteredResults = React.useMemo(() => {
         if (activeFilter === null) {
-            return searchData.results; // 필터가 없으면 전체 데이터 반환
+            return searchData; // 필터가 없으면 전체 데이터 반환
         }
-        return searchData.results.filter(
-            (item) => item.user.profile.relation_degree === activeFilter
-        );
+        return searchData.filter((item) => {
+            return item.relation_degree?.toString() === activeFilter;
+        });
     }, [searchData, activeFilter]);
 
     // API 호출 함수
     const fetchSearchResults = async (query: string) => {
         try {
             // 실제 API 요청 구현
-            const data: SearchData = {
-                results: [
-                    {
-                        user: {
-                            id: 5,
-                            email: "testuser05@kaist.ac.kr",
-                            profile: {
-                                user_name: "유저5",
-                                relation_degree: "2",
-                                school: "KAIST",
-                                current_academic_degree: "학사",
-                                year: 2024,
-                                major1: "전산학부",
-                                major2: null,
-                                image: null,
-                                keywords: ["Drum", "Bass", "Guitar"],
-                            },
-                            user_name: "유저5",
-                        },
-                        new_user: false,
-                    },
-                    {
-                        user: {
-                            id: 3,
-                            email: "testuser03@kaist.ac.kr",
-                            profile: {
-                                user_name: "유저3",
-                                relation_degree: "1",
-                                school: "카이스트",
-                                current_academic_degree: "석사",
-                                year: 2024,
-                                major1: "전산학부",
-                                major2: "물리학과",
-                                image: null,
-                                keywords: ["singing", "dancing", "acting"],
-                            },
-                            user_name: "유저3",
-                        },
-                        new_user: true,
-                    },
-                ],
-            };
-
-            setSearchData(data); // API 호출 결과를 상태로 업데이트
+            // const data: SearchData = {
+            //     results: [
+            //         {
+            //             user: {
+            //                 id: 5,
+            //                 email: "testuser05@kaist.ac.kr",
+            //                 profile: {
+            //                     user_name: "유저5",
+            //                     relation_degree: "2",
+            //                     school: "KAIST",
+            //                     current_academic_degree: "학사",
+            //                     year: 2024,
+            //                     major1: "전산학부",
+            //                     major2: null,
+            //                     image: null,
+            //                     keywords: ["Drum", "Bass", "Guitar"],
+            //                 },
+            //                 user_name: "유저5",
+            //             },
+            //             new_user: false,
+            //         },
+            //         {
+            //             user: {
+            //                 id: 3,
+            //                 email: "testuser03@kaist.ac.kr",
+            //                 profile: {
+            //                     user_name: "유저3",
+            //                     relation_degree: "1",
+            //                     school: "카이스트",
+            //                     current_academic_degree: "석사",
+            //                     year: 2024,
+            //                     major1: "전산학부",
+            //                     major2: "물리학과",
+            //                     image: null,
+            //                     keywords: ["singing", "dancing", "acting"],
+            //                 },
+            //                 user_name: "유저3",
+            //             },
+            //             new_user: true,
+            //         },
+            //     ],
+            // };
+            const response = await searchUser({
+                q: searchQuery,
+                degree: [],
+            });
+            setSearchData(response.results); // API 호출 결과를 상태로 업데이트
             setSearchHistory((prev) => [...prev, query]); // 검색 히스토리 추가
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
@@ -134,7 +146,10 @@ export default function SearchScreen() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }} edges={["top"]}>
+        <SafeAreaView
+            style={{ flex: 1, backgroundColor: "#fff" }}
+            edges={["top"]}
+        >
             {/* 상단 헤더 */}
             <SearchHeader
                 searchQuery={searchQuery}
@@ -144,7 +159,11 @@ export default function SearchScreen() {
             />
 
             {/* 탭 메뉴 */}
-            <Tabs tabs={["사람", "프로젝트 + 게시물"]} activeTab={activeTab} setActiveTab={setActiveTab} />
+            <Tabs
+                tabs={["사람", "프로젝트 + 게시물"]}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+            />
 
             {/* 탭 내용 */}
             <View style={styles.contentContainer}>
@@ -164,19 +183,21 @@ export default function SearchScreen() {
                         {/* 검색 결과 리스트 */}
                         <FlatList
                             data={filteredResults}
-                            keyExtractor={(item) => String(item.user.id)}
-                            renderItem={({ item }) => <UserCard user={item.user} />}
+                            keyExtractor={(item) => String(item.id)}
+                            renderItem={({ item }) => <UserCard {...item} />}
                         />
                     </View>
                 )}
-                {activeTab === "프로젝트 + 게시물" && <Text>프로젝트 검색 결과</Text>}
+                {activeTab === "프로젝트 + 게시물" && (
+                    <Text>프로젝트 검색 결과</Text>
+                )}
             </View>
             {/* 플로팅 버튼 */}
             <TouchableOpacity
                 style={styles.floatingButton}
                 onPress={handleFloatingButtonPress}
             >
-                <SurfingIcon/>
+                <SurfingIcon />
             </TouchableOpacity>
         </SafeAreaView>
     );
