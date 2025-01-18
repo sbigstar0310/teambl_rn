@@ -18,8 +18,14 @@ type UserCardProps = {
     };
 };
 
-export default function UserCard(user: api.UserSearchResult) {
-    const profile = user.profile;
+type UserSearchData = {
+    is_new_user: boolean;
+    relation_degree: number | null;
+    user: api.User;
+};
+
+export default function UserCard(data: UserSearchData) {
+    const profile = data.user.profile;
 
     return (
         <View style={styles.cardContainer}>
@@ -39,8 +45,8 @@ export default function UserCard(user: api.UserSearchResult) {
                 <View style={[styles.infoContainer, styles.nameAndRelation]}>
                     <Text style={styles.userName}>{profile.user_name}</Text>
                     <Text style={styles.relation}>
-                        {user.relation_degree
-                            ? ` · ${user.relation_degree}촌`
+                        {data.relation_degree
+                            ? ` · ${data.relation_degree}촌`
                             : " · 4촌 이상"}
                     </Text>
                 </View>

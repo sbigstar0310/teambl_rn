@@ -23,22 +23,12 @@ declare module api {
     type User = {
         id: number;
         email: string;
-        password: string;
         last_login?: Date;
         is_superuser: boolean;
         is_staff: boolean;
         is_active: boolean;
         date_joined: Date;
-    };
-
-    type UserSearchResult = {
-        id: number;
-        email: string;
-        last_login: string | null;
-        date_joined: string;
-        is_new_user: boolean;
-        relation_degree: number | null;
-        profile: api.Profile;
+        profile: Profile;
     };
 
     type Skill = {

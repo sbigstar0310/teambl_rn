@@ -11,7 +11,11 @@ type Response = {
     count: number;
     next: string | null;
     previous: string | null;
-    results: api.UserSearchResult[];
+    results: {
+        is_new_user: boolean;
+        relation_degree: number | null;
+        user: api.User;
+    }[];
 };
 
 const searchUser = async (params: RequestParams): Promise<Response> => {

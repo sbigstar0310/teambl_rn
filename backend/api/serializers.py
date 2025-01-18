@@ -569,8 +569,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     profile = ProfileCreateSerializer()
-    code = serializers.CharField(write_only=True, required=False)
-    user_name = serializers.CharField(source="profile.user_name", read_only=True)
+    # code = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = CustomUser
@@ -584,8 +583,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "is_active",
             "date_joined",
             "profile",
-            "code",
-            "user_name",
         ]
         extra_kwargs = {
             "password": {"write_only": True},
@@ -648,22 +645,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 # 검색을 통해 반환하는 유저 시리얼라이저
-class CustomUserSearchSerializer(serializers.ModelSerializer):
-    profile = ProfileCreateSerializer()
+class CustomUserSearchSerializer(serializers.Serializer):
+    user = CustomUserSerializer(source="*")  # CustomUserSerializer를 중첩
     is_new_user = serializers.SerializerMethodField()  # 신규 사용자 여부
     relation_degree = serializers.SerializerMethodField()  # 촌수 정보
-
-    class Meta:
-        model = CustomUser
-        fields = [
-            "id",
-            "email",
-            "last_login",
-            "date_joined",
-            "is_new_user",
-            "relation_degree",
-            "profile",
-        ]
 
     def get_is_new_user(self, obj):
         """
@@ -680,6 +665,17 @@ class CustomUserSearchSerializer(serializers.ModelSerializer):
             "target_user_and_distance_dic", {}
         )
         return target_user_and_distance_dic.get(obj.id, None)
+
+    def to_representation(self, instance):
+        """
+        사용자 데이터를 중첩된 구조로 반환
+        """
+        user_data = CustomUserSerializer(
+            instance, context=self.context
+        ).data  # CustomUserSerializer로 직렬화
+        representation = super().to_representation(instance)
+        representation["user"] = user_data  # user 하위에 사용자 데이터 포함
+        return representation
 
 
 class ContactSerializer(serializers.ModelSerializer):

@@ -43,9 +43,15 @@ interface UserProfile {
     keywords: string[];
 }
 
+type UserSearchData = {
+    is_new_user: boolean;
+    relation_degree: number | null;
+    user: api.User;
+};
+
 export default function SearchScreen() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchData, setSearchData] = useState<api.UserSearchResult[]>([]);
+    const [searchData, setSearchData] = useState<UserSearchData[]>([]);
     const [searchHistory, setSearchHistory] = useState<string[]>([]); // 검색 히스토리
     const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">(
         "사람"
@@ -183,7 +189,7 @@ export default function SearchScreen() {
                         {/* 검색 결과 리스트 */}
                         <FlatList
                             data={filteredResults}
-                            keyExtractor={(item) => String(item.id)}
+                            keyExtractor={(item) => String(item.user.id)}
                             renderItem={({ item }) => <UserCard {...item} />}
                         />
                     </View>
