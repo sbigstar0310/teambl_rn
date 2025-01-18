@@ -10,7 +10,8 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 
 // const BASE_URL = Constants.expoConfig?.extra?.API_URL || "https://default-api-url.com";
 // const BASE_URL = "https://teambl.net/api"; // for production
-const BASE_URL = "http://localhost:8000/api";
+// const BASE_URL = "https://teambl-distribution-qm4c.onrender.com/api/" // for development ( or QA)
+const BASE_URL = "http://localhost:8000/api"; // for local development
 
 const api = axios.create({
     baseURL: BASE_URL,
