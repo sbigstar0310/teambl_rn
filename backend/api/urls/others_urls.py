@@ -1,36 +1,7 @@
 from django.urls import path
-from . import views
+from .. import views
 
-# User
-urlpatterns = [
-    path("current-user/", views.CurrentUserView.as_view(), name="current-user"),
-    path("delete-user/", views.DeleteUserView.as_view(), name="delete-user"),
-    path("user/<int:id>/", views.OtherUserView.as_view(), name="other-user"),
-    path("latest-user-id/", views.LatestUserIdView.as_view(), name="latest-user-id"),
-    path("users/", views.AllUsersView.as_view(), name="all-users"),
-    path(
-        "register-experience/",
-        views.CreateUserByExperienceView.as_view(),
-        name="register-experience",
-    ),
-    path("register-alone/", views.CreateUserAloneView.as_view(), name="register-alone"),
-    path(
-        "check-user-login/", views.CheckUserLoginView.as_view(), name="check-user-login"
-    ),
-]
-
-# Profile
-urlpatterns += [
-    path("profile/update/", views.ProfileUpdateView.as_view(), name="update-profile"),
-    path(
-        "profile/<int:userid>/", views.CurrentProfileView.as_view(), name="user-profile"
-    ),
-    path(
-        "profile/updateOneDegreeCount/<int:user_id>/",
-        views.UpdateOneDegreeCountView.as_view(),
-        name="update-profile-one-degree-count",
-    ),
-]
+urlpatterns = []
 
 # Conversation & Message
 urlpatterns += [
@@ -197,58 +168,6 @@ urlpatterns += [
     ),
 ]
 
-# Keyword
-urlpatterns += [
-    path("keywords/", views.KeywordListView.as_view(), name="keyword-list"),
-]
-
-# Skill
-urlpatterns += [
-    path("skills/", views.SkillListView.as_view(), name="skill-list"),
-]
-
-# Project
-urlpatterns += [
-    path("projects/", views.ProjectListCreate.as_view(), name="project-list"),
-    path(
-        "projects/every/",
-        views.ProjectEveryListCreate.as_view(),
-        name="project-every-list",
-    ),
-    path(
-        "projects/<int:pk>/edit/",
-        views.ProjectUpdateView.as_view(),
-        name="project-edit",
-    ),
-    path(
-        "projects/delete/<int:pk>/",
-        views.ProjectDelete.as_view(),
-        name="delete-project",
-    ),
-    path(
-        "projects/<int:pk>/", views.ProjectRetrieveView.as_view(), name="project-detail"
-    ),
-    path(
-        "projects/<int:project_id>/like-toggle/",
-        views.ProjectLikeToggleView.as_view(),
-        name="project-like-toggle",
-    ),
-    path(
-        "projects/<int:project_id>/liked-status/",
-        views.ProjectLikedStatusView.as_view(),
-        name="project-liked-status",
-    ),
-    path(
-        "projects/<int:project_id>/tagged-users/",
-        views.ProjectTaggedUsersListView.as_view(),
-        name="project-tagged-users",
-    ),
-    path(
-        "projects/liked-list/",
-        views.ProjectLikedListView.as_view(),
-        name="project-liked-list",
-    ),
-]
 
 # Invitation
 urlpatterns += [
@@ -267,64 +186,6 @@ urlpatterns += [
     ),
 ]
 
-# Friends
-urlpatterns += [
-    path("friends/", views.ListCreateFriendView.as_view(), name="friend-list"),
-    path(
-        "friends/<int:user_id>/",
-        views.ListFriendView.as_view(),
-        name="friend-list-with-userId",
-    ),
-    path(
-        "friends/update/<int:pk>/",
-        views.FriendUpdateView.as_view(),
-        name="friend-update",
-    ),
-    path(
-        "friends/delete/<int:pk>/",
-        views.FriendDeleteView.as_view(),
-        name="friend-delete",
-    ),
-    path(
-        "friends/one-degree/",
-        views.OneDegreeFriendsView.as_view(),
-        name="one-degree-friends",
-    ),
-    path(
-        "friends/request-cancel/",
-        views.FriendRequestCancelView.as_view(),
-        name="friend-request-cancel",
-    ),
-]
-
-# Notifications
-urlpatterns += [
-    path(
-        "notifications/",
-        views.NotificationListCreateView.as_view(),
-        name="notification-list",
-    ),
-    path(
-        "notifications/update/<int:pk>/",
-        views.NotificationUpdateView.as_view(),
-        name="notification-update",
-    ),
-    path(
-        "notifications/delete/<int:pk>/",
-        views.NotificationDeleteView.as_view(),
-        name="notification-delete",
-    ),
-    path(
-        "notifications-unread-count/",
-        views.UnreadNotificationCountView.as_view(),
-        name="notification-unread-count",
-    ),
-    path(
-        "notifications-all-read/",
-        views.NotificationAllReadView.as_view(),
-        name="notification-all-read",
-    ),
-]
 
 # User Similarity
 urlpatterns += [
@@ -366,43 +227,6 @@ urlpatterns += [
     path("send-email/", views.SendEmailView.as_view(), name="send_email"),
 ]
 
-# Search History
-urlpatterns += [
-    path(
-        "search-history/",
-        views.SearchHistoryListCreateView.as_view(),
-        name="search-history-list-create",
-    ),
-    path(
-        "search-history/<int:pk>/",
-        views.SearchHistoryDeleteView.as_view(),
-        name="search-history-delete",
-    ),
-]
-
-# Comment
-urlpatterns += [
-    path(
-        "projects/<int:project_id>/comments/",
-        views.CommentListView.as_view(),
-        name="comment-list",
-    ),
-    path(
-        "projects/<int:project_id>/comments/create/",
-        views.CommentCreateView.as_view(),
-        name="comment-create",
-    ),
-    path(
-        "comments/<int:pk>/edit/",
-        views.CommentUpdateView.as_view(),
-        name="comment-edit",
-    ),
-    path(
-        "comments/<int:pk>/delete/",
-        views.CommentDeleteView.as_view(),
-        name="comment-delete",
-    ),
-]
 
 # New User Suggestions (이번주 새로운 회원 소식)
 urlpatterns += [
@@ -413,64 +237,6 @@ urlpatterns += [
     ),
 ]
 
-# Search
-urlpatterns += [
-    path("search/", views.SearchUsersAPIView.as_view(), name="user-search"),
-    path(
-        "search-users/", views.SearchUsersByNameAPIView.as_view(), name="search-by-name"
-    ),
-    path(
-        "search/projects/",
-        views.SearchProjectsAPIView.as_view(),
-        name="project-search",
-    ),
-    path(
-        "search/experiences/",
-        views.SearchExperienceAPIView.as_view(),
-        name="experience-search",
-    ),
-]
-
-# Project Cards
-urlpatterns += [
-    path(
-        "project-cards/", views.ProjectCardListView.as_view(), name="project-card-list"
-    ),
-    path(
-        "project-cards/create/",
-        views.ProjectCardCreateView.as_view(),
-        name="project-card-create",
-    ),
-    path(
-        "project-cards/<int:pk>/update/",
-        views.ProjectCardUpdateView.as_view(),
-        name="project-card-update",
-    ),
-    path(
-        "project-cards/<int:pk>/leave/",
-        views.ProjectCardLeaveView.as_view(),
-        name="project-card-leave",
-    ),
-    path(
-        "project-cards/<int:pk>/delete/",
-        views.ProjectCardDestroyView.as_view(),
-        name="project-card-delete",
-    ),
-]
-
-# Project Card Invitation
-urlpatterns += [
-    path(
-        "project-cards/invitation/create/",
-        views.ProjectCardInvitationCreateView.as_view(),
-        name="project-card-invitation-create",
-    ),
-    path(
-        "project-cards/invitation/<int:pk>/response/",
-        views.ProjectCardInvitationResponseView.as_view(),
-        name="project-card-invitation-response",
-    ),
-]
 
 # Others
 urlpatterns += [

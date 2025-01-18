@@ -1,6 +1,11 @@
 from .models import Friend
 from collections import defaultdict, deque
 from django.db.models import Q
+from hashids import Hashids
+from django.conf import settings
+
+# Hashids 초기화 (settings에서 키를 가져와 사용)
+hashids = Hashids(salt=settings.SECRET_KEY_FERNET, min_length=8)
 
 
 def get_user_distance(user, target_user, max_distance=3):
@@ -139,3 +144,25 @@ def get_users_by_degree(user, target_degree):
                 queue.append((friend_id, degree + 1))
 
     return result_list
+
+
+# Friend가 변경될 때 (create, update, delete) Profile 모델의 1촌 수도 같이 업데이트 해주는 함수.
+def update_profile_one_degree_count(user):
+    profile = user.profile  # User를 통해 Profile에 접근
+    profile.one_degree_count = Friend.objects.filter(
+        Q(from_user=user) | Q(to_user=user), status="accepted"
+    ).count()
+    profile.save()
+
+
+# 암호화 함수
+def encrypt_id_short(id_value):
+    return hashids.encode(id_value)
+
+
+# 복호화 함수
+def decrypt_id_short(encrypted_id):
+    decoded = hashids.decode(encrypted_id)
+    if len(decoded) == 0:
+        raise ValueError("Invalid ID")
+    return decoded[0]

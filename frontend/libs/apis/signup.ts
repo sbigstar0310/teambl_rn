@@ -21,7 +21,7 @@ type Response = {
 };
 
 const signup = async (params: RequestParams): Promise<Response> => {
-    const response = await api.post<Response>("/register-alone/", params);
+    const response = await api.post<Response>("user/register-alone/", params);
     return response.data;
 };
 

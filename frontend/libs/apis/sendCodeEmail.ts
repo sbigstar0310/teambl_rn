@@ -13,7 +13,10 @@ type Response = {
 };
 
 const sendCodeEmail = async (params: RequestParams): Promise<Response> => {
-    const response = await api.post<Response>("/send-code-email/", params);
+    const response = await api.post<Response>(
+        "others/send-code-email/",
+        params
+    );
     return response.data;
 };
 

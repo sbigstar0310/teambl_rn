@@ -19,7 +19,7 @@ type Response = {
 };
 
 const searchUser = async (params: RequestParams): Promise<Response> => {
-    const response = await api.post<Response>("/search/", params);
+    const response = await api.post<Response>("/search/user/", params);
     return response.data;
 };
 
