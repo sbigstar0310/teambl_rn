@@ -7,7 +7,7 @@ interface InfoMessageProps {
 
 export default function InfoMessage(props: InfoMessageProps) {
     const text = props.entity.type === "date" ? (
-        props.entity.data.toLocaleDateString("kr", {dateStyle: "medium"})
+        props.entity.data.toLocaleDateString("en-US", {dateStyle: "medium"})
     ) : (
         props.entity.data.message
     );

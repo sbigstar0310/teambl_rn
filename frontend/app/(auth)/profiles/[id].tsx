@@ -1,18 +1,14 @@
 import { sharedStyles } from "@/app/_layout";
-import {Redirect, useLocalSearchParams, useRouter} from "expo-router";
+import {Redirect, useLocalSearchParams} from "expo-router";
 import { View, Text } from "react-native";
 
 export default function ProfileView() {
-    
-    const router = useRouter();
-
     const {id} = useLocalSearchParams();
 
     const myId = "1"; // TODO: get my id from the auth context
     
     if (id === myId) {
-        router.replace("../(tabs)/myprofile");
-        return null;
+        return <Redirect href={"../(tabs)/myprofile"} />;
     } else {
         return (
             <View style={[sharedStyles.container, sharedStyles.contentCentered, sharedStyles.horizontalPadding]}>

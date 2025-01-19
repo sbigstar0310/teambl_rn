@@ -7,7 +7,10 @@ const mockProfile1: api.Profile = {
     major2: "Electrical Engineering",
     introduction: "Great guy",
     image: "https://teambl.net/media/profile_images/IMG_2868.jpeg",
-    keywords: ["teambl", "user"]
+    keywords: ["teambl", "user"],
+    one_degree_count: 1,
+    portfolio_links: [],
+    skills: []
 }
 
 export const mockConversation1: api.Conversation = {
@@ -57,15 +60,83 @@ export const mockMessage1: api.Message = {
     created_at: new Date("Thu, 02 Jan 2025 11:59:15 GMT")
 }
 
-export const mockNotificationItem1: api.NotificationItem = {
+export const mockUser1: api.User = {
     id: 1,
-    message: '새로운 알림이 도착했습니다.',
-    createdAt: new Date('2024-12-01T12:00:00Z'),
-    read: false
+    email: "test1@kaist.ac.kr",
+    last_login: new Date("Thu, 09 Jan 2025 11:59:15 GMT"),
+    is_superuser: false,
+    is_staff: false,
+    is_active: true,
+    date_joined: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
+    profile: mockProfile1
 }
-export const mockNotificationItem2: api.NotificationItem = {
+
+export const mockProject1: api.ProjectCard = {
+    id: 1,
+    title: "ColligoLink",
+    keywords: ["teambl", "project"],
+    accepted_users: [],
+    bookmarked_users: [],
+    creator: mockUser1,
+    created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
+    start_date: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
+    end_date: new Date("Thu, 05 Jan 2025 11:59:15 GMT"),
+    description: "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
+    posts: []
+}
+
+export const mockProject2: api.ProjectCard = {
     id: 2,
-    message: '알림 내용을 확인하세요.',
-    createdAt: new Date('2025-01-01T11:00:00Z'),
-    read: true
-};
+    title: "Project 2",
+    keywords: ["teambl", "project"],
+    accepted_users: [],
+    bookmarked_users: [],
+    creator: mockUser1,
+    created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
+    start_date: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
+    end_date: new Date("Thu, 05 Jan 2025 11:59:15 GMT"),
+    description: "This is a project",
+    posts: []
+}
+
+export const mockProject3: api.ProjectCard = {
+    id: 3,
+    title: "Project 1",
+    keywords: ["teambl", "project"],
+    accepted_users: [],
+    bookmarked_users: [],
+    creator: mockUser1,
+    created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
+    start_date: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
+    end_date: new Date("Thu, 05 Jan 2025 11:59:15 GMT"),
+    description: "This is a project",
+    posts: []
+}
+
+export const mockPost1: api.Post = {
+    id: 1,
+    project_card_id: 1,
+    user: mockUser1,
+    title: "ColligoLink",
+    content: "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
+    created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
+    keywords: ["teambl", "project"],
+    like_count: 24,
+    tagged_users: [],
+    contact: "",
+    liked_users: []
+}
+
+export const mockPost2: api.Post = {
+    id: 2,
+    project_card_id: 2,
+    user: mockUser1,
+    title: "Progress Update",
+    content: "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
+    created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
+    keywords: ["teambl", "project"],
+    like_count: 12,
+    tagged_users: [],
+    contact: "",
+    liked_users: []
+}
