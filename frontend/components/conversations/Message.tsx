@@ -1,8 +1,8 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 
-import TickIcon from '@/assets/tick-icon.svg';
+import TickIcon from '@/assets/conversations/tick-icon.svg';
 import {sharedStyles} from "@/app/_layout";
-import ImagePreview from "@/components/inbox/ImagePreview";
+import ImagePreview from "@/components/conversations/ImagePreview";
 import {Fragment, useState} from "react";
 import {Gesture, GestureDetector, GestureHandlerRootView} from "react-native-gesture-handler";
 import {runOnJS} from "react-native-reanimated";

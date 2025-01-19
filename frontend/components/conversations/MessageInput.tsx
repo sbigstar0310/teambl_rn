@@ -1,7 +1,7 @@
 import {Image, StyleSheet, TextInput, TouchableOpacity, View} from "react-native";
 import {sharedStyles} from "@/app/_layout";
 import PlusIcon from '@/assets/plus-icon.svg';
-import SendIcon from '@/assets/send-icon.svg';
+import SendIcon from '@/assets/conversations/send-icon.svg';
 import {useMemo, useState} from "react";
 import * as ImagePicker from 'expo-image-picker';
 

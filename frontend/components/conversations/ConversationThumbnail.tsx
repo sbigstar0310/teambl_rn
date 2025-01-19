@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {mockMessage1} from "@/shared/mock-data";
 import {shorten, timeAgo} from "@/shared/utils";
 import Avatar from "@/components/common/Avatar";
-import UnreadIndicator from "@/components/inbox/UnreadIndicator";
+import UnreadIndicator from "@/components/conversations/UnreadIndicator";
 import {sharedStyles} from "@/app/_layout";
 
 interface ConversationThumbnailProps {

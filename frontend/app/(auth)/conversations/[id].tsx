@@ -1,4 +1,4 @@
-import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {sharedStyles} from "@/app/_layout";
 import {router, useLocalSearchParams} from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
@@ -6,9 +6,10 @@ import {useEffect, useRef, useState} from "react";
 import {mockConversation1, mockMessage1} from "@/shared/mock-data";
 import {combineUserDetails, MessageEntity, produceMessageEntities, shorten} from "@/shared/utils";
 import Popup from "@/components/Popup";
-import Message from "@/components/inbox/Message";
-import MessageInput from "@/components/inbox/MessageInput";
-import InfoMessage from "@/components/inbox/InfoMessage";
+import Message from "@/components/conversations/Message";
+import MessageInput from "@/components/conversations/MessageInput";
+import InfoMessage from "@/components/conversations/InfoMessage";
+import ExitIcon from '@/assets/conversations/exit-icon.svg';
 
 export default function Conversation() {
     const {id} = useLocalSearchParams();
@@ -137,7 +138,7 @@ interface ExitButtonProps {
 function ExitConversationButton(props: ExitButtonProps) {
     return (
         <TouchableOpacity onPress={props.onPress}>
-            <Image source={require('@/assets/exit-icon.png')} width={48} height={48}/>
+            <ExitIcon width={20} height={20} />
         </TouchableOpacity>
     )
 }
