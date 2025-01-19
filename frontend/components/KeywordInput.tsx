@@ -136,7 +136,6 @@ const KeywordInput = (props: any) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         width: '100%',
         display: 'flex',
         flexDirection: 'row',
