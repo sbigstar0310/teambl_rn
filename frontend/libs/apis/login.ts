@@ -14,7 +14,7 @@ type Response = {
 };
 
 const login = async (params: RequestParams): Promise<Response> => {
-    const response = await api.post<Response>("/token/", params);
+    const response = await api.post<Response>("token/", params);
 
     // save tokens and user_id to AsyncStorage
     AsyncStorage.setItem(ACCESS_TOKEN, response.data.access);

@@ -13,6 +13,7 @@
     "@emotion/react": "^11.14.0",
     "@react-native-async-storage/async-storage": "1.23.1",
     "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
     "expo": "~52.0.23",
     "expo-constants": "~17.0.3",
     "expo-image-picker": "~16.0.4",

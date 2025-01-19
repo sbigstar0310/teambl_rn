@@ -3,6 +3,11 @@ from .. import views
 
 urlpatterns = []
 
+# health check
+urlpatterns += [
+    path("health-check/", views.HealthCheckView.as_view(), name="health-check"),
+]
+
 # Conversation & Message
 urlpatterns += [
     path(

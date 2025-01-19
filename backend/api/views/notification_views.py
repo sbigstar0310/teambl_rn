@@ -37,6 +37,7 @@ class NotificationUpdateView(generics.UpdateAPIView):
 
 
 class NotificationDeleteView(generics.DestroyAPIView):
+    serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):

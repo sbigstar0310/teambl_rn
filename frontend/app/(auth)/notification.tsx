@@ -1,31 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    View,
+    FlatList,
+    TouchableOpacity,
+    ActivityIndicator,
+} from "react-native";
 import { Stack } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
-import api from "../../shared/api";
+import healthCheck from "@/libs/apis/healthCheck";
+import fetchNotificationsAPI from "@/libs/apis/fetchNotifications";
+import updateNotificationAPI from "@/libs/apis/updateNotification";
+import deleteNotificationAPI from "@/libs/apis/deleteNotification";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko"; // 한국어 로케일 사용
+import ScreenHeader from "@/components/common/ScreenHeader";
+import { sharedStyles } from "../_layout";
+import NotificationItem from "@/components/NotificationItem";
 
-// 알림 타입 정의
-type NotificationType = {
-    id: number;
-    message: string;
-    read: boolean;
-    createdAt: string;
-};
+dayjs.extend(relativeTime);
+dayjs.locale("ko");
 
-const Notification = ({ updateUnreadCount }: { updateUnreadCount: (count: number) => void }) => {
+const Notification = () => {
     const navigation = useNavigation();
-    const [notifications, setNotifications] = useState<NotificationType[]>([]);
+    const [notifications, setNotifications] = useState<api.Notification[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchNotifications();
         fetchHealthStatus();
+        fetchNotifications();
     }, []);
 
     const fetchHealthStatus = async () => {
         try {
-            const response = await api.get(`http://192.168.138.85:8000/api/health-check/`);
-            console.log("API Response:", response.data);
+            const status = await healthCheck();
+            console.log("API Response:", status);
         } catch (error) {
             console.error("Failed to fetch health status", error);
         }
@@ -33,33 +44,33 @@ const Notification = ({ updateUnreadCount }: { updateUnreadCount: (count: number
 
     const fetchNotifications = async () => {
         try {
-            const response = await api.get("http://192.168.138.85:8000/api/notifications/");
-            setNotifications(response.data);
-            updateUnreadCount(response.data.filter((notif: NotificationType) => !notif.read).length);
+            const notificationList = await fetchNotificationsAPI();
+            setNotifications(notificationList);
         } catch (error) {
             console.error("Failed to fetch notifications", error);
         } finally {
             setLoading(false);
         }
-
     };
 
-    const updateNotification = async ({ id, isReadButtonClicked = false }: { id: number; isReadButtonClicked?: boolean }) => {
-        try {
-            const newData = isReadButtonClicked ? { read: true } : {};
-            const response = await api.patch(`http://192.168.138.85:8000/api/notifications/update/${id}/`, newData);
+    const markAsRead = async (is_read: boolean, id: number) => {
+        // check notification is already read
+        if (is_read) {
+            return;
+        }
 
+        try {
+            const newNotification = await updateNotificationAPI(
+                { is_read: true },
+                id
+            );
             setNotifications((prevNotifications) =>
                 prevNotifications.map((notification) =>
-                    notification.id === id ? { ...notification, ...response.data } : notification
+                    notification.id === id
+                        ? { ...notification, ...newNotification }
+                        : notification
                 )
             );
-
-            if (isReadButtonClicked) {
-                updateUnreadCount(
-                    notifications.reduce((count, notification) => count + (!notification.read && notification.id !== id ? 1 : 0), 0)
-                );
-            }
         } catch (error) {
             console.error("Failed to update notification", error);
         }
@@ -67,49 +78,41 @@ const Notification = ({ updateUnreadCount }: { updateUnreadCount: (count: number
 
     const deleteNotification = async (id: number) => {
         try {
-            await api.delete(`http://192.168.138.85:8000/api/notifications/delete/${id}/`);
-            setNotifications((prevNotifications) => prevNotifications.filter((notification) => notification.id !== id));
+            await deleteNotificationAPI(id);
+            setNotifications((prevNotifications) =>
+                prevNotifications.filter(
+                    (notification) => notification.id !== id
+                )
+            );
         } catch (error) {
             console.error("Failed to delete notification", error);
         }
     };
 
-    const timeAgo = (timestamp: string) => {
-        const now = new Date();
-        const notificationTime = new Date(timestamp);
-        const diffInMinutes = Math.floor((now.getTime() - notificationTime.getTime()) / 60000);
-
-        if (diffInMinutes < 1) return "방금 전";
-        if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
-        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}시간 전`;
-        return `${Math.floor(diffInMinutes / 1440)}일 전`;
-    };
-
     if (loading) {
-        return <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />;
+        return (
+            <ActivityIndicator
+                size="large"
+                color="#0000ff"
+                style={styles.loader}
+            />
+        );
     }
 
     return (
         <>
             <Stack.Screen options={{ headerShown: false }} />
-            <View style={styles.container}>
-                <Text style={styles.header}>알림</Text>
+            <ScreenHeader title="알림" />
+            <View style={[sharedStyles.container, styles.container]}>
                 <FlatList
                     data={notifications}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[styles.notification, item.read ? styles.read : styles.unread]}
-                            onPress={() => updateNotification({ id: item.id, isReadButtonClicked: true })}
-                        >
-                            <View style={styles.notificationHeader}>
-                                <Text style={styles.message}>{item.message}</Text>
-                                <TouchableOpacity onPress={() => deleteNotification(item.id)}>
-                                    <Text style={styles.deleteText}>×</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <Text style={styles.createdAt}>{timeAgo(item.createdAt)}</Text>
-                        </TouchableOpacity>
+                        <NotificationItem
+                            item={item}
+                            markAsRead={markAsRead}
+                            deleteNotification={deleteNotification}
+                        />
                     )}
                 />
             </View>
@@ -121,7 +124,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#ffffff",
-        padding: 20,
+        paddingTop: 20,
+        paddingHorizontal: 0,
     },
     header: {
         fontSize: 20,

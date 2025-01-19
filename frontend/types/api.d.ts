@@ -62,11 +62,15 @@ declare module api {
         created_at: Date;
     };
 
-    type NotificationItem = {
+    type Notification = {
         id: number;
+        user: number;
         message: string;
-        read: boolean;
-        createdAt: Date;
+        created_at: string;
+        is_read: boolean;
+        notification_type: string;
+        related_user_id?: number;
+        related_project_id?: number;
     };
 
     type ProjectCard = {

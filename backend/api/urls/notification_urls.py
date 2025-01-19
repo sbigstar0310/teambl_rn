@@ -9,12 +9,12 @@ urlpatterns = [
         name="notification-list",
     ),
     path(
-        "update/<int:pk>/",
+        "<int:pk>/update/",
         views.NotificationUpdateView.as_view(),
         name="notification-update",
     ),
     path(
-        "delete/<int:pk>/",
+        "<int:pk>/delete/",
         views.NotificationDeleteView.as_view(),
         name="notification-delete",
     ),

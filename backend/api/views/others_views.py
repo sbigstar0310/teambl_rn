@@ -58,6 +58,14 @@ import time
 logger = logging.getLogger(__name__)
 
 
+# Health Check View
+class HealthCheckView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        return Response({"status": "ok"}, status=status.HTTP_200_OK)
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class SendCodeView(View):
     def post(self, request, *args, **kwargs):
