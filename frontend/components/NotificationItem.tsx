@@ -6,7 +6,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko"; // 한국어 로케일 사용
 import XIcon from "@/assets/delete-x-icon.svg";
 import { isEnabled } from "react-native/Libraries/Performance/Systrace";
-import { useRouter } from "expo-router";
+import updateNotificationAPI from "@/libs/apis/updateNotification";
+import deleteNotificationAPI from "@/libs/apis/deleteNotification";
+import { timeAgo } from "@/shared/utils";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -121,7 +123,7 @@ const NotificationItem: FC<Props> = ({
                 <CloseButton onPress={() => deleteNotification(item.id)}>
                     <XIcon />
                 </CloseButton>
-                <TimeAgo>{timeAgo(item.created_at)}</TimeAgo>
+                <TimeAgo>{timeAgo(new Date(item.created_at))}</TimeAgo>
             </RightContainer>
         </Container>
     );
