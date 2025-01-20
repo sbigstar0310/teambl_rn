@@ -5,6 +5,8 @@ import {
     StyleSheet,
     FlatList,
     TouchableOpacity,
+    ActivityIndicator,
+    Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
@@ -57,13 +59,14 @@ export default function SearchScreen() {
         "사람"
     );
     const [activeFilter, setActiveFilter] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false); // 로딩 상태 추가
 
     const filteredResults = React.useMemo(() => {
         if (activeFilter === null) {
             return searchData;
         }
         return searchData.filter((item) => {
-            item.relation_degree?.toString() === activeFilter
+            return item.relation_degree?.toString() === activeFilter;
         });
     }, [searchData, activeFilter]);
 
@@ -74,11 +77,14 @@ export default function SearchScreen() {
 
     // API 호출 함수
     const fetchSearchResults = async (query: string) => {
+        setLoading(true); // 로딩 시작
         try {
             const response = await searchUser({ q: query, degree: [] });
             setSearchData(response.results);
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
+        } finally {
+            setLoading(false); // 로딩 종료
         }
     };
 
@@ -114,6 +120,13 @@ export default function SearchScreen() {
             style={{ flex: 1, backgroundColor: "#fff" }}
             edges={["top"]}
         >
+            {/* 로딩 모달 */}
+            <Modal visible={loading} transparent>
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            </Modal>
+
             {/* 상단 헤더 */}
             <SearchHeader
                 searchQuery={searchQuery}
@@ -194,5 +207,11 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
+    },
+    loadingOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
