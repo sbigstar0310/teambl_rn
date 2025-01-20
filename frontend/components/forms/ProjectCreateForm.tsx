@@ -6,6 +6,7 @@ import TextField from "@/components/TextField";
 import {sharedStyles} from "@/app/_layout";
 import BottomModal from "@/components/BottomModal";
 import theme from "@/shared/styles/theme";
+import DateRangePicker, {DateRange} from "@/components/DateRangePicker";
 
 interface ProjectCreateFormProps {
     data: ProjectCreateFormData;
@@ -14,7 +15,7 @@ interface ProjectCreateFormProps {
 
 
 export default function ProjectCreateForm(props: ProjectCreateFormProps) {
-    const { data, setData } = props;
+    const {data, setData} = props;
     const [isPeriodInputModalOpen, setIsPeriodInputModalOpen] = useState(false);
     const [isMentionsModalOpen, setIsMentionsModalOpen] = useState(false);
 
@@ -32,6 +33,10 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
 
     const handleDescriptionChange = (value: string) => {
         setData({...data, description: value});
+    }
+
+    const handleTimePeriodChange = (value: DateRange) => {
+        setData({...data, timePeriod: value});
     }
 
     const handlePeriodInputModalOpen = setIsPeriodInputModalOpen.bind(null, true);
@@ -95,7 +100,10 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                     visible={isPeriodInputModalOpen}
                     onClose={handlePeriodInputModalClose}
                     body={<Fragment>
-                        <Text>Time Picker goes here</Text>
+                        <DateRangePicker
+                            defaultValue={data.timePeriod}
+                            onChange={handleTimePeriodChange}
+                        />
                     </Fragment>}
                 />
             </DropdownContent>
@@ -143,10 +151,7 @@ export type ProjectCreateFormData = {
     title: string;
     keywords: string[];
     mentions: string[];
-    timePeriod?: {
-        start: Date;
-        end?: Date;
-    };
+    timePeriod?: DateRange;
     description?: string;
 }
 export const defaultFormData: ProjectCreateFormData = {

@@ -30,7 +30,7 @@ const PrimeButton: React.FC<PrimeButtonProps> = ({ text, onClickCallback, isActi
 
 const styles = StyleSheet.create({
   primeButton: {
-    width: '100%',
+    flex: 1,
     height: 40,
     borderRadius: 5,
     backgroundColor: '#0923A9',
