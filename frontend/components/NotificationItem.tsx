@@ -6,8 +6,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko"; // 한국어 로케일 사용
 import XIcon from "@/assets/delete-x-icon.svg";
 import { isEnabled } from "react-native/Libraries/Performance/Systrace";
-import updateNotificationAPI from "@/libs/apis/updateNotification";
-import deleteNotificationAPI from "@/libs/apis/deleteNotification";
+import { useRouter } from "expo-router";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -67,16 +66,54 @@ const timeAgo = (timestamp: string): string => {
     return dayjs(timestamp).fromNow(); // 상대 시간 반환
 };
 
+// const NotificationItem: FC<Props> = ({
+//     item,
+//     markAsRead,
+//     deleteNotification,
+// }) => {
+//     return (
+//         <Container
+//             onPress={() => markAsRead(item.is_read, item.id)}
+//             isRead={item.is_read}
+//         >
+//             <LeftContainer>
+//                 <Message numberOfLines={2}>{item.message}</Message>
+//             </LeftContainer>
+//             <RightContainer>
+//                 <CloseButton onPress={() => deleteNotification(item.id)}>
+//                     <XIcon />
+//                 </CloseButton>
+//                 <TimeAgo>{timeAgo(item.created_at)}</TimeAgo>
+//             </RightContainer>
+//         </Container>
+//     );
+// };
+
+// export default NotificationItem;
+
 const NotificationItem: FC<Props> = ({
     item,
     markAsRead,
     deleteNotification,
 }) => {
+    const router = useRouter();
+
+    const handlePress = () => {
+        // 읽음 처리
+        markAsRead(item.is_read, item.id);
+
+        // 특정 화면으로 이동 (예: 알림의 링크를 열기)
+        if (item.notification_type === "message") {
+            router.push("/settings");
+        } else if (item.notification_type === "project") {
+            router.push("/settings");
+        } else {
+            console.log("Unhandled notification type:", item.notification_type);
+        }
+    };
+
     return (
-        <Container
-            onPress={() => markAsRead(item.is_read, item.id)}
-            isRead={item.is_read}
-        >
+        <Container onPress={handlePress} isRead={item.is_read}>
             <LeftContainer>
                 <Message numberOfLines={2}>{item.message}</Message>
             </LeftContainer>

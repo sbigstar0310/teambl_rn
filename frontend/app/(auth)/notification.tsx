@@ -9,10 +9,10 @@ import {
 } from "react-native";
 import { Stack } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
-import healthCheck from "@/libs/apis/healthCheck";
 import fetchNotificationsAPI from "@/libs/apis/fetchNotifications";
 import updateNotificationAPI from "@/libs/apis/updateNotification";
 import deleteNotificationAPI from "@/libs/apis/deleteNotification";
+import fetchCurrentUserAPI  from "@/libs/apis/currentUser";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko"; // 한국어 로케일 사용
@@ -27,20 +27,31 @@ const Notification = () => {
     const navigation = useNavigation();
     const [notifications, setNotifications] = useState<api.Notification[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentUser, setCurrentUser] = useState<api.User | null>(null);
 
     useEffect(() => {
-        fetchHealthStatus();
-        fetchNotifications();
+        const fetchData = async () => {
+            await fetchNotifications();
+            await fetchCurrentUser();
+            setLoading(false); // 모든 데이터가 로드된 후 로딩 상태 해제
+        };
+
+        fetchData();
     }, []);
 
-    const fetchHealthStatus = async () => {
+    // 현재 로그인한 유저 정보 불러오기
+    const fetchCurrentUser = async () => {
         try {
-            const status = await healthCheck();
-            console.log("API Response:", status);
+            const currentUser = await fetchCurrentUserAPI();
+            setCurrentUser(currentUser);
+            console.log(currentUser);
         } catch (error) {
-            console.error("Failed to fetch health status", error);
+            console.error("Failed to fetch current user", error);
+        } finally {
+            setLoading(false);
         }
     };
+
 
     const fetchNotifications = async () => {
         try {
