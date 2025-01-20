@@ -13,6 +13,62 @@ import TeamblLogo from "@/assets/teambl.svg";
 import PrimeButton from "@/components/PrimeButton";
 import ConfirmText from "@/components/ConfirmText";
 import login from "@/libs/apis/login";
+import styled from "@emotion/native";
+import Button from "@/components/Button";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+const Container = styled(SafeAreaView)`
+    flex-direction: column;
+    justify-content: top;
+`;
+
+const TopContainer = styled.View`
+    gap: 17px;
+    justify-content: center;
+    margin-top: 116px;
+    margin-bottom: 59px;
+`;
+
+const InputContainer = styled.View`
+    gap: 8px;
+`;
+
+const ButtonContainer = styled.Pressable`
+    margin-bottom: 28px;
+`;
+
+const BottomContainer = styled.View`
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+`;
+
+const LogoContainer = styled.View`
+    align-items: center;
+`;
+
+const Slogan = styled.Text`
+    font-size: 14px;
+    color: #595959;
+    text-align: center;
+`;
+
+const ResetPasswordText = styled.Text`
+    font-size: 14px;
+    color: #595959;
+    text-decoration-line: underline;
+    text-align: center;
+    width: 107px;
+`;
+
+const SignupText = styled.Text`
+    font-size: 14px;
+    color: #595959;
+    text-decoration-line: underline;
+    text-align: center;
+    width: 107px;
+`;
 
 const LoginScreen = () => {
     const [email, setEmail] = useState("");
@@ -52,110 +108,82 @@ const LoginScreen = () => {
     };
 
     return (
-        <View
-            style={[
-                sharedStyles.container,
-                sharedStyles.horizontalPadding,
-                sharedStyles.contentCentered,
-            ]}
+        <Container
+            style={[sharedStyles.container, sharedStyles.horizontalPadding]}
         >
-            {/* 로고 */}
-            <View style={styles.logoContainer}>
-                <TeamblLogo width={134} height={30} />
-            </View>
-            {/* 슬로건 */}
-            <Text style={styles.slogan}>팀원 찾기의 새로운 기준, 팀블!</Text>
-            {/* 입력 필드 */}
-            <TextInput
-                style={styles.input}
-                placeholder="학교 이메일 입력"
-                placeholderTextColor="#A8A8A8"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <View style={styles.marginTop12} />
-            <TextInput
-                style={styles.input}
-                placeholder="비밀번호 입력"
-                placeholderTextColor="#A8A8A8"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
+            <TopContainer>
+                <LogoContainer>
+                    <TeamblLogo width={134} height={30} />
+                </LogoContainer>
 
-            <ConfirmText
-                isActive={showWarning}
-                isVerified={!showWarning}
-                errorText={errorText}
-                successText=""
-                containerStyle={{
-                    alignItems: "flex-start", // 컨테이너 좌측 정렬
-                    flexDirection: "row", // 가로 정렬 유지
-                    alignSelf: "flex-start", // 부모 정렬 덮어쓰기
-                }}
-                textStyle={{
-                    textAlign: "left", // 텍스트 좌측 정렬
-                    alignSelf: "flex-start", // 부모 정렬 덮어쓰기
-                }}
-            />
+                <Slogan>팀원 찾기의 새로운 기준, 팀블!</Slogan>
+            </TopContainer>
 
-            {/* 로그인 버튼 */}
-            <PrimeButton
-                text="로그인"
-                onClickCallback={handleLogin}
-                isActive={isLoginButtonActive}
-                isLoading={false}
-            />
-            {/* 비밀번호 재설정 */}
-            <TouchableOpacity
-                style={styles.resetPassword}
-                onPress={() => {
-                    router.push("/resetPassword"); // 경로 이동
-                }}
-            >
-                <Text style={styles.resetPasswordText}>비밀번호 재설정</Text>
-            </TouchableOpacity>
-            {/* 회원가입 */}
-            <TouchableOpacity
-                style={styles.resetPassword}
-                onPress={() => {
-                    router.push("/signup"); // 경로 이동
-                }}
-            >
-                <Text style={[styles.resetPasswordText, { color: "#0923A9" }]}>
+            <InputContainer>
+                <TextInput
+                    style={styles.input}
+                    placeholder="학교 이메일 입력"
+                    placeholderTextColor="#A8A8A8"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="비밀번호 입력"
+                    placeholderTextColor="#A8A8A8"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                />
+                <ConfirmText
+                    isActive={showWarning}
+                    isVerified={!showWarning}
+                    errorText={errorText}
+                    successText=""
+                    containerStyle={{
+                        alignItems: "flex-start", // 컨테이너 좌측 정렬
+                        flexDirection: "row", // 가로 정렬 유지
+                        alignSelf: "flex-start", // 부모 정렬 덮어쓰기
+                    }}
+                    textStyle={{
+                        textAlign: "left", // 텍스트 좌측 정렬
+                        alignSelf: "flex-start", // 부모 정렬 덮어쓰기
+                    }}
+                />
+            </InputContainer>
+
+            <ButtonContainer>
+                <Button
+                    text="로그인"
+                    onClickCallback={handleLogin}
+                    isActive={isLoginButtonActive}
+                    isLoading={false}
+                    style={{ height: 40 }}
+                />
+            </ButtonContainer>
+
+            <BottomContainer>
+                <ResetPasswordText
+                    onPress={() => {
+                        router.push("/resetPassword"); // 경로 이동
+                    }}
+                >
+                    비밀번호 재설정
+                </ResetPasswordText>
+                <Text> | </Text>
+                <SignupText
+                    onPress={() => {
+                        router.push("/signup"); // 경로 이동
+                    }}
+                >
                     회원가입
-                </Text>
-            </TouchableOpacity>
-        </View>
+                </SignupText>
+            </BottomContainer>
+        </Container>
     );
 };
 
 const styles = StyleSheet.create({
-    // 로고 컨테이너
-    logoContainer: {
-        alignItems: "center",
-    },
-    // 로고 이미지
-    logoImage: {
-        width: 134,
-        height: 30,
-        resizeMode: "contain", // 이미지 크기 조절 옵션
-    },
-    // 슬로건
-    slogan: {
-        fontSize: 14,
-        color: "#595959",
-        marginTop: 20,
-        textAlign: "center",
-        marginBottom: 59,
-    },
-    // 경고 문구
-    warningText: {
-        fontSize: 12,
-        color: "#B80000",
-        marginTop: 8,
-        marginBottom: 14,
-    },
     // 입력 필드
     input: {
         width: "100%",
@@ -163,34 +191,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#F5F5F5",
         borderRadius: 5,
         paddingHorizontal: 12,
-    },
-    // 로그인 버튼
-    loginButton: {
-        width: "100%",
-        height: 40,
-        backgroundColor: "#A8A8A8",
-        borderRadius: 5,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    loginButtonText: {
-        color: "#FFFFFF",
-        fontSize: 16,
-        fontWeight: "600",
-    },
-    // 비밀번호 재설정
-    resetPassword: {
-        marginTop: 16,
-        alignSelf: "center", // 중앙 정렬 추가
-    },
-    resetPasswordText: {
-        fontSize: 14,
-        color: "#595959",
-        textDecorationLine: "underline",
-        textAlign: "center", // 텍스트 중앙 정렬 추가
-    },
-    marginTop12: {
-        marginTop: 12,
     },
 });
 

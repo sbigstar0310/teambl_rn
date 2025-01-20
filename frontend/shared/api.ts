@@ -10,9 +10,9 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 
 // const BASE_URL = Constants.expoConfig?.extra?.API_URL || "https://default-api-url.com";
 // const BASE_URL = "https://teambl.net/api/"; // for production
-// const BASE_URL = "https://teambl-distribution-qm4c.onrender.com/api/" // for development ( or QA)
-// const BASE_URL = "http://localhost:8000/api/"; // for ios simulator (local test)
-const BASE_URL = "http://10.0.2.2:8000/api/"; // for android emulator (local test)
+// const BASE_URL = "https://teambl-distribution-qm4c.onrender.com/api/"; // for development ( or QA)
+const BASE_URL = "http://localhost:8000/api/"; // for ios simulator (local test)
+// const BASE_URL = "http://10.0.2.2:8000/api/"; // for android emulator (local test)
 
 const api = axios.create({
     baseURL: BASE_URL,

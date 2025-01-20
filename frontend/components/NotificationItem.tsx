@@ -8,6 +8,7 @@ import XIcon from "@/assets/delete-x-icon.svg";
 import { isEnabled } from "react-native/Libraries/Performance/Systrace";
 import updateNotificationAPI from "@/libs/apis/updateNotification";
 import deleteNotificationAPI from "@/libs/apis/deleteNotification";
+import { timeAgo } from "@/shared/utils";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -63,10 +64,6 @@ const CloseButton = styled.TouchableOpacity`
     padding-horizontal: 10px;
 `;
 
-const timeAgo = (timestamp: string): string => {
-    return dayjs(timestamp).fromNow(); // 상대 시간 반환
-};
-
 const NotificationItem: FC<Props> = ({
     item,
     markAsRead,
@@ -84,7 +81,7 @@ const NotificationItem: FC<Props> = ({
                 <CloseButton onPress={() => deleteNotification(item.id)}>
                     <XIcon />
                 </CloseButton>
-                <TimeAgo>{timeAgo(item.created_at)}</TimeAgo>
+                <TimeAgo>{timeAgo(new Date(item.created_at))}</TimeAgo>
             </RightContainer>
         </Container>
     );
