@@ -600,6 +600,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
         try:
             with transaction.atomic():
+
                 # Create CustomUser instance
                 user = CustomUser.objects.create_user(
                     email=validated_data["email"],

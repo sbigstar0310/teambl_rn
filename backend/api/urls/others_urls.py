@@ -201,20 +201,6 @@ urlpatterns += [
     ),
 ]
 
-# Password
-urlpatterns += [
-    path(
-        "change-password/",
-        views.ChangePasswordView.as_view(),
-        name="change-password",
-    ),
-    path(
-        "check-password/",
-        views.CheckPasswordView.as_view(),
-        name="check-password",
-    ),
-]
-
 # 이메일로 문의 보내기 기능이 구현되어서 삭제해도 되지 않을까..?
 # Inquiry
 urlpatterns += [

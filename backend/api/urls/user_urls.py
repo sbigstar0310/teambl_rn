@@ -16,4 +16,14 @@ urlpatterns = [
     path("latest/", views.LatestUserIdView.as_view(), name="user-latest"),
     path("list/", views.AllUsersView.as_view(), name="user-list"),
     path("check-login/", views.CheckUserLoginView.as_view(), name="user-check-login"),
+    path(
+        "change-password/",
+        views.ChangePasswordView.as_view(),
+        name="change-password",
+    ),
+    path(
+        "check-password/",
+        views.CheckPasswordView.as_view(),
+        name="check-password",
+    ),
 ]
