@@ -37,6 +37,7 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
 
     const handleTimePeriodChange = (value: DateRange) => {
         setData({...data, timePeriod: value});
+        setIsPeriodInputModalOpen(false);
     }
 
     const handlePeriodInputModalOpen = setIsPeriodInputModalOpen.bind(null, true);
@@ -99,10 +100,11 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                 <BottomModal
                     visible={isPeriodInputModalOpen}
                     onClose={handlePeriodInputModalClose}
+                    heightPercentage={0.45}
                     body={<Fragment>
                         <DateRangePicker
                             defaultValue={data.timePeriod}
-                            onChange={handleTimePeriodChange}
+                            onConfirm={handleTimePeriodChange}
                         />
                     </Fragment>}
                 />

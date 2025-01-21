@@ -7,12 +7,14 @@ import DatePicker from "@/components/DatePicker";
 
 interface DateRangePickerProps {
     defaultValue?: DateRange;
-    onChange: (value: DateRange) => void;
+    onConfirm: (value: DateRange) => void;
 }
 
 export default function DateRangePicker(props: DateRangePickerProps) {
     const [hasEndDate, setHasEndDate] = useState(!!props.defaultValue?.end);
     const [isEndDateFocused, setIsEndDateFocused] = useState(false);
+    const [startDate, setStartDate] = useState<Date>(props.defaultValue?.start ?? new Date());
+    const [endDate, setEndDate] = useState<Date>(props.defaultValue?.end ?? new Date());
 
     const handleFocusStartDate = () => {
         setIsEndDateFocused(false);
@@ -22,20 +24,17 @@ export default function DateRangePicker(props: DateRangePickerProps) {
     }
 
     const handleConfirm = async () => {
-
+        const dateRange: DateRange = {start: startDate};
+        if (hasEndDate) {
+            dateRange.end = endDate;
+        }
+        props.onConfirm(dateRange);
     }
 
-    const handleDateChange = (value: Date) => {
-        if (isEndDateFocused) {
-            props.onChange({
-                start: props.defaultValue?.start ?? new Date(),
-                end: value
-            })
-        } else {
-            props.onChange({
-                start: value,
-                end: props.defaultValue?.end
-            })
+    const handleEndDateToggle = (value: boolean) => {
+        setHasEndDate(value);
+        if (!value && isEndDateFocused) {
+            setIsEndDateFocused(false);
         }
     }
 
@@ -58,7 +57,12 @@ export default function DateRangePicker(props: DateRangePickerProps) {
             </View>
             {/* Date Input */}
             <View style={styles.datePickerContainer}>
-                <DatePicker onChange={handleDateChange}/>
+                {
+                    isEndDateFocused ?
+                        <DatePicker defaultValue={endDate} onChange={setEndDate}/>
+                        :
+                        <DatePicker defaultValue={startDate} onChange={setStartDate}/>
+                }
             </View>
             {/* Actions */}
             <View style={styles.actionsContainer}>
@@ -66,7 +70,7 @@ export default function DateRangePicker(props: DateRangePickerProps) {
                 <ToggleButton
                     label="종료"
                     defaultValue={hasEndDate}
-                    onChange={setHasEndDate}
+                    onChange={handleEndDateToggle}
                 />
                 {/* Confirm button */}
                 <PrimeButton
