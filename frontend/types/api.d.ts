@@ -42,12 +42,12 @@ declare module api {
         current_academic_degree: string;
         year: number;
         major1: string;
-        major2?: string;
+        major2: string | null;
         one_degree_count: number;
         introduction: string;
         skills: Skill[];
         portfolio_links: string[];
-        image?: string;
+        image: string | null;
         keywords: string[];
     };
 

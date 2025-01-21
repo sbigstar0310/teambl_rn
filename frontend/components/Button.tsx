@@ -44,7 +44,9 @@ const Button: FC<Props> = ({
 }) => {
     if (!isActive) {
         return (
-            <Container style={[{ backgroundColor: "#A8A8A8" }, style]}>
+            <Container
+                style={[{ backgroundColor: "#A8A8A8", height: 40 }, style]}
+            >
                 <ButtonText>{text}</ButtonText>
             </Container>
         );
@@ -53,7 +55,7 @@ const Button: FC<Props> = ({
     return (
         <TouchableContainer
             onPress={onClickCallback}
-            style={[{ backgroundColor: "#0923A9" }, style]}
+            style={[{ backgroundColor: "#0923A9", height: 40 }, style]}
         >
             <ButtonText>{text}</ButtonText>
         </TouchableContainer>
