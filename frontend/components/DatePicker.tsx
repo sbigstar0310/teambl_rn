@@ -1,95 +1,77 @@
-import {FlatList, StyleSheet, Text, View} from "react-native";
-import {useMemo, useState} from "react";
+import {StyleSheet, Text, View} from "react-native";
+import {useEffect, useMemo, useState} from "react";
 import theme from "@/shared/styles/theme";
+import VerticalCarousel, {GAP_BETWEEN_ITEMS, ITEM_HEIGHT} from "@/components/VerticalCarousel";
 
 interface DatePickerProps {
     defaultValue?: Date;
     onChange: (value: Date) => void;
 }
 
-export default function DatePicker(props: DatePickerProps) {
-    const [selectedYear, setSelectedYear] = useState<number>(props.defaultValue?.getFullYear() ?? new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState<number>(props.defaultValue?.getMonth() ?? new Date().getMonth());
+const years = Array.from({length: 100}, (_, i) => new Date().getFullYear() - 50 + i);
+const months = Array.from({length: 12}, (_, i) => i + 1);
 
-    const years = useMemo(() => Array.from({length: 10}, (_, i) => i - 5 + selectedYear), []);
-    const months = useMemo(() => Array.from({length: 12}, (_, i) => i + 1), []);
+export default function DatePicker(props: DatePickerProps) {
+    const initialDate = useMemo(() => props.defaultValue ?? new Date(), [props.defaultValue]);
+    const [selectedYear, setSelectedYear] = useState<number>(initialDate.getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number>(initialDate.getMonth() + 1);
+
+
+    useEffect(() => {
+        if (!props.defaultValue) return;
+        setSelectedYear(props.defaultValue.getFullYear());
+        setSelectedMonth(props.defaultValue.getMonth() + 1);
+    }, [props.defaultValue]);
+
+    const handleYearChange = (index: number) => {
+        setSelectedYear(years[index]);
+        props.onChange(new Date(years[index], selectedMonth - 1));
+    }
+
+    const handleMonthChange = (index: number) => {
+        setSelectedMonth(months[index]);
+        props.onChange(new Date(selectedYear, months[index] - 1));
+    }
 
     return (
         <View style={styles.container}>
             {/* Year */}
             <View style={styles.carouselContainer}>
                 <Text style={styles.labelText}>년</Text>
-                <FlatList
-                    style={styles.list}
-                    scrollEnabled={true}
-                    contentContainerStyle={styles.listContainer}
-                    data={years}
-                    renderItem={({item}) =>
-                        <CarouselItem
-                            label={item.toString()}
-                            isActive={item === selectedYear}
-                        />}/>
+                <VerticalCarousel
+                    data={years.map(String)}
+                    onChange={handleYearChange}
+                    defaultIndex={years.indexOf(selectedYear)}
+                />
             </View>
             {/* Month */}
             <View style={styles.carouselContainer}>
                 <Text style={styles.labelText}>월</Text>
-                <FlatList
-                    style={styles.list}
-                    contentContainerStyle={styles.listContainer}
-                    data={months}
-                    renderItem={({item}) =>
-                        <CarouselItem
-                            label={item.toString()}
-                            isActive={item === selectedMonth}
-                        />
-                    }/>
+                <VerticalCarousel
+                    data={months.map(m => m < 10 ? `0${m}` : String(m))}
+                    onChange={handleMonthChange}
+                    defaultIndex={months.indexOf(selectedMonth)}
+                />
             </View>
         </View>
     )
 }
 
-interface CarouselItemProps {
-    label: string,
-    isActive: boolean
-}
-
-function CarouselItem(props: CarouselItemProps) {
-    return (
-        <Text style={[styles.carouselItemLabel, props.isActive && styles.carouselItemLabelActive]}>
-            {props.label}
-        </Text>
-    )
-}
-
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 24,
+        padding: 24,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center"
     },
     carouselContainer: {
-        height: 160,
+        height: ITEM_HEIGHT * 3 + GAP_BETWEEN_ITEMS * 2 + 36,
         flex: 1
-    },
-    list: {
-        flex: 1,
-    },
-    listContainer: {
-        gap: 12,
-        alignItems: "center"
     },
     labelText: {
         textAlign: 'center',
         color: theme.colors.achromatic01,
         fontSize: 14,
-        marginVertical: 16
-    },
-    carouselItemLabel: {
-        fontSize: 20,
-        color: theme.colors.achromatic04
-    },
-    carouselItemLabelActive: {
-        color: theme.colors.black
+        marginBottom: 12
     }
 })
