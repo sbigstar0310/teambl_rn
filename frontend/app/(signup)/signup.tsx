@@ -12,6 +12,7 @@ import { sharedStyles } from "../_layout";
 import PrimeButton from "@/components/PrimeButton";
 import ConfirmText from "@/components/ConfirmText";
 import sendCodeEmail from "@/libs/apis/sendCodeEmail";
+import Button from "@/components/Button";
 
 const SignUpScreen = () => {
     const [email, setEmail] = useState("");
@@ -166,12 +167,13 @@ const SignUpScreen = () => {
                 />
 
                 {/* 다음 버튼 */}
-                <PrimeButton
+                <Button
                     text="다음"
                     onClickCallback={goProfileCreateForm}
                     isActive={codeIsVerified && passwordIsVerified}
                     isLoading={false}
-                ></PrimeButton>
+                    style={{ height: 40, marginTop: 20 }}
+                ></Button>
             </View>
         </View>
     );

@@ -2,10 +2,60 @@ import { StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { sharedStyles } from "@/app/_layout";
 import PrimeButton from "@/components/PrimeButton";
+import Button from "@/components/Button";
+import styled from "@emotion/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Params = {
     user_name: string;
 };
+
+const Container = styled(SafeAreaView)`
+    padding-horizontal: 32px;
+`;
+
+const Name = styled.Text`
+    color: #0923a9;
+    font-family: Pretendard;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.624px;
+    text-align: left;
+    border-width: 1px;
+    width: 100%;
+`;
+const Title = styled.Text`
+    color: #000000;
+    font-family: Pretendard;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.624px;
+    text-align: left;
+    width: 100%;
+`;
+
+const SemiTitle = styled.Text`
+    color: #121212;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: -0.304px;
+    margin-top: 32px;
+    text-align: left;
+    width: 100%;
+`;
+
+const BodyText = styled.Text`
+    color: #595959;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: -0.266px;
+    margin-top: 12px;
+    text-align: left;
+    width: 100%;
+`;
 
 // 화면 컴포넌트
 const SignUpCongradulateScreen = () => {
@@ -17,31 +67,23 @@ const SignUpCongradulateScreen = () => {
     };
 
     return (
-        <View
-            style={[
-                sharedStyles.container,
-                sharedStyles.horizontalPadding,
-                sharedStyles.contentCentered,
-            ]}
+        <Container
+            style={[sharedStyles.container, sharedStyles.contentCentered]}
         >
             {/* Title */}
-            <Text style={[styles.title, styles.paddingHorizontal20]}>
-                {user_name}님,
-            </Text>
-            <Text style={[styles.title, styles.paddingHorizontal20]}>
-                가입을 축하합니다!
-            </Text>
+            <Title>
+                <Name>{user_name}</Name>님,
+            </Title>
+            <Title>가입을 축하합니다!</Title>
 
             {/* Semi Title */}
-            <Text style={[styles.semiTitle, styles.paddingHorizontal20]}>
-                이제 팀블과 함께 최적의 팀원을 탐색해 보세요!
-            </Text>
+            <SemiTitle>이제 팀블과 함께 최적의 팀원을 탐색해 보세요!</SemiTitle>
 
             {/* Body Text */}
-            <Text style={[styles.bodyText, styles.paddingHorizontal20]}>
+            <BodyText>
                 프로필을 더 자세히 작성할수록 다른 회원들과 더 쉽게 연결될 수
                 있습니다. 이어서 프로필을 작성해 볼까요?
-            </Text>
+            </BodyText>
 
             {/* Additional Profile */}
             <Text
@@ -52,13 +94,14 @@ const SignUpCongradulateScreen = () => {
             </Text>
 
             {/* Button */}
-            <PrimeButton
+            <Button
                 text="팀블 시작하기"
                 onClickCallback={goHome}
                 isActive={true}
                 isLoading={false}
+                style={{ width: "100%" }}
             />
-        </View>
+        </Container>
     );
 };
 

@@ -1,15 +1,23 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {Alert, StyleSheet, Text, TextInput, View} from 'react-native';
-import PrimeButton from './PrimeButton';
-import {router} from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import PrimeButton from "./PrimeButton";
+import { router } from "expo-router";
 import Popup from "@/components/Popup";
+import checkPasswordAPI from "@/libs/apis/checkPassword";
+import deleteUserAPI from "@/libs/apis/deleteUser";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/shared/constants";
 
 const DeleteUser: React.FC = () => {
     const [passwd, setPasswd] = useState<string>("");
-    const [isPrevPasswdValid, setIsPrevPasswdValid] = useState<boolean | null>(null);
-    const [isPasswordVerificationLoading, setIsPasswordVerificationLoading] = useState<boolean>(false);
+    const [isPrevPasswdValid, setIsPrevPasswdValid] = useState<boolean | null>(
+        null
+    );
+    const [isPasswordVerificationLoading, setIsPasswordVerificationLoading] =
+        useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] =
+        useState<boolean>(false);
     const [isFailModalOpen, setIsFailModalOpen] = useState<boolean>(false);
 
     const infoMessageContent = useMemo(() => {
@@ -18,16 +26,17 @@ const DeleteUser: React.FC = () => {
         if (isPrevPasswdValid === null) return "";
 
         return isPrevPasswdValid
-            ? {status: "good", message: "비밀번호가 일치합니다"}
-            : {status: "bad", message: "비밀번호가 일치하지 않습니다"};
+            ? { status: "good", message: "비밀번호가 일치합니다" }
+            : { status: "bad", message: "비밀번호가 일치하지 않습니다" };
     }, [passwd, isLoading, isPasswordVerificationLoading, isPrevPasswdValid]);
 
     /** Check password */
     const checkCurrentPasswd = async () => {
         setIsPasswordVerificationLoading(true);
         try {
-            // Simulate API call
-            const isValid = passwd === "correctPassword"; // Simulated validation
+            const isValid = await checkPasswordAPI({ password: passwd }).then(
+                (res) => res.isSame ?? false
+            );
             setIsPrevPasswdValid(isValid);
             return isValid;
         } catch (error) {
@@ -52,11 +61,11 @@ const DeleteUser: React.FC = () => {
     const deleteUser = async () => {
         setIsLoading(true);
         try {
-            // Simulate API call
-            setTimeout(() => {
-                Alert.alert("성공", "회원 탈퇴가 완료되었습니다.");
-                router.push("/login");
-            }, 1000);
+            await deleteUserAPI();
+            Alert.alert("성공", "회원 탈퇴가 완료되었습니다.");
+            AsyncStorage.removeItem(ACCESS_TOKEN);
+            AsyncStorage.removeItem(REFRESH_TOKEN);
+            router.push("/login");
         } catch (error) {
             console.error("회원 탈퇴 오류:", error);
             setIsFailModalOpen(true);
@@ -81,14 +90,19 @@ const DeleteUser: React.FC = () => {
                     secureTextEntry
                     placeholder="비밀번호를 입력하세요"
                 />
-                {infoMessageContent && typeof infoMessageContent === "object" && (
-                    <Text style={[
-                        styles.infoMessage,
-                        infoMessageContent.status === "good" ? styles.good : styles.bad,
-                    ]}>
-                        {infoMessageContent.message}
-                    </Text>
-                )}
+                {infoMessageContent &&
+                    typeof infoMessageContent === "object" && (
+                        <Text
+                            style={[
+                                styles.infoMessage,
+                                infoMessageContent.status === "good"
+                                    ? styles.good
+                                    : styles.bad,
+                            ]}
+                        >
+                            {infoMessageContent.message}
+                        </Text>
+                    )}
             </View>
 
             {/* Delete Button */}
@@ -97,7 +111,7 @@ const DeleteUser: React.FC = () => {
                 onClickCallback={deleteUserWrapper}
                 isActive={!(isLoading || isPasswordVerificationLoading)}
                 isLoading={isLoading || isPasswordVerificationLoading}
-                styleOv={{marginTop: 18}}
+                styleOv={{ marginTop: 18 }}
             />
 
             {/* Confirmation Modal */}
@@ -126,33 +140,33 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#fff',
+        backgroundColor: "#fff",
     },
     inputContainer: {
         marginBottom: 16,
     },
     inputLabel: {
         fontSize: 14,
-        color: '#121212',
+        color: "#121212",
         marginBottom: 8,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: "#ccc",
         borderRadius: 5,
         padding: 10,
         fontSize: 16,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: "#f5f5f5",
     },
     infoMessage: {
         marginTop: 8,
         fontSize: 12,
     },
     good: {
-        color: 'green',
+        color: "green",
     },
     bad: {
-        color: 'red',
+        color: "red",
     },
 });
 

@@ -49,7 +49,7 @@ api.interceptors.response.use(
                 const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN);
                 if (refreshToken) {
                     const { data }: AxiosResponse<{ accessToken: string }> =
-                        await axios.post(`${BASE_URL}/refresh`, {
+                        await axios.post(`${BASE_URL}refresh`, {
                             token: refreshToken,
                         });
 

@@ -21,8 +21,15 @@ type Response = {
 };
 
 const signup = async (params: RequestParams): Promise<Response> => {
-    const response = await api.post<Response>("user/register-alone/", params);
-    return response.data;
+    try {
+        const response = await api.post<Response>(
+            "user/register-alone/",
+            params
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export default signup;

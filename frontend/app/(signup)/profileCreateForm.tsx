@@ -1,5 +1,4 @@
 import {
-    Button,
     Pressable,
     StyleSheet,
     Text,
@@ -17,6 +16,7 @@ import MajorBottomModal from "@/components/MajorBottomModal";
 import MajorSearchInput from "@/components/MajorSearchInput";
 import signup from "@/libs/apis/signup";
 import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
+import Button from "@/components/Button";
 
 type Params = {
     email: string;
@@ -30,9 +30,9 @@ export default function ProfileCreateFormScreen() {
         current_academic_degree: "",
         year: 2025,
         major1: "",
-        major2: undefined, // not required
+        major2: null, // not required
         introduction: "",
-        image: undefined, // not required
+        image: null, // not required
         keywords: [], // not required
         one_degree_count: 0, // not required
         skills: [], // not required
@@ -123,7 +123,7 @@ export default function ProfileCreateFormScreen() {
 
     const selectedMajors = [profile.major1, profile.major2]
         .filter((major) => major !== "")
-        .filter((major) => major !== undefined);
+        .filter((major) => major !== null);
 
     return (
         <View style={sharedStyles.container}>
@@ -189,12 +189,12 @@ export default function ProfileCreateFormScreen() {
                 />
 
                 {/* Button */}
-                <PrimeButton
+                <Button
                     text="완료"
                     onClickCallback={handleSignUp}
                     isActive={isProfileVerified}
                     isLoading={false}
-                    styleOv={{ marginTop: 32 }}
+                    style={{ marginTop: 32 }}
                 />
 
                 {/* Current Degree BottomModal */}
