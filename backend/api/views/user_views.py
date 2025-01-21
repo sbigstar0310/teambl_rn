@@ -348,11 +348,13 @@ class CheckPasswordView(generics.GenericAPIView):
         # 비밀번호가 실제 비밀번호와 일치하는지 확인
         if user.check_password(password):
             return Response(
-                {"detail": "Password is correct."}, status=status.HTTP_200_OK
+                {"isSame": True, "detail": "Password is correct."},
+                status=status.HTTP_200_OK,
             )
         else:
             return Response(
-                {"detail": "Incorrect password."}, status=status.HTTP_400_BAD_REQUEST
+                {"isSame": False, "detail": "Incorrect password."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
 
