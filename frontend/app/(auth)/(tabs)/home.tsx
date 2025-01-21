@@ -65,6 +65,10 @@ export default function HomeScreen() {
                         title="Go to Signup"
                         onPress={() => router.push("/signupOnboarding")}
                     />
+                    <Button
+                        title="Logout"
+                        onPress={() => router.push("/logout")}
+                    />
                 </ScrollView>
 
                 <FlatList
