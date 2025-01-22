@@ -46,7 +46,7 @@ const PrimeButton: React.FC<PrimeButtonProps> = ({
 
 const styles = StyleSheet.create({
     primeButton: {
-        flex: 1,
+        width: "100%",
         height: 40,
         borderRadius: 5,
         backgroundColor: "#0923A9",

@@ -1,18 +1,19 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import KeywordInput from "@/components/KeywordInput";
-import {Fragment, useState} from "react";
+import {useState} from "react";
 import DropdownContent from "@/components/DropdownContent";
 import TextField from "@/components/TextField";
 import {sharedStyles} from "@/app/_layout";
 import BottomModal from "@/components/BottomModal";
 import theme from "@/shared/styles/theme";
 import DateRangePicker, {DateRange, toDateRangeString} from "@/components/DateRangePicker";
+import SearchIcon from "@/assets/bottomtab/SearchIcon.svg";
+import SearchUsersWidget from "@/components/search/SearchUsersWidget";
 
 interface ProjectCreateFormProps {
     data: ProjectCreateFormData;
     setData: (data: ProjectCreateFormData) => void;
 }
-
 
 export default function ProjectCreateForm(props: ProjectCreateFormProps) {
     const {data, setData} = props;
@@ -23,12 +24,21 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
         setData({...data, title: value});
     }
 
-    const handleKeywordsChange = (cb: (prevKeywords: string[]) => string[]) => {
-        setData({...data, keywords: cb(data.keywords)});
+    const handleNewKeyword = (newKeyword: string) => {
+        setData({...data, keywords: [...data.keywords, newKeyword]});
     }
 
-    const handleMentionsChange = (cb: (prevMentions: string[]) => string[]) => {
-        setData({...data, mentions: cb(data.mentions)});
+    const handleKeywordRemove = (index: number) => {
+        setData({...data, keywords: data.keywords.filter((_, i) => i !== index)});
+    }
+
+    const handleNewMention = (newMention: api.User) => {
+        setData({...data, mentions: [...data.mentions, newMention]});
+        setIsMentionsModalOpen(false);
+    }
+
+    const handleMentionRemove = (index: number) => {
+        setData({...data, mentions: data.mentions.filter((_, i) => i !== index)});
     }
 
     const handleDescriptionChange = (value: string) => {
@@ -67,26 +77,31 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                     <Text style={sharedStyles.secondaryText}>최소 2개</Text>
                 </View>
                 <KeywordInput
-                    currentKeyworldList={data.keywords}
-                    setCurrentKeywordList={handleKeywordsChange}
+                    maxNumber={3}
+                    currentKeywordList={data.keywords}
+                    onAdd={handleNewKeyword}
+                    onRemove={handleKeywordRemove}
                     placeholderText="프로젝트를 설명하는 키워드를 적어보세요."
                 />
             </View>
             {/* Project members */}
             <DropdownContent title="사람 태그">
-                <TouchableOpacity onPress={handleMentionsModalOpen}>
-                    <KeywordInput
-                        currentKeyworldList={data.mentions}
-                        setCurrentKeywordList={handleMentionsChange}
-                        placeholderText="함께하는 사람을 태그하세요."
-                    />
-                </TouchableOpacity>
+                <KeywordInput
+                    currentKeywordList={data.mentions.map(user => user.profile.user_name)}
+                    placeholderText="함께하는 사람을 태그하세요."
+                    icon={<TouchableOpacity onPress={handleMentionsModalOpen}>
+                        <SearchIcon width={15} height={15}/>
+                    </TouchableOpacity>}
+                    onRemove={handleMentionRemove}
+                />
                 <BottomModal
+                    heightPercentage={0.8}
                     visible={isMentionsModalOpen}
                     onClose={handleMentionsModalClose}
-                    body={<Fragment>
-                        <Text>Mention search input goes here</Text>
-                    </Fragment>}
+                    body={
+                        <SearchUsersWidget
+                            onConfirm={handleNewMention}
+                        />}
                 />
             </DropdownContent>
             {/* Time period */}
@@ -94,7 +109,7 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                 <TouchableOpacity onPress={handlePeriodInputModalOpen}>
                     <TextField
                         placeholder="프로젝트에 참여한 기간을 작성해 보세요."
-                        disabled={true}
+                        editable={false}
                         defaultValue={data.timePeriod ? toDateRangeString(data.timePeriod) : ""}
                     />
                 </TouchableOpacity>
@@ -151,7 +166,7 @@ const styles = StyleSheet.create({
 export type ProjectCreateFormData = {
     title: string;
     keywords: string[];
-    mentions: string[];
+    mentions: api.User[];
     timePeriod?: DateRange;
     description?: string;
 }

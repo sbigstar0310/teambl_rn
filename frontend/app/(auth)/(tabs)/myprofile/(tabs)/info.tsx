@@ -1,12 +1,20 @@
-import DegreeBottomModal from '@/components/DegreeBottomModal';
 import KeywordInput from '@/components/KeywordInput';
 import theme from '@/shared/styles/theme';
-import React, { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import React, {useState} from 'react';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 
 const MyProfileInfoView = () => {
-
     const [currentSkillList, setCurrentSkillList] = useState(["관심사1", "관심사4", "관심사5", "긴이름을가진관심사99"]);
+
+    const handleNewSkill = (newSkill: string) => {
+        if (newSkill.trim()) {
+            setCurrentSkillList([...currentSkillList, newSkill]);
+        }
+    }
+
+    const handleRemoveSkill = (index: number) => {
+        setCurrentSkillList(currentSkillList.filter((_, i) => i !== index));
+    }
 
     return (
         <ScrollView
@@ -30,8 +38,9 @@ const MyProfileInfoView = () => {
                     </Text>
                 </View>
                 <KeywordInput
-                    currentKeyworldList={currentSkillList}
-                    setCurrentKeywordList={setCurrentSkillList}
+                    currentKeywordList={currentSkillList}
+                    onAdd={handleNewSkill}
+                    onRemove={handleRemoveSkill}
                 />
             </View>
         </ScrollView>
@@ -39,7 +48,7 @@ const MyProfileInfoView = () => {
 };
 
 const styles = StyleSheet.create({
-    container : {
+    container: {
         flex: 1,
         backgroundColor: theme.colors.achromatic05,
         paddingTop: 6
@@ -55,20 +64,20 @@ const styles = StyleSheet.create({
         paddingBottom: 50,
         paddingHorizontal: 15
     },
-    fieldTitleContainer : {
+    fieldTitleContainer: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
         paddingBottom: 12
     },
-    fieldTitle : {
+    fieldTitle: {
         fontSize: theme.fontSizes.subtitle,
         fontWeight: 600,
         color: theme.colors.black,
         marginRight: 12
     },
-    fieldSubTitle : {
+    fieldSubTitle: {
         fontSize: theme.fontSizes.body2,
         fontWeight: 400,
         color: theme.colors.achromatic01
