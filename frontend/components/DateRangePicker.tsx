@@ -4,6 +4,7 @@ import theme from "@/shared/styles/theme";
 import PrimeButton from "@/components/PrimeButton";
 import ToggleButton from "@/components/ToggleButton";
 import DatePicker from "@/components/DatePicker";
+import dayjs from "dayjs";
 
 interface DateRangePickerProps {
     defaultValue?: DateRange;
@@ -138,4 +139,13 @@ const styles = StyleSheet.create({
 export type DateRange = {
     start: Date;
     end?: Date;
+}
+
+export function toDateRangeString(dateRange: DateRange): string {
+    console.log(dateRange);
+    let text = `${dayjs(dateRange.start).format("YYYY.MM")} ~`;
+    if (dateRange.end) {
+        text += ` ${dayjs(dateRange.end).format("YYYY.MM")}`;
+    }
+    return text;
 }

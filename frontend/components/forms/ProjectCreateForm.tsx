@@ -6,7 +6,7 @@ import TextField from "@/components/TextField";
 import {sharedStyles} from "@/app/_layout";
 import BottomModal from "@/components/BottomModal";
 import theme from "@/shared/styles/theme";
-import DateRangePicker, {DateRange} from "@/components/DateRangePicker";
+import DateRangePicker, {DateRange, toDateRangeString} from "@/components/DateRangePicker";
 
 interface ProjectCreateFormProps {
     data: ProjectCreateFormData;
@@ -95,18 +95,17 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                     <TextField
                         placeholder="프로젝트에 참여한 기간을 작성해 보세요."
                         disabled={true}
+                        defaultValue={data.timePeriod ? toDateRangeString(data.timePeriod) : ""}
                     />
                 </TouchableOpacity>
                 <BottomModal
                     visible={isPeriodInputModalOpen}
                     onClose={handlePeriodInputModalClose}
                     heightPercentage={0.45}
-                    body={<Fragment>
-                        <DateRangePicker
-                            defaultValue={data.timePeriod}
-                            onConfirm={handleTimePeriodChange}
-                        />
-                    </Fragment>}
+                    body={<DateRangePicker
+                        defaultValue={data.timePeriod}
+                        onConfirm={handleTimePeriodChange}
+                    />}
                 />
             </DropdownContent>
             {/* Introduction / Description */}
