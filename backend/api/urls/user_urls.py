@@ -12,7 +12,7 @@ urlpatterns = [
     ),
     path("current/", views.CurrentUserView.as_view(), name="user-current"),
     path("delete/", views.DeleteUserView.as_view(), name="user-delete"),
-    path("<int:id>/get", views.OtherUserView.as_view(), name="user-get"),
+    path("<int:id>/get/", views.OtherUserView.as_view(), name="user-get"),
     path("latest/", views.LatestUserIdView.as_view(), name="user-latest"),
     path("list/", views.AllUsersView.as_view(), name="user-list"),
     path("check-login/", views.CheckUserLoginView.as_view(), name="user-check-login"),

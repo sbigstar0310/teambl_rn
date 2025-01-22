@@ -100,4 +100,11 @@ declare module api {
         contact: string;
         liked_users: User[];
     };
+
+    type Friend = {
+        from_user: api.User;
+        to_user: api.User;
+        created_at: Date;
+        status: string;
+    };
 }

@@ -15,7 +15,10 @@ import FilterTabs from "@/components/search/FilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 import searchUser from "@/libs/apis/searchUser";
-import {router} from "expo-router";
+import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { USER_ID } from "@/shared/constants";
+import { getCurrentUserId } from "@/shared/utils";
 
 // 데이터 타입 정의
 interface SearchData {
@@ -128,8 +131,8 @@ export default function SearchScreen() {
             <SearchHeader
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                onSearch={handleSearch}  // 새로운 검색어가 입력되면 handleSearch 실행
-                onGoBack={handleGoBack}  // 뒤로가기 버튼 클릭 시 handleGoBack 실행
+                onSearch={handleSearch} // 새로운 검색어가 입력되면 handleSearch 실행
+                onGoBack={handleGoBack} // 뒤로가기 버튼 클릭 시 handleGoBack 실행
             />
 
             {/* 탭 메뉴 */}
@@ -170,7 +173,16 @@ export default function SearchScreen() {
             {/* 플로팅 버튼 */}
             <TouchableOpacity
                 style={styles.floatingButton}
-                onPress={() => router.push("/padotaki")}
+                onPress={async () => {
+                    const userId = await AsyncStorage.getItem(USER_ID);
+                    console.log("userId", userId);
+                    router.push({
+                        pathname: "/padotaki",
+                        params: {
+                            current_target_user_id: userId,
+                        },
+                    });
+                }}
             >
                 <SurfingIcon />
             </TouchableOpacity>

@@ -15,7 +15,7 @@ import DegreeBottomModal from "@/components/DegreeBottomModal";
 import MajorBottomModal from "@/components/MajorBottomModal";
 import MajorSearchInput from "@/components/MajorSearchInput";
 import signup from "@/libs/apis/signup";
-import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
+import { useLocalSearchParams } from "expo-router/build/hooks";
 import Button from "@/components/Button";
 
 type Params = {

@@ -1145,9 +1145,13 @@ class ProjectCardSerializer(serializers.ModelSerializer):
     keywords = serializers.ListField(
         child=serializers.CharField(), write_only=True  # 문자열 리스트 입력
     )
-    accepted_users = serializers.ListField(
-        child=serializers.IntegerField(), write_only=True  # 유저 ID 리스트 입력
-    )
+    creator = CustomUserSerializer(read_only=True)  # 프로젝트 카드 생성자
+    accepted_users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CustomUser.objects.all(), required=False
+    )  # 프로젝트 카드에 참여한 사람들
+    bookmarked_users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CustomUser.objects.all(), required=False
+    )  # 프로젝트 카드를 북마크한 사람들
     posts = ProjectSerializer(many=True, read_only=True)
 
     class Meta:
@@ -1157,6 +1161,7 @@ class ProjectCardSerializer(serializers.ModelSerializer):
             "title",
             "keywords",  # 프로젝트 카드의 키워드들
             "accepted_users",  # 프로젝트 카드에 참여된 사람들
+            "bookmarked_users",  # 프로젝트 카드를 북마크한 사람들
             "creator",
             "created_at",
             "start_date",
@@ -1174,16 +1179,17 @@ class ProjectCardSerializer(serializers.ModelSerializer):
         return keywords
 
     def create(self, validated_data):
-        # Keywords와 accepted_users는 별도로 처리
+        # Keywords, accepted_users, bookmarked_users는 별도로 처리
         keywords_data = validated_data.pop("keywords", [])
         accepted_users_data = validated_data.pop("accepted_users", [])
+        bookmarked_users_data = validated_data.pop("bookmarked_users", [])
 
         # ProjectCard 생성
         project_card = ProjectCard.objects.create(**validated_data)
 
         # Keywords 처리
         for keyword in keywords_data:
-            keyword_obj, created = Keyword.objects.get_or_create(name=keyword)
+            keyword_obj, created = Keyword.objects.get_or_create(keyword=keyword)
             project_card.keywords.add(keyword_obj)
 
         # Accepted Users 처리

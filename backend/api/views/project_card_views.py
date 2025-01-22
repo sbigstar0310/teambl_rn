@@ -1,8 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from ..models import ProjectCard, ProjectCardInvitation
+from ..models import ProjectCard, ProjectCardInvitation, CustomUser
 from ..serializers import ProjectCardSerializer, ProjectCardInvitationSerializer
 
 
@@ -18,6 +19,22 @@ class ProjectCardListView(generics.ListAPIView):
         return ProjectCard.objects.all().order_by("-created_at")
 
 
+class ProjectCardOneDegreeListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        # 사용자의 id를 변수로 받음
+        user_id = self.kwargs["user_id"]
+
+        # 해당 id로 사용자를 찾기 (없으면 404 오류)
+        user = get_object_or_404(CustomUser, id=user_id)
+
+        # 해당 유저의 프로젝트 카드 리스트 반환
+        return ProjectCard.objects.filter(accepted_users=user).order_by("-created_at")
+
+
 class ProjectCardCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardSerializer
@@ -25,6 +42,7 @@ class ProjectCardCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         project_card = serializer.save(creator=self.request.user)
         project_card.accepted_users.add(self.request.user)
+        project_card.save()
 
         return Response(
             {

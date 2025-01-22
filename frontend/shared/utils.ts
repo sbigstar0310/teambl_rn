@@ -1,4 +1,5 @@
-import { DEFAULT_TEXT_MAX_LENGTH } from "@/shared/constants";
+import { DEFAULT_TEXT_MAX_LENGTH, USER_ID } from "@/shared/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter, useSearchParams } from "expo-router/build/hooks";
 
 export function timeAgo(date: Date): string {
@@ -81,4 +82,9 @@ export const produceMessageEntities = (messages: api.Message[]) => {
         lastMessage = message;
     }
     return entities;
+};
+
+export const getCurrentUserId = async (): Promise<string | null> => {
+    const userId = await AsyncStorage.getItem(USER_ID);
+    return userId ?? null;
 };
