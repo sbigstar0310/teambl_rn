@@ -109,7 +109,10 @@ const DeleteUser: React.FC = () => {
             <PrimeButton
                 text="회원 탈퇴"
                 onClickCallback={deleteUserWrapper}
-                isActive={!(isLoading || isPasswordVerificationLoading)}
+                isActive={
+                    !(isLoading || isPasswordVerificationLoading) &&
+                    passwd.length > 0
+                }
                 isLoading={isLoading || isPasswordVerificationLoading}
                 styleOv={{ marginTop: 18 }}
             />
