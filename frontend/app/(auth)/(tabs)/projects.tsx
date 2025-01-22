@@ -1,23 +1,17 @@
-import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { ScrollView, View } from "react-native";
 import { sharedStyles } from "@/app/_layout";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import { useMemo, useState } from "react";
 import ProjectCreateForm, {
-    defaultFormData,
+    defaultProjectFormData,
+    PostButton,
     ProjectCreateFormData,
 } from "@/components/forms/ProjectCreateForm";
 import { router } from "expo-router";
 import Popup from "@/components/Popup";
-import createProjectCard from "@/libs/apis/ProjectCard/createProjectCard";
 
 export default function ProjectsScreen() {
-    const [data, setData] = useState<ProjectCreateFormData>(defaultFormData);
+    const [data, setData] = useState<ProjectCreateFormData>(defaultProjectFormData);
     const isValid = useMemo<boolean>(
         () => !!data.title && data.keywords.length >= 2,
         [data]
@@ -43,7 +37,7 @@ export default function ProjectsScreen() {
 
     const handleBack = () => {
         setIsConfirmationPopupOpen(false);
-        setData(defaultFormData);
+        setData(defaultProjectFormData);
         router.back();
     };
 
@@ -74,33 +68,3 @@ export default function ProjectsScreen() {
         </View>
     );
 }
-
-interface PostButtonProps {
-    disabled: boolean;
-    onPress: () => void;
-}
-
-function PostButton(props: PostButtonProps) {
-    return (
-        <TouchableOpacity disabled={props.disabled} onPress={props.onPress}>
-            <Text
-                style={[
-                    styles.buttonText,
-                    props.disabled && styles.buttonTextDisabled,
-                ]}
-            >
-                올리기
-            </Text>
-        </TouchableOpacity>
-    );
-}
-
-const styles = StyleSheet.create({
-    buttonText: {
-        color: "#2546F3",
-        fontSize: 16,
-    },
-    buttonTextDisabled: {
-        color: "#A8A8A8",
-    },
-});

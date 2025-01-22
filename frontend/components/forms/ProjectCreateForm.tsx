@@ -155,28 +155,55 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
     );
 }
 
-function RequiredMark() {
+export function RequiredMark() {
     return <Text style={styles.requiredMark}>*</Text>;
+}
+
+interface PostButtonProps {
+    disabled: boolean;
+    onPress: () => void;
+}
+
+export function PostButton(props: PostButtonProps) {
+    return (
+        <TouchableOpacity disabled={props.disabled} onPress={props.onPress}>
+            <Text
+                style={[
+                    styles.buttonText,
+                    props.disabled && styles.buttonTextDisabled,
+                ]}
+            >
+                올리기
+            </Text>
+        </TouchableOpacity>
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
         paddingVertical: 24,
-        gap: 24,
+        gap: 24
     },
     row: {
         flexDirection: "row",
         gap: 4,
-        alignItems: "center",
+        alignItems: "center"
     },
     field: {
-        gap: 12,
+        gap: 12
     },
     requiredMark: {
         color: theme.colors.black,
         fontSize: 14,
-        marginRight: 12,
+        marginRight: 12
     },
+    buttonText: {
+        color: "#2546F3",
+        fontSize: 16
+    },
+    buttonTextDisabled: {
+        color: "#A8A8A8"
+    }
 });
 
 export type ProjectCreateFormData = {
@@ -186,7 +213,7 @@ export type ProjectCreateFormData = {
     timePeriod?: DateRange;
     description?: string;
 };
-export const defaultFormData: ProjectCreateFormData = {
+export const defaultProjectFormData: ProjectCreateFormData = {
     title: "",
     keywords: [],
     mentions: [],
