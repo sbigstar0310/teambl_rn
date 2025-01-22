@@ -257,7 +257,7 @@ class PortfolioLinkSerializer(serializers.ModelSerializer):
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer):
-    keywords = keywords = serializers.ListField(
+    keywords = serializers.ListField(
         child=serializers.CharField(), write_only=True, required=False
     )
     skills = SkillSerializer(many=True, required=False)
@@ -1142,9 +1142,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class ProjectCardSerializer(serializers.ModelSerializer):
-    keywords = serializers.ListField(
-        child=serializers.CharField(), write_only=True  # 문자열 리스트 입력
-    )
+    keywords = serializers.SerializerMethodField()  # 프로젝트 카드의 키워드들
     creator = CustomUserSerializer(read_only=True)  # 프로젝트 카드 생성자
     accepted_users = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CustomUser.objects.all(), required=False
@@ -1169,6 +1167,9 @@ class ProjectCardSerializer(serializers.ModelSerializer):
             "description",
             "posts",  # 프로젝트 카드의 게시물들
         ]
+
+    def get_keywords(self, obj):
+        return [keyword.keyword for keyword in obj.keywords.all()]
 
     def validate_keywords(self, keywords):
         # 키워드 개수 검증

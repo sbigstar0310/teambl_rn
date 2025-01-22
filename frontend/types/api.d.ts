@@ -31,6 +31,12 @@ declare module api {
         profile: Profile;
     };
 
+    type UserSearchResult = {
+        is_new_user: boolean;
+        relation_degree: number | null;
+        user: api.User;
+    };
+
     type Skill = {
         id: number;
         skill: string;

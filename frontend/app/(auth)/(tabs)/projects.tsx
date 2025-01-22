@@ -1,35 +1,66 @@
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {sharedStyles} from "@/app/_layout";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { sharedStyles } from "@/app/_layout";
 import ScreenHeader from "@/components/common/ScreenHeader";
-import {useMemo, useState} from "react";
-import ProjectCreateForm, {defaultFormData, ProjectCreateFormData} from "@/components/forms/ProjectCreateForm";
-import {router} from "expo-router";
+import { useMemo, useState } from "react";
+import ProjectCreateForm, {
+    defaultFormData,
+    ProjectCreateFormData,
+} from "@/components/forms/ProjectCreateForm";
+import { router } from "expo-router";
 import Popup from "@/components/Popup";
+import createProjectCard from "@/libs/apis/ProjectCard/createProjectCard";
 
 export default function ProjectsScreen() {
     const [data, setData] = useState<ProjectCreateFormData>(defaultFormData);
-    const isValid = useMemo<boolean>(() => !!data.title && data.keywords.length >= 2, [data]);
-    const [isConfirmationPopupOpen, setIsConfirmationPopupOpen] = useState(false);
+    const isValid = useMemo<boolean>(
+        () => !!data.title && data.keywords.length >= 2,
+        [data]
+    );
+    const [isConfirmationPopupOpen, setIsConfirmationPopupOpen] =
+        useState(false);
 
-    const handlePost = () => {
+    const handlePost = async () => {
         console.log(data);
-    }
+
+        // Project Card Create API
+        // const resonse = await createProjectCard({
+        //     title: data.title,
+        //     keywords: data.keywords,
+        //     accepted_users: data.mentions.map(user => user.id),
+        //     creator: <Current User ID>,
+        //     start_date: data.timePeriod[0].toISOString(),
+        //     end_date: data.timePeriod[1].toISOString(),
+        //     desciption: data.description ?? ""
+        // });
+        // console.log(response)
+    };
 
     const handleBack = () => {
         setIsConfirmationPopupOpen(false);
         setData(defaultFormData);
         router.back();
-    }
+    };
 
     return (
         <View style={[sharedStyles.container]}>
             <ScreenHeader
                 title="프로젝트 작성"
                 onBack={setIsConfirmationPopupOpen.bind(null, true)}
-                actionButton={() => <PostButton disabled={!isValid} onPress={handlePost}/>}
+                actionButton={() => (
+                    <PostButton disabled={!isValid} onPress={handlePost} />
+                )}
             />
-            <ScrollView style={sharedStyles.horizontalPadding} showsVerticalScrollIndicator={false}>
-                <ProjectCreateForm data={data} setData={setData}/>
+            <ScrollView
+                style={sharedStyles.horizontalPadding}
+                showsVerticalScrollIndicator={false}
+            >
+                <ProjectCreateForm data={data} setData={setData} />
             </ScrollView>
             <Popup
                 isVisible={isConfirmationPopupOpen}
@@ -41,7 +72,7 @@ export default function ProjectsScreen() {
                 closeLabel="계속 작성"
             />
         </View>
-    )
+    );
 }
 
 interface PostButtonProps {
@@ -52,17 +83,24 @@ interface PostButtonProps {
 function PostButton(props: PostButtonProps) {
     return (
         <TouchableOpacity disabled={props.disabled} onPress={props.onPress}>
-            <Text style={[styles.buttonText, props.disabled && styles.buttonTextDisabled]}>올리기</Text>
+            <Text
+                style={[
+                    styles.buttonText,
+                    props.disabled && styles.buttonTextDisabled,
+                ]}
+            >
+                올리기
+            </Text>
         </TouchableOpacity>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     buttonText: {
         color: "#2546F3",
-        fontSize: 16
+        fontSize: 16,
     },
     buttonTextDisabled: {
-        color: "#A8A8A8"
-    }
-})
+        color: "#A8A8A8",
+    },
+});

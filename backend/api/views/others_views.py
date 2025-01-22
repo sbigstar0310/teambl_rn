@@ -393,6 +393,67 @@ class SearchUsersAPIView(generics.ListAPIView):
         return paginator.get_paginated_response(serializer.data)
 
 
+# 이름으로 유저 검색 (1촌이 우선 정렬)
+class SearchUsersByNameAPIView(generics.ListAPIView):
+    serializer_class = CustomUserSearchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        data = request.data
+        print(data)
+
+        # 요청 데이터 검증
+        if "user_name" not in data:
+            return Response(
+                {"error": "유저 이름이 필요합니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user_name = data.get("user_name", "")
+        print("user_name: ", user_name)
+
+        # 검색된 프로필 가져오기
+        users = CustomUser.objects.filter(
+            profile__user_name__icontains=user_name
+        ).exclude(id=user.id)
+
+        # 각 프로필과의 1촌 여부를 확인하여 정렬 리스트에 추가
+        user_with_first_degree = []
+        for target_user in users:
+            # 현재 사용자와 타겟 프로필의 사용자 간의 1촌 여부 확인
+            is_first_degree = Friend.objects.filter(
+                (
+                    Q(from_user=user, to_user=target_user)
+                    | Q(from_user=target_user, to_user=user)
+                ),
+                status="accepted",
+            ).exists()
+
+            user_with_first_degree.append((target_user, is_first_degree))
+
+        # 1촌 여부를 기준으로 정렬 (1촌이 True인 프로필이 앞에 오도록 내림차순 정렬)
+        user_with_first_degree.sort(key=lambda x: x[1], reverse=True)
+
+        # 정렬된 유저만 추출하여 반환
+        sorted_users = [item[0] for item in user_with_first_degree]
+
+        # 대상 유저 ID 추출 및 거리 계산
+        target_user_ids = [user.id for user in sorted_users]
+        target_user_and_distance_dic = get_user_distances(user, target_user_ids)
+
+        # 직렬화
+        serializer = self.get_serializer(
+            sorted_users,
+            many=True,
+            context={
+                "target_user_and_distance_dic": target_user_and_distance_dic,
+            },
+        )
+
+        # Response로 감싸기
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class SearchProjectsAPIView(generics.ListAPIView):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
@@ -467,7 +528,7 @@ class SearchProjectsAPIView(generics.ListAPIView):
 
 
 class SearchExperienceAPIView(generics.ListAPIView):
-    serializer_class = CustomUserSerializer
+    serializer_class = CustomUserSearchSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = PageNumberPagination
 
@@ -548,60 +609,6 @@ class SearchExperienceAPIView(generics.ListAPIView):
         paginator = self.pagination_class()
         paginated_users = paginator.paginate_queryset(user_data, request)
         return paginator.get_paginated_response(paginated_users)
-
-
-# 이름으로 유저 검색 (1촌이 우선 정렬)
-class SearchUsersByNameAPIView(generics.ListAPIView):
-    serializer_class = ProfileCreateSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user_name = self.request.query_params.get("user_name", None)
-        current_user = self.request.user
-
-        if not user_name:
-            return Profile.objects.none()  # user_name이 없는 경우 빈 QuerySet 반환
-
-        # 검색된 프로필 가져오기
-        profiles = Profile.objects.filter(user_name__icontains=user_name)
-
-        # 각 프로필과의 1촌 여부를 확인하여 정렬 리스트에 추가
-        profile_with_first_degree = []
-        for profile in profiles:
-            # 현재 사용자와 타겟 프로필의 사용자 간의 1촌 여부 확인 (1촌이면 True, 아니면 False)
-            is_first_degree = Friend.objects.filter(
-                (
-                    Q(from_user=current_user, to_user=profile.user)
-                    | Q(from_user=profile.user, to_user=current_user)
-                ),
-                status="accepted",
-            ).exists()
-
-            profile_with_first_degree.append((profile, is_first_degree))
-
-        # 1촌 여부를 기준으로 정렬 (1촌이 True인 프로필이 앞에 오도록 내림차순 정렬)
-        profile_with_first_degree.sort(key=lambda x: x[1], reverse=True)
-
-        # 정렬된 프로필만 추출하여 반환
-        sorted_profiles = [item[0] for item in profile_with_first_degree]
-        return sorted_profiles
-
-    def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        user_id_list = [profile.user.id for profile in queryset]  # user ID 리스트 생성
-        one_degree_distance_list = []
-        user = request.user
-        for profile in queryset:
-            target_user = profile.user
-            one_degree_distance_list.append(get_user_distance(user, target_user))
-
-        response_data = {
-            "profiles": serializer.data,
-            "user_id_list": user_id_list,
-            "one_degree_distacne_list": one_degree_distance_list,
-        }
-        return Response(response_data, status=status.HTTP_200_OK)
 
 
 # 이미 존재하는 이메일인지 확인

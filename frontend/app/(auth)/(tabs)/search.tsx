@@ -14,7 +14,7 @@ import Tabs from "@/components/search/Tabs";
 import FilterTabs from "@/components/search/FilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
-import searchUser from "@/libs/apis/searchUser";
+import searchUser from "@/libs/apis/Search/searchUser";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { USER_ID } from "@/shared/constants";
