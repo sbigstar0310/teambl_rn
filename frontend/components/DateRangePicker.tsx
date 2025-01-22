@@ -74,12 +74,14 @@ export default function DateRangePicker(props: DateRangePickerProps) {
                     onChange={handleEndDateToggle}
                 />
                 {/* Confirm button */}
-                <PrimeButton
-                    text="확인"
-                    onClickCallback={handleConfirm}
-                    isActive={true}
-                    isLoading={false}
-                />
+                <View style={{flex: 1}}>
+                    <PrimeButton
+                        text="확인"
+                        onClickCallback={handleConfirm}
+                        isActive={true}
+                        isLoading={false}
+                    />
+                </View>
             </View>
         </View>
     )
