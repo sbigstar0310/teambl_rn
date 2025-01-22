@@ -95,6 +95,7 @@ const UserRow: React.FC<UserRowProps> = ({ item }) => (
                 pathname: `/padotaki`,
                 params: {
                     current_target_user_id: item.id.toString(),
+                    userName: item.profile.user_name,
                     activeTab: "projects",
                 },
             });
@@ -196,11 +197,17 @@ const PadoTakiScreen = () => {
                             )
                         )
                     ) : (
-                        <FlatList
-                            data={userList}
-                            keyExtractor={(item) => item.id.toString()}
-                            renderItem={({ item }) => <UserRow item={item} />}
-                        />
+                        <>
+                            {/* 결과 개수 */}
+                            <Text style={styles.resultCount}>
+                                {userList.length}명
+                            </Text>
+                            <FlatList
+                                data={userList}
+                                keyExtractor={(item) => item.id.toString()}
+                                renderItem={({ item }) => <UserRow item={item} />}
+                            />
+                        </>
                     )}
                 </View>
             </View>
@@ -275,6 +282,15 @@ const styles = StyleSheet.create({
         padding: 12,
         borderBottomWidth: 1,
         borderBottomColor: "#ddd",
+    },
+    resultCount: {
+        marginLeft: 8,
+        fontSize: 14,
+        fontFamily: "Pretendard",
+        fontStyle: "normal",
+        fontWeight: "400",
+        lineHeight: 17,
+        color: "#595959",
     },
     imageContainer: {
         marginRight: 12,
