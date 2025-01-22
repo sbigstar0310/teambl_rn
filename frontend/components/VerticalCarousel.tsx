@@ -1,4 +1,12 @@
-import {FlatList, NativeScrollEvent, NativeSyntheticEvent, StyleSheet, Text, View} from "react-native";
+import {
+    FlatList,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    StyleSheet,
+    Text,
+    TouchableWithoutFeedback,
+    View
+} from "react-native";
 import theme from "@/shared/styles/theme";
 import {PureComponent, useEffect, useMemo, useRef, useState} from "react";
 
@@ -82,9 +90,11 @@ class CarouselItem extends PureComponent {
 
     render() {
         return (
-            <Text style={[styles.carouselItem, this.props.isActive && styles.carouselItemLabelActive]}>
-                {this.props.label}
-            </Text>
+            <TouchableWithoutFeedback>
+                <Text style={[styles.carouselItem, this.props.isActive && styles.carouselItemLabelActive]}>
+                    {this.props.label}
+                </Text>
+            </TouchableWithoutFeedback>
         )
     }
 }

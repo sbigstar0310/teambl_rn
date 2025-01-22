@@ -299,10 +299,12 @@ class ChangePasswordView(generics.UpdateAPIView):
     def get_object(self):
         if self.request.user.is_authenticated:
             # If the user is logged in, return the currently authenticated user
+            print("Authenticated user:", self.request.user)
             return self.request.user
         else:
             # If the user is logged out, get the user by email from the request data
             email = self.request.data.get("email")
+            print("Provided email:", email)
             if email:
                 return get_object_or_404(CustomUser, email=email)
             else:
