@@ -51,7 +51,7 @@ const KeywordInput = (props: KeywordInputProps) => {
                 (
                     <Text
                         style={styles.placeholder}
-                        onPress={handleOnFocus}
+                        onPress={onAdd && handleOnFocus}
                     >
                         {placeholderText}
                     </Text>

@@ -101,18 +101,14 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
             </View>
             {/* Project members */}
             <DropdownContent title="사람 태그">
-                <KeywordInput
-                    currentKeywordList={data.mentions.map(
-                        (user) => user.profile.user_name
-                    )}
-                    placeholderText="함께하는 사람을 태그하세요."
-                    icon={
-                        <TouchableOpacity onPress={handleMentionsModalOpen}>
-                            <SearchIcon width={15} height={15} />
-                        </TouchableOpacity>
-                    }
-                    onRemove={handleMentionRemove}
-                />
+                <TouchableOpacity onPress={handleMentionsModalOpen}>
+                    <KeywordInput
+                        currentKeywordList={data.mentions.map(user => user.profile.user_name)}
+                        placeholderText="함께하는 사람을 태그하세요."
+                        icon={<SearchIcon width={15} height={15}/>}
+                        onRemove={handleMentionRemove}
+                    />
+                </TouchableOpacity>
                 <BottomModal
                     heightPercentage={0.8}
                     visible={isMentionsModalOpen}
