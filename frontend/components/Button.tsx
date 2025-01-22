@@ -1,4 +1,4 @@
-import { View, Text, ViewStyle } from "react-native";
+import { View, Text, ViewStyle, TextStyle } from "react-native";
 import React, { FC } from "react";
 import styled from "@emotion/native";
 
@@ -8,6 +8,7 @@ type Props = {
     isActive: boolean;
     isLoading: boolean;
     style?: ViewStyle;
+    textStyle?: TextStyle;
 };
 
 const TouchableContainer = styled.TouchableOpacity`
@@ -41,13 +42,14 @@ const Button: FC<Props> = ({
     isActive,
     isLoading,
     style,
+    textStyle,
 }) => {
     if (!isActive) {
         return (
             <Container
                 style={[{ backgroundColor: "#A8A8A8", height: 40 }, style]}
             >
-                <ButtonText>{text}</ButtonText>
+                <ButtonText style={textStyle}>{text}</ButtonText>
             </Container>
         );
     }
@@ -57,7 +59,7 @@ const Button: FC<Props> = ({
             onPress={onClickCallback}
             style={[{ backgroundColor: "#0923A9", height: 40 }, style]}
         >
-            <ButtonText>{text}</ButtonText>
+            <ButtonText style={textStyle}>{text}</ButtonText>
         </TouchableContainer>
     );
 };
