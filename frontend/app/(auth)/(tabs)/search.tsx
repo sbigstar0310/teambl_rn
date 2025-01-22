@@ -15,6 +15,7 @@ import FilterTabs from "@/components/search/FilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 import searchUser from "@/libs/apis/searchUser";
+import {router} from "expo-router";
 
 // 데이터 타입 정의
 interface SearchData {
@@ -111,10 +112,6 @@ export default function SearchScreen() {
         setSearchHistory((prevHistory) => [...prevHistory, query]);
     };
 
-    const handleFloatingButtonPress = () => {
-        console.log("플로팅 버튼 클릭됨");
-    };
-
     return (
         <SafeAreaView
             style={{ flex: 1, backgroundColor: "#fff" }}
@@ -173,7 +170,7 @@ export default function SearchScreen() {
             {/* 플로팅 버튼 */}
             <TouchableOpacity
                 style={styles.floatingButton}
-                onPress={handleFloatingButtonPress}
+                onPress={() => router.push("/padotaki")}
             >
                 <SurfingIcon />
             </TouchableOpacity>
