@@ -132,29 +132,51 @@ class Keyword(models.Model):
         return self.keyword
 
 
-class ProjectImage(models.Model):
-    project = models.ForeignKey(
-        "Project", on_delete=models.CASCADE, related_name="images"
-    )
-    image = models.ImageField(upload_to="project_images/")
-
-    def __str__(self):
-        return f"Image for {self.project.title}"
-
-
-# 게시물 모델
-# TODO: POST로 모델 이름 변경하기.
-class Project(models.Model):
-    id = models.AutoField(primary_key=True)
-    project_card = models.ForeignKey(
-        "ProjectCard", on_delete=models.CASCADE, related_name="posts", null=True
-    )  # 경험카드와 연결됨
+# New 게시물 모델
+class Post(models.Model):
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="posts",
+    )
+    project_card = models.ForeignKey(
+        "ProjectCard", on_delete=models.CASCADE, related_name="posts", null=True
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    like_count = models.IntegerField(default=0)
+    tagged_users = models.ManyToManyField(
+        CustomUser, related_name="tagged_posts", blank=True
+    )
+    liked_users = models.ManyToManyField(
+        CustomUser, related_name="liked_posts", blank=True
+    )
+
+    def __str__(self):
+        return f"Post by {self.user} - {self.content[:30]}..."
+
+
+# New 게시물 이미지 모델
+class PostImage(models.Model):
+    post = models.ForeignKey("Post", on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="post_images/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image for {self.post.id}"
+
+
+# TODO: Old 게시물 모델이므로 삭제하기
+class Project(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
     )
     title = models.CharField(max_length=100)
     content = models.TextField()
@@ -171,6 +193,17 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+
+# TODO: Old 게시물 이미지 모델이므로 삭제하기
+class ProjectImage(models.Model):
+    project = models.ForeignKey(
+        "Project", on_delete=models.CASCADE, related_name="images"
+    )
+    image = models.ImageField(upload_to="project_images/")
+
+    def __str__(self):
+        return f"Image for {self.project.title}"
 
 
 class Contact(models.Model):
@@ -191,8 +224,8 @@ class Comment(models.Model):
         blank=True,
         related_name="comments",
     )
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="comments"
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE, related_name="comments", null=True
     )
     content = models.CharField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -2,10 +2,12 @@ from .user_views import *
 from .profile_views import *
 from .token_views import *
 from .skill_views import *
+from .search_views import *
 from .friend_views import *
 from .notification_views import *
 from .post_views import *
 from .comment_views import *
+from .conversation_views import *
 from .project_card_views import *
 from .keyword_views import *
 from .others_views import *

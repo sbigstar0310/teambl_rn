@@ -5,6 +5,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import (
     CustomUser,
+    Post,
+    PostImage,
     Project,
     ProjectImage,
     ProjectCard,
@@ -694,6 +696,93 @@ class EndorsementSerializer(serializers.ModelSerializer):
         fields = ["id", "skill", "endorsed_by", "endorsed_at"]
 
 
+class PostImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostImage
+        fields = ["id", "image", "created_at"]
+        read_only_fields = ["created_at"]
+
+
+class PostSerializer(serializers.ModelSerializer):
+    project_card = serializers.PrimaryKeyRelatedField(
+        queryset=ProjectCard.objects.all(), required=False
+    )
+    tagged_users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CustomUser.objects.all(), required=False
+    )
+    liked_users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CustomUser.objects.all(), required=False
+    )
+    images = PostImageSerializer(
+        many=True, required=False
+    )  # Nested serializer for images
+
+    class Meta:
+        model = Post
+        fields = [
+            "id",
+            "user",
+            "project_card",
+            "content",
+            "created_at",
+            "like_count",
+            "tagged_users",
+            "liked_users",
+            "images",
+        ]
+        read_only_fields = ["like_count", "user"]
+
+    def create(self, validated_data):
+        tagged_users_data = validated_data.pop("tagged_users", [])
+        liked_users_data = validated_data.pop("liked_users", [])
+        images_data = self.context["request"].FILES.getlist(
+            "images"
+        )  # 이미지 파일 가져오기
+
+        # Create the post
+        post = Post.objects.create(**validated_data)
+
+        # Add tagged users
+        if tagged_users_data:
+            post.tagged_users.set(tagged_users_data)
+
+        # Add liked users
+        if liked_users_data:
+            post.liked_users.set(liked_users_data)
+
+        # Add images
+        for image_data in images_data:
+            PostImage.objects.create(post=post, image=image_data)
+
+        return post
+
+    def update(self, instance, validated_data):
+        tagged_users_data = validated_data.pop("tagged_users", [])
+        liked_users_data = validated_data.pop("liked_users", [])
+        images_data = validated_data.pop("images", [])
+
+        # Update post fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update tagged users
+        if tagged_users_data:
+            instance.tagged_users.set(tagged_users_data)
+
+        # Update liked users
+        if liked_users_data:
+            instance.liked_users.set(liked_users_data)
+
+        # Update images: Clear existing and add new ones
+        if images_data:
+            instance.images.all().delete()  # Clear existing images
+            for image_data in images_data:
+                PostImage.objects.create(post=instance, **image_data)
+
+        return instance
+
+
 class ProjectImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectImage
@@ -1150,7 +1239,7 @@ class ProjectCardSerializer(serializers.ModelSerializer):
     bookmarked_users = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CustomUser.objects.all(), required=False
     )  # 프로젝트 카드를 북마크한 사람들
-    posts = ProjectSerializer(many=True, read_only=True)
+    posts = PostSerializer(many=True, read_only=True)  # 프로젝트 카드의 게시글들
 
     class Meta:
         model = ProjectCard

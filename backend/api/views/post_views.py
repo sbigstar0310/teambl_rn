@@ -1,5 +1,7 @@
-from ..serializers import ProjectSerializer, CustomUserSerializer
+from ..serializers import PostSerializer, ProjectSerializer, CustomUserSerializer
 from ..models import (
+    Post,
+    PostImage,
     Project,
     Keyword,
     ProjectImage,
@@ -19,6 +21,47 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 
 
+class PostCreateView(generics.CreateAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        post = serializer.save(user=self.request.user)
+        post.save()
+
+
+class PostListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        project_card_id = self.request.query_params.get("project_card_id")
+
+        if project_card_id:
+            return Post.objects.filter(project_card__id=project_card_id).order_by(
+                "-created_at"
+            )
+        else:
+            return Post.objects.all().order_by("-created_at")
+
+
+class PostUpdateView(generics.UpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+
+class PostDeleteView(generics.DestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+# TODO: The following are all old post codes. To be deleted later
 class ProjectListCreate(generics.ListCreateAPIView):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
@@ -27,7 +70,7 @@ class ProjectListCreate(generics.ListCreateAPIView):
     def get_queryset(self):
         return Project.objects.filter(user=self.request.user).order_by(
             "-created_at"
-        )  # 현재 로그인된 사용자의 프로젝트만 반환
+        )  # Return only the projects of the currently logged-in user
 
     def perform_create(self, serializer):
         keywords_data = self.request.data.getlist("keywords[]")
