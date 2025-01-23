@@ -4,6 +4,7 @@ import {sharedStyles} from "@/app/_layout";
 import {RequiredMark} from "@/components/forms/ProjectCreateForm";
 
 interface PostCreateFormProps {
+    project: api.ProjectCard;
     data: PostCreateFormData;
     setData: (data: PostCreateFormData) => void;
 }
@@ -11,13 +12,8 @@ interface PostCreateFormProps {
 export default function PostCreateForm(props: PostCreateFormProps) {
     const {data, setData} = props;
 
-    const handleTitleChange = (value: string) => {
-        const newId = parseInt(value);
-        if (!isNaN(newId)) setData({...data, projectId: parseInt(value)});
-    }
-
     const handleContentChange = (value: string) => {
-        setData({...data, content: value});
+        setData({...data, content: value.trim()});
     }
 
     return (
@@ -29,10 +25,9 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                     <RequiredMark/>
                 </View>
                 <TextField
-                    defaultValue={data.projectId.toString()}
-                    onChangeText={handleTitleChange}
+                    defaultValue={props.project.title}
                     placeholder="게시물 제목을 작성해 보세요."
-                    keyboardType="numeric"
+                    editable={false}
                 />
             </View>
             {/* Content */}
@@ -62,10 +57,8 @@ const styles = StyleSheet.create({
 })
 
 export type PostCreateFormData = {
-    projectId: number;
     content: string;
 };
 export const defaultPostFormData: PostCreateFormData = {
-    projectId: 1,
     content: ""
 };

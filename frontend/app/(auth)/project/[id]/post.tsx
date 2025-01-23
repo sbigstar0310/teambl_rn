@@ -2,19 +2,26 @@ import {ScrollView, View} from "react-native";
 import {router, useLocalSearchParams} from "expo-router";
 import {sharedStyles} from "@/app/_layout";
 import ScreenHeader from "@/components/common/ScreenHeader";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import PostCreateForm, {defaultPostFormData, PostCreateFormData} from "@/components/forms/PostCreateForm";
 import {PostButton} from "@/components/forms/ProjectCreateForm";
 import Popup from "@/components/Popup";
+import {mockProject1} from "@/shared/mock-data";
 
 export default function NewPostForProject() {
     const {id} = useLocalSearchParams();
     const [isConfirmationPopupOpen, setIsConfirmationPopupOpen] = useState(false);
+    const [project, setProject] = useState<api.ProjectCard | null>(null);
     const [data, setData] = useState<PostCreateFormData>(defaultPostFormData);
     const isValid = useMemo<boolean>(
         () => data.content.length !== 0,
         [data]
     );
+
+    useEffect(() => {
+        // TODO: load project information from API
+        setProject(mockProject1);
+    }, []);
 
     const handlePost = () => {
         console.log(data);
@@ -36,10 +43,13 @@ export default function NewPostForProject() {
                 style={sharedStyles.horizontalPadding}
                 showsVerticalScrollIndicator={false}
             >
-                <PostCreateForm
-                    data={data}
-                    setData={setData}
-                />
+                {project &&
+                    <PostCreateForm
+                        project={project}
+                        data={data}
+                        setData={setData}
+                    />
+                }
             </ScrollView>
             <Popup
                 isVisible={isConfirmationPopupOpen}

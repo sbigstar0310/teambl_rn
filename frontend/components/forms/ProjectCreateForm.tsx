@@ -81,7 +81,7 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                 <TextField
                     defaultValue={data.title}
                     onChangeText={handleTitleChange}
-                    placeholder="게시물 제목을 작성해 보세요."
+                    placeholder="프로젝트 제목을 작성해 보세요."
                 />
             </View>
             {/* Tags */}
