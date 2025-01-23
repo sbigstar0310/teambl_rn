@@ -5,20 +5,20 @@ from ..models import (
     CustomUser,
     Profile,
     Project,
+    ProjectCard,
     Skill,
     ExperienceDetail,
     InvitationLink,
     Friend,
     Notification,
     Inquiry,
-    SearchHistory,
     Conversation,
     Message,
 )
 from ..serializers import (
     CustomUserSerializer,
     CustomUserSearchSerializer,
-    ProfileCreateSerializer,
+    ProjectCardSerializer,
     ProjectSerializer,
     InvitationLinkSerializer,
     FriendCreateSerializer,
@@ -452,6 +452,47 @@ class SearchUsersByNameAPIView(generics.ListAPIView):
 
         # Response로 감싸기
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SearchProjectCardAPIView(generics.ListAPIView):
+    serializer_class = ProjectCardSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        data = request.data
+        print(data)
+
+        # 요청 데이터 검증
+        if "q" not in data:
+            return Response(
+                {"error": "검색어가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        query = data.get("q", "")
+        print("query: ", query)
+
+        # 검색된 프로젝트 가져오기
+        # 제목, 키워드, 사람, 짧은 소개글 검색
+        projectCards = ProjectCard.objects.filter(
+            Q(title__icontains=query)  # 제목 필터링
+            | Q(keywords__keyword__icontains=query)  # 키워드 필터링
+            | Q(
+                accepted_users__profile__user_name__icontains=query
+            )  # 참여자 이름 필터링
+            | Q(description__icontains=query)  # 내용 필터링
+        ).distinct()
+
+        # 정렬 및 페이지네이션
+        # 최신순으로 정렬
+        projectCards = projectCards.order_by("-created_at")
+        paginator = self.pagination_class()
+        paginated_projectCards = paginator.paginate_queryset(projectCards, request)
+
+        # 직렬화
+        serializer = self.get_serializer(paginated_projectCards, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class SearchProjectsAPIView(generics.ListAPIView):

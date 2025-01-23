@@ -6,6 +6,11 @@ urlpatterns = [
     path("user/", views.SearchUsersAPIView.as_view(), name="seach-user"),
     path("name/", views.SearchUsersByNameAPIView.as_view(), name="search-name"),
     path(
+        "project-card/",
+        views.SearchProjectCardAPIView.as_view(),
+        name="search-project-card",
+    ),
+    path(
         "project/",
         views.SearchProjectsAPIView.as_view(),
         name="search-project",
