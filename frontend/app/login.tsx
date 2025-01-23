@@ -76,24 +76,27 @@ const LoginScreen = () => {
     const [showWarning, setShowWarning] = useState(false);
     const [isLoginButtonActive, setIsLoginButtonActive] = useState(false);
     const [errorText, setErrorText] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         checkLoginButtonActive();
     }, [email, password]);
 
     const handleLogin = async () => {
-        // TODO: 로그인 API 요청
+        setIsLoading(true);
         console.log("로그인 시도: ", email, password);
 
         // 이메일 형식 점검
         if (!email.includes("@")) {
             setErrorText("이메일 형식이 올바르지 않습니다");
             setShowWarning(true);
+            setIsLoading(false);
             return;
         }
 
         const response = await login({ email, password });
         console.log("로그인 성공: ", JSON.stringify(response, null, 2));
+        setIsLoading(false);
 
         // 로그인 성공 시 홈 화면으로 이동
         router.push("/home");
@@ -157,7 +160,7 @@ const LoginScreen = () => {
                     text="로그인"
                     onClickCallback={handleLogin}
                     isActive={isLoginButtonActive}
-                    isLoading={false}
+                    isLoading={isLoading}
                     style={{ height: 40 }}
                 />
             </ButtonContainer>

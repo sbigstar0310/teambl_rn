@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRouter, useRootNavigationState } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Logout() {
     const router = useRouter();
@@ -9,7 +10,7 @@ export default function Logout() {
         // 네비게이션이 초기화되었는지 확인
         if (!navigationState?.key) return;
 
-        localStorage.clear(); // 저장된 토큰 정보 제거
+        AsyncStorage.clear(); // 저장된 토큰 정보 제거
         router.replace("/login"); // 로그인 페이지로 리디렉션
     }, [navigationState?.key]);
 

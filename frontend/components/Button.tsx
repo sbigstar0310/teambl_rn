@@ -1,4 +1,10 @@
-import { View, Text, ViewStyle, TextStyle } from "react-native";
+import {
+    View,
+    Text,
+    ViewStyle,
+    TextStyle,
+    ActivityIndicator,
+} from "react-native";
 import React, { FC } from "react";
 import styled from "@emotion/native";
 
@@ -36,6 +42,11 @@ const ButtonText = styled.Text`
     letter-spacing: -0.304px;
 `;
 
+const LoadingIndicator = styled.ActivityIndicator`
+    width: 20px;
+    height: 20px;
+`;
+
 const Button: FC<Props> = ({
     text,
     onClickCallback,
@@ -59,7 +70,11 @@ const Button: FC<Props> = ({
             onPress={onClickCallback}
             style={[{ backgroundColor: "#0923A9", height: 40 }, style]}
         >
-            <ButtonText style={textStyle}>{text}</ButtonText>
+            {isLoading ? (
+                <LoadingIndicator color="#FFF" />
+            ) : (
+                <ButtonText style={textStyle}>{text}</ButtonText>
+            )}
         </TouchableContainer>
     );
 };
