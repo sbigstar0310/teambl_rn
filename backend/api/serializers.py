@@ -1273,6 +1273,9 @@ class ProjectCardSerializer(serializers.ModelSerializer):
         keywords_data = validated_data.pop("keywords", [])
         accepted_users_data = validated_data.pop("accepted_users", [])
         bookmarked_users_data = validated_data.pop("bookmarked_users", [])
+        print("Keywords data:", keywords_data)
+        print("Accepted users data:", accepted_users_data)
+        print("Bookmarked users data:", bookmarked_users_data)
 
         # ProjectCard 생성
         project_card = ProjectCard.objects.create(**validated_data)
@@ -1283,14 +1286,8 @@ class ProjectCardSerializer(serializers.ModelSerializer):
             project_card.keywords.add(keyword_obj)
 
         # Accepted Users 처리
-        for user_id in accepted_users_data:
-            try:
-                user = CustomUser.objects.get(id=user_id)
-                project_card.accepted_users.add(user)
-            except CustomUser.DoesNotExist:
-                raise serializers.ValidationError(
-                    f"User with ID {user_id} does not exist."
-                )
+        for accepted_user in accepted_users_data:
+            project_card.accepted_users.add(accepted_user)
 
         return project_card
 
@@ -1307,14 +1304,15 @@ class ProjectCardSerializer(serializers.ModelSerializer):
         if "accepted_users" in validated_data:
             accepted_users_data = validated_data.pop("accepted_users")
             instance.accepted_users.clear()  # 기존 유저 제거
-            for user_id in accepted_users_data:
-                try:
-                    user = CustomUser.objects.get(id=user_id)
-                    instance.accepted_users.add(user)
-                except CustomUser.DoesNotExist:
-                    raise serializers.ValidationError(
-                        f"User with ID {user_id} does not exist."
-                    )
+            for accepted_user in accepted_users_data:
+                instance.accepted_users.add(accepted_user)
+
+        # Bookmark Users 처리
+        if "bookmarked_users" in validated_data:
+            bookmarked_users_data = validated_data.pop("bookmarked_users")
+            instance.bookmarked_users.clear()
+            for bookmarked_user in bookmarked_users_data:
+                instance.bookmarked_users.add(bookmarked_user)
 
         # 기타 필드 업데이트
         for attr, value in validated_data.items():

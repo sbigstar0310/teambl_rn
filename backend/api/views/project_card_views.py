@@ -3,8 +3,9 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from ..models import ProjectCard, ProjectCardInvitation, CustomUser
+from ..models import Friend, ProjectCard, ProjectCardInvitation, CustomUser
 from ..serializers import ProjectCardSerializer, ProjectCardInvitationSerializer
+from django.db.models import Q
 
 
 ## 프로젝트 카드 (ProjectCard) 관련 API 뷰
@@ -19,6 +20,7 @@ class ProjectCardListView(generics.ListAPIView):
         return ProjectCard.objects.all().order_by("-created_at")
 
 
+# 해당 사용자(user_id)의 1촌이 참여하고 있는 프로젝트 카드 리스트 뷰
 class ProjectCardOneDegreeListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardSerializer
@@ -31,8 +33,11 @@ class ProjectCardOneDegreeListView(generics.ListAPIView):
         # 해당 id로 사용자를 찾기 (없으면 404 오류)
         user = get_object_or_404(CustomUser, id=user_id)
 
-        # 해당 유저의 프로젝트 카드 리스트 반환
-        return ProjectCard.objects.filter(accepted_users=user).order_by("-created_at")
+        # 해당 사용자의 1촌 사용자 목록 가져오기
+        friends = user.get_friends()
+
+        # 1촌이 참여하고 있는 프로젝트 카드 필터링
+        return ProjectCard.objects.filter(accepted_users__in=friends).distinct()
 
 
 class ProjectCardCreateView(generics.CreateAPIView):
@@ -80,6 +85,7 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
         accepted_users = (
             project_card.accepted_users.all()
         )  # 프로젝트 카드에 참여 중인 사용자 목록
+        print("accepted_users", accepted_users)
 
         # 1. 프로젝트 카드에 참여 중인지 확인
         if user not in project_card.accepted_users.all():
@@ -91,6 +97,7 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
                 new_creator = accepted_users.exclude(
                     id=user.id
                 ).first()  # 다른 사용자에게 관리자 위임 TODO: 오래된 순서로 위임
+                print("new_creator", new_creator)
                 project_card.creator = new_creator
                 project_card.accepted_users.remove(user)
                 project_card.save()
@@ -105,10 +112,9 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
             project_card=project_card, invitee=user
         ).delete()
 
-        return Response(
-            {"message": "프로젝트 카드에서 성공적으로 탈퇴했습니다."},
-            status=status.HTTP_200_OK,
-        )
+        print("after_accepted_users", project_card.accepted_users.all())
+
+        serializer.save()
 
 
 class ProjectCardDestroyView(generics.DestroyAPIView):

@@ -41,6 +41,23 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    def get_friends(self, user=None):
+        # 해당 사용자의 1촌 목록을 가져옵니다.
+        # user_id가 주어지면 해당 ID 사용, 그렇지 않으면 self.id 사용
+        if user is None:
+            user = self
+
+        friends_from = Friend.objects.filter(from_user_id=user.id, status="accepted")
+        friends_to = Friend.objects.filter(to_user_id=user.id, status="accepted")
+
+        friends = set()
+        for friend in friends_from:
+            friends.add(friend.to_user)
+        for friend in friends_to:
+            friends.add(friend.from_user)
+
+        return friends
+
     def get_friend_counts(self, user_id=None):
         # user_id가 주어지면 해당 ID 사용, 그렇지 않으면 self.id 사용
         if user_id is None:
