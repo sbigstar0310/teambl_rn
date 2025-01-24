@@ -6,6 +6,7 @@ import {
     FlatList,
     StyleSheet,
     Image,
+    ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -134,6 +135,7 @@ const PadoTakiScreen = () => {
         []
     );
     const [userList, setUserList] = useState<api.User[]>([]);
+    const [loading, setLoading] = useState(false);
     const { current_target_user_id } = useLocalSearchParams<Params>();
 
     useEffect(() => {
@@ -141,6 +143,7 @@ const PadoTakiScreen = () => {
     }, []);
 
     const fetchPadoTaki = async () => {
+        setLoading(true); // 로딩 시작
         try {
             console.log("current_taret_user_id", current_target_user_id);
             // fetch project card list
@@ -156,6 +159,8 @@ const PadoTakiScreen = () => {
             setUserList(friendList);
         } catch (error) {
             console.error("Failed to fetch pado taki:", error);
+        } finally {
+            setLoading(false); // 로딩 종료
         }
     };
 
@@ -173,10 +178,13 @@ const PadoTakiScreen = () => {
                 />
 
                 <View style={styles.content}>
-                    {activeTab === "projects" ? (
+                    {loading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#0923A9" />
+                        </View>
+                    ) : activeTab === "projects" ? (
                         projectCardList.map((projectCard) =>
                             projectCard.posts.length > 0 ? (
-                                // Render posts if available
                                 <FlatList
                                     key={projectCard.id} // Ensure each FlatList has a unique key
                                     contentContainerStyle={{
@@ -189,7 +197,6 @@ const PadoTakiScreen = () => {
                                     )}
                                 />
                             ) : (
-                                // Render ProjectCard if no posts are present
                                 <ProjectCard
                                     key={projectCard.id}
                                     projectCard={projectCard}
@@ -198,7 +205,6 @@ const PadoTakiScreen = () => {
                         )
                     ) : (
                         <>
-                            {/* 결과 개수 */}
                             <Text style={styles.resultCount}>
                                 {userList.length}명
                             </Text>
@@ -219,6 +225,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
     },
     header: {
         flexDirection: "row",
