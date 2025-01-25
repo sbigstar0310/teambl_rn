@@ -85,7 +85,6 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
         accepted_users = (
             project_card.accepted_users.all()
         )  # 프로젝트 카드에 참여 중인 사용자 목록
-        print("accepted_users", accepted_users)
 
         # 1. 프로젝트 카드에 참여 중인지 확인
         if user not in project_card.accepted_users.all():
@@ -97,10 +96,8 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
                 new_creator = accepted_users.exclude(
                     id=user.id
                 ).first()  # 다른 사용자에게 관리자 위임 TODO: 오래된 순서로 위임
-                print("new_creator", new_creator)
                 project_card.creator = new_creator
                 project_card.accepted_users.remove(user)
-                project_card.save()
             else:  # 마지막 사용자일 경우 카드 삭제
                 project_card.delete()
         else:
@@ -112,9 +109,8 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
             project_card=project_card, invitee=user
         ).delete()
 
-        print("after_accepted_users", project_card.accepted_users.all())
-
-        serializer.save()
+        # 변경 사항 저장
+        project_card.save()
 
 
 class ProjectCardDestroyView(generics.DestroyAPIView):
