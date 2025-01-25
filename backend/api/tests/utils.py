@@ -1,6 +1,9 @@
 from django.utils.timezone import now
 from ..models import CustomUser, Post, PostImage, Profile
 from django.core.files.uploadedfile import SimpleUploadedFile
+import os
+from django.core.files.storage import default_storage
+from django.conf import settings
 
 
 # 유저 생성하는 함수
@@ -50,13 +53,36 @@ def create_post_with_images(
     tagged_users=None,
     liked_users=None,
 ) -> Post:
-    # Create test image file
-    test_image1 = SimpleUploadedFile(
-        name="test_image1.jpg", content=b"file_content", content_type="image/jpeg"
+    # 상대 경로 (MEDIA_ROOT 하위에 저장될 경로)
+    image_dir = "post_images"
+
+    # 이미지 파일 생성 함수 (중복 방지 포함)
+    def get_or_create_image_file(file_name, file_content, content_type):
+        # 상대 경로 생성
+        file_path = os.path.join(image_dir, file_name)
+
+        # 파일이 존재하면 삭제하고 새로 저장
+        if default_storage.exists(file_path):
+            default_storage.delete(file_path)
+
+        return SimpleUploadedFile(
+            name=file_name,
+            content=file_content,
+            content_type=content_type,
+        )
+
+    # 이미지 파일 생성 또는 기존 파일 가져오기
+    test_image1 = get_or_create_image_file(
+        file_name="test_image1.jpg",
+        file_content=b"file_content",  # 실제 이미지 데이터로 변경 가능
+        content_type="image/jpeg",
     )
-    test_image2 = SimpleUploadedFile(
-        name="test_image2.jpg", content=b"file_content", content_type="image/jpeg"
+    test_image2 = get_or_create_image_file(
+        file_name="test_image2.jpg",
+        file_content=b"file_content",  # 실제 이미지 데이터로 변경 가능
+        content_type="image/jpeg",
     )
+
     # 게시글 생성
     post = Post.objects.create(
         user=user,
@@ -64,7 +90,7 @@ def create_post_with_images(
         content=content,
     )
 
-    # Create test image file and add it to the post
+    # PostImage 객체 생성 및 연결
     post_image1 = PostImage.objects.create(post=post, image=test_image1)
     post_image2 = PostImage.objects.create(post=post, image=test_image2)
     post.images.add(post_image1)

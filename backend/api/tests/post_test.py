@@ -100,11 +100,6 @@ class PostListViewTestCase(TestCase):
         # Authenticate the user
         self.client.force_authenticate(user=self.testuser01)
 
-        # Create test image file
-        self.test_image = SimpleUploadedFile(
-            name="test_image.jpg", content=b"file_content", content_type="image/jpeg"
-        )
-
         # Create posts
         self.post1 = create_post_with_images(
             user=self.testuser01, project_card=self.project_card, content="post 1"
