@@ -15,6 +15,7 @@ interface BottomModalProps {
   visible: boolean;
   onClose: () => void;
   heightPercentage?: number; // Height as a percentage of screen height (default: 33%)
+  fixedHeight?: number;
   body: React.ReactNode;
   style?: ViewStyle;
 }
@@ -39,11 +40,12 @@ const BottomModal: React.FC<BottomModalProps> = ({
   visible,
   onClose,
   heightPercentage = 0.4,
+  fixedHeight = null,
   body,
   style,
 }) => {
   const { height } = Dimensions.get("window");
-  const modalHeight = height * heightPercentage;
+  const modalHeight = fixedHeight || height * heightPercentage; // Modal height
 
   const overlayOpacity = useRef(new Animated.Value(0)).current; // Overlay opacity animation
   const translateY = useRef(new Animated.Value(height)).current; // Container slide animation

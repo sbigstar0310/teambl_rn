@@ -1,12 +1,38 @@
 import KeywordInput from '@/components/KeywordInput';
+import PrimeButton from '@/components/PrimeButton';
+import SkillInput from '@/components/SkillInput';
+import TextAreaInput from '@/components/TextAreaInput';
 import theme from '@/shared/styles/theme';
 import React, {useState} from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 
 const MyProfileInfoView = () => {
-    const [currentSkillList, setCurrentSkillList] = useState(["관심사1", "관심사4", "관심사5", "긴이름을가진관심사99"]);
 
-    const handleNewSkill = (newSkill: string) => {
+    const [currentKeywordist, setCurrentKeywordList] = useState(["관심사1", "관심사4", "관심사5", "긴이름을가진관심사99"]);
+    const [currentSkillList, setCurrentSkillList] = useState([]);
+    const [currentIntroduction, setCurrentIntroduction] = useState("");
+
+    const [isSaveLoading, setIsSaveLoading] = useState(false);
+    
+    /** TODO : backend */
+    const saveInfo = async () => {
+        setIsSaveLoading(true);
+        setTimeout(() => {
+            setIsSaveLoading(false);
+        }, 1000);
+    };
+
+    const handleNewKeyword = (newKeyword: string) => {
+        if (newKeyword.trim()) {
+            setCurrentKeywordList([...currentKeywordist, newKeyword]);
+        }
+    }
+
+    const handleRemoveKeyword = (index: number) => {
+        setCurrentKeywordList(currentKeywordist.filter((_, i) => i !== index));
+    }
+
+    const handleNewSkill = (newSkill: any) => {
         if (newSkill.trim()) {
             setCurrentSkillList([...currentSkillList, newSkill]);
         }
@@ -38,9 +64,45 @@ const MyProfileInfoView = () => {
                     </Text>
                 </View>
                 <KeywordInput
-                    currentKeywordList={currentSkillList}
-                    onAdd={handleNewSkill}
-                    onRemove={handleRemoveSkill}
+                    currentKeywordList={currentKeywordist}
+                    onAdd={handleNewKeyword}
+                    onRemove={handleRemoveKeyword}
+                />
+                <View
+                    style={[styles.fieldTitleContainer, {marginTop: 17}]}
+                >
+                    <Text
+                        style={styles.fieldTitle}
+                    >
+                        {"스킬"}
+                    </Text>
+                </View>
+                <SkillInput
+                    styles={{marginTop: 12}}
+                    selectedSkills={currentSkillList}
+                    updateSelectedSkills={setCurrentSkillList}
+                />
+                <View
+                    style={[styles.fieldTitleContainer, {marginTop: 17}]}
+                >
+                    <Text
+                        style={styles.fieldTitle}
+                    >
+                        {"소개"}
+                    </Text>
+                </View>
+                <TextAreaInput
+                    value={currentIntroduction}
+                    setValue={setCurrentIntroduction}
+                    placeholderText={"관심 있는 분야, 이루고자 하는 목표, 전문성을 쌓기 위해 하고 있는 활동 등 본인을 설명하는 글을 자유롭게 작성해 보세요."}
+                />
+                {/** save button */}
+                <PrimeButton
+                    text={"저장"}
+                    onClickCallback={saveInfo}
+                    isActive={true}
+                    isLoading={isSaveLoading}
+                    styleOv={{marginTop: 32}}
                 />
             </View>
         </ScrollView>
@@ -60,7 +122,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
         backgroundColor: theme.colors.white,
-        paddingTop: 15,
+        paddingTop: 30,
         paddingBottom: 50,
         paddingHorizontal: 15
     },
