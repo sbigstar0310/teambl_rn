@@ -3,6 +3,7 @@ import NewProfileHeader from "@/components/NewProfileHeader";
 import theme from "@/shared/styles/theme";
 import { Stack, useRouter } from "expo-router";
 import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MyProfileLayout() {
 
@@ -12,13 +13,17 @@ export default function MyProfileLayout() {
         <View
             style={[sharedStyles.coloredContainer]}
         >
-            <NewProfileHeader
-                userId={1}
-                isMyProfile={true}
-                onBackClick={() => {
-                    router.push("/home");
-                }}
-            />
+            <SafeAreaView
+                edges={['top']}
+            >
+                <NewProfileHeader
+                    userId={1}
+                    isMyProfile={true}
+                    onBackClick={() => {
+                        router.push("/home");
+                    }}
+                />
+            </SafeAreaView>
             <View
                 style={{
                     flex: 1,

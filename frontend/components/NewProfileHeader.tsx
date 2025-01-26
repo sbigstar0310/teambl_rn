@@ -24,7 +24,7 @@ const NewProfileHeader = (props: any) => {
             style={[styles.container]}
         >
             {/** back button */}
-            <View
+            {/* <View
                 style={[styles.backbuttonContainer]}
             >
                 <TouchableOpacity onPress={onBackClick}>
@@ -32,7 +32,7 @@ const NewProfileHeader = (props: any) => {
                         source={require("@/assets/left-arrow.png")}
                     />
                 </TouchableOpacity>
-            </View>
+            </View> */}
             <View
                 style={[styles.headerContainer]}
             >
@@ -157,7 +157,7 @@ const NewProfileHeader = (props: any) => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: "column",
-        paddingTop: 50
+        paddingTop: 80
     },
     backbuttonContainer: {
         paddingVertical: 16,

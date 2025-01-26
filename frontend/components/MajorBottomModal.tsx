@@ -81,19 +81,40 @@ const MajorBottomModal: React.FC<Props> = ({
 
             {/* 검색 결과 */}
             <MajorSearchResult>
-                {majors
+                {
+                    selectedMajors&&
+                    selectedMajors.map((major) => {
+                        return (
+                            <MajorItem
+                                key={major}
+                                major={major}
+                                onPress={() => {
+                                    handleMajorSelect(major);
+                                }}
+                                isSelected={true}
+                            />
+                        );
+                    })
+                }
+                {
+                    majors
                     .filter((major) => major.includes(searchQuery))
                     .slice(0, 4)
-                    .map((major) => (
-                        <MajorItem
-                            key={major}
-                            major={major}
-                            onPress={() => {
-                                handleMajorSelect(major);
-                            }}
-                            isSelected={selectedMajors.includes(major)}
-                        />
-                    ))}
+                    .map((major) => {
+                        if (!selectedMajors.includes(major)) {
+                            return (
+                                <MajorItem
+                                    key={major}
+                                    major={major}
+                                    onPress={() => {
+                                        handleMajorSelect(major);
+                                    }}
+                                    isSelected={false}
+                                />
+                            );
+                        }                        
+                    })
+                }
             </MajorSearchResult>
 
             {/* 선택 완료 버튼 */}

@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.achromatic05,
-        paddingTop: 6
+        paddingTop: 6,
     },
     innerContainer: {
         flex: 1,
