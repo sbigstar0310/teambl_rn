@@ -1,4 +1,4 @@
-import {ScrollView, View} from "react-native";
+import {View} from "react-native";
 import {router, useLocalSearchParams} from "expo-router";
 import {sharedStyles} from "@/app/_layout";
 import ScreenHeader from "@/components/common/ScreenHeader";
@@ -33,24 +33,19 @@ export default function NewPostForProject() {
     return (
         <View style={sharedStyles.container}>
             <ScreenHeader
-                title="프로젝트 작성"
+                title="게시물 작성"
                 onBack={setIsConfirmationPopupOpen.bind(null, true)}
                 actionButton={() => (
                     <PostButton disabled={!isValid} onPress={handlePost}/>
                 )}
             />
-            <ScrollView
-                style={sharedStyles.horizontalPadding}
-                showsVerticalScrollIndicator={false}
-            >
-                {project &&
-                    <PostCreateForm
-                        project={project}
-                        data={data}
-                        setData={setData}
-                    />
-                }
-            </ScrollView>
+            {project &&
+                <PostCreateForm
+                    project={project}
+                    data={data}
+                    setData={setData}
+                />
+            }
             <Popup
                 isVisible={isConfirmationPopupOpen}
                 onClose={setIsConfirmationPopupOpen.bind(null, false)}

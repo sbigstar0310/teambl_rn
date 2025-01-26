@@ -1,6 +1,5 @@
 import { DEFAULT_TEXT_MAX_LENGTH, USER_ID } from "@/shared/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter, useSearchParams } from "expo-router/build/hooks";
 
 export function timeAgo(date: Date): string {
     const now = new Date();
@@ -88,3 +87,14 @@ export const getCurrentUserId = async (): Promise<string | null> => {
     const userId = await AsyncStorage.getItem(USER_ID);
     return userId ?? null;
 };
+
+export const getAddedCharIndex = (prevText: string, newText: string, character = "@") => {
+    for (let i = 0; i < newText.length; i++) {
+        if (prevText.length >= i && prevText[i] !== newText[i]) {
+            if (newText[i] === character) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
