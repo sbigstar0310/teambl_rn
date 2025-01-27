@@ -1,18 +1,27 @@
-import ScreenHeader from '@/components/common/ScreenHeader';
-import CustomTextInput from '@/components/CustomTextInput';
-import DegreeBottomModal from '@/components/DegreeBottomModal';
-import MajorInput from '@/components/MajorInput';
-import PrimeButton from '@/components/PrimeButton';
-import theme from '@/shared/styles/theme';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ScreenHeader from "@/components/common/ScreenHeader";
+import CustomTextInput from "@/components/CustomTextInput";
+import DegreeBottomModal from "@/components/DegreeBottomModal";
+import MajorInput from "@/components/MajorInput";
+import PrimeButton from "@/components/PrimeButton";
+import getProfile from "@/libs/apis/Profile/getProfile";
+import updateProfile from "@/libs/apis/Profile/updateProfile";
+import theme from "@/shared/styles/theme";
+import { getCurrentUserId } from "@/shared/utils";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 const MyProfileEditView = () => {
-
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false);
 
-    const [isAcaDegreeModalVisible, setIsAcaDegreeModalVisible] = useState<boolean>(false);
+    const [isAcaDegreeModalVisible, setIsAcaDegreeModalVisible] =
+        useState<boolean>(false);
 
     const [name, setName] = useState<string>("성이름");
     const [school, setSchool] = useState<string>("카이스트");
@@ -20,13 +29,59 @@ const MyProfileEditView = () => {
     const [year, setYear] = useState<number>(2025);
     const [currentMajorList, setCurrentMajorList] = useState<string[]>([]);
 
+    const getProfileInfo = async () => {
+        try {
+            const current_user_id = await getCurrentUserId().then((id_string) =>
+                Number(id_string)
+            );
+
+            if (!current_user_id) {
+                throw new Error("User ID not found.");
+            }
+
+            const profile = await getProfile(current_user_id);
+
+            setName(profile.user_name || "Unknown");
+            setSchool(profile.school || "Unknown");
+            setAcademicDegree(profile.current_academic_degree || "None");
+            setYear(profile.year);
+            setCurrentMajorList(
+                profile.major2
+                    ? [profile.major1, profile.major2]
+                    : [profile.major1]
+            );
+        } catch (error) {
+            console.error("Error fetching profile info:", error);
+        }
+    };
+
     /** TODO : backend */
     const saveInfo = async () => {
-        setIsSaveLoading(true);
-        setTimeout(() => {
+        try {
+            setIsSaveLoading(true);
+
+            const newProfile = {
+                user_name: name,
+                school: school,
+                current_academic_degree: academicDegree,
+                year: year,
+                major1: currentMajorList[0] || "",
+                major2: currentMajorList[currentMajorList.length - 1] || "",
+            };
+
+            const response = await updateProfile(newProfile);
+
+            console.log("Profile updated successfully!");
+        } catch (error) {
+            console.error("Error saving profile:", error);
+        } finally {
             setIsSaveLoading(false);
-        }, 1000);
+        }
     };
+
+    useEffect(() => {
+        getProfileInfo();
+    }, []);
 
     return (
         <View style={[styles.container]}>
@@ -34,16 +89,10 @@ const MyProfileEditView = () => {
                 title="프로필 수정"
                 onBack={router.navigate.bind(null, "/myprofile/info")}
             />
-            <ScrollView
-                style={styles.contentContainer}
-            >
+            <ScrollView style={styles.contentContainer}>
                 {/** Name */}
                 <View style={styles.fieldTitleContainer}>
-                    <Text
-                        style={styles.fieldTitle}
-                    >
-                        {"이름"}
-                    </Text>
+                    <Text style={styles.fieldTitle}>{"이름"}</Text>
                 </View>
                 <CustomTextInput
                     placeholderText="이름을 입력해주세요"
@@ -52,11 +101,7 @@ const MyProfileEditView = () => {
                 />
                 {/** School */}
                 <View style={[styles.fieldTitleContainer, { marginTop: 20 }]}>
-                    <Text
-                        style={styles.fieldTitle}
-                    >
-                        {"학교"}
-                    </Text>
+                    <Text style={styles.fieldTitle}>{"학교"}</Text>
                 </View>
                 <CustomTextInput
                     placeholderText="학교를 입력해주세요"
@@ -65,11 +110,7 @@ const MyProfileEditView = () => {
                 />
                 {/** Academic Degree */}
                 <View style={[styles.fieldTitleContainer, { marginTop: 20 }]}>
-                    <Text
-                        style={styles.fieldTitle}
-                    >
-                        {"재학 과정"}
-                    </Text>
+                    <Text style={styles.fieldTitle}>{"재학 과정"}</Text>
                 </View>
                 <TouchableOpacity
                     onPress={() => {
@@ -92,11 +133,7 @@ const MyProfileEditView = () => {
                 />
                 {/** Year */}
                 <View style={[styles.fieldTitleContainer, { marginTop: 20 }]}>
-                    <Text
-                        style={styles.fieldTitle}
-                    >
-                        {"입학년도"}
-                    </Text>
+                    <Text style={styles.fieldTitle}>{"입학년도"}</Text>
                 </View>
                 <CustomTextInput
                     placeholderText="입학년도를 입력해주세요 (e.g. 2025)"
@@ -104,27 +141,19 @@ const MyProfileEditView = () => {
                     setValue={setYear}
                     type="number"
                     maxLength={4}
-                    onChangeHandler={
-                        (text: any) => {
-                            if (text === "") {
-                                setYear(-999);
-                                return;
-                            }
-                            const numericText = text.replace(/[^0-9]/g, '');
-                            setYear(parseInt(numericText));
+                    onChangeHandler={(text: any) => {
+                        if (text === "") {
+                            setYear(-999);
+                            return;
                         }
-                    }
+                        const numericText = text.replace(/[^0-9]/g, "");
+                        setYear(parseInt(numericText));
+                    }}
                 />
                 {/** Major */}
                 <View style={[styles.fieldTitleContainer, { marginTop: 20 }]}>
-                    <Text
-                        style={styles.fieldTitle}
-                    >
-                        {"전공"}
-                    </Text>
-                    <Text
-                        style={styles.fieldSubTitle}
-                    >
+                    <Text style={styles.fieldTitle}>{"전공"}</Text>
+                    <Text style={styles.fieldSubTitle}>
                         {"최대 2개까지 입력 가능"}
                     </Text>
                 </View>
@@ -138,7 +167,7 @@ const MyProfileEditView = () => {
                     onClickCallback={saveInfo}
                     isActive={true}
                     isLoading={isSaveLoading}
-                    styleOv={{marginTop: 32}}
+                    styleOv={{ marginTop: 32 }}
                 />
             </ScrollView>
         </View>
@@ -154,36 +183,36 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.white,
         paddingHorizontal: 20,
-        paddingVertical: 30
+        paddingVertical: 30,
     },
     fieldTitleContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingBottom: 12
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        paddingBottom: 12,
     },
     fieldTitle: {
         fontSize: theme.fontSizes.subtitle,
         fontWeight: 600,
         color: theme.colors.black,
-        marginRight: 12
+        marginRight: 12,
     },
     fieldSubTitle: {
         fontSize: theme.fontSizes.body2,
         fontWeight: 400,
-        color: theme.colors.achromatic01
+        color: theme.colors.achromatic01,
     },
-    textView : {
-        width: '100%',
+    textView: {
+        width: "100%",
         backgroundColor: theme.colors.achromatic05,
         borderRadius: 5,
         paddingHorizontal: 12,
-        paddingVertical: 12
+        paddingVertical: 12,
     },
-    textViewContent : {
-        fontSize: theme.fontSizes.body1
-    }
+    textViewContent: {
+        fontSize: theme.fontSizes.body1,
+    },
 });
 
 export default MyProfileEditView;

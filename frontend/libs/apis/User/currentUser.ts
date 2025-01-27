@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import api from "../../shared/api";
+import api from "@/shared/api";
 
 const fetchCurrentUser = async (): Promise<api.User | null> => {
     try {

@@ -12,7 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 import fetchNotificationsAPI from "@/libs/apis/fetchNotifications";
 import updateNotificationAPI from "@/libs/apis/updateNotification";
 import deleteNotificationAPI from "@/libs/apis/deleteNotification";
-import fetchCurrentUserAPI  from "@/libs/apis/currentUser";
+import fetchCurrentUserAPI from "@/libs/apis/User/currentUser";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko"; // 한국어 로케일 사용
@@ -51,7 +51,6 @@ const Notification = () => {
             setLoading(false);
         }
     };
-
 
     const fetchNotifications = async () => {
         try {

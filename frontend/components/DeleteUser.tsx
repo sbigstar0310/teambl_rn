@@ -4,7 +4,7 @@ import PrimeButton from "./PrimeButton";
 import { router } from "expo-router";
 import Popup from "@/components/Popup";
 import checkPasswordAPI from "@/libs/apis/checkPassword";
-import deleteUserAPI from "@/libs/apis/deleteUser";
+import deleteUserAPI from "@/libs/apis/User/deleteUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/shared/constants";
 

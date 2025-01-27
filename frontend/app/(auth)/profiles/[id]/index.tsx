@@ -1,22 +1,18 @@
+import { getCurrentUserId } from "@/shared/utils";
 import { Redirect } from "expo-router";
 import { useRouter, useSearchParams } from "expo-router/build/hooks";
 
 const ProfileDetailPage = () => {
-
     const router = useRouter();
 
     const id = useSearchParams().get("id");
-    const myId = 1; // TODO: backend
-    
+    const myId = getCurrentUserId();
+
     if (`${id}` === `${myId}`) {
-        return (
-            <Redirect href="/myprofile" />
-        );
+        return <Redirect href="/myprofile" />;
     } else {
-        return (
-            <Redirect href={`/profiles/${id}/project`} />
-        );
+        return <Redirect href={`/profiles/${id}/project`} />;
     }
-}
+};
 
 export default ProfileDetailPage;
