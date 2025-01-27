@@ -15,7 +15,7 @@ const MyProfileInfoView = () => {
         "관심사5",
         "긴이름을가진관심사99",
     ]);
-    const [currentSkillList, setCurrentSkillList] = useState([]);
+    const [currentSkillList, setCurrentSkillList] = useState<string[]>([]);
     const [currentIntroduction, setCurrentIntroduction] = useState("");
 
     const [isSaveLoading, setIsSaveLoading] = useState(false);

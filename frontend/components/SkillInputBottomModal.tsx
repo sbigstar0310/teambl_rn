@@ -1,39 +1,142 @@
-import React, { useEffect, useState } from 'react';
-import BottomModal from './BottomModal';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import theme from '@/shared/styles/theme';
+import React, { useEffect, useState } from "react";
+import BottomModal from "./BottomModal";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import theme from "@/shared/styles/theme";
 import SearchIcon from "@/assets/search-icon-sm.svg";
-import DeleteIcon from '@/assets/delete-x-icon.svg';
-import PrimeButton from './PrimeButton';
+import DeleteIcon from "@/assets/delete-x-icon.svg";
+import PrimeButton from "./PrimeButton";
 
 const dummySuggestions = [
-    { id: 1, name: 'Figma', matches: ['figma', 'ux', 'ui', 'design', 'prototype'] },
-    { id: 7, name: 'Python', matches: ['python', 'py', 'backend', 'ml', 'ai', 'data'] },
-    { id: 3, name: 'React', matches: ['react', 'reactjs', 'frontend', 'javascript', 'jsx'] }
+    {
+        id: 1,
+        name: "Figma",
+        matches: ["figma", "ux", "ui", "design", "prototype"],
+    },
+    {
+        id: 7,
+        name: "Python",
+        matches: ["python", "py", "backend", "ml", "ai", "data"],
+    },
+    {
+        id: 3,
+        name: "React",
+        matches: ["react", "reactjs", "frontend", "javascript", "jsx"],
+    },
 ];
 
 const dummySkillData = [
-    { id: 1, name: 'Figma', matches: ['figma', 'ux', 'ui', 'design', 'prototype'] },
-    { id: 2, name: 'Photoshop', matches: ['photoshop', 'ps', 'photo', 'image', 'design'] },
-    { id: 3, name: 'React', matches: ['react', 'reactjs', 'frontend', 'javascript', 'jsx'] },
-    { id: 4, name: 'C언어', matches: ['c언어', 'c', 'programming', 'embedded', 'system'] },
-    { id: 5, name: 'HTML/CSS', matches: ['html', 'css', 'frontend', 'web', 'markup'] },
-    { id: 6, name: 'JavaScript', matches: ['javascript', 'js', 'frontend', 'web', 'scripting'] },
-    { id: 7, name: 'Python', matches: ['python', 'py', 'backend', 'ml', 'ai', 'data'] },
-    { id: 8, name: 'Java', matches: ['java', 'backend', 'spring', 'android', 'oop'] },
-    { id: 9, name: 'Node.js', matches: ['node', 'nodejs', 'backend', 'javascript', 'server'] },
-    { id: 10, name: 'MySQL', matches: ['mysql', 'sql', 'database', 'db', 'backend'] },
-    { id: 11, name: 'MongoDB', matches: ['mongodb', 'mongo', 'database', 'db', 'nosql'] },
-    { id: 12, name: 'Redux', matches: ['redux', 'state', 'react', 'frontend', 'store'] },
-    { id: 13, name: 'TypeScript', matches: ['typescript', 'ts', 'javascript', 'frontend', 'static'] },
-    { id: 14, name: 'Illustrator', matches: ['illustrator', 'ai', 'vector', 'design', 'graphics'] },
-    { id: 15, name: 'Vue.js', matches: ['vue', 'vuejs', 'frontend', 'javascript', 'framework'] },
-    { id: 16, name: 'Flutter', matches: ['flutter', 'dart', 'mobile', 'cross-platform', 'app'] },
-    { id: 17, name: 'Swift', matches: ['swift', 'ios', 'apple', 'mobile', 'app'] },
-    { id: 18, name: 'Kotlin', matches: ['kotlin', 'android', 'mobile', 'java', 'app'] },
-    { id: 19, name: 'Django', matches: ['django', 'python', 'backend', 'web', 'framework'] },
-    { id: 20, name: 'Ruby on Rails', matches: ['rails', 'ruby', 'backend', 'web', 'framework'] },
-    { id: 21, name: 'JUnit', matches: ['junit', 'java', 'testing', 'unit', 'framework'] }
+    {
+        id: 1,
+        name: "Figma",
+        matches: ["figma", "ux", "ui", "design", "prototype"],
+    },
+    {
+        id: 2,
+        name: "Photoshop",
+        matches: ["photoshop", "ps", "photo", "image", "design"],
+    },
+    {
+        id: 3,
+        name: "React",
+        matches: ["react", "reactjs", "frontend", "javascript", "jsx"],
+    },
+    {
+        id: 4,
+        name: "C언어",
+        matches: ["c언어", "c", "programming", "embedded", "system"],
+    },
+    {
+        id: 5,
+        name: "HTML/CSS",
+        matches: ["html", "css", "frontend", "web", "markup"],
+    },
+    {
+        id: 6,
+        name: "JavaScript",
+        matches: ["javascript", "js", "frontend", "web", "scripting"],
+    },
+    {
+        id: 7,
+        name: "Python",
+        matches: ["python", "py", "backend", "ml", "ai", "data"],
+    },
+    {
+        id: 8,
+        name: "Java",
+        matches: ["java", "backend", "spring", "android", "oop"],
+    },
+    {
+        id: 9,
+        name: "Node.js",
+        matches: ["node", "nodejs", "backend", "javascript", "server"],
+    },
+    {
+        id: 10,
+        name: "MySQL",
+        matches: ["mysql", "sql", "database", "db", "backend"],
+    },
+    {
+        id: 11,
+        name: "MongoDB",
+        matches: ["mongodb", "mongo", "database", "db", "nosql"],
+    },
+    {
+        id: 12,
+        name: "Redux",
+        matches: ["redux", "state", "react", "frontend", "store"],
+    },
+    {
+        id: 13,
+        name: "TypeScript",
+        matches: ["typescript", "ts", "javascript", "frontend", "static"],
+    },
+    {
+        id: 14,
+        name: "Illustrator",
+        matches: ["illustrator", "ai", "vector", "design", "graphics"],
+    },
+    {
+        id: 15,
+        name: "Vue.js",
+        matches: ["vue", "vuejs", "frontend", "javascript", "framework"],
+    },
+    {
+        id: 16,
+        name: "Flutter",
+        matches: ["flutter", "dart", "mobile", "cross-platform", "app"],
+    },
+    {
+        id: 17,
+        name: "Swift",
+        matches: ["swift", "ios", "apple", "mobile", "app"],
+    },
+    {
+        id: 18,
+        name: "Kotlin",
+        matches: ["kotlin", "android", "mobile", "java", "app"],
+    },
+    {
+        id: 19,
+        name: "Django",
+        matches: ["django", "python", "backend", "web", "framework"],
+    },
+    {
+        id: 20,
+        name: "Ruby on Rails",
+        matches: ["rails", "ruby", "backend", "web", "framework"],
+    },
+    {
+        id: 21,
+        name: "JUnit",
+        matches: ["junit", "java", "testing", "unit", "framework"],
+    },
 ];
 
 interface SkillBadgeProps {
@@ -43,21 +146,13 @@ interface SkillBadgeProps {
 
 const SkillBadge = (props: SkillBadgeProps) => {
     return (
-        <View
-            style={styles.badgeContainer}
-        >
-            <Text
-                style={styles.badgeText}
-            >
-                {props.skill}
-            </Text>
-            {props.onDelete &&
-                <TouchableOpacity
-                    onPress={props.onDelete}
-                >
-                    <DeleteIcon/>
+        <View style={styles.badgeContainer}>
+            <Text style={styles.badgeText}>{props.skill}</Text>
+            {props.onDelete && (
+                <TouchableOpacity onPress={props.onDelete}>
+                    <DeleteIcon />
                 </TouchableOpacity>
-            }
+            )}
         </View>
     );
 };
@@ -70,52 +165,45 @@ interface OptionBadgeProps {
 
 const OptionBadge = (props: OptionBadgeProps) => {
     return (
-        <TouchableOpacity
-            onPress={props.onSelect}
-        >
-            <View
-                style={styles.optionBadgeContainer}
-            >
-                <Text
-                    style={styles.optionBadgeText}
-                >
-                    {props.name}
-                </Text>
+        <TouchableOpacity onPress={props.onSelect}>
+            <View style={styles.optionBadgeContainer}>
+                <Text style={styles.optionBadgeText}>{props.name}</Text>
             </View>
         </TouchableOpacity>
     );
 };
 
 const SkillInputBottomModal = (props: any) => {
-    const {
-        visible,
-        onClose,
-        selectedSkills,
-        onConfirm,
-        style,
-    } = props;
+    const { visible, onClose, selectedSkills, onConfirm, style } = props;
 
     const [searchQuery, setSearchQuery] = useState("");
 
     const [suggestingSkills, setSuggestingSkills] = useState(dummySuggestions);
     const [searchedSkills, setSearchedSkills] = useState(dummySkillData);
-    
-    const [currentSelectedSkills, setCurrentSelectedSkills] = useState(selectedSkills);
+
+    const [currentSelectedSkills, setCurrentSelectedSkills] =
+        useState(selectedSkills);
 
     const matchSkills = (skill: any, query: string) => {
         const matches = skill.matches;
-        return matches.some((match: string) => match.includes(query.toLowerCase()));
+        return matches.some((match: string) =>
+            match.includes(query.toLowerCase())
+        );
     };
 
     const searchSkills = (query: string) => {
         if (query === "") {
             setSearchedSkills([]);
         } else {
-            setSearchedSkills(suggestingSkills.filter(skill => {
-                const matchRes = matchSkills(skill, query);
-                const isAlreadySelected = currentSelectedSkills.some((selectedSkill: any) => selectedSkill.id === skill.id);
-                return matchRes && (!isAlreadySelected);
-            }));
+            setSearchedSkills(
+                suggestingSkills.filter((skill) => {
+                    const matchRes = matchSkills(skill, query);
+                    const isAlreadySelected = currentSelectedSkills.some(
+                        (selectedSkill: any) => selectedSkill === skill
+                    );
+                    return matchRes && !isAlreadySelected;
+                })
+            );
         }
     };
 
@@ -124,7 +212,7 @@ const SkillInputBottomModal = (props: any) => {
             setSearchQuery("");
         }
         setCurrentSelectedSkills([...currentSelectedSkills, skill]);
-    }
+    };
 
     const onRemoveSkill = (index: number) => {
         const newSelectedSkills = [...currentSelectedSkills];
@@ -134,14 +222,8 @@ const SkillInputBottomModal = (props: any) => {
 
     const body = (
         <View style={styles.container}>
-            <View
-                style={[styles.titleContainer]}
-            >
-                <Text
-                    style={styles.title}
-                >
-                    {"스킬"}
-                </Text>
+            <View style={[styles.titleContainer]}>
+                <Text style={styles.title}>{"스킬"}</Text>
             </View>
             <View style={styles.inputContainer}>
                 <View style={styles.iconContainer}>
@@ -156,89 +238,67 @@ const SkillInputBottomModal = (props: any) => {
                 />
             </View>
             {/** badges */}
-            <View
-                style={styles.badgeAllContainer}
-            >
-                {
-                    (currentSelectedSkills.length > 0) &&
+            <View style={styles.badgeAllContainer}>
+                {currentSelectedSkills.length > 0 &&
                     currentSelectedSkills.map((skill: any, index: number) => {
                         return (
                             <SkillBadge
-                                key={index + skill.id}
-                                skill={skill.name}
+                                key={index + skill}
+                                skill={skill}
                                 onDelete={() => onRemoveSkill(index)}
                             />
                         );
-                    })
-                }
+                    })}
             </View>
             {/** suggestion & selections */}
-            {
-                (searchQuery === "") &&
-                (currentSelectedSkills.length === 0) &&
+            {searchQuery === "" && currentSelectedSkills.length === 0 && (
                 <>
-                    <View
-                        style={styles.suggestionTitleContainer}
-                    >
-                        <Text
-                            style={styles.suggestionTitle}
-                        >
+                    <View style={styles.suggestionTitleContainer}>
+                        <Text style={styles.suggestionTitle}>
                             {"추천 스킬"}
                         </Text>
                     </View>
-                    <View
-                        style={styles.optionBadgeAllContainer}
-                    >
-                        {
-                            suggestingSkills.map((skill: any) => {
-                                return (
-                                    <OptionBadge
-                                        key={skill.id}
-                                        name={skill.name}
-                                        id={skill.id}
-                                        onSelect={() => {
-                                            onSelectSkill(skill);
-                                        }}
-                                    />
-                                );
-                            })
-                        }
+                    <View style={styles.optionBadgeAllContainer}>
+                        {suggestingSkills.map((skill: any) => {
+                            return (
+                                <OptionBadge
+                                    key={skill}
+                                    name={skill}
+                                    id={skill}
+                                    onSelect={() => {
+                                        onSelectSkill(skill);
+                                    }}
+                                />
+                            );
+                        })}
                     </View>
                 </>
-            }
-            {
-                ((searchQuery !== "") ||
-                (currentSelectedSkills.length > 0)) &&
-                (
-                    <>
-                        <View
-                            style={styles.optionBadgeAllContainer}
-                        >
-                            {
-                                searchedSkills.map((skill: any) => {
-                                    return (
-                                        <OptionBadge
-                                            key={skill.id}
-                                            name={skill.name}
-                                            id={skill.id}
-                                            onSelect={() => {
-                                                onSelectSkill(skill);
-                                            }}
-                                        />
-                                    );
-                                })
-                            }
-                        </View>
-                        {/** confirm button : activated when `length > 0` */}
-                        <PrimeButton
-                            text="선택 완료"
-                            onClickCallback={() => onConfirm(currentSelectedSkills)}
-                            isActive={currentSelectedSkills.length > 0}
-                            isLoading={false}
-                        />
-                    </>
-                )
-            }
+            )}
+            {(searchQuery !== "" || currentSelectedSkills.length > 0) && (
+                <>
+                    <View style={styles.optionBadgeAllContainer}>
+                        {searchedSkills.map((skill: any) => {
+                            return (
+                                <OptionBadge
+                                    key={skill}
+                                    name={skill}
+                                    id={skill}
+                                    onSelect={() => {
+                                        onSelectSkill(skill);
+                                    }}
+                                />
+                            );
+                        })}
+                    </View>
+                    {/** confirm button : activated when `length > 0` */}
+                    <PrimeButton
+                        text="선택 완료"
+                        onClickCallback={() => onConfirm(currentSelectedSkills)}
+                        isActive={currentSelectedSkills.length > 0}
+                        isLoading={false}
+                    />
+                </>
+            )}
         </View>
     );
 
@@ -264,61 +324,61 @@ const SkillInputBottomModal = (props: any) => {
 
 const styles = StyleSheet.create({
     container: {
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
         paddingVertical: 0,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
     },
     titleContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingBottom: 12
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        paddingBottom: 12,
     },
     title: {
         fontSize: theme.fontSizes.smallTitle,
         fontWeight: 600,
-        color: theme.colors.black
+        color: theme.colors.black,
     },
     inputContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        alignContent: 'center',
-        justifyContent: 'flex-start',
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        alignItems: "center",
+        alignContent: "center",
+        justifyContent: "flex-start",
         minHeight: 40,
         backgroundColor: theme.colors.achromatic05,
         borderRadius: 5,
         paddingHorizontal: 12,
-        paddingVertical: 7
+        paddingVertical: 7,
     },
-    iconContainer : {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignContent: 'center',
-        justifyContent: 'center',
-        paddingRight: 12
+    iconContainer: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        alignContent: "center",
+        justifyContent: "center",
+        paddingRight: 12,
     },
-    textInput : {
+    textInput: {
         fontSize: theme.fontSizes.body1,
-        fontWeight: '400',
+        fontWeight: "400",
         color: theme.colors.black,
         flex: 1,
-        padding: 0
+        padding: 0,
     },
     badgeAllContainer: {
         marginTop: 8,
         gap: 8,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start',
-        overflow: 'scroll',
-        height: 30
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        overflow: "scroll",
+        height: 30,
     },
     badgeContainer: {
         backgroundColor: theme.colors.background2,
@@ -326,15 +386,15 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         paddingHorizontal: 8,
         gap: 10,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
     },
     badgeText: {
         fontSize: theme.fontSizes.body2,
-        fontWeight: '400',
-        color: theme.colors.black
+        fontWeight: "400",
+        color: theme.colors.black,
     },
     optionBadgeContainer: {
         backgroundColor: theme.colors.white,
@@ -343,38 +403,38 @@ const styles = StyleSheet.create({
         borderColor: theme.colors.achromatic01,
         paddingVertical: 5,
         paddingHorizontal: 10,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
     },
     optionBadgeText: {
         fontSize: theme.fontSizes.smallTitle,
-        fontWeight: '500',
-        color: theme.colors.achromatic01
+        fontWeight: "500",
+        color: theme.colors.achromatic01,
     },
     suggestionTitleContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        marginTop: 20
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        marginTop: 20,
     },
     suggestionTitle: {
         fontSize: theme.fontSizes.body2,
-        fontWeight: '400',
-        color: theme.colors.achromatic01
+        fontWeight: "400",
+        color: theme.colors.achromatic01,
     },
     optionBadgeAllContainer: {
         marginTop: 8,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
         gap: 8,
-        overflow: 'scroll',
+        overflow: "scroll",
         height: 35,
-        marginBottom: 16
+        marginBottom: 16,
     },
 });
 

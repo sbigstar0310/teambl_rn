@@ -1,9 +1,9 @@
-import theme from '@/shared/styles/theme';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import theme from "@/shared/styles/theme";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import SearchIcon from "@/assets/search-icon-sm.svg";
-import DeleteIcon from '@/assets/delete-x-icon.svg';
-import SkillInputBottomModal from './SkillInputBottomModal';
+import DeleteIcon from "@/assets/delete-x-icon.svg";
+import SkillInputBottomModal from "./SkillInputBottomModal";
 
 interface SkillBadgeProps {
     skill: string;
@@ -12,30 +12,22 @@ interface SkillBadgeProps {
 
 const SkillBadge = (props: SkillBadgeProps) => {
     return (
-        <View
-            style={styles.badgeContainer}
-        >
-            <Text
-                style={styles.badgeText}
-            >
-                {props.skill}
-            </Text>
-            {props.onDelete &&
-                <TouchableOpacity
-                    onPress={props.onDelete}
-                >
-                    <DeleteIcon/>
+        <View style={styles.badgeContainer}>
+            <Text style={styles.badgeText}>{props.skill}</Text>
+            {props.onDelete && (
+                <TouchableOpacity onPress={props.onDelete}>
+                    <DeleteIcon />
                 </TouchableOpacity>
-            }
+            )}
         </View>
     );
 };
-  
+
 const SkillInput = (props: any) => {
     const {
         selectedSkills,
         updateSelectedSkills,
-        placeholderText = "스킬 검색"
+        placeholderText = "스킬 검색",
     } = props;
 
     const [visible, setVisible] = useState(false);
@@ -63,37 +55,30 @@ const SkillInput = (props: any) => {
                 onPress={() => {
                     setVisible(true);
                 }}
-                style={{ width: '100%' }}    
+                style={{ width: "100%" }}
             >
-                <View
-                    style={styles.container}
-                >
+                <View style={styles.container}>
                     <View style={styles.iconContainer}>
                         <SearchIcon />
                     </View>
-                    {
-                        (selectedSkills.length === 0) &&
-                        (
-                            <Text
-                                style={styles.placeholder}
-                                onPress={() => setVisible(true)}
-                            >
-                                {placeholderText}
-                            </Text>
-                        )
-                    }
-                    {
-                        (selectedSkills.length > 0) &&
+                    {selectedSkills.length === 0 && (
+                        <Text
+                            style={styles.placeholder}
+                            onPress={() => setVisible(true)}
+                        >
+                            {placeholderText}
+                        </Text>
+                    )}
+                    {selectedSkills.length > 0 &&
                         selectedSkills.map((skill: any, index: number) => {
                             return (
                                 <SkillBadge
-                                    key={index + skill.id}
-                                    skill={skill.name}
+                                    key={index + skill}
+                                    skill={skill}
                                     onDelete={() => onRemoveSkill(index)}
                                 />
                             );
-                        })
-                    }
+                        })}
                 </View>
             </TouchableOpacity>
             <SkillInputBottomModal
@@ -108,34 +93,34 @@ const SkillInput = (props: any) => {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        alignContent: 'center',
-        justifyContent: 'flex-start',
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        alignItems: "center",
+        alignContent: "center",
+        justifyContent: "flex-start",
         minHeight: 40,
         backgroundColor: theme.colors.achromatic05,
         borderRadius: 5,
         paddingHorizontal: 12,
         paddingVertical: 7,
-        gap: 8
+        gap: 8,
     },
-    iconContainer : {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignContent: 'center',
-        justifyContent: 'center',
-        paddingRight: 4
+    iconContainer: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        alignContent: "center",
+        justifyContent: "center",
+        paddingRight: 4,
     },
     placeholder: {
         color: theme.colors.achromatic03,
         fontSize: theme.fontSizes.body1,
-        fontWeight: '400',
+        fontWeight: "400",
         padding: 0,
-        margin: 0
+        margin: 0,
     },
     badgeContainer: {
         backgroundColor: theme.colors.white,
@@ -143,16 +128,16 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         paddingHorizontal: 8,
         gap: 10,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
     },
     badgeText: {
         fontSize: theme.fontSizes.body2,
-        fontWeight: '400',
-        color: theme.colors.black
-    }
+        fontWeight: "400",
+        color: theme.colors.black,
+    },
 });
 
 export default SkillInput;

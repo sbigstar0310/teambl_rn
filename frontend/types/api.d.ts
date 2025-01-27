@@ -37,11 +37,6 @@ declare module api {
         user: api.User;
     };
 
-    type Skill = {
-        id: number;
-        skill: string;
-    };
-
     type Profile = {
         user_name: string;
         school: string;
@@ -51,7 +46,7 @@ declare module api {
         major2: string | null;
         one_degree_count: number;
         introduction: string;
-        skills: Skill[];
+        skills: string[];
         portfolio_links: string[];
         image: string | null;
         keywords: string[];
