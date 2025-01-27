@@ -5,25 +5,130 @@ import { StyleSheet, TouchableOpacity, View, Image, Text, Modal, ActivityIndicat
 import ChonIcon from '@/assets/chon-icon.svg';
 import PadoIcon from '@/assets/pado-icon.svg';
 import DefaultImage from '@/assets/DefaultProfile.svg';
+import BackIcon from '@/assets/BackIcon.svg';
 import ImageUploadModal from './ImageUploadModal';
+import PrimeButton from './PrimeButton';
+import SmallButton from './buttons/SmallButton';
+import RelationShipBridgeView from './RelationShipBridgeView';
+
+const MyProfileDummyData = {
+    id: 1,
+    profileImageUrl: "https://image.fnnews.com/resource/media/image/2024/10/10/202410100737527065_l.jpg",
+    name: "성이름",
+    school: "카이스트",
+    degree: "학사",
+    admissionYear: 18,
+    chonDegree: 0,
+    departments: ["전산학부", "산업디자인과"],
+    chonCount: 32
+};
+
+const OtherProfileDummyDataTwoChon = {
+    id: 2,
+    profileImageUrl: "https://i.namu.wiki/i/YrgbR0y6Q9LAd2ij9Yu7b1IxViYEzXmxOm6lH617nsOkVwa13wp4sEIwFwwTqoAqc_rqhft21sdcO388UKcGZw.webp",
+    name: "김두촌",
+    school: "카이스트",
+    degree: "석사",
+    admissionYear: 24,
+    departments: ["전산학부", "김재철AI대학원"],
+    chonCount: 30,
+    isChon: false,
+    chonDegree: 2,
+    chonInfoFromMe: [
+        { myName: "성이름", BridgeNames: ["김중간"] },
+        { myName: "성이름", BridgeNames: ["박중간"] },
+        { myName: "성이름", BridgeNames: ["James"] }
+    ]
+};
+
+const OtherProfileDummyDataThreeChon = {
+    id: 3,
+    profileImageUrl: "https://mblogthumb-phinf.pstatic.net/MjAyMjA4MjdfMTA1/MDAxNjYxNTkwMDA1NjM1.XFF4jbmfPTQoLHyI7Trx4fb4JH4zeXFTVykFyqHjG_og.S7-DPx-F8kGoUG2oYY5wZmZ24kJCwgl_lGtxIhsOijUg.JPEG.dearmy098/76adcbd9441095dae1080cc53a9a727d.jpg?type=w800",
+    name: "김삼촌",
+    school: "카이스트",
+    degree: "박사",
+    admissionYear: 19,
+    departments: ["전산학부", "전기및전자공학부"],
+    chonCount: 15,
+    isChon: false,
+    chonDegree: 3,
+    chonInfoFromMe: [
+        { myName: "성이름", BridgeNames: ["김중간", "이중간"] },
+        { myName: "성이름", BridgeNames: ["박중간", "최중간"] },
+        { myName: "성이름", BridgeNames: ["James", "Tom"] },
+    ]
+};
+
+const OtherProfileDummyDataFourChon = {
+    id: 4,
+    profileImageUrl: "https://blog.kakaocdn.net/dn/eyeYET/btrWoo5nDmr/MJPSlKZD1mNubibCMtRGbK/img.png",
+    name: "김사촌",
+    school: "카이스트",
+    degree: "학사",
+    admissionYear: 19,
+    departments: ["생명과학과", "전기및전자공학부"],
+    chonCount: 3,
+    isChon: false,
+    chonDegree: 4
+};
+
+const oneChonProfileDummyData = {
+    id: 5,
+    profileImageUrl: "https://entertainimg.kbsmedia.co.kr/cms/uploads/PERSON_20241013124916_43de76d0e8469192a63783030a894944.png",
+    name: "김일촌",
+    school: "카이스트",
+    degree: "학사",
+    admissionYear: 19,
+    departments: ["건설및환경공학과", "전기및전자공학부"],
+    chonCount: 301,
+    chonDegree: 1,
+    isChon: true
+};
+
+type ProfileDummyData = {
+    id?: number;
+    profileImageUrl?: string;
+    name?: string;
+    school?: string;
+    degree?: string;
+    admissionYear?: number;
+    departments?: string[];
+    chonCount?: number;
+    isChon?: boolean;
+    chonDegree?: number;
+    chonInfoFromMe?: {
+        myName: string;
+        BridgeNames: string[];
+    }[];
+};
 
 const NewProfileHeader = (props: any) => {
     const {
         userId,
-        isMyProfile,
-        onBackClick
+        isMyProfile
     } = props;
 
     const router = useRouter();
+    const myId = 1;
 
     const [isImageUploadModalVisible, setIsImageUploadModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const [currentImageURL, setCurrentImageURL] = useState("https://image.fnnews.com/resource/media/image/2024/10/10/202410100737527065_l.jpg");
+    const [userInfo, setUserInfo] = useState<ProfileDummyData>({});
+    const [currentImageURL, setCurrentImageURL] = useState("");
 
     const fetchUserInfo = async () => {
-        setCurrentImageURL("https://image.fnnews.com/resource/media/image/2024/10/10/202410100737527065_l.jpg");
-        // TODO: backend
+        if (`${userId}` === `${myId}`) {
+            setUserInfo(MyProfileDummyData);
+        } else if (`${userId}` === '2') {
+            setUserInfo(OtherProfileDummyDataTwoChon);
+        } else if (`${userId}` === '3') {
+            setUserInfo(OtherProfileDummyDataThreeChon);
+        } else if (`${userId}` === '4') {
+            setUserInfo(OtherProfileDummyDataFourChon);
+        } else {
+            setUserInfo(oneChonProfileDummyData);
+        }
     };
 
     const uploadImage = async (file: any): Promise<void> => {
@@ -50,9 +155,24 @@ const NewProfileHeader = (props: any) => {
         setCurrentImageURL("");
     }
 
+    const extractBridgeNames = (chonInfoFromMe: any) => {
+        if (!chonInfoFromMe) {
+            return [];
+        }
+        let newList: any[] = [];
+        chonInfoFromMe.forEach((info: any) => {
+            newList.push(info.BridgeNames);
+        });
+        return newList;
+    }
+
     useEffect(() => {
         fetchUserInfo();
     }, []);
+
+    useEffect(() => {
+        setCurrentImageURL(userInfo?.profileImageUrl ? userInfo.profileImageUrl : "");
+    }, [userInfo]);
 
     return (
         <>
@@ -65,14 +185,20 @@ const NewProfileHeader = (props: any) => {
                 </Modal>
             )}
             <View
-                style={[styles.container]}
+                style={
+                    isMyProfile ? styles.myProfilecontainer : styles.otherProfilecontainer
+                }
             >
                 <View
                     style={[styles.headerContainer]}
                 >
                     <TouchableOpacity
                         style={[styles.profileImageContainer]}
-                        onPress={() => setIsImageUploadModalVisible(true)}
+                        onPress={() => {
+                            if (isMyProfile) {
+                                setIsImageUploadModalVisible(true);
+                            }
+                        }}
                     >
                         {
                             (currentImageURL === "") && (
@@ -114,7 +240,7 @@ const NewProfileHeader = (props: any) => {
                         <Text
                             style={[styles.name]}
                         >
-                            {"성이름"}
+                            {userInfo?.name}
                         </Text>
                         {isMyProfile && (
                             <TouchableOpacity
@@ -134,7 +260,7 @@ const NewProfileHeader = (props: any) => {
                         {
                             !(isMyProfile) &&
                             <Text>
-                                {"・ 1촌"}
+                                {`・ ${userInfo?.chonDegree}촌`}
                             </Text>
                         }
                     </View>
@@ -144,7 +270,7 @@ const NewProfileHeader = (props: any) => {
                         <Text
                             style={[styles.schoolInfo]}
                         >
-                            {"카이스트"}
+                            {userInfo?.school}
                         </Text>
                         <Text
                             style={[styles.sepLine]}
@@ -154,7 +280,7 @@ const NewProfileHeader = (props: any) => {
                         <Text
                             style={[styles.schoolInfo]}
                         >
-                            {"학사"}
+                            {userInfo?.degree}
                         </Text>
                         <Text
                             style={[styles.sepLine]}
@@ -164,7 +290,7 @@ const NewProfileHeader = (props: any) => {
                         <Text
                             style={[styles.schoolInfo]}
                         >
-                            {"18 학번"}
+                            {`${userInfo?.admissionYear} 학번`}
                         </Text>
                     </View>
                     <View
@@ -173,18 +299,23 @@ const NewProfileHeader = (props: any) => {
                         <Text
                             style={[styles.schoolInfo]}
                         >
-                            {"전산학부"}
+                            {userInfo?.departments?.[0] ?? ""}
                         </Text>
-                        <Text
-                            style={[styles.sepDot]}
-                        >
-                            {"・"}
-                        </Text>
-                        <Text
-                            style={[styles.schoolInfo]}
-                        >
-                            {"산업디자인과"}
-                        </Text>
+                        {
+                            userInfo?.departments?.[1] &&
+                            <>
+                                <Text
+                                    style={[styles.sepDot]}
+                                >
+                                    {"·"}
+                                </Text>
+                                <Text
+                                    style={[styles.schoolInfo]}
+                                >
+                                    {userInfo?.departments?.[1]}
+                                </Text>
+                            </>
+                        }
                     </View>
                     {/*** bottom view */}
                     <View
@@ -199,7 +330,7 @@ const NewProfileHeader = (props: any) => {
                             <Text
                                 style={[styles.bottomButtonText]}
                             >
-                                {"1촌 32명"}
+                                {`1촌 ${userInfo?.chonCount}명`}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -215,6 +346,48 @@ const NewProfileHeader = (props: any) => {
                             </Text>
                         </TouchableOpacity>
                     </View>
+                    {/** requesting 1-chon & sending message */}
+                    {
+                        (!isMyProfile) &&
+                        <View style={styles.requestAndMessageContainer}>
+                            {
+                                !(userInfo?.isChon) &&
+                                <SmallButton
+                                    text={"1촌 신청"}
+                                    onClickCallback={async () => {
+                                        //TODO
+                                    }}
+                                    isLoading={false}
+                                />
+                            }
+                            <SmallButton
+                                text={"메시지"}
+                                onClickCallback={async () => {
+                                    //TODO
+                                }}
+                                isLoading={false}
+                                type={"secondary"}
+                            />
+                        </View>
+                    }
+                    {/** bridge view */}
+                    {
+                        (!isMyProfile) && !(userInfo?.isChon) &&
+                        <View
+                            style={styles.bridgeContainer}
+                        >
+                            <Text style={styles.bridgeTitle}>
+                                {"나와의 관계"}
+                            </Text>
+                            <RelationShipBridgeView
+                                startName={MyProfileDummyData.name}
+                                endName={userInfo?.name}
+                                relationShipList={extractBridgeNames(userInfo?.chonInfoFromMe)}
+                                distance={userInfo?.chonDegree}
+                                isLoading={false}
+                            />
+                        </View>
+                    }
                 </View>
             </View>
         </>
@@ -222,13 +395,18 @@ const NewProfileHeader = (props: any) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
+    myProfilecontainer: {
         flexDirection: "column",
         paddingTop: 80
+    },
+    otherProfilecontainer: {
+        flexDirection: "column",
+        paddingTop: 0
     },
     backbuttonContainer: {
         paddingVertical: 16,
         paddingHorizontal: 22,
+        paddingBottom: 46
     },
     headerContainer: {
         backgroundColor: theme.colors.white,
@@ -337,6 +515,30 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
+    },
+    requestAndMessageContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        marginTop: 20,
+        paddingHorizontal: 20
+    },
+    bridgeContainer: {
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        paddingHorizontal: 20,
+        marginTop: 20
+    },
+    bridgeTitle : {
+        fontSize: theme.fontSizes.subtitle,
+        color: theme.colors.black,
+        fontWeight: 600,
+        marginBottom: 12
     }
 });
 

@@ -22,14 +22,14 @@ export default function InboxScreen() {
 
     const onPress = () => {
         if (inputId) {
-            router.push(`/profiles/${inputId}`);
+            router.replace(`/profiles/${inputId}`);
         }
     };
 
     return (
         <View style={[sharedStyles.container, sharedStyles.contentCentered, sharedStyles.horizontalPadding, styleSheet.gap]}>
             <Text>Please insert the id of the user.</Text>
-            <Text>(My id : 1)</Text>
+            <Text>(My id : 1, Other id : 2~4, One-Chon id : 5)</Text>
             <TextInput
                 style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
                 onChangeText={onChangeText}
