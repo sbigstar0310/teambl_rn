@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function MyProfileLayout() {
 
     const router = useRouter();
+    const myId = 1;
 
     return (
         <View
@@ -17,10 +18,10 @@ export default function MyProfileLayout() {
                 edges={['top']}
             >
                 <NewProfileHeader
-                    userId={1}
+                    userId={myId}
                     isMyProfile={true}
                     onBackClick={() => {
-                        router.push("/home");
+                        router.replace("/home");
                     }}
                 />
             </SafeAreaView>
