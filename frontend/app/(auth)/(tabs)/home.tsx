@@ -27,9 +27,7 @@ export default function HomeScreen() {
                 style={[
                     sharedStyles.container,
                     {
-                        borderTopWidth: 4,
-                        borderColor: "#F5F5F5",
-                        backgroundColor: '#FAFAFA',
+                        backgroundColor: '#EEF4FF',
                         padding: 16,
                     }
                 ]}>

@@ -5,6 +5,7 @@ import Teambl from "@/assets/teambl.svg";
 import MessageIcon from "@/assets/header/MessageIcon.svg";
 import NotiIcon from "@/assets/header/NotiIcon.svg";
 import SettingIcon from "@/assets/header/SettingIcon.svg";
+import FriendsIcon from "@/assets/header/FriendsIcon.svg";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Header: React.FC = () => {
@@ -19,14 +20,17 @@ const Header: React.FC = () => {
         {/* Right-aligned Icons */}
         <View style={styles.rightIconsContainer}>
           <TouchableOpacity onPress={() => router.push("/conversations")}>
-            <MessageIcon width={20} height={20} />
+            <FriendsIcon/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/conversations")}>
+            <MessageIcon/>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/notification")}>
-            <NotiIcon width={18} height={20} />
+            <NotiIcon/>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/settings")}>
+          {/* <TouchableOpacity onPress={() => router.push("/settings")}>
             <SettingIcon width={24} height={24} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </SafeAreaView>
