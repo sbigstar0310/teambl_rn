@@ -1,156 +1,223 @@
 import theme from '@/shared/styles/theme';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Image, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View, Image, Text, Modal, ActivityIndicator } from 'react-native';
 import ChonIcon from '@/assets/chon-icon.svg';
 import PadoIcon from '@/assets/pado-icon.svg';
+import DefaultImage from '@/assets/DefaultProfile.svg';
+import ImageUploadModal from './ImageUploadModal';
 
 const NewProfileHeader = (props: any) => {
-
-    const router = useRouter();
-    
     const {
-        userId: string,
-        isMyProfile: boolean,
+        userId,
+        isMyProfile,
         onBackClick
     } = props;
 
+    const router = useRouter();
+
+    const [isImageUploadModalVisible, setIsImageUploadModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [currentImageURL, setCurrentImageURL] = useState("https://image.fnnews.com/resource/media/image/2024/10/10/202410100737527065_l.jpg");
+
     const fetchUserInfo = async () => {
-        // TODO
+        setCurrentImageURL("https://image.fnnews.com/resource/media/image/2024/10/10/202410100737527065_l.jpg");
+        // TODO: backend
+    };
+
+    const uploadImage = async (file: any): Promise<void> => {
+        try {
+            setIsImageUploadModalVisible(false);
+            setIsLoading(true);
+            // TODO : backend
+            // fake delay
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            setCurrentImageURL(file.uri);
+        } catch (error) {
+            console.error("파일 업로드 중 오류 발생:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const removeImage = async () => {
+        // TODO : backend
+        setIsImageUploadModalVisible(false);
+        setIsLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        setIsLoading(false);
+        setCurrentImageURL("");
     }
 
+    useEffect(() => {
+        fetchUserInfo();
+    }, []);
+
     return (
-        <View
-            style={[styles.container]}
-        >
-            {/** back button */}
-            {/* <View
-                style={[styles.backbuttonContainer]}
-            >
-                <TouchableOpacity onPress={onBackClick}>
-                    <Image
-                        source={require("@/assets/left-arrow.png")}
-                    />
-                </TouchableOpacity>
-            </View> */}
+        <>
+            {/** loader */}
+            {isLoading && (
+                <Modal visible={true} transparent>
+                    <View style={styles.loadingOverlay}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                    </View>
+                </Modal>
+            )}
             <View
-                style={[styles.headerContainer]}
+                style={[styles.container]}
             >
-                <Image
-                    source={{
-                        uri: "https://image.fnnews.com/resource/media/image/2024/10/10/202410100737527065_l.jpg"
-                    }}
-                    style={[styles.profileImage]}
-                />
                 <View
-                    style={[styles.nameContainer]}
+                    style={[styles.headerContainer]}
                 >
-                    <Text
-                        style={[styles.name]}
+                    <TouchableOpacity
+                        style={[styles.profileImageContainer]}
+                        onPress={() => setIsImageUploadModalVisible(true)}
                     >
-                        {"성이름"}
-                    </Text>
-                    {props.isMyProfile && (
-                        <TouchableOpacity
-                            style={[styles.editButton]}
-                            onPress={
-                                () => {
-                                    router.push("/myprofile-edit");
-                                }
-                            }
-                        >
-                            <Image
-                                source={require("@/assets/edit-icon.png")}
-                                style={[styles.editButtonIcon]}
-                            />
-                        </TouchableOpacity>
-                    )}
+                        {
+                            (currentImageURL === "") && (
+                                <DefaultImage
+                                    width={90}
+                                    height={90}
+                                    style={[styles.profileImage]}
+                                />
+                            )
+                        }
+                        {
+                            (currentImageURL !== "") && (
+                                <Image
+                                    source={{
+                                        uri: currentImageURL
+                                    }}
+                                    style={[styles.profileImage]}
+                                />
+                            )
+                        }
+                    </TouchableOpacity>
+                    {/** image upload modal */}
                     {
-                        !(props.isMyProfile) &&
-                        <Text>
-                            {"・ 1촌"}
-                        </Text>
+                        (!isLoading) && (
+                            <ImageUploadModal
+                                isVisible={isImageUploadModalVisible}
+                                onClose={() => setIsImageUploadModalVisible(false)}
+                                title={"프로필 사진"}
+                                descriptions={["프로필 사진으로 신뢰도를 높여보세요.", "신뢰할 수 있는 이미지는 더 넓은 네트워크를 만듭니다."]}
+                                onRemoveImage={removeImage}
+                                onUploadImage={uploadImage}
+                                setIsLoading={setIsLoading}
+                            />
+                        )
                     }
-                </View>
-                <View
-                    style={[styles.schoolContainer]}
-                >
-                    <Text
-                        style={[styles.schoolInfo]}
+                    <View
+                        style={[styles.nameContainer]}
                     >
-                        {"카이스트"}
-                    </Text>
-                    <Text
-                        style={[styles.sepLine]}
-                    >
-                        {"|"}
-                    </Text>
-                    <Text
-                        style={[styles.schoolInfo]}
-                    >
-                        {"학사"}
-                    </Text>
-                    <Text
-                        style={[styles.sepLine]}
-                    >
-                        {"|"}
-                    </Text>
-                    <Text
-                        style={[styles.schoolInfo]}
-                    >
-                        {"18 학번"}
-                    </Text>
-                </View>
-                <View
-                    style={[styles.schoolContainer]}
-                >
-                    <Text
-                        style={[styles.schoolInfo]}
-                    >
-                        {"전산학부"}
-                    </Text>
-                    <Text
-                        style={[styles.sepDot]}
-                    >
-                        {"・"}
-                    </Text>
-                    <Text
-                        style={[styles.schoolInfo]}
-                    >
-                        {"산업디자인과"}
-                    </Text>
-                </View>
-                {/*** bottom view */}
-                <View
-                    style={[styles.bottomContainer]}
-                >
-                    <TouchableOpacity
-                        style={[styles.bottomButton, styles.withMR17]}
-                    >
-                        <ChonIcon
-                            style={[styles.bottomButtonIcon]}
-                        />
                         <Text
-                            style={[styles.bottomButtonText]}
+                            style={[styles.name]}
                         >
-                            {"1촌 32명"}
+                            {"성이름"}
                         </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.bottomButton]}
+                        {isMyProfile && (
+                            <TouchableOpacity
+                                style={[styles.editButton]}
+                                onPress={
+                                    () => {
+                                        router.push("/myprofile-edit");
+                                    }
+                                }
+                            >
+                                <Image
+                                    source={require("@/assets/edit-icon.png")}
+                                    style={[styles.editButtonIcon]}
+                                />
+                            </TouchableOpacity>
+                        )}
+                        {
+                            !(isMyProfile) &&
+                            <Text>
+                                {"・ 1촌"}
+                            </Text>
+                        }
+                    </View>
+                    <View
+                        style={[styles.schoolContainer]}
                     >
-                        <PadoIcon
-                            style={[styles.bottomButtonIcon]}
-                        />
                         <Text
-                            style={[styles.bottomButtonText]}
+                            style={[styles.schoolInfo]}
                         >
-                            {"파도타기"}
+                            {"카이스트"}
                         </Text>
-                    </TouchableOpacity>
+                        <Text
+                            style={[styles.sepLine]}
+                        >
+                            {"|"}
+                        </Text>
+                        <Text
+                            style={[styles.schoolInfo]}
+                        >
+                            {"학사"}
+                        </Text>
+                        <Text
+                            style={[styles.sepLine]}
+                        >
+                            {"|"}
+                        </Text>
+                        <Text
+                            style={[styles.schoolInfo]}
+                        >
+                            {"18 학번"}
+                        </Text>
+                    </View>
+                    <View
+                        style={[styles.schoolContainer]}
+                    >
+                        <Text
+                            style={[styles.schoolInfo]}
+                        >
+                            {"전산학부"}
+                        </Text>
+                        <Text
+                            style={[styles.sepDot]}
+                        >
+                            {"・"}
+                        </Text>
+                        <Text
+                            style={[styles.schoolInfo]}
+                        >
+                            {"산업디자인과"}
+                        </Text>
+                    </View>
+                    {/*** bottom view */}
+                    <View
+                        style={[styles.bottomContainer]}
+                    >
+                        <TouchableOpacity
+                            style={[styles.bottomButton, styles.withMR17]}
+                        >
+                            <ChonIcon
+                                style={[styles.bottomButtonIcon]}
+                            />
+                            <Text
+                                style={[styles.bottomButtonText]}
+                            >
+                                {"1촌 32명"}
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.bottomButton]}
+                        >
+                            <PadoIcon
+                                style={[styles.bottomButtonIcon]}
+                            />
+                            <Text
+                                style={[styles.bottomButtonText]}
+                            >
+                                {"파도타기"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
-        </View>
+        </>
     );
 };
 
@@ -174,14 +241,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
+    profileImageContainer: {
+        position: 'absolute',
+        top: -45,
+    },
     profileImage: {
         width: 90,
         height: 90,
         borderRadius: 45,
         borderColor: theme.colors.white,
-        borderWidth: 4,
-        position: 'absolute',
-        top: -45,
+        borderWidth: 4
     },
     nameContainer: {
         display: 'flex',
@@ -206,11 +275,11 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20
     },
-    chon : {
+    chon: {
         fontSize: theme.fontSizes.body2,
         color: theme.colors.black
     },
-    schoolContainer : {
+    schoolContainer: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -221,42 +290,53 @@ const styles = StyleSheet.create({
         color: theme.colors.black,
         marginHorizontal: 3
     },
-    sepLine : {
+    sepLine: {
         fontSize: theme.fontSizes.body2,
         color: theme.colors.black,
         paddingBottom: 3,
         marginHorizontal: 3
     },
-    sepDot : {
+    sepDot: {
         fontSize: theme.fontSizes.body2,
         color: theme.colors.black,
         marginHorizontal: 3
     },
-    bottomContainer : {
+    bottomContainer: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 7
     },
-    bottomButton : {
+    bottomButton: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center'
     },
-    withMR17 : {
+    withMR17: {
         marginRight: 17
     },
-    bottomButtonIcon : {
+    bottomButtonIcon: {
         width: 20,
         height: 20,
         marginRight: 5
     },
-    bottomButtonText : {
+    bottomButtonText: {
         fontSize: theme.fontSizes.body2,
         color: theme.colors.main,
         fontWeight: 500
+    },
+    loadingOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
     }
 });
 
