@@ -3,6 +3,7 @@ import PrimeButton from "@/components/PrimeButton";
 import SkillInput from "@/components/SkillInput";
 import TextAreaInput from "@/components/TextAreaInput";
 import getProfile from "@/libs/apis/Profile/getProfile";
+import updateProfile from "@/libs/apis/Profile/updateProfile";
 import theme from "@/shared/styles/theme";
 import { getCurrentUserId } from "@/shared/utils";
 import React, { useEffect, useState } from "react";
@@ -42,10 +43,23 @@ const MyProfileInfoView = () => {
 
     /** TODO : backend */
     const saveInfo = async () => {
-        setIsSaveLoading(true);
-        setTimeout(() => {
+        try {
+            setIsSaveLoading(true);
+
+            const newProfile = {
+                keywords: currentKeywordist,
+                skills: currentSkillList,
+                introduction: currentIntroduction,
+            };
+
+            const response = await updateProfile(newProfile);
+
+            console.log("Profile updated successfully!");
+        } catch (error) {
+            console.error("Error saving profile:", error);
+        } finally {
             setIsSaveLoading(false);
-        }, 1000);
+        }
     };
 
     const handleNewKeyword = (newKeyword: string) => {

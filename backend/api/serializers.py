@@ -380,6 +380,14 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             if os.path.isfile(old_image.path):
                 os.remove(old_image.path)
 
+        # 기존 이미지 삭제 (유저가 이미지 삭제를 선택)
+        if new_image == "":
+            # 이미지 필드 초기화
+            if old_image and os.path.isfile(old_image.path):
+                os.remove(old_image.path)  # 기존 이미지 파일 삭제
+            instance.image = None  # 모델의 이미지 필드 값 초기화
+            instance.save()  # 변경사항 저장
+
         # Update keywords
         if keywords_data is not None:
             keyword_objs = []
