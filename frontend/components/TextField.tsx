@@ -1,4 +1,4 @@
-import {StyleSheet, TextInput, TextInputProps, View} from "react-native";
+import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
 import theme from "@/shared/styles/theme";
 
 interface TextFieldProps extends TextInputProps {
@@ -16,7 +16,7 @@ export default function TextField(props: TextFieldProps) {
                 {...props}
             />
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -26,10 +26,11 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.achromatic05,
         flexDirection: "row",
         alignItems: "center",
-        gap: 6
+        gap: 6,
+        minHeight: 40,
     },
     input: {
         flex: 1,
-        fontSize: 16
-    }
+        fontSize: 16,
+    },
 });
