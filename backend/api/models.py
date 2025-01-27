@@ -369,7 +369,7 @@ class Profile(models.Model):
         return self.user_name
 
 
-# 툴 (프로필과 1:N)
+# 스킬 (프로필과 1:N)
 class Skill(models.Model):
     skill = models.CharField(max_length=100)
     profile = models.ForeignKey(
@@ -527,13 +527,13 @@ class ExperienceInvitation(models.Model):
 
 # 포트폴리오 링크 (프로필과 1:N)
 class PortfolioLink(models.Model):
-    portfolioLink = models.URLField()
+    portfolio_link = models.URLField()
     profile = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name="portfolio_links"
     )
 
     def __str__(self):
-        return self.urls
+        return self.portfolio_link
 
 
 class InvitationLink(models.Model):

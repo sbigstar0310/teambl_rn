@@ -506,26 +506,6 @@ class InquiryCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-class UpdateOneDegreeCountView(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        # 현재 사용자를 가져옴
-        user = request.user
-
-        # 전달된 user_id가 있다면 해당 사용자의 프로필을 업데이트
-        user_id = kwargs.get("user_id")
-        if user_id:
-            user = get_object_or_404(CustomUser, id=user_id)
-
-        # one_degree_count 업데이트
-        update_profile_one_degree_count(user)
-
-        # 업데이트된 one_degree_count를 반환
-        profile = user.profile
-        return Response({"one_degree_count": profile.one_degree_count})
-
-
 # 가장 최근(새로 가입한) 사용자의 id 얻기
 class LatestUserIdView(generics.GenericAPIView):
     serializer_class = CustomUserSerializer

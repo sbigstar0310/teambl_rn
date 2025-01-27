@@ -255,14 +255,16 @@ class ExperienceSerializer(serializers.ModelSerializer):
 class PortfolioLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = PortfolioLink
-        fields = ["id", "portfolioLink"]
+        fields = ["id", "portfolio_link"]
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer):
     keywords = serializers.ListField(
         child=serializers.CharField(), write_only=True, required=False
     )
-    skills = SkillSerializer(many=True, required=False)
+    skills = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False
+    )
     experiences = ExperienceSerializer(many=True, required=False)
     portfolio_links = PortfolioLinkSerializer(many=True, required=False)
     image = serializers.ImageField(required=False, allow_null=True)
@@ -276,17 +278,14 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
             "year",
             "major1",
             "major2",
-            "keywords",
             "one_degree_count",
             "introduction",
             "skills",
             "experiences",
             "portfolio_links",
             "image",
+            "keywords",
         ]
-
-    # def get_keywords(self, obj):
-    #     return [keyword.keyword for keyword in obj.keywords.all()]
 
     def to_representation(self, instance):
         """
@@ -296,6 +295,7 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
         representation["keywords"] = [
             keyword.keyword for keyword in instance.keywords.all()
         ]
+        representation["skills"] = [skill.skill for skill in instance.skills.all()]
         return representation
 
     def create(self, validated_data):
@@ -325,12 +325,16 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     year = serializers.IntegerField(required=False)
     major1 = serializers.CharField(required=False)
     major2 = serializers.CharField(required=False, allow_blank=True)
-    skills = SkillSerializer(many=True, required=False)
+    skills = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False, allow_empty=True
+    )
     introduction = serializers.CharField(required=False, allow_blank=True)
-    experiences = ExperienceSerializer(many=True, required=False)
-    experience_detail = ExperienceDetailSerializer(required=False)
-    portfolio_links = PortfolioLinkSerializer(many=True, required=False)
-    keywords = serializers.SerializerMethodField()
+    portfolio_links = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False, allow_empty=True
+    )
+    keywords = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False, allow_empty=True
+    )
     image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
@@ -342,19 +346,16 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "year",
             "major1",
             "major2",
-            "skills",
             "introduction",
-            "experiences",
-            "experience_detail",
+            "skills",
             "portfolio_links",
-            "keywords",
             "image",
+            "keywords",
         ]
 
-    def get_keywords(self, obj):
-        return [keyword.keyword for keyword in obj.keywords.all()]
-
     def update(self, instance, validated_data):
+        print("validated_data: ", validated_data)
+
         # 이미지 추출 (new_image, old_image )
         new_image = validated_data.get("image", None)
         old_image = instance.image
@@ -362,20 +363,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         # skills 추출
         skills_data = validated_data.pop("skills", None)
 
-        # experiences 추출
-        experiences_data = validated_data.pop("experiences", None)
-
-        # experience detail 추출
-        experience_detail_data = validated_data.pop("experience_detail", None)
-
         # portfolio_links 추출
         portfolio_links_data = validated_data.pop("portfolio_links", None)
 
-        # 키워드를 initial_data에서 추출
-        keywords_data = self.initial_data.get("keywords", None)
-        # keywords 필드를 validated_data에서 제거
-        validated_data.pop("keywords", None)
+        # 키워드 추출
+        keywords_data = validated_data.pop("keywords", None)
 
+        print("validated_data: ", validated_data)
         # Update basic fields only if they are provided in the validated_data
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -386,186 +380,50 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             if os.path.isfile(old_image.path):
                 os.remove(old_image.path)
 
+        # Update keywords
+        if keywords_data is not None:
+            keyword_objs = []
+            for keyword in keywords_data:
+                if keyword:  # 빈 문자열 방지
+                    keyword_obj, _ = Keyword.objects.get_or_create(keyword=keyword)
+                    keyword_objs.append(keyword_obj)
+            instance.keywords.set(keyword_objs)
+
         # Update skills
         if skills_data is not None:
-            # 프로필에 현재 존재하는 스킬들
-            existing_skills = set(instance.skills.values_list("skill", flat=True))
-
-            # 새로 전달된 스킬들
-            new_skills = set(skill_data["skill"] for skill_data in skills_data)
-
-            # 삭제할 스킬: 기존 스킬 중 새로운 스킬 목록에 없는 것들
-            skills_to_remove = existing_skills - new_skills
-            # 추가할 스킬: 새로운 스킬 목록 중 기존 스킬 목록에 없는 것들
-            skills_to_add = new_skills - existing_skills
-
-            # 스킬 삭제 (스킬명을 기준으로 삭제)
-            if skills_to_remove:
-                Skill.objects.filter(
-                    profile=instance, skill__in=skills_to_remove
-                ).delete()
-
-            # 스킬 추가 (중복되지 않은 새 스킬들만 추가)
-            for skill_data in skills_to_add:
-                Skill.objects.create(profile=instance, skill=skill_data)
-
-        # **Experience 업데이트**
-        if experiences_data is not None:
-            self.update_experiences(instance, experiences_data)
-
-        # **ExperienceDetail 업데이트**
-        if experience_detail_data is not None:
-            self.update_experience_detail(instance, experience_detail_data)
+            instance.skills.all().delete()
+            for skill_name in skills_data:
+                if skill_name:  # 빈 문자열 방지
+                    Skill.objects.create(profile=instance, skill=skill_name)
 
         # Update portfolio links
         if portfolio_links_data is not None:
             instance.portfolio_links.all().delete()  # 기존 portfolio links 삭제
             for portfolio_link_data in portfolio_links_data:
-                PortfolioLink.objects.create(profile=instance, **portfolio_link_data)
-
-        # Update keywords
-        if keywords_data is not None:
-            keyword_objs = []
-            for keyword in keywords_data:
-                keyword_obj, created = Keyword.objects.get_or_create(keyword=keyword)
-                keyword_objs.append(keyword_obj)
-
-            # set() 메서드를 사용하여 Many-to-Many 관계 설정
-            instance.keywords.set(keyword_objs)
+                PortfolioLink.objects.create(
+                    profile=instance, portfolio_link=portfolio_link_data
+                )
 
         return instance
-
-    def update_experiences(self, profile_instance, experiences_data):
-        """
-        주어진 프로필에 연결된 경험들을 업데이트합니다.
-        """
-
-        for experience_data in experiences_data:
-            experience_id = experience_data.get("id", None)
-
-            # ManyToMany 필드의 객체들을 ID로 변환
-            # profiles_ids = [
-            #     profile.user.id if isinstance(profile, Profile) else profile
-            #     for profile in experience_data.get("profiles", [])
-            # ]
-            collaborator_ids = [
-                user.id if isinstance(user, CustomUser) else user
-                for user in experience_data.get("collaborators", [])
-            ]
-            tag_ids = [
-                tag.id if isinstance(tag, Keyword) else tag
-                for tag in experience_data.get("tags", [])
-            ]
-            accepted_users_ids = [
-                user.id if isinstance(user, CustomUser) else user
-                for user in experience_data.get("accepted_users", [])
-            ]
-
-            # ManyToMany 필드들을 ID로 교체
-            # experience_data["profiles"] = profiles_ids
-            experience_data["collaborators"] = collaborator_ids
-            experience_data["tags"] = tag_ids
-            experience_data["accepted_users"] = accepted_users_ids
-
-            if experience_id:
-                try:
-                    # 기존 Experience 객체 가져와 업데이트
-                    experience_instance = profile_instance.experiences.get(
-                        id=experience_id
-                    )
-                    experience_serializer = ExperienceSerializer(
-                        instance=experience_instance, data=experience_data, partial=True
-                    )
-                    # if experience_serializer.is_valid(raise_exception=True):
-                    #     experience_serializer.save()
-                    if not experience_serializer.is_valid():
-                        print("Validation Errors:", experience_serializer.errors)
-                    experience_serializer.is_valid(raise_exception=True)
-                    saved_experience = Experience.objects.filter(
-                        id=experience_id
-                    ).first()
-                    if saved_experience is None:
-                        print("Experience not saved in the database!")
-                    else:
-                        print("Experience successfully saved:", saved_experience)
-                except Experience.DoesNotExist:
-                    raise serializers.ValidationError(
-                        f"Experience with id {experience_id} does not exist."
-                    )
-            else:
-                # 새로운 Experience 생성
-                experience_serializer = ExperienceSerializer(data=experience_data)
-                if experience_serializer.is_valid(raise_exception=True):
-                    new_experience = experience_serializer.save()
-                    profile_instance.experiences.add(new_experience)
-
-    def update_experience_detail(self, profile_instance, experience_detail_data):
-        """
-        주어진 프로필과 경험(Experience)에 연결된 세부 경험(ExperienceDetail)을 업데이트합니다.
-        """
-        experience_detail_id = experience_detail_data.get("id", None)
-
-        # Experience와 User 객체를 ID로 변환
-        experience = experience_detail_data.get("experience")
-        user = experience_detail_data.get("user")
-
-        experience_id = (
-            experience.id if isinstance(experience, Experience) else experience
-        )
-        user_id = user.id if isinstance(user, CustomUser) else user
-
-        # Many-to-Many 필드 처리 (skills_used)
-        skills_used_ids = [
-            skill.id if isinstance(skill, Skill) else skill
-            for skill in experience_detail_data.get("skills_used", [])
-        ]
-
-        # 필드들을 ID로 교체
-        experience_detail_data["experience"] = experience_id
-        experience_detail_data["user"] = user_id
-        experience_detail_data["skills_used"] = skills_used_ids
-
-        # Experience 객체 가져오기
-        try:
-            experience_instance = profile_instance.experiences.get(id=experience_id)
-        except Experience.DoesNotExist:
-            raise serializers.ValidationError(
-                f"Experience with id {experience_id} does not exist."
-            )
-
-        if experience_detail_id:
-            try:
-                # 해당 Experience에 연결된 ExperienceDetail 가져오기
-                experience_detail_instance = experience_instance.details.get(
-                    id=experience_detail_id
-                )
-                experience_detail_serializer = ExperienceDetailSerializer(
-                    instance=experience_detail_instance,
-                    data=experience_detail_data,
-                    partial=True,
-                )
-                if experience_detail_serializer.is_valid(raise_exception=True):
-                    experience_detail_serializer.save()
-            except ExperienceDetail.DoesNotExist:
-                raise serializers.ValidationError(
-                    f"ExperienceDetail with id {experience_detail_id} does not exist."
-                )
-        else:
-            # 새로운 ExperienceDetail 생성
-            experience_detail_serializer = ExperienceDetailSerializer(
-                data=experience_detail_data
-            )
-            if experience_detail_serializer.is_valid(raise_exception=True):
-                new_experience_detail = experience_detail_serializer.save()
-                # 생성한 ExperienceDetail을 Experience 객체에 연결
-                experience_instance.details.add(new_experience_detail)
 
     def to_representation(self, instance):
         """Return instance data including the keywords as a list of strings."""
         representation = super().to_representation(instance)
+
+        # skills 필드
+        representation["skills"] = [skill.skill for skill in instance.skills.all()]
+
+        # keywords 필드
         representation["keywords"] = [
             keyword.keyword for keyword in instance.keywords.all()
         ]
+
+        # portfolio_link 필드
+        representation["portfolio_links"] = [
+            portfolio_link.portfolio_link
+            for portfolio_link in instance.portfolio_links.all()
+        ]
+
         return representation
 
 
@@ -759,7 +617,9 @@ class PostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         tagged_users_data = validated_data.pop("tagged_users", [])
         liked_users_data = validated_data.pop("liked_users", [])
-        images_data = validated_data.pop("images", [])
+        images_data = self.context["request"].FILES.getlist(
+            "images"
+        )  # 이미지 파일 가져오기
 
         # Update post fields
         for attr, value in validated_data.items():
