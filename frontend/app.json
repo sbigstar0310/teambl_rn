@@ -33,7 +33,8 @@
           "photosPermission": "친구와 사진을 공유하려면 앱이 사진에 액세스해야 합니다.",
           "cameraPermission": "친구와 사진을 공유하려면 앱이 카메라에 액세스해야 합니다."
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

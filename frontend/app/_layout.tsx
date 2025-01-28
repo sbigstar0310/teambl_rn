@@ -3,8 +3,16 @@ import {Stack} from "expo-router";
 import {StatusBar} from "expo-status-bar";
 import {Fragment} from 'react';
 import {StyleSheet} from "react-native";
+import { useFonts } from "expo-font";
 
 export default function RootLayout() {
+    // 폰트 로드
+    const [fontsLoaded] = useFonts({
+        Pretendard: require("../assets/fonts/PretendardVariable.ttf"),
+    });
+    if (!fontsLoaded) {
+        return null; // 폰트가 로드될 때까지 화면을 렌더링하지 않음
+    }
     return <Fragment>
         {/* Main Stack navigation router */}
         <Stack screenOptions={{headerShown: false}}/>
