@@ -6,7 +6,7 @@ from ..serializers import NotificationSerializer
 from rest_framework.response import Response
 
 
-class NotificationListCreateView(generics.ListCreateAPIView):
+class NotificationListView(generics.ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = None
@@ -15,6 +15,11 @@ class NotificationListCreateView(generics.ListCreateAPIView):
         # 현재 로그인한 사용자에게만 해당하는 알림을 반환합니다.
         user = self.request.user
         return Notification.objects.filter(user=user).order_by("-created_at")
+
+
+class NotificationCreateView(generics.CreateAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

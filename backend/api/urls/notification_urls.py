@@ -5,8 +5,13 @@ from .. import views
 urlpatterns = [
     path(
         "list/",
-        views.NotificationListCreateView.as_view(),
+        views.NotificationListView.as_view(),
         name="notification-list",
+    ),
+    path(
+        "create/",
+        views.NotificationCreateView.as_view(),
+        name="notification-create",
     ),
     path(
         "<int:pk>/update/",

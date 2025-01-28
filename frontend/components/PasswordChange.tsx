@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import changePasswordAPI from "@/libs/apis/changePassword";
-import checkPasswordAPI from "@/libs/apis/checkPassword";
+import changePasswordAPI from "@/libs/apis/User/changePassword";
+import checkPasswordAPI from "@/libs/apis/User/checkPassword";
 import Button from "./Button";
 import ConfirmText from "./ConfirmText";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/shared/constants";

@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import api from "../../shared/api";
+import api from "../../../shared/api";
 import { ACCESS_TOKEN, REFRESH_TOKEN, USER_ID } from "@/shared/constants";
 
 type RequestParams = {
@@ -27,7 +27,10 @@ const changePassword = async (params: RequestParams): Promise<Response> => {
         const updatedParams = { ...params, email };
 
         // 비밀번호 변경 API 호출
-        const response = await api.patch<Response>("user/change-password/", updatedParams);
+        const response = await api.patch<Response>(
+            "user/change-password/",
+            updatedParams
+        );
         return response.data;
     } catch (error) {
         console.error("Failed to change password", error);
