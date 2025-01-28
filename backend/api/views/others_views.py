@@ -506,20 +506,6 @@ class InquiryCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-# 가장 최근(새로 가입한) 사용자의 id 얻기
-class LatestUserIdView(generics.GenericAPIView):
-    serializer_class = CustomUserSerializer
-
-    def get(self, request, *args, **kwargs):
-        try:
-            latest_user = CustomUser.objects.latest("id")  # 가장 최근 생성된 유저 찾기
-            return Response({"user_id": latest_user.id}, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            return Response(
-                {"error": "No users found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-
 class GetUserAllPathsAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     lookup_url_kwarg = "target_user_id"  # user_id로 lookup

@@ -356,7 +356,7 @@ class CheckPasswordView(generics.GenericAPIView):
         else:
             return Response(
                 {"isSame": False, "detail": "Incorrect password."},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_200_OK,
             )
 
 
@@ -429,3 +429,17 @@ class DeleteUserView(generics.DestroyAPIView):
         return Response(
             {"detail": "User deleted successfully."}, status=status.HTTP_204_NO_CONTENT
         )
+
+
+# 가장 최근(새로 가입한) 사용자의 id 얻기
+class LatestUserIdView(generics.GenericAPIView):
+    serializer_class = CustomUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            latest_user = CustomUser.objects.latest("id")  # 가장 최근 생성된 유저 찾기
+            return Response({"user_id": latest_user.id}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "No users found"}, status=status.HTTP_404_NOT_FOUND
+            )
