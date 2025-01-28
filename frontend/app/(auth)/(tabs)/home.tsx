@@ -4,6 +4,9 @@ import {sharedStyles} from "@/app/_layout";
 import Header from "@/components/Header";
 import PostCard from "@/components/cards/PostCard";
 import {mockPost1, mockPost2} from "@/shared/mock-data";
+
+import fetchPostList from "@/libs/apis/Post/fetchPost"; 
+
 import {router} from "expo-router";
 
 const mockPosts = [mockPost1, mockPost2];
@@ -16,9 +19,20 @@ export default function HomeScreen() {
     }, []);
 
     const fetchPosts = () => {
-    //     TODO: fetch posts from api
         setPosts(mockPosts);
     }
+
+    // You can use fetchPosts function below! (API is connected.)
+
+    // const fetchPosts = async () => {
+    //     try {
+    //         const fetchedPosts = await fetchPostList();
+    //         console.log("fetch post:", fetchedPosts);
+    //         setPosts(fetchedPosts);
+    //     } catch (error) {
+    //         console.error("Failed to fetch posts:", error);
+    //     }
+    // };
 
     return (
         <>
