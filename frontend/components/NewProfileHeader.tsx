@@ -19,6 +19,7 @@ import PrimeButton from "./PrimeButton";
 import SmallButton from "./buttons/SmallButton";
 import RelationShipBridgeView from "./RelationShipBridgeView";
 import updateProfile from "@/libs/apis/Profile/updateProfile";
+import createFriend from "@/libs/apis/Friend/createFriend";
 
 const MyProfileDummyData = {
     id: 1,
