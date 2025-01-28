@@ -6,8 +6,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko"; // 한국어 로케일 사용
 import XIcon from "@/assets/delete-x-icon.svg";
 import { isEnabled } from "react-native/Libraries/Performance/Systrace";
-import updateNotificationAPI from "@/libs/apis/updateNotification";
-import deleteNotificationAPI from "@/libs/apis/deleteNotification";
+import updateNotificationAPI from "@/libs/apis/Notification/updateNotification";
+import deleteNotificationAPI from "@/libs/apis/Notification/deleteNotification";
 import { timeAgo } from "@/shared/utils";
 import { useRouter } from "expo-router";
 

@@ -1,4 +1,4 @@
-import api from "../../shared/api";
+import api from "@/shared/api";
 
 type Response = {
     system_messages: api.Message[];

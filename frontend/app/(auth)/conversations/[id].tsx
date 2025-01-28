@@ -11,17 +11,17 @@ import MessageInput from "@/components/conversations/MessageInput";
 import InfoMessage from "@/components/conversations/InfoMessage";
 import ExitIcon from '@/assets/conversations/exit-icon.svg';
 
-import fetchCurrentUser from "@/libs/apis/currentUser";
+import fetchCurrentUser from "@/libs/apis/User/currentUser";
 
-import createConversation from "@/libs/apis/createConversation";
-import getConversation from "@/libs/apis/getConversation";
-import deleteConversation from "@/libs/apis/deleteConversation";
+import createConversation from "@/libs/apis/Conversation/createConversation";
+import getConversation from "@/libs/apis/Conversation/getConversation";
+import deleteConversation from "@/libs/apis/Conversation/deleteConversation";
 
-import getMessage from "@/libs/apis/getMessage";
-import getLatestMessage from "@/libs/apis/getLatestMessage";
-import createMessage from "@/libs/apis/createMessage";
-import deleteMessage from "@/libs/apis/deleteMessage";
-import markConversationAsRead from "@/libs/apis/markConversationAsRead";
+import getMessage from "@/libs/apis/Conversation/getMessage";
+import getLatestMessage from "@/libs/apis/Conversation/getLatestMessage";
+import createMessage from "@/libs/apis/Conversation/createMessage";
+import deleteMessage from "@/libs/apis/Conversation/deleteMessage";
+import markConversationAsRead from "@/libs/apis/Conversation/markConversationAsRead";
 
 export default function Conversation() {
     const {id} = useLocalSearchParams();

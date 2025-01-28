@@ -1,4 +1,4 @@
-import api from "../../shared/api";
+import api from "@/shared/api";
 
 type RequestParams = {
     user_2: string; // 상대방 사용자 ID

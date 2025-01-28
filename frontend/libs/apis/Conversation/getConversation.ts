@@ -1,4 +1,4 @@
-import api from "../../shared/api";
+import api from "@/shared/api";
 
 type Response = api.Conversation[]; // 응답은 대화 목록 배열입니다.
 

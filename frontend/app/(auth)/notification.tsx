@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import { Stack } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
-import fetchNotificationsAPI from "@/libs/apis/fetchNotifications";
-import updateNotificationAPI from "@/libs/apis/updateNotification";
-import deleteNotificationAPI from "@/libs/apis/deleteNotification";
+import fetchNotificationsAPI from "@/libs/apis/Notification/fetchNotifications";
+import updateNotificationAPI from "@/libs/apis/Notification/updateNotification";
+import deleteNotificationAPI from "@/libs/apis/Notification/deleteNotification";
 import fetchCurrentUserAPI from "@/libs/apis/User/currentUser";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";

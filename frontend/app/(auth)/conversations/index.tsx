@@ -5,7 +5,7 @@ import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
 import {mockConversation1, mockConversation2, mockConversation3} from "@/shared/mock-data";
 import ConversationThumbnail from "@/components/conversations/ConversationThumbnail";
-import getConversation from "@/libs/apis/getConversation"; 
+import getConversation from "@/libs/apis/Conversation/getConversation"; 
 
 const mockConversations: api.Conversation[] = [mockConversation1, mockConversation2, mockConversation3];
 
