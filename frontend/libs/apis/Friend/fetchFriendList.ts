@@ -7,14 +7,7 @@ import { getCurrentUserId } from "@/shared/utils";
 
 type RequestParams = Record<string, any>; // Adjust to match the API's expected params structure
 
-type Friend = {
-    from_user: number;
-    to_user: number;
-};
-
-type Response = api.User[];
-
-const fetchFriendList = async (user_id: number): Promise<Response> => {
+const fetchFriendList = async (user_id: number): Promise<api.User[]> => {
     try {
         const response = await api.get<api.Friend[]>(`friend/${user_id}/list/`);
         const friendList = response.data;

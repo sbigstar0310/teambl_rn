@@ -3,7 +3,7 @@ from .. import views
 
 # Friends
 urlpatterns = [
-    path("list/", views.ListCreateFriendView.as_view(), name="friend-list"),
+    path("list-or-create/", views.ListCreateFriendView.as_view(), name="friend-list-or-create"),
     path(
         "<int:user_id>/list/",
         views.ListFriendView.as_view(),
