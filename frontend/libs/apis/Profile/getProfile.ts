@@ -7,8 +7,12 @@ type RequestParams = {};
 type Response = api.Profile;
 
 const getProfile = async (user_id: number): Promise<Response> => {
-    const response = await api.get<Response>(`profile/${user_id}/get/`);
-    return response.data;
+    try {
+        const response = await api.get<Response>(`profile/${user_id}/get/`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export default getProfile;

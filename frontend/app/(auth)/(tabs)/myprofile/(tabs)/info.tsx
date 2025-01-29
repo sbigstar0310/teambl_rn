@@ -32,6 +32,7 @@ const MyProfileInfoView = () => {
             }
 
             const profile = await getProfile(current_user_id);
+            console.log("Profile fetched successfully:", profile);
 
             setCurrentKeywordList(profile.keywords);
             setCurrentSkillList(profile.skills);
@@ -52,9 +53,11 @@ const MyProfileInfoView = () => {
                 introduction: currentIntroduction,
             };
 
-            const response = await updateProfile(newProfile);
+            const response = await updateProfile({
+                profile: newProfile,
+            });
 
-            console.log("Profile updated successfully!");
+            console.log("Profile updated successfully!, response: ", response);
         } catch (error) {
             console.error("Error saving profile:", error);
         } finally {

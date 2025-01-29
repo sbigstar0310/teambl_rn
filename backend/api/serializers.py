@@ -354,6 +354,14 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
+        print("💡 Raw request data BEFORE validation: ", self.initial_data)  # Debugging
+        print("✅ Validated data AFTER validation: ", validated_data)  # Debugging
+
+        # Check if image exists
+        # if "image" in validated_data:
+        # print("📷 Image received:", validated_data["image"])
+        # else:
+        # print("⚠️ No image in validated_data!")
         print("validated_data: ", validated_data)
 
         # 이미지 추출 (new_image, old_image )

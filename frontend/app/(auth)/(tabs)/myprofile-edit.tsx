@@ -69,7 +69,9 @@ const MyProfileEditView = () => {
                 major2: currentMajorList[currentMajorList.length - 1] || "",
             };
 
-            const response = await updateProfile(newProfile);
+            const response = await updateProfile({
+                profile: newProfile,
+            });
 
             console.log("Profile updated successfully!");
         } catch (error) {

@@ -172,6 +172,13 @@ MEDIA_URL = "/media/"
 # MEDIA_ROOT는 실제 파일이 저장될 서버의 디렉토리 경로를 지정합니다.
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
+# Increase the maximum allowed request size (in bytes)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Increase the maximum allowed file upload size (in bytes)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
+
 # 세션 엔진: 데이터베이스에 세션 저장
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 

@@ -577,6 +577,18 @@ class GetUserAllPathsAPIView(generics.RetrieveAPIView):
                 {"error": "Target user not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
+        # current_user와 target_user가 같은 경우 빈 배열 반환
+        if current_user == target_user:
+            return Response(
+                {
+                    "paths_name": [],
+                    "paths_id": [],
+                    "current_user_id": current_user.id,
+                    "target_user_id": target_user.id,
+                },
+                status=status.HTTP_200_OK,
+            )
+
         results_path = self.find_paths_to_target_user(current_user, target_user)
 
         # 최소 길이 계산

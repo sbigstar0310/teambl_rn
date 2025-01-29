@@ -20,6 +20,10 @@ import SmallButton from "./buttons/SmallButton";
 import RelationShipBridgeView from "./RelationShipBridgeView";
 import updateProfile from "@/libs/apis/Profile/updateProfile";
 import createFriend from "@/libs/apis/Friend/createFriend";
+import getProfile from "@/libs/apis/Profile/getProfile";
+import getUserDistance from "@/libs/apis/getUserDistance";
+import getUserPath from "@/libs/apis/getUserPath";
+import { getCurrentUserId } from "@/shared/utils";
 
 const MyProfileDummyData = {
     id: 1,
@@ -117,43 +121,79 @@ type ProfileDummyData = {
     }[];
 };
 
+type UserInfo = {
+    profile: api.Profile;
+    choneDegree?: number;
+    chonInfoFromMe?: {
+        paths_name: string[];
+        paths_id: number[];
+        current_user_id: number;
+        target_user_id: number;
+    };
+};
+
 const NewProfileHeader = (props: any) => {
     const { userId, isMyProfile } = props;
-
     const router = useRouter();
-    const myId = 1;
+    const myId = getCurrentUserId();
 
     const [isImageUploadModalVisible, setIsImageUploadModalVisible] =
         useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const [userInfo, setUserInfo] = useState<ProfileDummyData>({});
+    const [userInfo, setUserInfo] = useState<UserInfo>();
     const [currentImageURL, setCurrentImageURL] = useState("");
 
     const fetchUserInfo = async () => {
-        if (`${userId}` === `${myId}`) {
-            setUserInfo(MyProfileDummyData);
-        } else if (`${userId}` === "2") {
-            setUserInfo(OtherProfileDummyDataTwoChon);
-        } else if (`${userId}` === "3") {
-            setUserInfo(OtherProfileDummyDataThreeChon);
-        } else if (`${userId}` === "4") {
-            setUserInfo(OtherProfileDummyDataFourChon);
-        } else {
-            setUserInfo(oneChonProfileDummyData);
+        try {
+            // Fetch user profile
+            const profile = await getProfile(userId);
+
+            // Fetch choneDegree
+            const choneDegree = await getUserDistance(userId).then((res) => {
+                return res.distance;
+            });
+
+            // Fetch chonInfoFromMe
+            const pathInfo = await getUserPath(userId);
+
+            // Update state correctly
+            setUserInfo((prev) => ({
+                profile: profile,
+                choneDegree: choneDegree,
+                chonInfoFromMe: pathInfo,
+            }));
+
+            // TODO: get chonInfoFromMe
+        } catch (error) {
+            console.error("프로필 정보를 불러오는 중 오류 발생:", error);
         }
+
+        // if (`${userId}` === `${myId}`) {
+        //     setUserInfo(MyProfileDummyData);
+        // } else if (`${userId}` === "2") {
+        //     setUserInfo(OtherProfileDummyDataTwoChon);
+        // } else if (`${userId}` === "3") {
+        //     setUserInfo(OtherProfileDummyDataThreeChon);
+        // } else if (`${userId}` === "4") {
+        //     setUserInfo(OtherProfileDummyDataFourChon);
+        // } else {
+        //     setUserInfo(oneChonProfileDummyData);
+        // }
     };
 
     const uploadImage = async (file: any): Promise<void> => {
         try {
             setIsImageUploadModalVisible(false);
             setIsLoading(true);
-            // TODO : backend
-            console.log(file.uri);
-            const newProfile = {
-                image: file.uri,
-            };
-            await updateProfile(newProfile);
+            await updateProfile({
+                profile: undefined,
+                imageFile: {
+                    uri: file.uri,
+                    type: file.mimeType,
+                    name: file.fileName,
+                },
+            });
             setCurrentImageURL(file.uri);
         } catch (error) {
             console.error("파일 업로드 중 오류 발생:", error);
@@ -163,13 +203,13 @@ const NewProfileHeader = (props: any) => {
     };
 
     const removeImage = async () => {
-        // TODO : backend
         setIsImageUploadModalVisible(false);
         setIsLoading(true);
-        const newProfile = {
-            image: "",
-        };
-        await updateProfile(newProfile);
+        // Upload the image
+        await updateProfile({
+            profile: { image: "" },
+            imageFile: undefined,
+        });
         setIsLoading(false);
         setCurrentImageURL("");
     };
@@ -191,7 +231,7 @@ const NewProfileHeader = (props: any) => {
 
     useEffect(() => {
         setCurrentImageURL(
-            userInfo?.profileImageUrl ? userInfo.profileImageUrl : ""
+            userInfo?.profile.image ? userInfo.profile.image : ""
         );
     }, [userInfo]);
 
@@ -253,7 +293,9 @@ const NewProfileHeader = (props: any) => {
                         />
                     )}
                     <View style={[styles.nameContainer]}>
-                        <Text style={[styles.name]}>{userInfo?.name}</Text>
+                        <Text style={[styles.name]}>
+                            {userInfo?.profile.user_name}
+                        </Text>
                         {isMyProfile && (
                             <TouchableOpacity
                                 style={[styles.editButton]}
@@ -268,31 +310,33 @@ const NewProfileHeader = (props: any) => {
                             </TouchableOpacity>
                         )}
                         {!isMyProfile && (
-                            <Text>{`・ ${userInfo?.chonDegree}촌`}</Text>
+                            <Text>{`・ ${userInfo?.choneDegree}촌`}</Text>
                         )}
                     </View>
                     <View style={[styles.schoolContainer]}>
                         <Text style={[styles.schoolInfo]}>
-                            {userInfo?.school}
+                            {userInfo?.profile.school}
                         </Text>
                         <Text style={[styles.sepLine]}>{"|"}</Text>
                         <Text style={[styles.schoolInfo]}>
-                            {userInfo?.degree}
+                            {userInfo?.profile.current_academic_degree}
                         </Text>
                         <Text style={[styles.sepLine]}>{"|"}</Text>
                         <Text style={[styles.schoolInfo]}>
-                            {`${userInfo?.admissionYear} 학번`}
+                            {userInfo?.profile.year
+                                ? `${userInfo.profile.year % 100} 학번`
+                                : ""}
                         </Text>
                     </View>
                     <View style={[styles.schoolContainer]}>
                         <Text style={[styles.schoolInfo]}>
-                            {userInfo?.departments?.[0] ?? ""}
+                            {userInfo?.profile.major1 ?? ""}
                         </Text>
-                        {userInfo?.departments?.[1] && (
+                        {userInfo?.profile.major2 && (
                             <>
                                 <Text style={[styles.sepDot]}>{"·"}</Text>
                                 <Text style={[styles.schoolInfo]}>
-                                    {userInfo?.departments?.[1]}
+                                    {userInfo?.profile.major2}
                                 </Text>
                             </>
                         )}
@@ -304,7 +348,7 @@ const NewProfileHeader = (props: any) => {
                         >
                             <ChonIcon style={[styles.bottomButtonIcon]} />
                             <Text style={[styles.bottomButtonText]}>
-                                {`1촌 ${userInfo?.chonCount}명`}
+                                {`1촌 ${userInfo?.profile.one_degree_count}명`}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.bottomButton]}>
@@ -317,7 +361,7 @@ const NewProfileHeader = (props: any) => {
                     {/** requesting 1-chon & sending message */}
                     {!isMyProfile && (
                         <View style={styles.requestAndMessageContainer}>
-                            {!userInfo?.isChon && (
+                            {userInfo?.choneDegree !== 1 && (
                                 <SmallButton
                                     text={"1촌 신청"}
                                     onClickCallback={async () => {
@@ -337,18 +381,20 @@ const NewProfileHeader = (props: any) => {
                         </View>
                     )}
                     {/** bridge view */}
-                    {!isMyProfile && !userInfo?.isChon && (
+                    {!isMyProfile && userInfo?.choneDegree !== 1 && (
                         <View style={styles.bridgeContainer}>
                             <Text style={styles.bridgeTitle}>
                                 {"나와의 관계"}
                             </Text>
                             <RelationShipBridgeView
-                                startName={MyProfileDummyData.name}
-                                endName={userInfo?.name}
-                                relationShipList={extractBridgeNames(
-                                    userInfo?.chonInfoFromMe
+                                startName={userInfo?.profile.user_name}
+                                endName={userInfo?.chonInfoFromMe?.paths_name.findLast(
+                                    () => true
                                 )}
-                                distance={userInfo?.chonDegree}
+                                relationShipList={
+                                    userInfo?.chonInfoFromMe?.paths_name
+                                }
+                                distance={userInfo?.choneDegree}
                                 isLoading={false}
                             />
                         </View>
