@@ -119,7 +119,7 @@ const LoginScreen = () => {
                     <TeamblLogo width={134} height={30} />
                 </LogoContainer>
 
-                <Slogan>팀원 찾기의 새로운 기준, 팀블!</Slogan>
+                <Slogan>신뢰 기반의 프로젝트 네트워크, 팀블!</Slogan>
             </TopContainer>
 
             <InputContainer>

@@ -9,9 +9,13 @@ import ProjectCreateForm, {
 } from "@/components/forms/ProjectCreateForm";
 import { router } from "expo-router";
 import Popup from "@/components/Popup";
+import createProjectCard from "@/libs/apis/ProjectCard/createProjectCard";
+import { getCurrentUserId } from "@/shared/utils";
 
 export default function ProjectsScreen() {
-    const [data, setData] = useState<ProjectCreateFormData>(defaultProjectFormData);
+    const [data, setData] = useState<ProjectCreateFormData>(
+        defaultProjectFormData
+    );
     const isValid = useMemo<boolean>(
         () => !!data.title && data.keywords.length >= 2,
         [data]
@@ -20,19 +24,39 @@ export default function ProjectsScreen() {
         useState(false);
 
     const handlePost = async () => {
-        console.log(data);
+        try {
+            console.log(data);
 
-        // Project Card Create API
-        // const resonse = await createProjectCard({
-        //     title: data.title,
-        //     keywords: data.keywords,
-        //     accepted_users: data.mentions.map(user => user.id),
-        //     creator: <Current User ID>,
-        //     start_date: data.timePeriod[0].toISOString(),
-        //     end_date: data.timePeriod[1].toISOString(),
-        //     desciption: data.description ?? ""
-        // });
-        // console.log(response)
+            // Get current user id (creator id)
+            const current_user_id = await getCurrentUserId().then(
+                (id_string) => {
+                    const id_num = Number(id_string);
+                    if (!id_num) {
+                        throw new Error("current user id error");
+                    }
+
+                    return id_num;
+                }
+            );
+
+            // Project Card Create API
+            const response = await createProjectCard({
+                title: data.title,
+                keywords: data.keywords,
+                accepted_users: data.mentions.map((user) => user.id),
+                creator: current_user_id,
+                start_date: data.timePeriod?.start?.toISOString() ?? undefined,
+                end_date: data.timePeriod?.end?.toISOString() ?? undefined,
+                desciption: data.description ?? "",
+            });
+
+            // go Back
+            router.back();
+
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const handleBack = () => {

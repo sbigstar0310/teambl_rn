@@ -19,17 +19,10 @@ const fetchCurrentUserAPI = async (): Promise<{ email: string }> => {
 
 const changePassword = async (params: RequestParams): Promise<Response> => {
     try {
-        // 현재 유저의 이메일 가져오기
-        const currentUser = await fetchCurrentUserAPI();
-        const { email } = currentUser;
-
-        // 이메일을 요청 파라미터에 추가
-        const updatedParams = { ...params, email };
-
         // 비밀번호 변경 API 호출
         const response = await api.patch<Response>(
             "user/change-password/",
-            updatedParams
+            params
         );
         return response.data;
     } catch (error) {

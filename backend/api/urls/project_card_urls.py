@@ -5,6 +5,11 @@ from .. import views
 urlpatterns = [
     path("list/", views.ProjectCardListView.as_view(), name="project-card-list"),
     path(
+        "list/current/",
+        views.ProjectCardCurrentListView.as_view(),
+        name="project-card-current-list",
+    ),
+    path(
         "list/<int:user_id>/",
         views.ProjectCardOneDegreeListView.as_view(),
         name="project-card-one-degree-list",

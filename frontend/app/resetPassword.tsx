@@ -9,195 +9,201 @@ import sendCodeEmail from "@/libs/apis/sendCodeEmail";
 import changePasswordAPI from "@/libs/apis/User/changePassword";
 
 const ResetPasswordScreen = () => {
-  const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [userCode, setUserCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [codeIsVerified, setCodeIsVerified] = useState(false);
-  const [passwordIsVerified, setPasswordIsVerified] = useState(false);
+    const [email, setEmail] = useState("");
+    const [code, setCode] = useState("");
+    const [userCode, setUserCode] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [codeIsVerified, setCodeIsVerified] = useState(false);
+    const [passwordIsVerified, setPasswordIsVerified] = useState(false);
 
-  useEffect(() => {
-    setPasswordIsVerified(
-      newPassword.length > 0 &&
-        confirmPassword.length > 0 &&
-        newPassword === confirmPassword
+    useEffect(() => {
+        setPasswordIsVerified(
+            newPassword.length > 0 &&
+                confirmPassword.length > 0 &&
+                newPassword === confirmPassword
+        );
+    }, [newPassword, confirmPassword]);
+
+    const sendCode = async () => {
+        console.log("인증코드 전송: ", email);
+
+        const generatedCode = Math.random().toString().slice(2, 8);
+        console.log("생성된 인증코드: ", generatedCode);
+        setCode(generatedCode);
+
+        try {
+            const response = await sendCodeEmail({
+                email,
+                code: generatedCode,
+            });
+            console.log("인증코드 전송 결과: ", response);
+        } catch (error) {
+            console.error("인증코드 전송 실패: ", error);
+        }
+    };
+
+    const verifyCode = async () => {
+        if (code === userCode) {
+            setCodeIsVerified(true);
+        } else {
+            setCodeIsVerified(false);
+        }
+    };
+
+    const resetPassword = async () => {
+        if (!passwordIsVerified) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        try {
+            console.log("비밀번호 재설정 요청: ", newPassword);
+
+            // 비밀번호 변경 API 호출
+            const data = await changePasswordAPI({
+                new_password: newPassword,
+                email: email,
+            });
+
+            // 성공적인 응답 처리
+            console.log("비밀번호 변경 성공: ", data);
+            alert("비밀번호가 성공적으로 변경되었습니다.");
+            router.push("/resetPasswordSuccess"); // 비밀번호 변경완료 페이지로 이동
+        } catch (error) {
+            // 오류 처리
+            console.error("비밀번호 변경 실패: ", error);
+            alert("비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.");
+        }
+    };
+
+    return (
+        <View style={sharedStyles.container}>
+            <ScreenHeader />
+
+            <View style={sharedStyles.horizontalPadding}>
+                <Text style={styles.title}>비밀번호 재설정</Text>
+
+                <Text style={styles.label}>학교 이메일</Text>
+                <View style={styles.inputRow}>
+                    <TextInput
+                        style={[styles.input, styles.emailInput]}
+                        placeholder="이메일 입력"
+                        placeholderTextColor="#A8A8A8"
+                        value={email}
+                        onChangeText={setEmail}
+                    />
+                    <PrimeButton
+                        text="인증코드 받기"
+                        onClickCallback={sendCode}
+                        isActive={email.length > 0}
+                        isLoading={false}
+                        styleOv={styles.smallButton}
+                    />
+                </View>
+
+                <View style={styles.marginTop8} />
+                <View style={styles.inputRow}>
+                    <TextInput
+                        style={[styles.input, styles.emailInput]}
+                        placeholder="인증코드 입력"
+                        placeholderTextColor="#A8A8A8"
+                        value={userCode}
+                        onChangeText={setUserCode}
+                    />
+                    <PrimeButton
+                        text="인증코드 확인"
+                        onClickCallback={verifyCode}
+                        isActive={email.length > 0 && userCode.length > 0}
+                        isLoading={false}
+                        styleOv={styles.smallButton}
+                    />
+                </View>
+
+                <ConfirmText
+                    isVerified={codeIsVerified}
+                    isActive={email.length > 0 && userCode.length > 0}
+                    successText="인증코드가 일치합니다"
+                    errorText="인증코드가 일치하지 않습니다."
+                />
+
+                <Text style={styles.label}>비밀번호</Text>
+                <View style={styles.inputRow}>
+                    <TextInput
+                        style={[styles.input, styles.emailInput]}
+                        placeholder="새 비밀번호 입력"
+                        placeholderTextColor="#A8A8A8"
+                        secureTextEntry
+                        value={newPassword}
+                        onChangeText={setNewPassword}
+                    />
+                </View>
+
+                <View style={styles.marginTop8} />
+                <View style={styles.inputRow}>
+                    <TextInput
+                        style={[styles.input, styles.emailInput]}
+                        placeholder="새 비밀번호 확인"
+                        placeholderTextColor="#A8A8A8"
+                        secureTextEntry
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                    />
+                </View>
+
+                <ConfirmText
+                    isVerified={passwordIsVerified}
+                    isActive={
+                        newPassword.length > 0 && confirmPassword.length > 0
+                    }
+                    successText="비밀번호가 일치합니다"
+                    errorText="비밀번호가 일치하지 않습니다."
+                />
+
+                <PrimeButton
+                    text="재설정"
+                    onClickCallback={resetPassword}
+                    isActive={codeIsVerified && passwordIsVerified}
+                    isLoading={false}
+                />
+            </View>
+        </View>
     );
-  }, [newPassword, confirmPassword]);
-
-  const sendCode = async () => {
-    console.log("인증코드 전송: ", email);
-
-    const generatedCode = Math.random().toString().slice(2, 8);
-    console.log("생성된 인증코드: ", generatedCode);
-    setCode(generatedCode);
-
-    try {
-      const response = await sendCodeEmail({ email, code: generatedCode });
-      console.log("인증코드 전송 결과: ", response);
-    } catch (error) {
-      console.error("인증코드 전송 실패: ", error);
-    }
-  };
-
-  const verifyCode = async () => {
-    if (code === userCode) {
-      setCodeIsVerified(true);
-    } else {
-      setCodeIsVerified(false);
-    }
-  };
-
-  const resetPassword = async () => {
-      if (!passwordIsVerified) {
-          alert("비밀번호가 일치하지 않습니다.");
-          return;
-      }
-
-      try {
-          console.log("비밀번호 재설정 요청: ", newPassword);
-
-          // 비밀번호 변경 API 호출
-          const data = await changePasswordAPI({
-              new_password: newPassword,
-          });
-
-          // 성공적인 응답 처리
-          console.log("비밀번호 변경 성공: ", data);
-          alert("비밀번호가 성공적으로 변경되었습니다.");
-          router.push("/login"); // 로그인 페이지로 이동
-      } catch (error) {
-          // 오류 처리
-          console.error("비밀번호 변경 실패: ", error);
-          alert("비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.");
-      }
-  };
-
-  return (
-    <View style={sharedStyles.container}>
-      <ScreenHeader />
-
-      <View style={sharedStyles.horizontalPadding}>
-        <Text style={styles.title}>비밀번호 재설정</Text>
-
-        <Text style={styles.label}>학교 이메일</Text>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={[styles.input, styles.emailInput]}
-            placeholder="이메일 입력"
-            placeholderTextColor="#A8A8A8"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <PrimeButton
-            text="인증코드 받기"
-            onClickCallback={sendCode}
-            isActive={email.length > 0}
-            isLoading={false}
-            styleOv={styles.smallButton}
-          />
-        </View>
-
-        <View style={styles.marginTop8} />
-        <View style={styles.inputRow}>
-          <TextInput
-            style={[styles.input, styles.emailInput]}
-            placeholder="인증코드 입력"
-            placeholderTextColor="#A8A8A8"
-            value={userCode}
-            onChangeText={setUserCode}
-          />
-          <PrimeButton
-            text="인증코드 확인"
-            onClickCallback={verifyCode}
-            isActive={email.length > 0 && userCode.length > 0}
-            isLoading={false}
-            styleOv={styles.smallButton}
-          />
-        </View>
-
-        <ConfirmText
-          isVerified={codeIsVerified}
-          isActive={email.length > 0 && userCode.length > 0}
-          successText="인증코드가 일치합니다"
-          errorText="인증코드가 일치하지 않습니다."
-        />
-
-        <Text style={styles.label}>비밀번호</Text>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={[styles.input, styles.emailInput]}
-            placeholder="새 비밀번호 입력"
-            placeholderTextColor="#A8A8A8"
-            secureTextEntry
-            value={newPassword}
-            onChangeText={setNewPassword}
-          />
-        </View>
-
-        <View style={styles.marginTop8} />
-        <View style={styles.inputRow}>
-          <TextInput
-            style={[styles.input, styles.emailInput]}
-            placeholder="새 비밀번호 확인"
-            placeholderTextColor="#A8A8A8"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-          />
-        </View>
-
-        <ConfirmText
-          isVerified={passwordIsVerified}
-          isActive={newPassword.length > 0 && confirmPassword.length > 0}
-          successText="비밀번호가 일치합니다"
-          errorText="비밀번호가 일치하지 않습니다."
-        />
-
-        <PrimeButton
-          text="재설정"
-          onClickCallback={resetPassword}
-          isActive={codeIsVerified && passwordIsVerified}
-          isLoading={false}
-        />
-      </View>
-    </View>
-  );
 };
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#121212",
-    marginBottom: 32,
-  },
-  smallButton: {
-    width: 112,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#121212",
-    marginBottom: 8,
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  input: {
-    flex: 1,
-    height: 40,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 5,
-    paddingHorizontal: 12,
-  },
-  emailInput: {
-    marginRight: 8,
-  },
-  marginTop8: {
-    marginTop: 8,
-  },
+    title: {
+        fontSize: 20,
+        fontWeight: "600",
+        color: "#121212",
+        marginBottom: 32,
+    },
+    smallButton: {
+        width: 112,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#121212",
+        marginBottom: 8,
+    },
+    inputRow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    input: {
+        flex: 1,
+        height: 40,
+        backgroundColor: "#F5F5F5",
+        borderRadius: 5,
+        paddingHorizontal: 12,
+    },
+    emailInput: {
+        marginRight: 8,
+    },
+    marginTop8: {
+        marginTop: 8,
+    },
 });
 
 export default ResetPasswordScreen;

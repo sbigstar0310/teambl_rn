@@ -87,6 +87,51 @@ class ProjectCardListViewTestCase(TestCase):
         self.assertEqual(response.data[1].get("id"), self.project_card1.id)
 
 
+class ProjectCardCurrentListViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("project-card-current-list")  # Dynamic URL mapping
+
+        # Create a test user
+        self.testuser01 = create_user_with_profile(
+            email="testuser01@email.com", password="test", user_name="testuser1"
+        )
+        self.testuser02 = create_user_with_profile(
+            email="testuser02@email.com", password="test", user_name="testuser2"
+        )
+
+        # Create Project Cards
+        self.project_card1 = ProjectCard.objects.create(
+            title="Test Project Card 1",
+            creator=self.testuser01,
+            description="This is a test project card 1.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+        self.project_card1.accepted_users.set([self.testuser01])
+        self.project_card2 = ProjectCard.objects.create(
+            title="Test Project Card 2",
+            creator=self.testuser02,
+            description="This is a test project card 2.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+        self.project_card2.accepted_users.set([self.testuser01, self.testuser02])
+
+        # Authenticate the user
+        self.client.force_authenticate(user=self.testuser01)
+
+    def test_get_project_card_current_list(self):
+        """
+        Ensure we can get a list of project card objects
+        """
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0].get("id"), self.project_card2.id)
+        self.assertEqual(response.data[1].get("id"), self.project_card1.id)
+
+
 class ProjectCardOneDegreeListViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
