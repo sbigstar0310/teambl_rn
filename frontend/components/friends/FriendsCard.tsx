@@ -6,7 +6,7 @@ import RefuseIcon from "@/assets/friends/RefuseIcon.svg";
 import AcceptIcon from "@/assets/friends/AcceptIcon.svg";
 
 // 상태 타입 정의
-type RelationStatus = "connected" | "requested" | "received";
+type RelationStatus = "accepted" | "requested" | "received";
 
 type FriendsCardData = {
     relation_degree: number | null;

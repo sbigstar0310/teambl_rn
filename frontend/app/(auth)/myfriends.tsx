@@ -98,7 +98,7 @@ export default function MyFriendsScreen() {
                                 <FriendsCard key={index} relation_degree={friend.relation_degree} user={friend.user} status="requested"/>
                             ))}
                             {mockFriendsData.map((friend, index) => (
-                                <FriendsCard key={index} relation_degree={friend.relation_degree} user={friend.user} status="connected"/>
+                                <FriendsCard key={index} relation_degree={friend.relation_degree} user={friend.user} status="accepted"/>
                             ))}
                         </ScrollView>
                     </View>
