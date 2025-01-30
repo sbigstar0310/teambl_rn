@@ -824,8 +824,8 @@ class FriendCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Friend
-        fields = ["id", "from_user", "to_user", "status"]
-        read_only_fields = ["id", "from_user"]
+        fields = ["id", "from_user", "to_user", "status", "created_at"]
+        read_only_fields = ["id", "from_user", "created_at"]
 
     def to_representation(self, instance):
         """✅ 응답 시 to_user를 CustomUserSerializer로 변환"""
@@ -837,7 +837,8 @@ class FriendCreateSerializer(serializers.ModelSerializer):
 class FriendUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Friend
-        fields = ["status"]
+        fields = ["status", "created_at"]
+        read_only_fields = ["created_at"]
 
     def validate_status(self, value):
         if value not in dict(Friend.STATUS_CHOICES).keys():

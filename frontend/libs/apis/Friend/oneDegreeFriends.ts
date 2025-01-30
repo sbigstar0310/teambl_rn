@@ -1,10 +1,13 @@
 import api from "@/shared/api";
 
-const fetchOneDegreeFriends = async (): Promise<api.Friend[]> => {
+type Response = api.User[];
+
+// status가 "accepted"인 1촌 친구 목록을 가져오는 API
+const fetchOneDegreeFriends = async (): Promise<Response> => {
     try {
         // GET 요청으로 1촌 친구 목록 가져오기
-        const response = await api.get<api.Friend[]>("friend/one-degree/");
-        
+        const response = await api.get<Response>("friend/one-degree/");
+
         console.log("Fetched one-degree friends:", response.data);
 
         return response.data; // 1촌 친구 목록 반환

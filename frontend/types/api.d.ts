@@ -103,6 +103,7 @@ declare module api {
     };
 
     type Friend = {
+        id: number;
         from_user: api.User;
         to_user: api.User;
         created_at: Date;

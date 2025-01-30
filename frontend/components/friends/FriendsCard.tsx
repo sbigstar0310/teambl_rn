@@ -1,21 +1,51 @@
 import React from "react";
-import {Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from "react-native";
 import DefaultProfile from "@/assets/DefaultProfile.svg";
 import WaitingIcon from "@/assets/friends/WaitingIcon.svg";
 import RefuseIcon from "@/assets/friends/RefuseIcon.svg";
 import AcceptIcon from "@/assets/friends/AcceptIcon.svg";
+import updateFriend from "@/libs/apis/Friend/updateFriend";
 
 // 상태 타입 정의
-type RelationStatus = "accepted" | "requested" | "received";
+type RelationStatus = "accepted" | "requested" | "received" | "rejected";
 
 type FriendsCardData = {
-    relation_degree: number | null;
+    id: number;
+    relation_degree?: number;
     user: api.User;
-    status: RelationStatus;
+    status: RelationStatus | string;
 };
 
-export default function FriendsCard({ relation_degree, user, status }: FriendsCardData) {
+export default function FriendsCard({
+    id,
+    relation_degree,
+    user,
+    status,
+}: FriendsCardData) {
     const profile = user.profile;
+
+    const acceptFriendRequest = async () => {
+        try {
+            await updateFriend(id, { status: "accepted" });
+        } catch (error) {
+            console.log("Failed to accept friend request:", error);
+        }
+    };
+
+    const refuseFriendRequest = async () => {
+        try {
+            await updateFriend(id, { status: "rejected" });
+        } catch (error) {
+            console.log("Failed to accept friend request:", error);
+        }
+    };
 
     return (
         <TouchableOpacity>
@@ -24,16 +54,18 @@ export default function FriendsCard({ relation_degree, user, status }: FriendsCa
                 <View style={styles.imageContainer}>
                     {profile.image ? (
                         <Image
-                            source={{uri: profile.image}}
+                            source={{ uri: profile.image }}
                             style={styles.image}
                         />
                     ) : (
-                        <DefaultProfile width={52} height={52}/>
+                        <DefaultProfile width={52} height={52} />
                     )}
                 </View>
                 {/* 텍스트 정보 */}
                 <View style={styles.textContainer}>
-                    <View style={[styles.infoContainer, styles.nameAndRelation]}>
+                    <View
+                        style={[styles.infoContainer, styles.nameAndRelation]}
+                    >
                         <Text style={styles.userName}>{profile.user_name}</Text>
                         <Text style={styles.relation}>
                             {relation_degree
@@ -43,8 +75,8 @@ export default function FriendsCard({ relation_degree, user, status }: FriendsCa
                     </View>
                     <View style={styles.infoContainer}>
                         <Text style={styles.infoText}>
-                            {profile.school} | {profile.current_academic_degree} |{" "}
-                            {profile.year % 100}학번
+                            {profile.school} | {profile.current_academic_degree}{" "}
+                            | {profile.year % 100}학번
                         </Text>
                         <Text style={styles.infoText}>
                             {profile.major1}
@@ -53,11 +85,15 @@ export default function FriendsCard({ relation_degree, user, status }: FriendsCa
                     </View>
                 </View>
                 {/* 상태에 따른 아이콘 표시 */}
-                {status === "requested" && <WaitingIcon/>}
+                {status === "requested" && <WaitingIcon />}
                 {status === "received" && (
-                    <View style={{flexDirection: "row", gap: 8}}>
-                        <TouchableOpacity><RefuseIcon/></TouchableOpacity>
-                        <TouchableOpacity><AcceptIcon/></TouchableOpacity>
+                    <View style={{ flexDirection: "row", gap: 8 }}>
+                        <TouchableOpacity onPress={refuseFriendRequest}>
+                            <RefuseIcon />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={acceptFriendRequest}>
+                            <AcceptIcon />
+                        </TouchableOpacity>
                     </View>
                 )}
             </View>
