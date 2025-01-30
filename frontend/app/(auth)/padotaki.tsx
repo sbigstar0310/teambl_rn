@@ -17,13 +17,9 @@ import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
 import PostCard from "@/components/cards/PostCard";
 import { mockPost1, mockPost2, mockUser1 } from "@/shared/mock-data";
 import fetchOneDegreeProjectCard from "@/libs/apis/ProjectCard/fetchOneDegreeProjectCard";
-import { USER_ID } from "@/shared/constants";
 import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
-import getUserInfo from "@/libs/apis/User/getUserInfo";
 import ProjectCard from "@/components/cards/ProjectCard";
 
-const mockPosts = [mockPost1, mockPost2];
-const mockUsers = [mockUser1, mockUser1];
 
 type HeaderProps = {
     onBackPress: () => void;
