@@ -818,51 +818,20 @@ class InvitationLinkSerializer(serializers.ModelSerializer):
 
 
 class FriendCreateSerializer(serializers.ModelSerializer):
-    to_user_id = serializers.IntegerField(
-        write_only=True, error_messages={"invalid": "유효한 사용자 ID를 입력해주세요."}
-    )
     from_user = CustomUserSerializer(read_only=True)
-    to_user = CustomUserSerializer(read_only=True)
-    id = serializers.IntegerField(read_only=True)
+    to_user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    status = serializers.CharField(default="pending", required=False)
 
     class Meta:
         model = Friend
-        fields = ["id", "from_user", "to_user", "status", "to_user_id"]
-        read_only_fields = ["id", "from_user", "to_user"]
+        fields = ["id", "from_user", "to_user", "status"]
+        read_only_fields = ["id", "from_user"]
 
-    def validate(self, attrs):
-        from_user = self.context["request"].user
-        to_user_id = attrs.get("to_user_id")
-
-        # 이메일에 해당하는 사용자가 있는지 확인
-        try:
-            to_user = CustomUser.objects.get(id=to_user_id)
-        except CustomUser.DoesNotExist:
-            raise serializers.ValidationError({"message": "해당 ID의 유저가 없습니다."})
-
-        # 자신에게 1촌 신청하는지 확인
-        if from_user == to_user:
-            raise serializers.ValidationError(
-                {"message": "자신에게 1촌 신청할 수 없습니다."}
-            )
-
-        # 이미 1촌인 유저인지 확인
-        if Friend.objects.filter(
-            from_user=from_user, to_user=to_user, status="accepted"
-        ).exists():
-            raise serializers.ValidationError({"message": "이미 1촌인 유저입니다."})
-
-        # 검증 완료 후 attrs에 추가
-        attrs["from_user"] = from_user
-        attrs["to_user"] = to_user
-        return attrs
-
-    def create(self, validated_data):
-        from_user = self.context["request"].user
-        to_user = validated_data.pop("to_user")
-        return Friend.objects.create(
-            from_user=from_user, to_user=to_user, status="pending"
-        )
+    def to_representation(self, instance):
+        """✅ 응답 시 to_user를 CustomUserSerializer로 변환"""
+        representation = super().to_representation(instance)
+        representation["to_user"] = CustomUserSerializer(instance.to_user).data
+        return representation
 
 
 class FriendUpdateSerializer(serializers.ModelSerializer):

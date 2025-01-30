@@ -3,10 +3,10 @@ from .. import views
 
 # Friends
 urlpatterns = [
-    path("list-or-create/", views.ListCreateFriendView.as_view(), name="friend-list-or-create"),
+    path("create/", views.FriendCreateView.as_view(), name="friend-create"),
     path(
         "<int:user_id>/list/",
-        views.ListFriendView.as_view(),
+        views.FriendListView.as_view(),
         name="friend-list",
     ),
     path(
@@ -25,7 +25,7 @@ urlpatterns = [
         name="friend-one-degree",
     ),
     path(
-        "request-cancel/",
+        "<int:pk>/request-cancel/",
         views.FriendRequestCancelView.as_view(),
         name="friend-request-cancel",
     ),
