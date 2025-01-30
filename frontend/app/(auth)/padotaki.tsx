@@ -19,7 +19,7 @@ import { mockPost1, mockPost2, mockUser1 } from "@/shared/mock-data";
 import fetchOneDegreeProjectCard from "@/libs/apis/ProjectCard/fetchOneDegreeProjectCard";
 import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
 import ProjectCard from "@/components/cards/ProjectCard";
-
+import fetchOneDegreeFriends from "@/libs/apis/Friend/oneDegreeFriends";
 
 type HeaderProps = {
     onBackPress: () => void;
@@ -149,10 +149,8 @@ const PadoTakiScreen = () => {
             setProjectCardList(projectCardList);
 
             // fetch user(friend) list
-            const friendList = await fetchFriendList(
-                Number(current_target_user_id)
-            );
-            setUserList(friendList);
+            const oneDegreefriendList = await fetchOneDegreeFriends();
+            setUserList(oneDegreefriendList);
         } catch (error) {
             console.error("Failed to fetch pado taki:", error);
         } finally {
@@ -207,7 +205,9 @@ const PadoTakiScreen = () => {
                             <FlatList
                                 data={userList}
                                 keyExtractor={(item) => item.id.toString()}
-                                renderItem={({ item }) => <UserRow item={item} />}
+                                renderItem={({ item }) => (
+                                    <UserRow item={item} />
+                                )}
                             />
                         </>
                     )}
