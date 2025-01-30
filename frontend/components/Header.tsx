@@ -19,7 +19,7 @@ const Header: React.FC = () => {
 
         {/* Right-aligned Icons */}
         <View style={styles.rightIconsContainer}>
-          <TouchableOpacity onPress={() => router.push("/conversations")}>
+          <TouchableOpacity onPress={() => router.push("/myfriends")}>
             <FriendsIcon/>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/conversations")}>

@@ -345,6 +345,7 @@ const NewProfileHeader = (props: any) => {
                     <View style={[styles.bottomContainer]}>
                         <TouchableOpacity
                             style={[styles.bottomButton, styles.withMR17]}
+                            onPress={() => router.push("/myfriends")}
                         >
                             <ChonIcon style={[styles.bottomButtonIcon]} />
                             <Text style={[styles.bottomButtonText]}>

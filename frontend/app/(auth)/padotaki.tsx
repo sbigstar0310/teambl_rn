@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 16,
         justifyContent: "space-between",
-        paddingHorizontal: 16,
         height: 56,
         backgroundColor: "#fff",
     },
