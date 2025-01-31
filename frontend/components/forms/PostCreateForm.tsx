@@ -1,6 +1,7 @@
 import {
     Image,
     NativeSyntheticEvent,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -15,14 +16,16 @@ import ImageIcon from "@/assets/image-upload.svg";
 import MentionIcon from "@/assets/mention-at-sign.svg";
 import React, {useState} from "react";
 import PostContent from "@/components/PostContent";
-import {mockUser1} from "@/shared/mock-data";
 import {getAddedCharIndex} from "@/shared/utils";
 import * as ImagePicker from "expo-image-picker";
 import ImagePreview from "@/components/conversations/ImagePreview";
 import XIcon from '@/assets/x-icon.svg';
+import UserCard from "@/components/search/UserCard";
+import theme from "@/shared/styles/theme";
+import searchUserByName from "@/libs/apis/Search/searchUserByName";
 
 interface PostCreateFormProps {
-    project: api.ProjectCard;
+    projectTitle: string;
     data: PostCreateFormData;
     setData: React.Dispatch<React.SetStateAction<PostCreateFormData>>;
 }
@@ -34,19 +37,28 @@ export default function PostCreateForm(props: PostCreateFormProps) {
     const [mentionOffset, setMentionOffset] = useState(0);
     const [mentionLength, setMentionLength] = useState(0);
     const [cursorSelection, setCursorSelection] = useState<{ start: number, end: number }>({start: 0, end: 0});
-    const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
+    const [previewImageUri, setPreviewImageUri] = useState<string | null>(null)
+    const [searchResults, setSearchResults] = useState<api.UserSearchResult[]>([]);
 
     /* Content */
     const handleContentChange = (value: string) => {
         if (isMentioning) {
             const lengthChange = value.length - data.content.length;
-            setMentionLength(mentionLength + lengthChange);
+            const newMentionLength = mentionLength + lengthChange;
+            setMentionLength(newMentionLength);
             const removedIndex = getAddedCharIndex(value, data.content);
             if (removedIndex >= 0 && removedIndex === mentionOffset) {
                 // Close mention modal
                 setIsMentioning(false);
                 setMentionOffset(0);
                 setMentionLength(0);
+                setSearchResults([]);
+            } else {
+                if (newMentionLength > 1) {
+                    handleUserSearch(value.slice(mentionOffset + 1, mentionOffset + newMentionLength));
+                } else {
+                    setSearchResults([]);
+                }
             }
         } else {
             const introducedIndex = getAddedCharIndex(data.content, value);
@@ -81,24 +93,29 @@ export default function PostCreateForm(props: PostCreateFormProps) {
             ? [...data.tagged_users, selectedUser]
             : data.tagged_users;
         setIsMentioning(false);
+        setSearchResults([]);
         setData({...data, content: updatedContent, tagged_users: updatedTaggedUsers});
     }
     const handleCursorChange = (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
         setCursorSelection(event.nativeEvent.selection);
+    }
+    const handleUserSearch = async (text: string) => {
+        const newResults: api.UserSearchResult[] = await searchUserByName({user_name: text});
+        setSearchResults(newResults);
     }
     /* Image attachment */
     const handleImageAdd = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
+            base64: true
         });
 
         if (!result.canceled) {
             const uri = result.assets[0].uri;
-            // TODO: Upload image to server
-            // const imageId = uploadImageToServer(uri);
-            const imageId = uri;
-            setData({...data, images: [...data.images, imageId]});
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            setData({...data, images: [...data.images, {uri, blob}]});
         }
     };
 
@@ -108,16 +125,10 @@ export default function PostCreateForm(props: PostCreateFormProps) {
         setData({...data, images: updatedImages});
     }
     const handleImagePreview = (index: number) => {
-        setPreviewImageUri(data.images[index]);
+        setPreviewImageUri(data.images[index] ? data.images[index].uri : null);
     }
     const handleImagePreviewClose = () => {
         setPreviewImageUri(null);
-    }
-
-    function uploadImageToServer(uri: string) {
-        // TODO: connect api to upload image
-        //       and return image identifier to be used in post creation
-        return "/images/1";
     }
 
     return (
@@ -130,7 +141,7 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                         <RequiredMark/>
                     </View>
                     <TextField
-                        defaultValue={props.project.title}
+                        defaultValue={props.projectTitle}
                         placeholder="게시물 제목을 작성해 보세요."
                         editable={false}
                     />
@@ -151,18 +162,6 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                         taggedUsers={data.tagged_users}
                     />
                 </TextInput>
-                <TouchableOpacity
-                    style={{
-                        position: "absolute",
-                        display: isMentioning ? "flex" : "none",
-                        top: 0,
-                        left: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    }}
-                    onPress={handleMentionSelection.bind(null, mockUser1)}
-                >
-                    <Text>THIS IS TODO. Press this to mention mock user data</Text>
-                </TouchableOpacity>
                 {/*Attached images*/}
                 <View style={styles.row}>
                     {data.images.map((image, index) => (
@@ -170,7 +169,7 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                             <TouchableOpacity onPress={handleImagePreview.bind(null, index)}>
                                 <Image
                                     style={sharedStyles.roundedSm}
-                                    source={{uri: image}}
+                                    source={{uri: image.uri}}
                                     width={96}
                                     height={96}
                                 />
@@ -189,6 +188,23 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                         imageUri={previewImageUri || ""}
                     />
                 </View>
+                <ScrollView
+                    style={[styles.mentionModal, {display: isMentioning ? "flex" : "none"}]}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {searchResults.length === 0 && (
+                        <Text style={{textAlign: "center", padding: 20}}>검색 결과가 없습니다.</Text>
+                    )}
+                    {searchResults.map((result, index) => (
+                        <TouchableOpacity onPress={() => handleMentionSelection(result.user)} key={index}>
+                            <UserCard
+                                is_new_user={result.is_new_user}
+                                relation_degree={result.relation_degree}
+                                user={result.user}
+                            />
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
             </View>
             <View style={styles.footer}>
                 <TouchableOpacity onPress={handleImageAdd}>
@@ -219,7 +235,6 @@ const styles = StyleSheet.create({
     contentInput: {
         flex: 1,
         fontSize: 16,
-        // backgroundColor: 'red'
     },
     footer: {
         flexDirection: 'row',
@@ -246,13 +261,30 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(18, 18, 18, 0.6)",
         alignItems: "center",
         justifyContent: "center"
+    },
+    mentionModal: {
+        position: "absolute",
+        bottom: 5,
+        left: 15,
+        zIndex: 99,
+        height: 120,
+        width: "100%",
+        backgroundColor: theme.colors.white,
+        borderRadius: 5,
+        borderColor: theme.colors.achromatic04,
+        borderWidth: 1
     }
 })
+
+type PostImage = {
+    uri: string;
+    blob: Blob;
+}
 
 export type PostCreateFormData = {
     content: string;
     tagged_users: api.User[];
-    images: string[];
+    images: PostImage[];
 };
 export const defaultPostFormData: PostCreateFormData = {
     content: "",

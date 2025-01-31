@@ -11,6 +11,7 @@ import { router } from "expo-router";
 import Popup from "@/components/Popup";
 import createProjectCard from "@/libs/apis/ProjectCard/createProjectCard";
 import { getCurrentUserId } from "@/shared/utils";
+import dayjs from "dayjs";
 
 export default function ProjectsScreen() {
     const [data, setData] = useState<ProjectCreateFormData>(
@@ -45,12 +46,13 @@ export default function ProjectsScreen() {
                 keywords: data.keywords,
                 accepted_users: data.mentions.map((user) => user.id),
                 creator: current_user_id,
-                start_date: data.timePeriod?.start?.toISOString() ?? undefined,
-                end_date: data.timePeriod?.end?.toISOString() ?? undefined,
-                desciption: data.description ?? "",
+                start_date: data.timePeriod?.start ? dayjs(data.timePeriod.start).format("YYYY-MM-DD") : undefined,
+                end_date: data.timePeriod?.end ? dayjs(data.timePeriod.end).format("YYYY-MM-DD") : undefined,
+                description: data.description ?? "",
             });
 
             // go Back
+            setData(defaultProjectFormData);
             router.back();
 
             console.log(response);

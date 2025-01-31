@@ -3,27 +3,12 @@ import {Image, StyleSheet, Text, TouchableWithoutFeedback, View} from "react-nat
 import DefaultProfile from "@/assets/DefaultProfile.svg";
 import theme from "@/shared/styles/theme";
 
-type UserCardProps = {
-    user: {
-        profile: {
-            user_name: string;
-            relation_degree: string;
-            school: string;
-            current_academic_degree: string;
-            year: number;
-            major1: string;
-            major2: string | null;
-            image: string | null;
-            keywords: string[];
-        };
-    };
-};
-
 type UserSearchData = {
     is_new_user: boolean;
     relation_degree: number | null;
     user: api.User;
     is_selected?: boolean;
+    isKeywordsHidden?: boolean;
 };
 
 export default function UserCard(data: UserSearchData) {
@@ -70,13 +55,15 @@ export default function UserCard(data: UserSearchData) {
                         </Text>
                     </TouchableWithoutFeedback>
                 </View>
-                <View style={styles.infoContainer}>
-                    <TouchableWithoutFeedback>
-                        <Text style={styles.keywords}>
-                            {profile.keywords.join(" / ")}
-                        </Text>
-                    </TouchableWithoutFeedback>
-                </View>
+                {data.isKeywordsHidden === true && (
+                    <View style={styles.infoContainer}>
+                        <TouchableWithoutFeedback>
+                            <Text style={styles.keywords}>
+                                {profile.keywords.join(" / ")}
+                            </Text>
+                        </TouchableWithoutFeedback>
+                    </View>
+                )}
             </View>
         </View>
     );

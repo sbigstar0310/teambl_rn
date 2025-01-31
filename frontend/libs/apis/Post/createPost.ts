@@ -1,21 +1,20 @@
 import api from "@/shared/api";
 
 type RequestParams = {
-    title: string; // 게시물 제목
     content: string; // 게시물 내용
-    image?: File | Blob; // 게시물 이미지 (선택)
+    tagged_users: number[];
+    images: (File | Blob)[]; // 게시물 이미지 (선택)
 };
 
 const postCreate = async (params: RequestParams): Promise<api.Post> => {
     try {
         // FormData 객체 생성
         const formData = new FormData();
-        formData.append("title", params.title);
         formData.append("content", params.content);
-
-        if (params.image) {
-            formData.append("image", params.image);
-        }
+        formData.append("tagged_users", JSON.stringify(params.tagged_users));
+        params.images.forEach((image) => {
+            formData.append("images", image);
+        });
 
         const response = await api.post<api.Post>("post/create/", formData, {
             headers: {

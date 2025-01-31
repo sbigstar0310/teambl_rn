@@ -9,7 +9,6 @@ import { useState } from "react";
 import TextField from "@/components/TextField";
 import UserCard from "@/components/search/UserCard";
 import PrimeButton from "@/components/PrimeButton";
-import { mockUser1 } from "@/shared/mock-data";
 import SearchIcon from "@/assets/bottomtab/SearchIcon.svg";
 import searchUserByName from "@/libs/apis/Search/searchUserByName";
 
@@ -18,20 +17,18 @@ interface SearchUsersWidgetProps {
 }
 
 export default function SearchUsersWidget(props: SearchUsersWidgetProps) {
-    const [query, setQuery] = useState<string>("");
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [results, setResults] = useState<api.UserSearchResult[]>([]);
 
     const updateResults = async (text: string) => {
         const newResults: api.UserSearchResult[] = await searchUserByName({
-            user_name: query,
+            user_name: text,
         });
 
         setResults(newResults);
     };
 
     const handleQueryInput = (text: string) => {
-        setQuery(text);
         if (text.length === 0) setResults([]);
         else updateResults(text);
     };
@@ -44,7 +41,6 @@ export default function SearchUsersWidget(props: SearchUsersWidgetProps) {
     const handleConfirm = async () => {
         if (selectedIndex !== null)
             props.onConfirm(results[selectedIndex].user);
-        setQuery("");
         setResults([]);
         setSelectedIndex(null);
     };
@@ -56,7 +52,6 @@ export default function SearchUsersWidget(props: SearchUsersWidgetProps) {
             {/*Search input*/}
             <TextField
                 placeholder="사람 검색"
-                value={query}
                 onChangeText={handleQueryInput}
                 icon={<SearchIcon width={15} height={15} />}
             />

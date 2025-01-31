@@ -1,6 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "@/shared/api";
-import { ACCESS_TOKEN, REFRESH_TOKEN, USER_ID } from "@/shared/constants";
 
 type RequestParams = {
     title: string;
@@ -9,7 +7,7 @@ type RequestParams = {
     creator: number;
     start_date?: string;
     end_date?: string;
-    desciption: string;
+    description: string;
 };
 
 type Response = api.ProjectCard;

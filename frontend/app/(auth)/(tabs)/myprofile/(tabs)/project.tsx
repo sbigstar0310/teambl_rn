@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import React, {useEffect, useState} from "react";
+import {View} from "react-native";
 import PrimeButton from "@/components/PrimeButton";
-import { router } from "expo-router";
+import {router} from "expo-router";
 import fetchMyProjectCardAPI from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 
 const MyProfileProjectView = () => {
@@ -22,15 +22,23 @@ const MyProfileProjectView = () => {
         fetchMyProjectCard();
     }, []);
 
+    const goToNewPostForProject = (projectId: number, projectTitle: string) => {
+        router.push(`/project/${projectId}/post?project_title=${projectTitle}`);
+    }
+
     return (
         <View>
-            <Text>Project!</Text>
-            <PrimeButton
-                text="게시물 추가하기"
-                onClickCallback={async () => router.push("/project/1/post")}
-                isActive={true}
-                isLoading={false}
-            />
+            {
+                projectCards.map((projectCard, index) => (
+                    <PrimeButton
+                        text={`게시물 추가하기 for ${projectCard.title}`}
+                        onClickCallback={async () => goToNewPostForProject(projectCard.id, projectCard.title)}
+                        isActive={true}
+                        isLoading={false}
+                        key={index}
+                    />
+                ))
+            }
         </View>
     );
 };

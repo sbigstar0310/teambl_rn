@@ -2,31 +2,38 @@ import {View} from "react-native";
 import {router, useLocalSearchParams} from "expo-router";
 import {sharedStyles} from "@/app/_layout";
 import ScreenHeader from "@/components/common/ScreenHeader";
-import {useEffect, useMemo, useState} from "react";
+import {useMemo, useState} from "react";
 import PostCreateForm, {defaultPostFormData, PostCreateFormData} from "@/components/forms/PostCreateForm";
 import {PostButton} from "@/components/forms/ProjectCreateForm";
 import Popup from "@/components/Popup";
-import {mockProject1} from "@/shared/mock-data";
+import createPost from "@/libs/apis/Post/createPost";
 
 export default function NewPostForProject() {
-    const {id} = useLocalSearchParams();
+    const {id, project_title = ""} = useLocalSearchParams();
     const [isConfirmationPopupOpen, setIsConfirmationPopupOpen] = useState(false);
-    const [project, setProject] = useState<api.ProjectCard | null>(null);
     const [data, setData] = useState<PostCreateFormData>(defaultPostFormData);
     const isValid = useMemo<boolean>(
         () => data.content.length !== 0,
         [data]
     );
 
-    useEffect(() => {
-        // TODO: load project information from API
-        setProject(mockProject1);
-    }, []);
+    const handlePost = async () => {
+        try {
+            const response = await createPost({
+                content: data.content,
+                tagged_users: data.tagged_users.map((user) => user.id),
+                images: data.images.map((image) => image.blob),
+            });
 
-    const handlePost = () => {
-        console.log(data);
-        // TODO: make api request to create post linked with project id
-    }
+            // go Back
+            setData(defaultPostFormData);
+            router.back();
+
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const handleBack = router.back;
 
@@ -39,13 +46,11 @@ export default function NewPostForProject() {
                     <PostButton disabled={!isValid} onPress={handlePost}/>
                 )}
             />
-            {project &&
-                <PostCreateForm
-                    project={project}
-                    data={data}
-                    setData={setData}
-                />
-            }
+            <PostCreateForm
+                projectTitle={String(project_title)}
+                data={data}
+                setData={setData}
+            />
             <Popup
                 isVisible={isConfirmationPopupOpen}
                 onClose={setIsConfirmationPopupOpen.bind(null, false)}
