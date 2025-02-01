@@ -20,7 +20,7 @@ import {getAddedCharIndex} from "@/shared/utils";
 import * as ImagePicker from "expo-image-picker";
 import ImagePreview from "@/components/conversations/ImagePreview";
 import XIcon from '@/assets/x-icon.svg';
-import UserCard from "@/components/search/UserCard";
+import TagUserCard from "@/components/search/TagUserCard";
 import theme from "@/shared/styles/theme";
 import searchUserByName from "@/libs/apis/Search/searchUserByName";
 
@@ -199,7 +199,7 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                     )}
                     {searchResults.map((result, index) => (
                         <TouchableOpacity onPress={() => handleMentionSelection(result.user)} key={index}>
-                            <UserCard
+                            <TagUserCard
                                 is_new_user={result.is_new_user}
                                 relation_degree={result.relation_degree}
                                 user={result.user}

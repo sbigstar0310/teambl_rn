@@ -1,26 +1,15 @@
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
-import React, { FC, useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/native";
-import ScreenHeader from "@/components/common/ScreenHeader";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
-import { mockUser1, mockUser2, mockUser3 } from "@/shared/mock-data";
 import { useLocalSearchParams } from "expo-router";
-import FriendsCard from "@/components/friends/FriendsCard";
 import getUserDistance from "@/libs/apis/getUserDistance";
+import UserList from "@/components/user/UserList";
 
 type Params = {
     target_user_id_string: string;
 };
-
-const Container = styled(SafeAreaView)`
-    flex: 1;
-    background-color: #fff;
-    padding-horizontal: 20px;
-    border-width: 1px;
-`;
 
 const LoadingContainer = styled.View`
     position: absolute;
@@ -32,14 +21,6 @@ const LoadingContainer = styled.View`
     justify-content: center;
     align-items: center;
     z-index: 10;
-`;
-
-const TotalFriendsCountText = styled.Text`
-    color: #595959;
-    font-family: Pretendard;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
 `;
 
 type UserExtension = {
@@ -102,12 +83,7 @@ const oneChon = () => {
     }, []);
 
     return (
-        <Container>
-            <ScreenHeader
-                title={`${user?.profile.user_name}님의 1촌`}
-                style={{ paddingHorizontal: 0 }}
-            />
-
+        <View style={{ flex: 1 }}>
             {/* 로딩 중 표시 */}
             {loading && (
                 <LoadingContainer>
@@ -115,24 +91,11 @@ const oneChon = () => {
                 </LoadingContainer>
             )}
 
-            <TotalFriendsCountText>
-                {oneChonList.length.toString()}명
-            </TotalFriendsCountText>
-
-            <FlatList
-                data={oneChonList}
-                keyExtractor={(item) => item.user.id.toString()}
-                renderItem={({ item, index }) => (
-                    <FriendsCard
-                        id={item.user.id}
-                        key={index}
-                        relation_degree={item.relation_degree}
-                        user={item.user}
-                        status={""}
-                    />
-                )}
+            <UserList
+                title={`${user?.profile.user_name}님의 1촌`}
+                userList={oneChonList}
             />
-        </Container>
+        </View>
     );
 };
 

@@ -170,6 +170,7 @@ export default function MyFriendsScreen() {
                                             ? "received"
                                             : friend.status
                                     }
+                                    fetchFriends={fetchFriends}
                                 />
                             ))}
                         </ScrollView>

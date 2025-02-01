@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import TextField from "@/components/TextField";
-import UserCard from "@/components/search/UserCard";
+import TagUserCard from "@/components/search/TagUserCard";
 import PrimeButton from "@/components/PrimeButton";
 import SearchIcon from "@/assets/bottomtab/SearchIcon.svg";
 import searchUserByName from "@/libs/apis/Search/searchUserByName";
@@ -62,7 +62,7 @@ export default function SearchUsersWidget(props: SearchUsersWidgetProps) {
                 keyExtractor={(_, i) => i.toString()}
                 renderItem={({ item, index }) => (
                     <TouchableOpacity onPress={handleSelect.bind(null, index)}>
-                        <UserCard
+                        <TagUserCard
                             is_new_user={item.is_new_user}
                             relation_degree={item.relation_degree}
                             user={item.user}

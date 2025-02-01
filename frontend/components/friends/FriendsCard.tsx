@@ -7,6 +7,7 @@ import {
     TouchableWithoutFeedback,
     View,
 } from "react-native";
+import { router } from "expo-router";
 import DefaultProfile from "@/assets/DefaultProfile.svg";
 import WaitingIcon from "@/assets/friends/WaitingIcon.svg";
 import RefuseIcon from "@/assets/friends/RefuseIcon.svg";
@@ -28,12 +29,14 @@ export default function FriendsCard({
     relation_degree,
     user,
     status,
-}: FriendsCardData) {
+    fetchFriends,
+}: FriendsCardData & { fetchFriends?: () => void }) {
     const profile = user.profile;
 
     const acceptFriendRequest = async () => {
         try {
             await updateFriend(id, { status: "accepted" });
+            fetchFriends?.();
         } catch (error) {
             console.log("Failed to accept friend request:", error);
         }
@@ -42,13 +45,14 @@ export default function FriendsCard({
     const refuseFriendRequest = async () => {
         try {
             await updateFriend(id, { status: "rejected" });
+            fetchFriends?.();
         } catch (error) {
             console.log("Failed to accept friend request:", error);
         }
     };
 
     return (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push(`/profiles/${user.id}`)}>
             <View style={[styles.cardContainer]}>
                 {/* 이미지 */}
                 <View style={styles.imageContainer}>
