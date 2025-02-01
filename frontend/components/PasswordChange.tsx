@@ -15,6 +15,8 @@ import checkPasswordAPI from "@/libs/apis/User/checkPassword";
 import Button from "./Button";
 import ConfirmText from "./ConfirmText";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/shared/constants";
+import InputWithTitle from "./settings/InputWithTitle";
+import PasswordConfirmMessage from "./settings/PasswordConfirmMessage";
 
 const PasswordChange: React.FC = () => {
     const [userId, setUserId] = useState<string | null>(null);
@@ -44,25 +46,15 @@ const PasswordChange: React.FC = () => {
 
     /** info message */
     const infoMessageContent = useMemo(() => {
-        if (isPasswordVerificationLoading) {
-            return "";
-        }
-        if (prevPasswd === "") {
-            return "";
-        } else {
-            if (!isPrevPasswdValid) {
-                return "현 비밀번호가 일치하지 않습니다";
-            } else {
-                if (afterPasswd === "" || reAfterPasswd === "") {
-                    return "";
-                } else {
-                    return isAfterPasswdVerified
-                        ? "비밀번호가 일치합니다"
-                        : "비밀번호가 일치하지 않습니다";
-                }
-            }
-        }
+        if (isPasswordVerificationLoading) return "";
+        if (prevPasswd === "") return "";
+        if (!isPrevPasswdValid) return "현 비밀번호가 일치하지 않습니다";
+        if (afterPasswd === "" || reAfterPasswd === "") return "";
+        return isAfterPasswdVerified
+            ? "비밀번호가 일치합니다"
+            : "비밀번호가 일치하지 않습니다";
     }, [
+        reAfterPasswd,
         isPrevPasswdValid,
         isAfterPasswdVerified,
         isPasswordVerificationLoading,
@@ -170,15 +162,10 @@ const PasswordChange: React.FC = () => {
                 secureTextEntry
                 style={{ marginTop: 8 }}
             />
-            <ConfirmText
+            <PasswordConfirmMessage
                 isVerified={isAfterPasswdVerified && isPrevPasswdValid}
                 isActive={afterPasswd.length > 0 && reAfterPasswd.length > 0}
-                successText={infoMessageContent}
-                errorText={infoMessageContent}
-                containerStyle={{
-                    justifyContent: "center",
-                    marginTop: 4,
-                }}
+                infoMessage={infoMessageContent}
             />
             <Button
                 text={"비밀번호 변경"}
@@ -190,33 +177,6 @@ const PasswordChange: React.FC = () => {
         </View>
     );
 };
-
-type InputWithTitleProps = {
-    title: string;
-    value: string;
-    onChangeText: (text: string) => void;
-    secureTextEntry?: boolean;
-    infoMessage?: string;
-    style?: object;
-};
-
-const InputWithTitle: React.FC<InputWithTitleProps> = ({
-    title,
-    value,
-    onChangeText,
-    secureTextEntry,
-    style,
-}) => (
-    <View style={[styles.inputContainer, style]}>
-        <Text style={styles.title}>{title}</Text>
-        <TextInput
-            style={styles.input}
-            value={value}
-            onChangeText={onChangeText}
-            secureTextEntry={secureTextEntry}
-        />
-    </View>
-);
 
 const styles = StyleSheet.create({
     container: {

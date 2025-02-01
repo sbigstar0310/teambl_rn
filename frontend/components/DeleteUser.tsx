@@ -7,12 +7,12 @@ import checkPasswordAPI from "@/libs/apis/User/checkPassword";
 import deleteUserAPI from "@/libs/apis/User/deleteUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/shared/constants";
+import PasswordConfirmMessage from "@/components/settings/PasswordConfirmMessage";
+import InputWithTitle from "./settings/InputWithTitle";
 
 const DeleteUser: React.FC = () => {
     const [passwd, setPasswd] = useState<string>("");
-    const [isPrevPasswdValid, setIsPrevPasswdValid] = useState<boolean | null>(
-        null
-    );
+    const [isPasswdValid, setIsPasswdValid] = useState<boolean | null>(null);
     const [isPasswordVerificationLoading, setIsPasswordVerificationLoading] =
         useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -23,12 +23,12 @@ const DeleteUser: React.FC = () => {
     const infoMessageContent = useMemo(() => {
         if (passwd === "") return "";
         if (isLoading || isPasswordVerificationLoading) return "";
-        if (isPrevPasswdValid === null) return "";
+        if (isPasswdValid === null) return "";
 
-        return isPrevPasswdValid
-            ? { status: "good", message: "비밀번호가 일치합니다" }
-            : { status: "bad", message: "비밀번호가 일치하지 않습니다" };
-    }, [passwd, isLoading, isPasswordVerificationLoading, isPrevPasswdValid]);
+        return isPasswdValid
+            ? "비밀번호가 일치합니다"
+            : "비밀번호가 일치하지 않습니다";
+    }, [passwd, isLoading, isPasswordVerificationLoading, isPasswdValid]);
 
     /** Check password */
     const checkCurrentPasswd = async () => {
@@ -37,11 +37,11 @@ const DeleteUser: React.FC = () => {
             const isValid = await checkPasswordAPI({ password: passwd }).then(
                 (res) => res.isSame ?? false
             );
-            setIsPrevPasswdValid(isValid);
+            setIsPasswdValid(isValid);
             return isValid;
         } catch (error) {
             console.error("비밀번호 확인 오류:", error);
-            setIsPrevPasswdValid(false);
+            setIsPasswdValid(null);
             return false;
         } finally {
             setIsPasswordVerificationLoading(false);
@@ -75,35 +75,23 @@ const DeleteUser: React.FC = () => {
     };
 
     useEffect(() => {
-        setIsPrevPasswdValid(null);
+        setIsPasswdValid(null);
     }, [passwd]);
 
     return (
         <View style={styles.container}>
             {/* Password Input */}
-            <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>현 비밀번호</Text>
-                <TextInput
-                    style={styles.input}
-                    value={passwd}
-                    onChangeText={setPasswd}
-                    secureTextEntry
-                    placeholder="비밀번호를 입력하세요"
-                />
-                {infoMessageContent &&
-                    typeof infoMessageContent === "object" && (
-                        <Text
-                            style={[
-                                styles.infoMessage,
-                                infoMessageContent.status === "good"
-                                    ? styles.good
-                                    : styles.bad,
-                            ]}
-                        >
-                            {infoMessageContent.message}
-                        </Text>
-                    )}
-            </View>
+            <InputWithTitle
+                title={"현 비밀번호"}
+                value={passwd}
+                onChangeText={setPasswd}
+                secureTextEntry
+            />
+            <PasswordConfirmMessage
+                isVerified={isPasswdValid}
+                isActive={passwd.length > 0 && isPasswdValid !== null}
+                infoMessage={infoMessageContent}
+            />
 
             {/* Delete Button */}
             <PrimeButton
@@ -114,7 +102,6 @@ const DeleteUser: React.FC = () => {
                     passwd.length > 0
                 }
                 isLoading={isLoading || isPasswordVerificationLoading}
-                styleOv={{ marginTop: 18 }}
             />
 
             {/* Confirmation Modal */}
@@ -142,11 +129,7 @@ const DeleteUser: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
         backgroundColor: "#fff",
-    },
-    inputContainer: {
-        marginBottom: 16,
     },
     inputLabel: {
         fontSize: 14,

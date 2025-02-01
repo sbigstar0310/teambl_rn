@@ -18,7 +18,6 @@ const TEAMBLE_EMAIL = "contact.teambl.net";
 
 const Container = styled.View`
     flex: 1;
-    padding: 16px;
     background-color: #fff;
 `;
 
