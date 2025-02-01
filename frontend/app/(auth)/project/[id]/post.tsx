@@ -16,20 +16,20 @@ export default function NewPostForProject() {
         () => data.content.length !== 0,
         [data]
     );
+    const projectId = useMemo(() => parseInt(id as string), [id]);
 
     const handlePost = async () => {
         try {
-            const response = await createPost({
+            await createPost({
                 content: data.content,
                 tagged_users: data.tagged_users.map((user) => user.id),
-                images: data.images.map((image) => image.blob),
+                images: data.images,
+                project_card: projectId
             });
 
             // go Back
             setData(defaultPostFormData);
             router.back();
-
-            console.log(response);
         } catch (error) {
             console.log(error);
         }

@@ -1,9 +1,11 @@
 import api from "@/shared/api";
+import {PostImage} from "@/components/forms/PostCreateForm";
 
 type RequestParams = {
     content: string; // 게시물 내용
     tagged_users: number[];
-    images: (File | Blob)[]; // 게시물 이미지 (선택)
+    images: PostImage[]; // 게시물 이미지 (선택)
+    project_card: number;
 };
 
 const postCreate = async (params: RequestParams): Promise<api.Post> => {
@@ -11,10 +13,13 @@ const postCreate = async (params: RequestParams): Promise<api.Post> => {
         // FormData 객체 생성
         const formData = new FormData();
         formData.append("content", params.content);
-        formData.append("tagged_users", JSON.stringify(params.tagged_users));
-        params.images.forEach((image) => {
-            formData.append("images", image);
-        });
+        for (const userId of params.tagged_users) {
+            formData.append("tagged_users", String(userId));
+        }
+        for (const image of params.images) {
+            formData.append("images", image as any);
+        }
+        formData.append("project_card", String(params.project_card));
 
         const response = await api.post<api.Post>("post/create/", formData, {
             headers: {

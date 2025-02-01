@@ -111,11 +111,13 @@ export default function PostCreateForm(props: PostCreateFormProps) {
             base64: true
         });
 
-        if (!result.canceled) {
-            const uri = result.assets[0].uri;
-            const response = await fetch(uri);
-            const blob = await response.blob();
-            setData({...data, images: [...data.images, {uri, blob}]});
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const newImage: PostImage = {
+                uri: result.assets[0].uri,
+                type: result.assets[0].mimeType || "image/jpeg",
+                name: result.assets[0].fileName || "picture.jpg"
+            }
+            setData({...data, images: [...data.images, newImage]});
         }
     };
 
@@ -276,9 +278,10 @@ const styles = StyleSheet.create({
     }
 })
 
-type PostImage = {
+export type PostImage = {
     uri: string;
-    blob: Blob;
+    type: string;
+    name: string;
 }
 
 export type PostCreateFormData = {
