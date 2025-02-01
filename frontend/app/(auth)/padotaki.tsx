@@ -19,7 +19,7 @@ import { mockPost1, mockPost2, mockUser1 } from "@/shared/mock-data";
 import fetchOneDegreeProjectCard from "@/libs/apis/ProjectCard/fetchOneDegreeProjectCard";
 import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
 import ProjectCard from "@/components/cards/ProjectCard";
-import fetchOneDegreeFriends from "@/libs/apis/Friend/oneDegreeFriends";
+import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
 
 type HeaderProps = {
     onBackPress: () => void;
@@ -141,15 +141,20 @@ const PadoTakiScreen = () => {
     const fetchPadoTaki = async () => {
         setLoading(true); // 로딩 시작
         try {
-            console.log("current_taret_user_id", current_target_user_id);
+            const current_target_user_id_number = Number(
+                current_target_user_id
+            );
+            console.log("current_taret_user_id", current_target_user_id_number);
             // fetch project card list
             const projectCardList = await fetchOneDegreeProjectCard(
-                Number(current_target_user_id)
+                current_target_user_id_number
             );
             setProjectCardList(projectCardList);
 
             // fetch user(friend) list
-            const oneDegreefriendList = await fetchOneDegreeFriends();
+            const oneDegreefriendList = await fetchOneDegreeFriends(
+                current_target_user_id_number
+            );
             setUserList(oneDegreefriendList);
         } catch (error) {
             console.error("Failed to fetch pado taki:", error);

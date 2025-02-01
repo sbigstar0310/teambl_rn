@@ -1,12 +1,21 @@
-import {Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
-import {FC} from "react";
-import {router} from "expo-router";
-import {sharedStyles} from "@/app/_layout";
+import {
+    Image,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ViewStyle,
+} from "react-native";
+import { FC } from "react";
+import { router } from "expo-router";
+import { sharedStyles } from "@/app/_layout";
 
 interface ScreenHeaderProps {
     title?: string | FC;
     actionButton?: FC;
     onBack?(): void;
+    style?: ViewStyle;
 }
 
 export default function ScreenHeader(props: ScreenHeaderProps) {
@@ -17,9 +26,18 @@ export default function ScreenHeader(props: ScreenHeaderProps) {
 
     return (
         <SafeAreaView style={styles.safeContainer}>
-            <View style={[styles.container, sharedStyles.horizontalPadding]}>
+            <View
+                style={[
+                    styles.container,
+                    sharedStyles.horizontalPadding,
+                    props.style,
+                ]}
+            >
                 {/* Backward button */}
-                <TouchableOpacity style={styles.backButton} onPress={handleBackButton}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={handleBackButton}
+                >
                     <Image
                         source={require("@/assets/left-arrow.png")}
                         style={styles.backIcon}
@@ -32,9 +50,9 @@ export default function ScreenHeader(props: ScreenHeaderProps) {
                         (typeof props.title === "string" ? (
                             <Text style={styles.title}>{props.title}</Text>
                         ) : (
-                            <props.title/>
+                            <props.title />
                         ))}
-                    {props.actionButton && <props.actionButton/>}
+                    {props.actionButton && <props.actionButton />}
                 </View>
             </View>
         </SafeAreaView>

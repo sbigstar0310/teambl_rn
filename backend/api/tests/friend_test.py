@@ -194,7 +194,6 @@ class FriendDeleteViewTestCase(TestCase):
 class OneDegreeFriendsViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("friend-one-degree")  # Dynamic URL mapping
 
         # Create a test user
         self.testuser01 = create_user_with_profile(
@@ -219,7 +218,8 @@ class OneDegreeFriendsViewTestCase(TestCase):
         self.client.force_authenticate(user=self.testuser01)
 
     def test_list_friend(self):
-        response = self.client.get(self.url)
+        url = self.url = reverse("friend-one-degree", args=[self.testuser01.id])
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)

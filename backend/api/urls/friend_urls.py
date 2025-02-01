@@ -20,7 +20,7 @@ urlpatterns = [
         name="friend-delete",
     ),
     path(
-        "one-degree/",
+        "<int:user_id>/one-degree/",
         views.OneDegreeFriendsView.as_view(),
         name="friend-one-degree",
     ),

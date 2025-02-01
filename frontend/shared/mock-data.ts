@@ -10,8 +10,8 @@ const mockProfile1: api.Profile = {
     keywords: ["teambl", "user"],
     one_degree_count: 1,
     portfolio_links: [],
-    skills: []
-}
+    skills: [],
+};
 
 export const mockConversation1: api.Conversation = {
     id: 1,
@@ -23,8 +23,8 @@ export const mockConversation1: api.Conversation = {
     deleted_for_user1: false,
     deleted_for_user2: false,
     created_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT"),
-    updated_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT")
-}
+    updated_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT"),
+};
 export const mockConversation2: api.Conversation = {
     id: 2,
     user_1: 1,
@@ -35,8 +35,8 @@ export const mockConversation2: api.Conversation = {
     deleted_for_user1: false,
     deleted_for_user2: false,
     created_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT"),
-    updated_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT")
-}
+    updated_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT"),
+};
 export const mockConversation3: api.Conversation = {
     id: 3,
     user_1: 1,
@@ -47,8 +47,8 @@ export const mockConversation3: api.Conversation = {
     deleted_for_user1: false,
     deleted_for_user2: false,
     created_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT"),
-    updated_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT")
-}
+    updated_at: new Date("Thu, 02 Jan 2025 11:58:11 GMT"),
+};
 
 export const mockMessage1: api.Message = {
     id: 1,
@@ -57,8 +57,8 @@ export const mockMessage1: api.Message = {
     message: "Hello World!",
     is_read: false,
     is_system: false,
-    created_at: new Date("Thu, 02 Jan 2025 11:59:15 GMT")
-}
+    created_at: new Date("Thu, 02 Jan 2025 11:59:15 GMT"),
+};
 
 export const mockUser1: api.User = {
     id: 1,
@@ -68,8 +68,30 @@ export const mockUser1: api.User = {
     is_staff: false,
     is_active: true,
     date_joined: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
-    profile: mockProfile1
-}
+    profile: mockProfile1,
+};
+
+export const mockUser2: api.User = {
+    id: 2,
+    email: "test2@kaist.ac.kr",
+    last_login: new Date("Thu, 09 Jan 2025 11:59:15 GMT"),
+    is_superuser: false,
+    is_staff: false,
+    is_active: true,
+    date_joined: new Date("Thu, 14 Jan 2025 11:59:15 GMT"),
+    profile: mockProfile1,
+};
+
+export const mockUser3: api.User = {
+    id: 3,
+    email: "test3@kaist.ac.kr",
+    last_login: new Date("Thu, 09 Jan 2025 11:59:15 GMT"),
+    is_superuser: false,
+    is_staff: false,
+    is_active: true,
+    date_joined: new Date("Thu, 11 Jan 2025 11:59:15 GMT"),
+    profile: mockProfile1,
+};
 
 export const mockProject1: api.ProjectCard = {
     id: 1,
@@ -81,9 +103,10 @@ export const mockProject1: api.ProjectCard = {
     created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
     start_date: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
     end_date: new Date("Thu, 05 Jan 2025 11:59:15 GMT"),
-    description: "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
-    posts: []
-}
+    description:
+        "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
+    posts: [],
+};
 
 export const mockProject2: api.ProjectCard = {
     id: 2,
@@ -96,8 +119,8 @@ export const mockProject2: api.ProjectCard = {
     start_date: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
     end_date: new Date("Thu, 05 Jan 2025 11:59:15 GMT"),
     description: "This is a project",
-    posts: []
-}
+    posts: [],
+};
 
 export const mockProject3: api.ProjectCard = {
     id: 3,
@@ -110,33 +133,35 @@ export const mockProject3: api.ProjectCard = {
     start_date: new Date("Thu, 01 Jan 2025 11:59:15 GMT"),
     end_date: new Date("Thu, 05 Jan 2025 11:59:15 GMT"),
     description: "This is a project",
-    posts: []
-}
+    posts: [],
+};
 
 export const mockPost1: api.Post = {
     id: 1,
     project_card_id: 1,
     user: mockUser1,
     title: "ColligoLink",
-    content: "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
+    content:
+        "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
     created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
     keywords: ["teambl", "project"],
     like_count: 24,
     tagged_users: [],
     contact: "",
-    liked_users: []
-}
+    liked_users: [],
+};
 
 export const mockPost2: api.Post = {
     id: 2,
     project_card_id: 2,
     user: mockUser1,
     title: "Progress Update",
-    content: "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
+    content:
+        "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
     created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
     keywords: ["teambl", "project"],
     like_count: 12,
     tagged_users: [],
     contact: "",
-    liked_users: []
-}
+    liked_users: [],
+};

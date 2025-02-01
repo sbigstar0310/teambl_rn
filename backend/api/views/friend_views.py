@@ -222,7 +222,14 @@ class OneDegreeFriendsView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        user = self.request.user
+        user_id = self.kwargs.get("user_id")
+
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "Target user not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         # 친구 관계 필터링 (양방향 관계)
         friends = Friend.objects.filter(
