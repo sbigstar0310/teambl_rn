@@ -352,7 +352,18 @@ const NewProfileHeader = (props: any) => {
                                 {`1촌 ${userInfo?.profile.one_degree_count}명`}
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.bottomButton]}>
+                        <TouchableOpacity
+                            style={[styles.bottomButton]}
+                            onPress={() => {
+                                router.push({
+                                    pathname: "/padotaki",
+                                    params: {
+                                        current_target_user_id:
+                                            userId.toString(),
+                                    },
+                                });
+                            }}
+                        >
                             <PadoIcon style={[styles.bottomButtonIcon]} />
                             <Text style={[styles.bottomButtonText]}>
                                 {"파도타기"}
