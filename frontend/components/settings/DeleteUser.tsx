@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
-import PrimeButton from "./PrimeButton";
+import PrimeButton from "../PrimeButton";
 import { router } from "expo-router";
 import Popup from "@/components/Popup";
 import checkPasswordAPI from "@/libs/apis/User/checkPassword";
@@ -8,7 +8,7 @@ import deleteUserAPI from "@/libs/apis/User/deleteUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/shared/constants";
 import PasswordConfirmMessage from "@/components/settings/PasswordConfirmMessage";
-import InputWithTitle from "./settings/InputWithTitle";
+import InputWithTitle from "./InputWithTitle";
 
 const DeleteUser: React.FC = () => {
     const [passwd, setPasswd] = useState<string>("");

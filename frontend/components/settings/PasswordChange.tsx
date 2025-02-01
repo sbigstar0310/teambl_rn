@@ -12,11 +12,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import changePasswordAPI from "@/libs/apis/User/changePassword";
 import checkPasswordAPI from "@/libs/apis/User/checkPassword";
-import Button from "./Button";
-import ConfirmText from "./ConfirmText";
+import Button from "../Button";
+import ConfirmText from "../ConfirmText";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/shared/constants";
-import InputWithTitle from "./settings/InputWithTitle";
-import PasswordConfirmMessage from "./settings/PasswordConfirmMessage";
+import InputWithTitle from "./InputWithTitle";
+import PasswordConfirmMessage from "./PasswordConfirmMessage";
 
 const PasswordChange: React.FC = () => {
     const [userId, setUserId] = useState<string | null>(null);

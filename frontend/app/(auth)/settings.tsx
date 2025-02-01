@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import TitleAndContentToggle from "@/components/TitleAndContentToggle";
-import PasswordChange from "@/components/PasswordChange";
-import InquirySend from "@/components/InquirySend";
-import DeleteUser from "@/components/DeleteUser";
-import PolicyView from "@/components/PolicyView";
+import PasswordChange from "@/components/settings/PasswordChange";
+import InquirySend from "@/components/settings/InquirySend";
+import DeleteUser from "@/components/settings/DeleteUser";
+import PolicyView from "@/components/settings/PolicyView";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import { sharedStyles } from "@/app/_layout";
 

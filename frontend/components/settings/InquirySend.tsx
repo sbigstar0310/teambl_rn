@@ -10,8 +10,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import PrimeButton from "./PrimeButton";
-import Button from "./Button";
+import PrimeButton from "../PrimeButton";
+import Button from "../Button";
 
 /** Teamble email */
 const TEAMBLE_EMAIL = "contact.teambl.net";
