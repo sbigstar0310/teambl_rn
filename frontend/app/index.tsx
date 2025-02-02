@@ -29,6 +29,8 @@ export default function IndexScreen() {
         } catch (error) {
             console.error("Failed to check login status:", error);
             setIsLoggedIn(false); // 에러 발생 시 비로그인 처리
+            AsyncStorage.clear(); // AsyncStorage 초기화
+            useAuthStore.getState().logout(); // AuthStore 초기화
         } finally {
             setLoading(false); // 로딩 상태 완료
         }
