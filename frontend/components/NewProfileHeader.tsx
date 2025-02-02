@@ -154,7 +154,6 @@ const NewProfileHeader = (props: any) => {
             if (isMyProfile) {
                 const user = useAuthStore.getState().user;
                 profile = user?.profile ?? (await getProfile(userId));
-                console.log("fetched from authStore profile", profile);
             } else {
                 profile = await getProfile(userId);
             }

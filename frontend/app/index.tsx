@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Redirect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ACCESS_TOKEN } from "@/shared/constants";
+import { ACCESS_TOKEN, USER_ID } from "@/shared/constants";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { useAuthStore } from "@/store/authStore";
+import getUserInfo from "@/libs/apis/User/getUserInfo";
 
 export default function IndexScreen() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // 로그인 상태 추가
@@ -11,10 +13,19 @@ export default function IndexScreen() {
     // 로그인 상태 확인 함수
     const checkLoginStatus = async () => {
         try {
-            // AsyncStorage에서 ACCESS_TOKEN 가져오기
+            // AsyncStorage에서 ACCESS_TOKEN, USER_ID 가져오기
             const accessToken = await AsyncStorage.getItem(ACCESS_TOKEN);
+            const current_user_id = await AsyncStorage.getItem(USER_ID);
+
             // ACCESS_TOKEN이 있으면 로그인 상태로 간주
             setIsLoggedIn(!!accessToken);
+
+            // AuthStore에 로그인 상태 저장
+            useAuthStore.setState({ isLoggedIn: !!accessToken });
+
+            // AuthStore에 유저 정보 저장
+            const user = await getUserInfo(Number(current_user_id));
+            useAuthStore.setState({ user });
         } catch (error) {
             console.error("Failed to check login status:", error);
             setIsLoggedIn(false); // 에러 발생 시 비로그인 처리
