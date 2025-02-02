@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     View,
     Image,
+    Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { sharedStyles } from "@/app/_layout";
@@ -16,6 +17,7 @@ import login from "@/libs/apis/login";
 import styled from "@emotion/native";
 import Button from "@/components/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "@/store/authStore";
 
 const Container = styled(SafeAreaView)`
     flex-direction: column;
@@ -94,12 +96,17 @@ const LoginScreen = () => {
             return;
         }
 
-        const response = await login({ email, password });
-        console.log("로그인 성공: ", JSON.stringify(response, null, 2));
-        setIsLoading(false);
-
-        // 로그인 성공 시 홈 화면으로 이동
-        router.push("/home");
+        try {
+            await useAuthStore.getState().login(email, password);
+            router.push("/home");
+        } catch (error) {
+            Alert.alert(
+                "로그인 실패",
+                "이메일 또는 비밀번호가 올바르지 않습니다"
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const checkLoginButtonActive = () => {

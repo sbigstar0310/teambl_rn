@@ -7,8 +7,16 @@ import getProfile from "@/libs/apis/Profile/getProfile";
 import updateProfile from "@/libs/apis/Profile/updateProfile";
 import theme from "@/shared/styles/theme";
 import { getCurrentUserId } from "@/shared/utils";
+import { useAuthStore } from "@/store/authStore";
 import React, { useEffect, useState } from "react";
-import { Animated, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+    Animated,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 
 const MyProfileInfoView = () => {
     const [currentKeywordist, setCurrentKeywordList] = useState([
@@ -23,6 +31,17 @@ const MyProfileInfoView = () => {
     const [isSaveLoading, setIsSaveLoading] = useState(false);
 
     const getProfileInfo = async () => {
+        // Get user from Zustand store
+        const user = useAuthStore.getState().user;
+
+        if (user) {
+            console.log("User found in Zustand store:", user);
+            setCurrentKeywordList(user.profile.keywords);
+            setCurrentSkillList(user.profile.skills);
+            setCurrentIntroduction(user.profile.introduction);
+            return; // ✅ No need to fetch from API if user exists in store
+        }
+
         try {
             const current_user_id = await getCurrentUserId().then((id_string) =>
                 Number(id_string)
@@ -113,7 +132,9 @@ const MyProfileInfoView = () => {
                         onAdd={handleNewKeyword}
                         onRemove={handleRemoveKeyword}
                     />
-                    <View style={[styles.fieldTitleContainer, { marginTop: 17 }]}>
+                    <View
+                        style={[styles.fieldTitleContainer, { marginTop: 17 }]}
+                    >
                         <Text style={styles.fieldTitle}>{"스킬"}</Text>
                     </View>
                     <SkillInput
@@ -121,7 +142,9 @@ const MyProfileInfoView = () => {
                         selectedSkills={currentSkillList}
                         updateSelectedSkills={setCurrentSkillList}
                     />
-                    <View style={[styles.fieldTitleContainer, { marginTop: 17 }]}>
+                    <View
+                        style={[styles.fieldTitleContainer, { marginTop: 17 }]}
+                    >
                         <Text style={styles.fieldTitle}>{"소개"}</Text>
                     </View>
                     <TextAreaInput

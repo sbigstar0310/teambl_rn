@@ -9,7 +9,7 @@ import {
     Text,
     Modal,
     ActivityIndicator,
-    Animated
+    Animated,
 } from "react-native";
 import ChonIcon from "@/assets/chon-icon.svg";
 import PadoIcon from "@/assets/pado-icon.svg";
@@ -26,6 +26,7 @@ import getUserDistance from "@/libs/apis/getUserDistance";
 import getUserPath from "@/libs/apis/getUserPath";
 import { getCurrentUserId } from "@/shared/utils";
 import { useScroll } from "./provider/ScrollContext";
+import { useAuthStore } from "@/store/authStore";
 
 const MyProfileDummyData = {
     id: 1,
@@ -149,7 +150,14 @@ const NewProfileHeader = (props: any) => {
     const fetchUserInfo = async () => {
         try {
             // Fetch user profile
-            const profile = await getProfile(userId);
+            let profile;
+            if (isMyProfile) {
+                const user = useAuthStore.getState().user;
+                profile = user?.profile ?? (await getProfile(userId));
+                console.log("fetched from authStore profile", profile);
+            } else {
+                profile = await getProfile(userId);
+            }
 
             // Fetch choneDegree
             const choneDegree = await getUserDistance(userId).then((res) => {
@@ -246,7 +254,7 @@ const NewProfileHeader = (props: any) => {
         outputRange: [headerHeight || 100, headerHeight || 100, 50],
         extrapolate: "clamp",
     });
-    
+
     return (
         <>
             {/** loader */}
@@ -269,9 +277,7 @@ const NewProfileHeader = (props: any) => {
                     }
                 }}
             >
-                <View
-                    style={styles.profileContainer}
-                >
+                <View style={styles.profileContainer}>
                     <View style={[styles.headerContainer]}>
                         <TouchableOpacity
                             style={[styles.profileImageContainer]}
@@ -301,7 +307,9 @@ const NewProfileHeader = (props: any) => {
                         {!isLoading && (
                             <ImageUploadModal
                                 isVisible={isImageUploadModalVisible}
-                                onClose={() => setIsImageUploadModalVisible(false)}
+                                onClose={() =>
+                                    setIsImageUploadModalVisible(false)
+                                }
                                 title={"프로필 사진"}
                                 descriptions={[
                                     "프로필 사진으로 신뢰도를 높여보세요.",

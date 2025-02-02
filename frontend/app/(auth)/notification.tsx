@@ -44,7 +44,7 @@ const Notification = () => {
         try {
             const currentUser = await fetchCurrentUserAPI();
             setCurrentUser(currentUser);
-            console.log(currentUser);
+            console.log("fetched current user: ", currentUser);
         } catch (error) {
             console.error("Failed to fetch current user", error);
         } finally {

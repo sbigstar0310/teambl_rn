@@ -16,6 +16,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useAuthStore } from "@/store/authStore";
 
 const MyProfileEditView = () => {
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false);
@@ -30,15 +31,39 @@ const MyProfileEditView = () => {
     const [currentMajorList, setCurrentMajorList] = useState<string[]>([]);
 
     const getProfileInfo = async () => {
-        try {
-            const current_user_id = await getCurrentUserId().then((id_string) =>
-                Number(id_string)
+        // Get user from Zustand store
+        const user = useAuthStore.getState().user;
+
+        if (user) {
+            console.log("User found in Zustand store:", user);
+            setName(user.profile.user_name || "Unknown");
+            setSchool(user.profile.school || "Unknown");
+            setAcademicDegree(user.profile.current_academic_degree || "None");
+            setYear(user.profile.year);
+            setCurrentMajorList(
+                user.profile.major1
+                    ? user.profile.major2
+                        ? [user.profile.major1, user.profile.major2]
+                        : [user.profile.major1]
+                    : []
             );
+            return; // ✅ No need to fetch from API if user exists in store
+        }
+
+        try {
+            console.log(
+                "User not found in Zustand store. Fetching from API..."
+            );
+            // AuthStore에 유저 정보가 없으면 API를 통해 직접 가져옴. (이 코드는 혹시 모르니 남겨둠, 나중에 삭제 가능.)
+            // Fetch user ID
+            const id_string = await getCurrentUserId();
+            const current_user_id = id_string ? Number(id_string) : null;
 
             if (!current_user_id) {
                 throw new Error("User ID not found.");
             }
 
+            // Fetch profile data
             const profile = await getProfile(current_user_id);
 
             setName(profile.user_name || "Unknown");
