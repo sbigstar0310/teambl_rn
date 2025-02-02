@@ -36,7 +36,11 @@ export const useAuthStore = create<AuthStoreState & AuthStoreAction>((set) => ({
     },
     logout: async () => {
         try {
-            await AsyncStorage.clear();
+            // Remove all stored tokens and user ID
+            await AsyncStorage.removeItem("ACCESS_TOKEN");
+            await AsyncStorage.removeItem("REFRESH_TOKEN");
+            await AsyncStorage.removeItem("USER_ID");
+
             set({ user: undefined, isLoggedIn: false });
         } catch (error) {
             console.error("Logout failed:", error);

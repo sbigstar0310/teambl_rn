@@ -85,6 +85,10 @@ export default function SearchScreen() {
         try {
             const response = await searchUser({ q: query, degree: [] });
             setSearchData(response.results);
+            console.log(
+                "검색 결과:",
+                response.results.map((item) => item.user.profile.image)
+            );
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
         } finally {

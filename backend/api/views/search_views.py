@@ -99,6 +99,7 @@ class SearchUsersAPIView(generics.ListAPIView):
             paginated_users,
             many=True,
             context={
+                "request": self.request,
                 "target_user_and_distance_dic": target_user_and_distance_dic,
             },
         )

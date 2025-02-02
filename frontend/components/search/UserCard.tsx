@@ -1,5 +1,5 @@
 import React from "react";
-import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DefaultProfile from "@/assets/DefaultProfile.svg";
 
@@ -11,24 +11,29 @@ type UserSearchData = {
 
 export default function UserCard(data: UserSearchData) {
     const profile = data.user.profile;
+    console.log("user's profile ", profile);
 
     return (
-        <TouchableOpacity onPress={() => router.push(`/profiles/${data.user.id}`)}>
+        <TouchableOpacity
+            onPress={() => router.push(`/profiles/${data.user.id}`)}
+        >
             <View style={styles.cardContainer}>
                 {/* 이미지 */}
                 <View style={styles.imageContainer}>
                     {profile.image ? (
                         <Image
-                            source={{uri: profile.image}}
+                            source={{ uri: profile.image }}
                             style={styles.image}
                         />
                     ) : (
-                        <DefaultProfile width={52} height={52}/>
+                        <DefaultProfile width={52} height={52} />
                     )}
                 </View>
                 {/* 텍스트 정보 */}
                 <View style={styles.textContainer}>
-                    <View style={[styles.infoContainer, styles.nameAndRelation]}>
+                    <View
+                        style={[styles.infoContainer, styles.nameAndRelation]}
+                    >
                         <Text style={styles.userName}>{profile.user_name}</Text>
                         <Text style={styles.relation}>
                             {data.relation_degree
@@ -38,8 +43,8 @@ export default function UserCard(data: UserSearchData) {
                     </View>
                     <View style={styles.infoContainer}>
                         <Text style={styles.infoText}>
-                            {profile.school} | {profile.current_academic_degree} |{" "}
-                            {profile.year % 100}학번
+                            {profile.school} | {profile.current_academic_degree}{" "}
+                            | {profile.year % 100}학번
                         </Text>
                         <Text style={styles.infoText}>
                             {profile.major1}
