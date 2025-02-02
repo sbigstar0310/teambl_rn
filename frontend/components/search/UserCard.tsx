@@ -11,7 +11,6 @@ type UserSearchData = {
 
 export default function UserCard(data: UserSearchData) {
     const profile = data.user.profile;
-    console.log("user's profile ", profile);
 
     return (
         <TouchableOpacity

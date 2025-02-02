@@ -157,7 +157,6 @@ const NewProfileHeader = (props: any) => {
             } else {
                 profile = await getProfile(userId);
             }
-            console.log("profile image", profile.image);
 
             // Fetch choneDegree
             const choneDegree = await getUserDistance(userId).then((res) => {
