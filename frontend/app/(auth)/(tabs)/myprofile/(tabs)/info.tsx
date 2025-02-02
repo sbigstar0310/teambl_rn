@@ -1,5 +1,6 @@
 import KeywordInput from "@/components/KeywordInput";
 import PrimeButton from "@/components/PrimeButton";
+import { useScroll } from "@/components/provider/ScrollContext";
 import SkillInput from "@/components/SkillInput";
 import TextAreaInput from "@/components/TextAreaInput";
 import getProfile from "@/libs/apis/Profile/getProfile";
@@ -7,7 +8,7 @@ import updateProfile from "@/libs/apis/Profile/updateProfile";
 import theme from "@/shared/styles/theme";
 import { getCurrentUserId } from "@/shared/utils";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Animated, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 const MyProfileInfoView = () => {
     const [currentKeywordist, setCurrentKeywordList] = useState([
@@ -89,44 +90,56 @@ const MyProfileInfoView = () => {
         getProfileInfo();
     }, []);
 
+    const scrollY = useScroll() || new Animated.Value(0);
+
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.innerContainer}>
-                <View style={styles.fieldTitleContainer}>
-                    <Text style={styles.fieldTitle}>{"관심사"}</Text>
-                    <Text style={styles.fieldSubTitle}>{"최대 5개"}</Text>
+        <ScrollView
+            contentContainerStyle={{ paddingVertical: 10 }}
+            onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                { useNativeDriver: false }
+            )}
+            scrollEventThrottle={16}
+            keyboardShouldPersistTaps={"handled"}
+        >
+            <View style={styles.container}>
+                <View style={styles.innerContainer}>
+                    <View style={styles.fieldTitleContainer}>
+                        <Text style={styles.fieldTitle}>{"관심사"}</Text>
+                        <Text style={styles.fieldSubTitle}>{"최대 5개"}</Text>
+                    </View>
+                    <KeywordInput
+                        currentKeywordList={currentKeywordist}
+                        onAdd={handleNewKeyword}
+                        onRemove={handleRemoveKeyword}
+                    />
+                    <View style={[styles.fieldTitleContainer, { marginTop: 17 }]}>
+                        <Text style={styles.fieldTitle}>{"스킬"}</Text>
+                    </View>
+                    <SkillInput
+                        styles={{ marginTop: 12 }}
+                        selectedSkills={currentSkillList}
+                        updateSelectedSkills={setCurrentSkillList}
+                    />
+                    <View style={[styles.fieldTitleContainer, { marginTop: 17 }]}>
+                        <Text style={styles.fieldTitle}>{"소개"}</Text>
+                    </View>
+                    <TextAreaInput
+                        value={currentIntroduction}
+                        setValue={setCurrentIntroduction}
+                        placeholderText={
+                            "관심 있는 분야, 이루고자 하는 목표, 전문성을 쌓기 위해 하고 있는 활동 등 본인을 설명하는 글을 자유롭게 작성해 보세요."
+                        }
+                    />
+                    {/** save button */}
+                    <PrimeButton
+                        text={"저장"}
+                        onClickCallback={saveInfo}
+                        isActive={true}
+                        isLoading={isSaveLoading}
+                        styleOv={{ marginTop: 32 }}
+                    />
                 </View>
-                <KeywordInput
-                    currentKeywordList={currentKeywordist}
-                    onAdd={handleNewKeyword}
-                    onRemove={handleRemoveKeyword}
-                />
-                <View style={[styles.fieldTitleContainer, { marginTop: 17 }]}>
-                    <Text style={styles.fieldTitle}>{"스킬"}</Text>
-                </View>
-                <SkillInput
-                    styles={{ marginTop: 12 }}
-                    selectedSkills={currentSkillList}
-                    updateSelectedSkills={setCurrentSkillList}
-                />
-                <View style={[styles.fieldTitleContainer, { marginTop: 17 }]}>
-                    <Text style={styles.fieldTitle}>{"소개"}</Text>
-                </View>
-                <TextAreaInput
-                    value={currentIntroduction}
-                    setValue={setCurrentIntroduction}
-                    placeholderText={
-                        "관심 있는 분야, 이루고자 하는 목표, 전문성을 쌓기 위해 하고 있는 활동 등 본인을 설명하는 글을 자유롭게 작성해 보세요."
-                    }
-                />
-                {/** save button */}
-                <PrimeButton
-                    text={"저장"}
-                    onClickCallback={saveInfo}
-                    isActive={true}
-                    isLoading={isSaveLoading}
-                    styleOv={{ marginTop: 32 }}
-                />
             </View>
         </ScrollView>
     );
@@ -134,12 +147,9 @@ const MyProfileInfoView = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         backgroundColor: theme.colors.achromatic05,
-        paddingTop: 6,
     },
     innerContainer: {
-        flex: 1,
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",

@@ -9,6 +9,7 @@ import {
     Text,
     Modal,
     ActivityIndicator,
+    Animated
 } from "react-native";
 import ChonIcon from "@/assets/chon-icon.svg";
 import PadoIcon from "@/assets/pado-icon.svg";
@@ -24,6 +25,7 @@ import getProfile from "@/libs/apis/Profile/getProfile";
 import getUserDistance from "@/libs/apis/getUserDistance";
 import getUserPath from "@/libs/apis/getUserPath";
 import { getCurrentUserId } from "@/shared/utils";
+import { useScroll } from "./provider/ScrollContext";
 
 const MyProfileDummyData = {
     id: 1,
@@ -235,6 +237,16 @@ const NewProfileHeader = (props: any) => {
         );
     }, [userInfo]);
 
+    /** NEW : for the shrinking */
+    const scrollY = useScroll() || new Animated.Value(0);
+    const [headerHeight, setHeaderHeight] = useState<number | null>(null);
+
+    const animatedHeight = scrollY.interpolate({
+        inputRange: [0, 10, 200],
+        outputRange: [headerHeight || 100, headerHeight || 100, 50],
+        extrapolate: "clamp",
+    });
+    
     return (
         <>
             {/** loader */}
@@ -245,184 +257,189 @@ const NewProfileHeader = (props: any) => {
                     </View>
                 </Modal>
             )}
-            <View
-                style={
-                    isMyProfile
-                        ? styles.myProfilecontainer
-                        : styles.otherProfilecontainer
-                }
+            <Animated.View
+                style={{
+                    height: headerHeight ? animatedHeight : undefined,
+                    backgroundColor: "white",
+                    minHeight: 100,
+                }}
+                onLayout={(event) => {
+                    if (headerHeight === null) {
+                        setHeaderHeight(event.nativeEvent.layout.height);
+                    }
+                }}
             >
-                <View style={[styles.headerContainer]}>
-                    <TouchableOpacity
-                        style={[styles.profileImageContainer]}
-                        onPress={() => {
-                            if (isMyProfile) {
-                                setIsImageUploadModalVisible(true);
-                            }
-                        }}
-                    >
-                        {currentImageURL === "" && (
-                            <DefaultImage
-                                width={90}
-                                height={90}
-                                style={[styles.profileImage]}
-                            />
-                        )}
-                        {currentImageURL !== "" && (
-                            <Image
-                                source={{
-                                    uri: currentImageURL,
-                                }}
-                                style={[styles.profileImage]}
-                            />
-                        )}
-                    </TouchableOpacity>
-                    {/** image upload modal */}
-                    {!isLoading && (
-                        <ImageUploadModal
-                            isVisible={isImageUploadModalVisible}
-                            onClose={() => setIsImageUploadModalVisible(false)}
-                            title={"프로필 사진"}
-                            descriptions={[
-                                "프로필 사진으로 신뢰도를 높여보세요.",
-                                "신뢰할 수 있는 이미지는 더 넓은 네트워크를 만듭니다.",
-                            ]}
-                            onRemoveImage={removeImage}
-                            onUploadImage={uploadImage}
-                            setIsLoading={setIsLoading}
-                        />
-                    )}
-                    <View style={[styles.nameContainer]}>
-                        <Text style={[styles.name]}>
-                            {userInfo?.profile.user_name}
-                        </Text>
-                        {isMyProfile && (
-                            <TouchableOpacity
-                                style={[styles.editButton]}
-                                onPress={() => {
-                                    router.push("/myprofile-edit");
-                                }}
-                            >
-                                <Image
-                                    source={require("@/assets/edit-icon.png")}
-                                    style={[styles.editButtonIcon]}
-                                />
-                            </TouchableOpacity>
-                        )}
-                        {!isMyProfile && (
-                            <Text>{`・ ${userInfo?.choneDegree}촌`}</Text>
-                        )}
-                    </View>
-                    <View style={[styles.schoolContainer]}>
-                        <Text style={[styles.schoolInfo]}>
-                            {userInfo?.profile.school}
-                        </Text>
-                        <Text style={[styles.sepLine]}>{"|"}</Text>
-                        <Text style={[styles.schoolInfo]}>
-                            {userInfo?.profile.current_academic_degree}
-                        </Text>
-                        <Text style={[styles.sepLine]}>{"|"}</Text>
-                        <Text style={[styles.schoolInfo]}>
-                            {userInfo?.profile.year
-                                ? `${userInfo.profile.year % 100} 학번`
-                                : ""}
-                        </Text>
-                    </View>
-                    <View style={[styles.schoolContainer]}>
-                        <Text style={[styles.schoolInfo]}>
-                            {userInfo?.profile.major1 ?? ""}
-                        </Text>
-                        {userInfo?.profile.major2 && (
-                            <>
-                                <Text style={[styles.sepDot]}>{"·"}</Text>
-                                <Text style={[styles.schoolInfo]}>
-                                    {userInfo?.profile.major2}
-                                </Text>
-                            </>
-                        )}
-                    </View>
-                    {/*** bottom view */}
-                    <View style={[styles.bottomContainer]}>
+                <View
+                    style={styles.profileContainer}
+                >
+                    <View style={[styles.headerContainer]}>
                         <TouchableOpacity
-                            style={[styles.bottomButton, styles.withMR17]}
-                            onPress={() => router.push("/myfriends")}
-                        >
-                            <ChonIcon style={[styles.bottomButtonIcon]} />
-                            <Text style={[styles.bottomButtonText]}>
-                                {`1촌 ${userInfo?.profile.one_degree_count}명`}
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.bottomButton]}
+                            style={[styles.profileImageContainer]}
                             onPress={() => {
-                                router.push({
-                                    pathname: "/padotaki",
-                                    params: {
-                                        current_target_user_id:
-                                            userId.toString(),
-                                    },
-                                });
+                                if (isMyProfile) {
+                                    setIsImageUploadModalVisible(true);
+                                }
                             }}
                         >
-                            <PadoIcon style={[styles.bottomButtonIcon]} />
-                            <Text style={[styles.bottomButtonText]}>
-                                {"파도타기"}
-                            </Text>
+                            {currentImageURL === "" && (
+                                <DefaultImage
+                                    width={90}
+                                    height={90}
+                                    style={[styles.profileImage]}
+                                />
+                            )}
+                            {currentImageURL !== "" && (
+                                <Image
+                                    source={{
+                                        uri: currentImageURL,
+                                    }}
+                                    style={[styles.profileImage]}
+                                />
+                            )}
                         </TouchableOpacity>
-                    </View>
-                    {/** requesting 1-chon & sending message */}
-                    {!isMyProfile && (
-                        <View style={styles.requestAndMessageContainer}>
-                            {userInfo?.choneDegree !== 1 && (
+                        {/** image upload modal */}
+                        {!isLoading && (
+                            <ImageUploadModal
+                                isVisible={isImageUploadModalVisible}
+                                onClose={() => setIsImageUploadModalVisible(false)}
+                                title={"프로필 사진"}
+                                descriptions={[
+                                    "프로필 사진으로 신뢰도를 높여보세요.",
+                                    "신뢰할 수 있는 이미지는 더 넓은 네트워크를 만듭니다.",
+                                ]}
+                                onRemoveImage={removeImage}
+                                onUploadImage={uploadImage}
+                                setIsLoading={setIsLoading}
+                            />
+                        )}
+                        <View style={[styles.nameContainer]}>
+                            <Text style={[styles.name]}>
+                                {userInfo?.profile.user_name}
+                            </Text>
+                            {isMyProfile && (
+                                <TouchableOpacity
+                                    style={[styles.editButton]}
+                                    onPress={() => {
+                                        router.push("/myprofile-edit");
+                                    }}
+                                >
+                                    <Image
+                                        source={require("@/assets/edit-icon.png")}
+                                        style={[styles.editButtonIcon]}
+                                    />
+                                </TouchableOpacity>
+                            )}
+                            {!isMyProfile && (
+                                <Text>{`・ ${userInfo?.choneDegree}촌`}</Text>
+                            )}
+                        </View>
+                        <View style={[styles.schoolContainer]}>
+                            <Text style={[styles.schoolInfo]}>
+                                {userInfo?.profile.school}
+                            </Text>
+                            <Text style={[styles.sepLine]}>{"|"}</Text>
+                            <Text style={[styles.schoolInfo]}>
+                                {userInfo?.profile.current_academic_degree}
+                            </Text>
+                            <Text style={[styles.sepLine]}>{"|"}</Text>
+                            <Text style={[styles.schoolInfo]}>
+                                {userInfo?.profile.year
+                                    ? `${userInfo.profile.year % 100} 학번`
+                                    : ""}
+                            </Text>
+                        </View>
+                        <View style={[styles.schoolContainer]}>
+                            <Text style={[styles.schoolInfo]}>
+                                {userInfo?.profile.major1 ?? ""}
+                            </Text>
+                            {userInfo?.profile.major2 && (
+                                <>
+                                    <Text style={[styles.sepDot]}>{"·"}</Text>
+                                    <Text style={[styles.schoolInfo]}>
+                                        {userInfo?.profile.major2}
+                                    </Text>
+                                </>
+                            )}
+                        </View>
+                        {/*** bottom view */}
+                        <View style={[styles.bottomContainer]}>
+                            <TouchableOpacity
+                                style={[styles.bottomButton, styles.withMR17]}
+                                onPress={() => router.push("/myfriends")}
+                            >
+                                <ChonIcon style={[styles.bottomButtonIcon]} />
+                                <Text style={[styles.bottomButtonText]}>
+                                    {`1촌 ${userInfo?.profile.one_degree_count}명`}
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.bottomButton]}
+                                onPress={() => {
+                                    router.push({
+                                        pathname: "/padotaki",
+                                        params: {
+                                            current_target_user_id:
+                                                userId.toString(),
+                                        },
+                                    });
+                                }}
+                            >
+                                <PadoIcon style={[styles.bottomButtonIcon]} />
+                                <Text style={[styles.bottomButtonText]}>
+                                    {"파도타기"}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        {/** requesting 1-chon & sending message */}
+                        {!isMyProfile && (
+                            <View style={styles.requestAndMessageContainer}>
+                                {userInfo?.choneDegree !== 1 && (
+                                    <SmallButton
+                                        text={"1촌 신청"}
+                                        onClickCallback={async () => {
+                                            //TODO
+                                        }}
+                                        isLoading={false}
+                                    />
+                                )}
                                 <SmallButton
-                                    text={"1촌 신청"}
+                                    text={"메시지"}
                                     onClickCallback={async () => {
                                         //TODO
                                     }}
                                     isLoading={false}
+                                    type={"secondary"}
                                 />
-                            )}
-                            <SmallButton
-                                text={"메시지"}
-                                onClickCallback={async () => {
-                                    //TODO
-                                }}
-                                isLoading={false}
-                                type={"secondary"}
-                            />
-                        </View>
-                    )}
-                    {/** bridge view */}
-                    {!isMyProfile && userInfo?.choneDegree !== 1 && (
-                        <View style={styles.bridgeContainer}>
-                            <Text style={styles.bridgeTitle}>
-                                {"나와의 관계"}
-                            </Text>
-                            <RelationShipBridgeView
-                                startName={userInfo?.profile.user_name}
-                                endName={userInfo?.chonInfoFromMe?.paths_name.findLast(
-                                    () => true
-                                )}
-                                relationShipList={
-                                    userInfo?.chonInfoFromMe?.paths_name
-                                }
-                                distance={userInfo?.choneDegree}
-                                isLoading={false}
-                            />
-                        </View>
-                    )}
+                            </View>
+                        )}
+                        {/** bridge view */}
+                        {!isMyProfile && userInfo?.choneDegree !== 1 && (
+                            <View style={styles.bridgeContainer}>
+                                <Text style={styles.bridgeTitle}>
+                                    {"나와의 관계"}
+                                </Text>
+                                <RelationShipBridgeView
+                                    startName={userInfo?.profile.user_name}
+                                    endName={userInfo?.chonInfoFromMe?.paths_name.findLast(
+                                        () => true
+                                    )}
+                                    relationShipList={
+                                        userInfo?.chonInfoFromMe?.paths_name
+                                    }
+                                    distance={userInfo?.choneDegree}
+                                    isLoading={false}
+                                />
+                            </View>
+                        )}
+                    </View>
                 </View>
-            </View>
+            </Animated.View>
         </>
     );
 };
 
 const styles = StyleSheet.create({
-    myProfilecontainer: {
-        flexDirection: "column",
-        paddingTop: 80,
-    },
-    otherProfilecontainer: {
+    profileContainer: {
         flexDirection: "column",
         paddingTop: 0,
     },

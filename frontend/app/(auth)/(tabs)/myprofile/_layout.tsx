@@ -1,40 +1,46 @@
-import { sharedStyles } from "@/app/_layout";
-import NewProfileHeader from "@/components/NewProfileHeader";
-import theme from "@/shared/styles/theme";
-import { Stack, useRouter } from "expo-router";
-import { View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function MyProfileLayout() {
+import { sharedStyles } from '@/app/_layout';
+import NewProfileHeader from '@/components/NewProfileHeader';
+import { Stack, useRouter } from 'expo-router';
+import { usePathname, useSearchParams } from 'expo-router/build/hooks';
+import React, { useEffect, useRef } from 'react';
+import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import BackIcon from '@/assets/BackIcon.svg';
+import { ScrollProvider } from '@/components/provider/ScrollContext';
 
-    const router = useRouter();
+/** For the profile of other users */
+const MyProfileLayout = () => {
+
     const myId = 1;
 
     return (
         <View
-            style={[sharedStyles.coloredContainer]}
+            style={[sharedStyles.coloredContainer, {
+                paddingTop: 100
+            }]}
         >
-            <SafeAreaView
-                edges={['top']}
-            >
-                <NewProfileHeader
-                    userId={myId}
-                    isMyProfile={true}
-                    onBackClick={() => {
-                        router.replace("/home");
-                    }}
-                />
-            </SafeAreaView>
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: theme.colors.black
-                }}
-            >
-                <Stack>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                </Stack>
-            </View>
+            <ScrollProvider>
+                <View
+                    style={{ flex: 1, paddingTop: 46 }}
+                >
+                    <NewProfileHeader
+                        userId={myId}
+                        isMyProfile={true}
+                    />
+                    <View
+                        style={{
+                            flex: 1
+                        }}
+                    >
+                        <Stack>
+                            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        </Stack>
+                    </View>
+                </View>
+            </ScrollProvider>
         </View>
     );
 }
+
+export default MyProfileLayout;

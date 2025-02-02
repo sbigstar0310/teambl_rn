@@ -7,6 +7,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackIcon from '@/assets/BackIcon.svg';
+import { ScrollProvider } from '@/components/provider/ScrollContext';
 
 /** For the profile of other users */
 const ProfileDetailLayout = () => {
@@ -44,23 +45,25 @@ const ProfileDetailLayout = () => {
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
-            <View
-                style={{ flex: 1,paddingTop: 46 }}
-            >
-                <NewProfileHeader
-                    userId={id}
-                    isMyProfile={false}
-                />
+            <ScrollProvider>
                 <View
-                    style={{
-                        flex: 1
-                    }}
+                    style={{ flex: 1, paddingTop: 46 }}
                 >
-                    <Stack>
-                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    </Stack>
+                    <NewProfileHeader
+                        userId={id}
+                        isMyProfile={false}
+                    />
+                    <View
+                        style={{
+                            flex: 1
+                        }}
+                    >
+                        <Stack>
+                            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        </Stack>
+                    </View>
                 </View>
-            </View>
+            </ScrollProvider>
         </View>
     );
 }
