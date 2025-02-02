@@ -162,6 +162,7 @@ export function RequiredMark() {
 interface PostButtonProps {
     disabled: boolean;
     onPress: () => void;
+    label?: string;
 }
 
 export function PostButton(props: PostButtonProps) {
@@ -173,7 +174,7 @@ export function PostButton(props: PostButtonProps) {
                     props.disabled && styles.buttonTextDisabled,
                 ]}
             >
-                올리기
+                {props.label || "올리기"}
             </Text>
         </TouchableOpacity>
     );

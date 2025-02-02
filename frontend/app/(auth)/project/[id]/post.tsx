@@ -12,6 +12,7 @@ export default function NewPostForProject() {
     const {id, project_title = ""} = useLocalSearchParams();
     const [isConfirmationPopupOpen, setIsConfirmationPopupOpen] = useState(false);
     const [data, setData] = useState<PostCreateFormData>(defaultPostFormData);
+    const [isLoading, setIsLoading] = useState(false);
     const isValid = useMemo<boolean>(
         () => data.content.length !== 0,
         [data]
@@ -20,6 +21,7 @@ export default function NewPostForProject() {
 
     const handlePost = async () => {
         try {
+            setIsLoading(true);
             await createPost({
                 content: data.content,
                 tagged_users: data.tagged_users.map((user) => user.id),
@@ -29,8 +31,10 @@ export default function NewPostForProject() {
 
             // go Back
             setData(defaultPostFormData);
-            router.back();
+            setIsLoading(false);
+            router.push("/");
         } catch (error) {
+            setIsLoading(false);
             console.log(error);
         }
     };
@@ -43,7 +47,11 @@ export default function NewPostForProject() {
                 title="게시물 작성"
                 onBack={setIsConfirmationPopupOpen.bind(null, true)}
                 actionButton={() => (
-                    <PostButton disabled={!isValid} onPress={handlePost}/>
+                    <PostButton
+                        disabled={!isValid || isLoading}
+                        onPress={handlePost}
+                        label={isLoading ? "작성 중..." : undefined}
+                    />
                 )}
             />
             <PostCreateForm

@@ -17,6 +17,8 @@ export default function ProjectsScreen() {
     const [data, setData] = useState<ProjectCreateFormData>(
         defaultProjectFormData
     );
+    const [isLoading, setIsLoading] = useState(false);
+
     const isValid = useMemo<boolean>(
         () => !!data.title && data.keywords.length >= 2,
         [data]
@@ -26,8 +28,7 @@ export default function ProjectsScreen() {
 
     const handlePost = async () => {
         try {
-            console.log(data);
-
+            setIsLoading(true);
             // Get current user id (creator id)
             const current_user_id = await getCurrentUserId().then(
                 (id_string) => {
@@ -41,7 +42,7 @@ export default function ProjectsScreen() {
             );
 
             // Project Card Create API
-            const response = await createProjectCard({
+            await createProjectCard({
                 title: data.title,
                 keywords: data.keywords,
                 accepted_users: data.mentions.map((user) => user.id),
@@ -53,10 +54,10 @@ export default function ProjectsScreen() {
 
             // go Back
             setData(defaultProjectFormData);
-            router.back();
-
-            console.log(response);
+            setIsLoading(false);
+            router.push("/");
         } catch (error) {
+            setIsLoading(false);
             console.log(error);
         }
     };
@@ -73,7 +74,11 @@ export default function ProjectsScreen() {
                 title="프로젝트 작성"
                 onBack={setIsConfirmationPopupOpen.bind(null, true)}
                 actionButton={() => (
-                    <PostButton disabled={!isValid} onPress={handlePost} />
+                    <PostButton
+                        disabled={!isValid || isLoading}
+                        onPress={handlePost}
+                        label={isLoading ? "작성 중..." : undefined}
+                    />
                 )}
             />
             <ScrollView
