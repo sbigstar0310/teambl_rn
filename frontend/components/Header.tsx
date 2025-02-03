@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { router } from "expo-router";
 import Teambl from "@/assets/teambl.svg";
@@ -7,13 +7,25 @@ import NotiIcon from "@/assets/header/NotiIcon.svg";
 import SettingIcon from "@/assets/header/SettingIcon.svg";
 import FriendsIcon from "@/assets/header/FriendsIcon.svg";
 import { SafeAreaView } from "react-native-safe-area-context";
+import unreadNotificationCount from "@/libs/apis/Notification/unreadNotificationCount";
 
 const Header: React.FC = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(0); // 읽지 않은 알림 수
 
-  const fetchUnreadNotifications = async () => {
+  useEffect(() => {
+      fetchUnreadNotifications();
+  }, []);
 
+  const fetchUnreadNotifications = async () => {
+    try {
+        const count = await unreadNotificationCount();
+        setUnreadNotifications(count.unread_count);
+        console.log("unread notification count:", count);
+    } catch (error) {
+        console.error("Failed to fetch unread notifications:", error);
+    }
   };
+
   return (
     <SafeAreaView style={{ backgroundColor: "#fff" }} edges={["top"]}>
       <View style={styles.headerContainer}>
