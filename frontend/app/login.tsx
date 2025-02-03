@@ -3,17 +3,12 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    TouchableOpacity,
-    View,
-    Image,
-    Alert,
+    Alert, Keyboard,
 } from "react-native";
 import { router } from "expo-router";
 import { sharedStyles } from "@/app/_layout";
 import TeamblLogo from "@/assets/teambl.svg";
-import PrimeButton from "@/components/PrimeButton";
 import ConfirmText from "@/components/ConfirmText";
-import login from "@/libs/apis/login";
 import styled from "@emotion/native";
 import Button from "@/components/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -97,6 +92,7 @@ const LoginScreen = () => {
         }
 
         try {
+            Keyboard.dismiss();
             await useAuthStore.getState().login(email, password);
             router.push("/home");
         } catch (error) {

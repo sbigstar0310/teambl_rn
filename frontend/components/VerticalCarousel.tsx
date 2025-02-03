@@ -8,28 +8,46 @@ import {
     View
 } from "react-native";
 import theme from "@/shared/styles/theme";
-import {PureComponent, useEffect, useMemo, useRef, useState} from "react";
+import {PureComponent, useCallback, useEffect, useMemo, useRef} from "react";
 
-interface VerticalCarouselProps {
-    data: string[];
-    defaultIndex?: number;
-    onChange: (index: number) => void;
+interface VerticalCarouselProps<T> {
+    getPrevItem: (currentItem: T) => T | null;
+    getNextItem: (currentItem: T) => T | null;
+    selectedItem: T;
+    onChange: (item: T) => void;
 }
 
 export const ITEM_HEIGHT = 24;
 export const GAP_BETWEEN_ITEMS = 12;
 
-export default function VerticalCarousel(props: VerticalCarouselProps) {
+export default function VerticalCarousel<T>(props: VerticalCarouselProps<T>) {
     const listRef = useRef<FlatList>(null);
-    const data = useMemo(() => [null, ...props.data, null], [props.data]);
-    const [selectedItemIndex, setSelectedItemIndex] = useState<number>(props.defaultIndex ?? 0);
+    const data = useMemo(() => {
+        const result = []
+        const currentItem = props.selectedItem;
+        const prevItem = props.getPrevItem(currentItem);
+        if (prevItem !== null) {
+            const prevPrevItem = props.getPrevItem(prevItem);
+            result.push(prevPrevItem);
+        } else {
+            result.push(null);
+        }
+        result.push(prevItem);
+        result.push(currentItem);
+        const nextItem = props.getNextItem(currentItem);
+        result.push(nextItem);
+        if (nextItem !== null) {
+            const nextNextItem = props.getNextItem(nextItem);
+            result.push(nextNextItem);
+        } else {
+            result.push(null);
+        }
+        return result;
+    }, [props.getPrevItem, props.getNextItem, props.selectedItem]);
 
     useEffect(() => {
-        if (props.defaultIndex !== undefined) {
-            setSelectedItemIndex(props.defaultIndex);
-            listRef.current?.scrollToIndex({index: props.defaultIndex, animated: false});
-        }
-    }, [props.defaultIndex]);
+        listRef.current?.scrollToIndex({index: 1, animated: false});
+    }, [listRef]);
 
     const snapToOffsets = useMemo(() => data.map(
             (_, i) => i * (ITEM_HEIGHT + GAP_BETWEEN_ITEMS)
@@ -37,18 +55,16 @@ export default function VerticalCarousel(props: VerticalCarouselProps) {
         [data]
     )
 
-    const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const offset = e.nativeEvent.contentOffset;
-        const page = Math.round(offset.y / (ITEM_HEIGHT + GAP_BETWEEN_ITEMS));
-        if (page != selectedItemIndex) {
-            setSelectedItemIndex(page);
-        }
-        return page;
-    }
+    const getPage = (offset: number) => Math.round(offset / (ITEM_HEIGHT + GAP_BETWEEN_ITEMS)) + 1;
 
-    const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-        props.onChange(handleScroll(e));
-    }
+    const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const page = getPage(e.nativeEvent.contentOffset.y);
+        const newSelectedItem = data[page];
+        if (newSelectedItem && page !== 2) {
+            props.onChange(newSelectedItem);
+            listRef.current?.scrollToIndex({index: 1, animated: false});
+        }
+    }, [data, props.selectedItem]);
 
     return (
         <FlatList
@@ -58,10 +74,8 @@ export default function VerticalCarousel(props: VerticalCarouselProps) {
             pagingEnabled={true}
             snapToOffsets={snapToOffsets}
             onScroll={handleScroll}
-            onMomentumScrollEnd={handleScrollEnd}
             data={data}
             initialNumToRender={3}
-            initialScrollIndex={props.defaultIndex ?? 0}
             getItemLayout={(_, index) => ({
                 length: ITEM_HEIGHT,
                 offset: (ITEM_HEIGHT + GAP_BETWEEN_ITEMS) * index,
@@ -71,7 +85,7 @@ export default function VerticalCarousel(props: VerticalCarouselProps) {
                 item === null ? <View style={styles.placeholderItem}/> :
                     <CarouselItem
                         label={item.toString()}
-                        isActive={index - 1 === selectedItemIndex}
+                        isActive={index === 2}
                     />
             }
         />

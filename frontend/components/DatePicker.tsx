@@ -6,31 +6,53 @@ import VerticalCarousel, {GAP_BETWEEN_ITEMS, ITEM_HEIGHT} from "@/components/Ver
 interface DatePickerProps {
     defaultValue?: Date;
     onChange: (value: Date) => void;
+    min?: Date;
+    max?: Date;
 }
 
-const years = Array.from({length: 100}, (_, i) => new Date().getFullYear() - 50 + i);
-const months = Array.from({length: 12}, (_, i) => i + 1);
-
 export default function DatePicker(props: DatePickerProps) {
-    const initialDate = useMemo(() => props.defaultValue ?? new Date(), [props.defaultValue]);
-    const [selectedYear, setSelectedYear] = useState<number>(initialDate.getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState<number>(initialDate.getMonth() + 1);
-
+    const [selectedYear, setSelectedYear] = useState<number>(0);
+    const [selectedMonth, setSelectedMonth] = useState<number>(0);
+    const [minYear, minMonth] = useMemo(() => {
+        const minDate = props.min ?? new Date(1900, 0);
+        return [minDate.getFullYear(), minDate.getMonth() + 1];
+    }, [props.min]);
+    const [maxYear, maxMonth] = useMemo(() => {
+        const maxDate = props.max ?? new Date(3000, 11);
+        return [maxDate.getFullYear(), maxDate.getMonth() + 1];
+    }, [props.max]);
 
     useEffect(() => {
-        if (!props.defaultValue) return;
-        setSelectedYear(props.defaultValue.getFullYear());
-        setSelectedMonth(props.defaultValue.getMonth() + 1);
+        let date = props.defaultValue ?? new Date();
+        setSelectedYear(date.getFullYear());
+        setSelectedMonth(date.getMonth() + 1);
     }, [props.defaultValue]);
 
-    const handleYearChange = (index: number) => {
-        setSelectedYear(years[index]);
-        props.onChange(new Date(years[index], selectedMonth - 1));
+    const handleYearChange = (year: number) => {
+        setSelectedYear(year);
+        props.onChange(new Date(year, selectedMonth));
+    };
+
+    const handleMonthChange = (month: number) => {
+        setSelectedMonth(month);
+        props.onChange(new Date(selectedYear, month));
     }
 
-    const handleMonthChange = (index: number) => {
-        setSelectedMonth(months[index]);
-        props.onChange(new Date(selectedYear, months[index] - 1));
+    const getNextYear = (year: number) => {
+        if (year <= maxYear) return year + 1;
+        else return null;
+    }
+    const getPrevYear = (year: number) => {
+        if (year >= minYear) return year - 1;
+        else return null;
+    }
+    const getNextMonth = (month: number) => {
+        if (month < 12 && (selectedYear < maxYear || month < maxMonth)) return month + 1;
+        else return null;
+    }
+    const getPrevMonth = (month: number) => {
+        if (month > 1 && (selectedYear > minYear || month > minMonth)) return month - 1;
+        else return null;
     }
 
     return (
@@ -39,18 +61,20 @@ export default function DatePicker(props: DatePickerProps) {
             <View style={styles.carouselContainer}>
                 <Text style={styles.labelText}>년</Text>
                 <VerticalCarousel
-                    data={years.map(String)}
+                    selectedItem={selectedYear}
+                    getPrevItem={getPrevYear}
+                    getNextItem={getNextYear}
                     onChange={handleYearChange}
-                    defaultIndex={years.indexOf(selectedYear)}
                 />
             </View>
             {/* Month */}
             <View style={styles.carouselContainer}>
                 <Text style={styles.labelText}>월</Text>
                 <VerticalCarousel
-                    data={months.map(m => m < 10 ? `0${m}` : String(m))}
+                    selectedItem={selectedMonth}
+                    getPrevItem={getPrevMonth}
+                    getNextItem={getNextMonth}
                     onChange={handleMonthChange}
-                    defaultIndex={months.indexOf(selectedMonth)}
                 />
             </View>
         </View>
