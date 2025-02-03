@@ -188,9 +188,8 @@ const styles = StyleSheet.create({
     },
     resultCount: {
         fontSize: 14,
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardRegular",
         fontStyle: "normal",
-        fontWeight: "400",
         lineHeight: 17,
         color: "#595959",
     },

@@ -30,9 +30,8 @@ const styles = StyleSheet.create({
         marginRight: 20,
     },
     title: {
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardSemiBold",
         fontStyle: "normal",
-        fontWeight: 600,
         fontSize: 20,
         lineHeight: 24,
         color: "#121212",
