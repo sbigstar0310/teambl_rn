@@ -43,6 +43,7 @@ export default function UserListScreen(props: UserListProps) {
                             id={item.user.id}
                             relation_degree={item.relation_degree}
                             user={item.user}
+                            status=""
                         />
                     ))}
                 </ScrollView>

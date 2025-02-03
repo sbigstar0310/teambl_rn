@@ -50,11 +50,11 @@ export default function UserCard(data: UserSearchData) {
                             {profile.major2 ? ` · ${profile.major2}` : ""}
                         </Text>
                     </View>
-                    <View style={styles.infoContainer}>
+                    {/* <View style={styles.infoContainer}>
                         <Text style={styles.keywords}>
                             {profile.keywords.join(" / ")}
                         </Text>
-                    </View>
+                    </View> */}
                 </View>
             </View>
         </TouchableOpacity>
@@ -65,9 +65,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         flexDirection: "row",
         paddingVertical: 16,
-        paddingHorizontal: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: "#F0F0F0",
+        alignItems: "center",
     },
     imageContainer: {
         marginRight: 10,
@@ -111,12 +109,12 @@ const styles = StyleSheet.create({
         lineHeight: 17,
         color: "#121212",
     },
-    keywords: {
-        fontSize: 14,
-        fontFamily: "Pretendard",
-        fontStyle: "normal",
-        fontWeight: "400",
-        lineHeight: 17,
-        color: "#595959",
-    },
+    // keywords: {
+    //     fontSize: 14,
+    //     fontFamily: "Pretendard",
+    //     fontStyle: "normal",
+    //     fontWeight: "400",
+    //     lineHeight: 17,
+    //     color: "#595959",
+    // },
 });

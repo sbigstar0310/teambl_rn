@@ -193,8 +193,8 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
-        borderTopWidth: 6,
-        borderColor: "#D9D9D9",
+        borderTopWidth: 4,
+        borderColor: "#F5F5F5",
         padding: 16,
         marginBottom: 54,
     },
