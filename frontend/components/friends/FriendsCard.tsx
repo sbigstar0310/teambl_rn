@@ -97,10 +97,16 @@ export default function FriendsCard({
                 {status === "requested" && <WaitingIcon />}
                 {status === "received" && (
                     <View style={{ flexDirection: "row", gap: 8 }}>
-                        <TouchableOpacity onPress={() => handleFriendRequest("rejected")}>
+                        <TouchableOpacity 
+                            onPress={() => handleFriendRequest("rejected")}
+                            disabled={isLoading}
+                        >
                             <RefuseIcon />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleFriendRequest("accepted")}>
+                        <TouchableOpacity 
+                            onPress={() => handleFriendRequest("accepted")}
+                            disabled={isLoading}
+                        >
                             <AcceptIcon />
                         </TouchableOpacity>
                     </View>
