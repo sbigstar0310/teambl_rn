@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Image,
     StyleSheet,
     Text,
     TouchableOpacity,
-    TouchableWithoutFeedback,
     View,
+    ActivityIndicator,
+    Modal,
 } from "react-native";
 import { router } from "expo-router";
 import DefaultProfile from "@/assets/DefaultProfile.svg";
@@ -32,28 +33,32 @@ export default function FriendsCard({
     fetchFriends,
 }: FriendsCardData & { fetchFriends?: () => void }) {
     const profile = user.profile;
+    const [isLoading, setIsLoading] = useState(false);
 
-    const acceptFriendRequest = async () => {
+    const handleFriendRequest = async (status: "accepted" | "rejected") => {
         try {
-            await updateFriend(id, { status: "accepted" });
-            fetchFriends?.();
+            setIsLoading(true); // 로딩 시작
+            await updateFriend(id, { status });
+            await fetchFriends?.();
         } catch (error) {
-            console.log("Failed to accept friend request:", error);
-        }
-    };
-
-    const refuseFriendRequest = async () => {
-        try {
-            await updateFriend(id, { status: "rejected" });
-            fetchFriends?.();
-        } catch (error) {
-            console.log("Failed to accept friend request:", error);
+            console.log(`Failed to ${status} friend request:`, error);
+        } finally {
+            setIsLoading(false); // 로딩 종료
         }
     };
 
     return (
-        <TouchableOpacity onPress={() => router.push(`/profiles/${user.id}`)}>
+        <TouchableOpacity 
+            onPress={() => router.push(`/profiles/${user.id}`)}
+            disabled={isLoading}
+        >
             <View style={[styles.cardContainer]}>
+                {/* 로딩 */}
+                {isLoading && (
+                    <View style={styles.loadingOverlay}>
+                        <ActivityIndicator size="large" color="#2546F3" />
+                    </View>
+                )}
                 {/* 이미지 */}
                 <View style={styles.imageContainer}>
                     {profile.image ? (
@@ -92,10 +97,10 @@ export default function FriendsCard({
                 {status === "requested" && <WaitingIcon />}
                 {status === "received" && (
                     <View style={{ flexDirection: "row", gap: 8 }}>
-                        <TouchableOpacity onPress={refuseFriendRequest}>
+                        <TouchableOpacity onPress={() => handleFriendRequest("rejected")}>
                             <RefuseIcon />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={acceptFriendRequest}>
+                        <TouchableOpacity onPress={() => handleFriendRequest("accepted")}>
                             <AcceptIcon />
                         </TouchableOpacity>
                     </View>
@@ -152,5 +157,10 @@ const styles = StyleSheet.create({
         fontWeight: "400",
         lineHeight: 17,
         color: "#121212",
+    },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject, // 부모 View 전체 덮기
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
