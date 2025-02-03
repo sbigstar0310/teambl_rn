@@ -59,9 +59,8 @@ const styles = StyleSheet.create({
     },
     resultCount: {
         fontSize: 14,
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardRegular",
         fontStyle: "normal",
-        fontWeight: "400",
         lineHeight: 17,
         color: "#595959",
     },
@@ -74,9 +73,8 @@ const styles = StyleSheet.create({
         marginRight: 20,
     },
     title: {
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardSemiBold",
         fontStyle: "normal",
-        fontWeight: 600,
         fontSize: 20,
         lineHeight: 24,
         color: "#121212",
