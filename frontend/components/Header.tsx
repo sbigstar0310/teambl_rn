@@ -1,5 +1,5 @@
-import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { router } from "expo-router";
 import Teambl from "@/assets/teambl.svg";
 import MessageIcon from "@/assets/header/MessageIcon.svg";
@@ -9,6 +9,11 @@ import FriendsIcon from "@/assets/header/FriendsIcon.svg";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Header: React.FC = () => {
+  const [unreadNotifications, setUnreadNotifications] = useState(0); // 읽지 않은 알림 수
+
+  const fetchUnreadNotifications = async () => {
+
+  };
   return (
     <SafeAreaView style={{ backgroundColor: "#fff" }} edges={["top"]}>
       <View style={styles.headerContainer}>
@@ -25,8 +30,15 @@ const Header: React.FC = () => {
           <TouchableOpacity onPress={() => router.push("/conversations")}>
             <MessageIcon/>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/notification")}>
+          <TouchableOpacity onPress={() => router.push("/notification")} style={styles.notiContainer}>
             <NotiIcon/>
+            {unreadNotifications > 0 && (
+              <View style={unreadNotifications<100 ? styles.badge : styles.longbadge}>
+                <Text style={styles.badgeText}>
+                  {unreadNotifications<100 ? unreadNotifications : "99+"}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
           {/* <TouchableOpacity onPress={() => router.push("/settings")}>
             <SettingIcon width={24} height={24} />
@@ -50,6 +62,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
+  },
+  notiContainer: {
+    position: "relative",
+  },
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -3,
+    backgroundColor: "#B80000",
+    borderRadius: 25,
+    width: 15,
+    height: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  longbadge: {
+    position: "absolute",
+    top: -4,
+    right: -9,
+    backgroundColor: "#B80000",
+    borderRadius: 25,
+    width: 21,
+    height: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    fontFamily: "PretendardRegular",
+    fontSize: 10,
+    color: "#ffffff",
   },
 });
 
