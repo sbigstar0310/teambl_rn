@@ -91,7 +91,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     title: {
+        fontFamily: "PretendardRegular",
+        fontStyle: "normal",
         fontSize: 18,
-        fontWeight: 500,
     },
 });

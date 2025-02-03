@@ -9,6 +9,8 @@ export default function RootLayout() {
     // 폰트 로드
     const [fontsLoaded] = useFonts({
         Pretendard: require("../assets/fonts/PretendardVariable.ttf"),
+        PretendardRegular: require("../assets/fonts/Pretendard-Regular.ttf"),
+        PretendardSemiBold: require("../assets/fonts/Pretendard-SemiBold.ttf"),
     });
     if (!fontsLoaded) {
         return null; // 폰트가 로드될 때까지 화면을 렌더링하지 않음

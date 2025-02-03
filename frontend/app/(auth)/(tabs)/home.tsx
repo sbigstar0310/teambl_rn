@@ -63,6 +63,10 @@ export default function HomeScreen() {
                 >
                     <Text>Home Screen</Text>
                     <Button
+                        title="Go to RPS"
+                        onPress={() => router.push("/resetPasswordSuccess")}
+                    />
+                    <Button
                         title="Go to Notification"
                         onPress={() => router.push("/notification")}
                     />

@@ -37,18 +37,16 @@ const CheckCircle = styled(CheckCircleIcon)`
 
 const Title = styled.Text`
     color: #000;
-    font-family: Pretendard;
+    font-family: PretendardSemiBold;
     font-size: 24px;
-    font-weight: 600;
     letter-spacing: -0.576px;
     text-align: center;
 `;
 
 const SemiTitle = styled.Text`
     color: #121212;
-    font-family: Pretendard;
+    font-family: PretendardRegular;
     font-size: 16px;
-    font-weight: 400;
     text-align: center;
 `;
 

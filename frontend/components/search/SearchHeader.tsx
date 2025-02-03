@@ -50,9 +50,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 12,
         fontSize: 16,
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardSemiBold",
         fontStyle: "normal",
-        fontWeight: "400",
         lineHeight: 19,
     },
 });

@@ -36,9 +36,8 @@ const Container = styled.View`
 const ButtonText = styled.Text`
     color: #fff;
     text-align: center;
-    font-family: Pretendard;
+    font-family: PretendardSemiBold;
     font-size: 16px;
-    font-weight: 600;
     letter-spacing: -0.304px;
 `;
 

@@ -81,6 +81,7 @@ const TabsLayout = () => {
                             style={{
                                 color: focused ? "#2546F3" : "#595959",
                                 fontSize: 10,
+                                fontFamily: "PretendardRegular",
                             }}
                         >
                             {route.name === "home" && "홈"}

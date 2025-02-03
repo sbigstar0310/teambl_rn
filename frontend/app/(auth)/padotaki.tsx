@@ -105,7 +105,7 @@ const UserRow: React.FC<UserRowProps> = ({ item }) => (
                     style={styles.profileImage}
                 />
             ) : (
-                <DefaultProfile width={40} height={40} />
+                <DefaultProfile width={52} height={52} />
             )}
         </View>
         <View style={styles.contentText}>
@@ -248,9 +248,8 @@ const styles = StyleSheet.create({
         marginRight: 20,
     },
     title: {
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardSemiBold",
         fontStyle: "normal",
-        fontWeight: 600,
         fontSize: 20,
         lineHeight: 25,
         color: "#121212",
@@ -271,9 +270,8 @@ const styles = StyleSheet.create({
         borderColor: "#0923A9",
     },
     tabText: {
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardSemibold",
         fontStyle: "normal",
-        fontWeight: 600,
         fontSize: 16,
         lineHeight: 21,
         color: "#595959",
@@ -290,16 +288,13 @@ const styles = StyleSheet.create({
     userRow: {
         flexDirection: "row",
         alignItems: "center",
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: "#ddd",
+        paddingVertical: 12,
     },
     resultCount: {
         marginLeft: 8,
         fontSize: 14,
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardRegular",
         fontStyle: "normal",
-        fontWeight: "400",
         lineHeight: 17,
         color: "#595959",
     },
@@ -307,8 +302,8 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     profileImage: {
-        width: 40,
-        height: 40,
+        width: 52,
+        height: 52,
         borderRadius: 20,
     },
     contentText: {
@@ -316,27 +311,24 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     userName: {
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardSemibold",
         fontStyle: "normal",
-        fontWeight: "600",
         fontSize: 16,
-        lineHeight: 21,
+        lineHeight: 20,
         color: "#121212",
     },
     josa: {
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardRegular",
         fontStyle: "normal",
-        fontWeight: "400",
         fontSize: 16,
-        lineHeight: 21,
+        lineHeight: 20,
         color: "#121212",
     },
     see: {
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardRegular",
         fontStyle: "normal",
-        fontWeight: "400",
         fontSize: 16,
-        lineHeight: 21,
+        lineHeight: 20,
         color: "#2546F3",
     },
 });

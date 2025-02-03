@@ -51,10 +51,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#2546F3",
     },
     tabText: {
+        fontFamily: "PretendardSemiBold",
         fontSize: 16,
-        fontFamily: "Pretendard",
         fontStyle: "normal",
-        fontWeight: "600",
         lineHeight: 19,
         color: "#595959",
     },

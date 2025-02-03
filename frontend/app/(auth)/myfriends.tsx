@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
         color: "#595959",
     },
     loadingOverlay: {
-        flex: 1,
+        flex:1,
         backgroundColor: "rgba(0, 0, 0, 0.5)",
         justifyContent: "center",
         alignItems: "center",
