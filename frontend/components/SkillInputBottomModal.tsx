@@ -13,6 +13,17 @@ import SearchIcon from "@/assets/search-icon-sm.svg";
 import DeleteIcon from "@/assets/delete-x-icon.svg";
 import PrimeButton from "./PrimeButton";
 
+import fetchSkills from "@/libs/apis/Skill/fetchSkills";
+import searchSkill from "@/libs/apis/Skill/searchSkill";
+import recommendSkill from "@/libs/apis/Skill/recommendSkill";
+import addSkill from "@/libs/apis/Skill/addSkill";
+import deleteSkill from "@/libs/apis/Skill/deleteSkill";
+
+interface SkillBadgeProps {
+    skill: api.Skill;
+    onDelete?: () => void;
+}
+
 const dummySuggestions = [
     {
         id: 1,
@@ -139,17 +150,30 @@ const dummySkillData = [
     },
 ];
 
-interface SkillBadgeProps {
-    skill: string;
-    onDelete?: () => void;
-}
+// interface SkillBadgeProps {
+//     skill: string;
+//     onDelete?: () => void;
+// }
 
-const SkillBadge = (props: SkillBadgeProps) => {
+// const SkillBadge = (props: SkillBadgeProps) => {
+//     return (
+//         <View style={styles.badgeContainer}>
+//             <Text style={styles.badgeText}>{props.skill}</Text>
+//             {props.onDelete && (
+//                 <TouchableOpacity onPress={props.onDelete}>
+//                     <DeleteIcon />
+//                 </TouchableOpacity>
+//             )}
+//         </View>
+//     );
+// };
+
+const SkillBadge = ({ skill, onDelete }: SkillBadgeProps) => {
     return (
         <View style={styles.badgeContainer}>
-            <Text style={styles.badgeText}>{props.skill}</Text>
-            {props.onDelete && (
-                <TouchableOpacity onPress={props.onDelete}>
+            <Text style={styles.badgeText}>{skill.skill}</Text>
+            {onDelete && (
+                <TouchableOpacity onPress={onDelete}>
                     <DeleteIcon />
                 </TouchableOpacity>
             )}
@@ -157,17 +181,32 @@ const SkillBadge = (props: SkillBadgeProps) => {
     );
 };
 
+// interface OptionBadgeProps {
+//     name: string;
+//     id: string;
+//     onSelect?: () => void;
+// }
+
+// const OptionBadge = (props: OptionBadgeProps) => {
+//     return (
+//         <TouchableOpacity onPress={props.onSelect}>
+//             <View style={styles.optionBadgeContainer}>
+//                 <Text style={styles.optionBadgeText}>{props.name}</Text>
+//             </View>
+//         </TouchableOpacity>
+//     );
+// };
+
 interface OptionBadgeProps {
-    name: string;
-    id: string;
+    skill: api.Skill;
     onSelect?: () => void;
 }
 
-const OptionBadge = (props: OptionBadgeProps) => {
+const OptionBadge = ({ skill, onSelect }: OptionBadgeProps) => {
     return (
-        <TouchableOpacity onPress={props.onSelect}>
+        <TouchableOpacity onPress={onSelect}>
             <View style={styles.optionBadgeContainer}>
-                <Text style={styles.optionBadgeText}>{props.name}</Text>
+                <Text style={styles.optionBadgeText}>{skill.skill}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -178,11 +217,82 @@ const SkillInputBottomModal = (props: any) => {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const [suggestingSkills, setSuggestingSkills] = useState(dummySuggestions);
-    const [searchedSkills, setSearchedSkills] = useState(dummySkillData);
+    // const [suggestingSkills, setSuggestingSkills] = useState(dummySuggestions);
+    const [suggestingSkills, setSuggestingSkills] = useState<api.Skill[]>([]);
 
-    const [currentSelectedSkills, setCurrentSelectedSkills] =
-        useState(selectedSkills);
+    // const [searchedSkills, setSearchedSkills] = useState(dummySkillData);
+    const [searchedSkills, setSearchedSkills] = useState<api.Skill[]>([]);
+
+    // const [currentSelectedSkills, setCurrentSelectedSkills] = useState(selectedSkills);
+    const [currentSelectedSkills, setCurrentSelectedSkills] = useState<api.Skill[]>([]);
+
+    /** 추천 스킬 가져오기 */
+    useEffect(() => {
+        const fetchRecommendedSkills = async () => {
+            try {
+                const skills = await recommendSkill();
+                setSuggestingSkills(skills);
+                console.log("fetched recommend skills:", skills);
+            } catch (error) {
+                console.error("Failed to load recommended skills:", error);
+            }
+        };
+        fetchRecommendedSkills();
+    }, []);
+
+    /** 사용자의 기존 스킬 가져오기 */
+    useEffect(() => {
+        const loadUserSkills = async () => {
+            try {
+                const skills = await fetchSkills();
+                setCurrentSelectedSkills(skills);
+                console.log("fetched user skills:", skills);
+            } catch (error) {
+                console.error("Failed to load user skills:", error);
+            }
+        };
+        if (visible) {
+            loadUserSkills();
+        }
+    }, [visible]);
+
+    /** 스킬 검색 */
+    useEffect(() => {
+        const search = async () => {
+            if (searchQuery === "") {
+                setSearchedSkills([]);
+                return;
+            }
+            try {
+                const skills = await searchSkill(searchQuery);
+                setSearchedSkills(skills);
+            } catch (error) {
+                console.error("Failed to search skills:", error);
+            }
+        };
+        search();
+    }, [searchQuery]);
+
+    /** 스킬 선택 */
+    const onSelectSkill = async (skill: api.Skill) => {
+        try {
+            const newSkills = await addSkill([skill.skill]);
+            setCurrentSelectedSkills([...currentSelectedSkills, ...newSkills]);
+            setSearchQuery("");
+        } catch (error) {
+            console.error("Failed to add skill:", error);
+        }
+    };
+
+    /** 스킬 삭제 */
+    const onRemoveSkill = async (skillId: number) => {
+        try {
+            await deleteSkill(skillId);
+            setCurrentSelectedSkills(currentSelectedSkills.filter(skill => skill.id !== skillId));
+        } catch (error) {
+            console.error("Failed to delete skill:", error);
+        }
+    };
 
     const matchSkills = (skill: any, query: string) => {
         const matches = skill.matches;
@@ -207,18 +317,18 @@ const SkillInputBottomModal = (props: any) => {
         }
     };
 
-    const onSelectSkill = (skill: any) => {
-        if (searchQuery !== "") {
-            setSearchQuery("");
-        }
-        setCurrentSelectedSkills([...currentSelectedSkills, skill]);
-    };
+    // const onSelectSkill = (skill: any) => {
+    //     if (searchQuery !== "") {
+    //         setSearchQuery("");
+    //     }
+    //     setCurrentSelectedSkills([...currentSelectedSkills, skill]);
+    // };
 
-    const onRemoveSkill = (index: number) => {
-        const newSelectedSkills = [...currentSelectedSkills];
-        newSelectedSkills.splice(index, 1);
-        setCurrentSelectedSkills(newSelectedSkills);
-    };
+    // const onRemoveSkill = (index: number) => {
+    //     const newSelectedSkills = [...currentSelectedSkills];
+    //     newSelectedSkills.splice(index, 1);
+    //     setCurrentSelectedSkills(newSelectedSkills);
+    // };
 
     const body = (
         <View style={styles.container}>
@@ -261,14 +371,15 @@ const SkillInputBottomModal = (props: any) => {
                     <View style={styles.optionBadgeAllContainer}>
                         {suggestingSkills.map((skill: any) => {
                             return (
-                                <OptionBadge
-                                    key={skill}
-                                    name={skill}
-                                    id={skill}
-                                    onSelect={() => {
-                                        onSelectSkill(skill);
-                                    }}
-                                />
+                                // <OptionBadge
+                                //     key={skill}
+                                //     name={skill}
+                                //     id={skill}
+                                //     onSelect={() => {
+                                //         onSelectSkill(skill);
+                                //     }}
+                                // />
+                                <OptionBadge key={skill.id} skill={skill} onSelect={() => onSelectSkill(skill)} />
                             );
                         })}
                     </View>
@@ -279,14 +390,15 @@ const SkillInputBottomModal = (props: any) => {
                     <View style={styles.optionBadgeAllContainer}>
                         {searchedSkills.map((skill: any) => {
                             return (
-                                <OptionBadge
-                                    key={skill}
-                                    name={skill}
-                                    id={skill}
-                                    onSelect={() => {
-                                        onSelectSkill(skill);
-                                    }}
-                                />
+                                // <OptionBadge
+                                //     key={skill}
+                                //     name={skill}
+                                //     id={skill}
+                                //     onSelect={() => {
+                                //         onSelectSkill(skill);
+                                //     }}
+                                // />
+                                <OptionBadge key={skill.id} skill={skill} onSelect={() => onSelectSkill(skill)} />
                             );
                         })}
                     </View>
@@ -302,15 +414,15 @@ const SkillInputBottomModal = (props: any) => {
         </View>
     );
 
-    /** effects */
-    useEffect(() => {
-        setSearchQuery("");
-        setCurrentSelectedSkills(selectedSkills);
-    }, [visible]);
+    // /** effects */
+    // useEffect(() => {
+    //     setSearchQuery("");
+    //     setCurrentSelectedSkills(selectedSkills);
+    // }, [visible]);
 
-    useEffect(() => {
-        searchSkills(searchQuery);
-    }, [searchQuery]);
+    // useEffect(() => {
+    //     searchSkills(searchQuery);
+    // }, [searchQuery]);
 
     return (
         <BottomModal

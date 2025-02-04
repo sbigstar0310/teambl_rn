@@ -7,6 +7,12 @@ declare module api {
      * Please verify the types with backend later on and adjust the needed ones.
      */
 
+    type Skill = {
+        id: number;
+        skill: string;
+        profile: Profile;
+    };    
+
     type Conversation = {
         id: number;
         user_1: number;
