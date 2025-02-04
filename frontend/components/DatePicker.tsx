@@ -1,7 +1,8 @@
 import {StyleSheet, Text, View} from "react-native";
-import {useEffect, useMemo, useState} from "react";
+import {useMemo} from "react";
 import theme from "@/shared/styles/theme";
 import VerticalCarousel, {GAP_BETWEEN_ITEMS, ITEM_HEIGHT} from "@/components/VerticalCarousel";
+import dayjs from "dayjs";
 
 interface DatePickerProps {
     defaultValue?: Date;
@@ -11,48 +12,44 @@ interface DatePickerProps {
 }
 
 export default function DatePicker(props: DatePickerProps) {
-    const [selectedYear, setSelectedYear] = useState<number>(0);
-    const [selectedMonth, setSelectedMonth] = useState<number>(0);
-    const [minYear, minMonth] = useMemo(() => {
-        const minDate = props.min ?? new Date(1900, 0);
-        return [minDate.getFullYear(), minDate.getMonth() + 1];
+    const selectedDate = useMemo(() => {
+        const date = props.defaultValue ?? new Date();
+        return dayjs(date);
+    }, [props.defaultValue]);
+    const minDate = useMemo(() => {
+        const date = props.min ?? new Date(1900, 0);
+        return dayjs(date);
     }, [props.min]);
-    const [maxYear, maxMonth] = useMemo(() => {
-        const maxDate = props.max ?? new Date(3000, 11);
-        return [maxDate.getFullYear(), maxDate.getMonth() + 1];
+    const maxDate = useMemo(() => {
+        const date = props.max ?? new Date(3000, 11);
+        return dayjs(date);
     }, [props.max]);
 
-    useEffect(() => {
-        let date = props.defaultValue ?? new Date();
-        setSelectedYear(date.getFullYear());
-        setSelectedMonth(date.getMonth() + 1);
-    }, [props.defaultValue]);
-
     const handleYearChange = (year: number) => {
-        setSelectedYear(year);
-        props.onChange(new Date(year, selectedMonth));
+        props.onChange(selectedDate.set('year', year).toDate());
     };
 
     const handleMonthChange = (month: number) => {
-        setSelectedMonth(month);
-        props.onChange(new Date(selectedYear, month));
+        props.onChange(selectedDate.set('month', month - 1).toDate());
     }
 
     const getNextYear = (year: number) => {
-        if (year <= maxYear) return year + 1;
+        if (year < maxDate.year()) return year + 1;
         else return null;
     }
     const getPrevYear = (year: number) => {
-        if (year >= minYear) return year - 1;
+        if (year > minDate.year()) return year - 1;
         else return null;
     }
     const getNextMonth = (month: number) => {
-        if (month < 12 && (selectedYear < maxYear || month < maxMonth)) return month + 1;
-        else return null;
+        if (month >= 12) return null;
+        if (selectedDate.set('month', month).isAfter(maxDate)) return null;
+        return month + 1;
     }
     const getPrevMonth = (month: number) => {
-        if (month > 1 && (selectedYear > minYear || month > minMonth)) return month - 1;
-        else return null;
+        if (month <= 1) return null;
+        if (selectedDate.set('month', month - 2).isBefore(minDate)) return null;
+        return month - 1;
     }
 
     return (
@@ -61,7 +58,7 @@ export default function DatePicker(props: DatePickerProps) {
             <View style={styles.carouselContainer}>
                 <Text style={styles.labelText}>년</Text>
                 <VerticalCarousel
-                    selectedItem={selectedYear}
+                    selectedItem={selectedDate.year()}
                     getPrevItem={getPrevYear}
                     getNextItem={getNextYear}
                     onChange={handleYearChange}
@@ -71,7 +68,7 @@ export default function DatePicker(props: DatePickerProps) {
             <View style={styles.carouselContainer}>
                 <Text style={styles.labelText}>월</Text>
                 <VerticalCarousel
-                    selectedItem={selectedMonth}
+                    selectedItem={selectedDate.month() + 1}
                     getPrevItem={getPrevMonth}
                     getNextItem={getNextMonth}
                     onChange={handleMonthChange}

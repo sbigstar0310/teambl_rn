@@ -1,5 +1,5 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import theme from "@/shared/styles/theme";
 import PrimeButton from "@/components/PrimeButton";
 import ToggleButton from "@/components/ToggleButton";
@@ -12,10 +12,10 @@ interface DateRangePickerProps {
 }
 
 export default function DateRangePicker(props: DateRangePickerProps) {
-    const [hasEndDate, setHasEndDate] = useState(!!props.defaultValue?.end);
     const [isEndDateFocused, setIsEndDateFocused] = useState(false);
     const [startDate, setStartDate] = useState<Date>(props.defaultValue?.start ?? new Date());
-    const [endDate, setEndDate] = useState<Date>(props.defaultValue?.end ?? new Date());
+    const [endDate, setEndDate] = useState<Date | null>(props.defaultValue?.end ?? null);
+    const hasEndDate = useMemo(() => endDate !== null, [endDate]);
 
     const handleFocusStartDate = () => {
         setIsEndDateFocused(false);
@@ -26,43 +26,72 @@ export default function DateRangePicker(props: DateRangePickerProps) {
 
     const handleConfirm = async () => {
         const dateRange: DateRange = {start: startDate};
-        if (hasEndDate) {
+        if (endDate !== null) {
             dateRange.end = endDate;
         }
         props.onConfirm(dateRange);
     }
 
-    const handleEndDateToggle = (value: boolean) => {
-        setHasEndDate(value);
-        if (!value && isEndDateFocused) {
+    const handleEndDateToggle = (hasEndDate: boolean) => {
+        if (hasEndDate) {
+            setEndDate(startDate);
+        } else {
+            setEndDate(null);
+        }
+        if (!hasEndDate && isEndDateFocused) {
+            // If turning off the end date while focusing on end date
             setIsEndDateFocused(false);
         }
+    }
+
+    const handleStartDateChange = (date: Date) => {
+        if (endDate !== null && dayjs(endDate).isBefore(date)) {
+            // If there's end date which is set before start date, update it
+            setEndDate(date);
+        }
+        setStartDate(date);
     }
 
     return (
         <View>
             {/* Tabs */}
             <View style={styles.tabContainer}>
-                <TouchableOpacity style={[styles.tab, !isEndDateFocused && styles.activeTab]}
-                                  onPress={handleFocusStartDate}>
+                <TouchableOpacity
+                    style={[styles.tab, !isEndDateFocused && styles.activeTab]}
+                    onPress={handleFocusStartDate}
+                >
                     <Text
                         style={[styles.tabText, !isEndDateFocused && styles.activeTabText]}
-                    >시작</Text>
+                    >
+                        시작
+                    </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.tab, isEndDateFocused && styles.activeTab]}
-                                  onPress={handleFocusEndDate} disabled={!hasEndDate}>
+                <TouchableOpacity
+                    style={[styles.tab, isEndDateFocused && styles.activeTab]}
+                    onPress={handleFocusEndDate}
+                    disabled={!hasEndDate}
+                >
                     <Text
                         style={[styles.tabText, isEndDateFocused && styles.activeTabText, !hasEndDate && styles.disabledTab]}
-                    >종료</Text>
+                    >
+                        종료
+                    </Text>
                 </TouchableOpacity>
             </View>
             {/* Date Input */}
             <View style={styles.datePickerContainer}>
                 {
                     isEndDateFocused ?
-                        <DatePicker defaultValue={endDate} onChange={setEndDate}/>
+                        <DatePicker
+                            defaultValue={endDate ?? undefined}
+                            onChange={setEndDate}
+                            min={startDate}
+                        />
                         :
-                        <DatePicker defaultValue={startDate} onChange={setStartDate}/>
+                        <DatePicker
+                            defaultValue={startDate}
+                            onChange={handleStartDateChange}
+                        />
                 }
             </View>
             {/* Actions */}
@@ -70,7 +99,7 @@ export default function DateRangePicker(props: DateRangePickerProps) {
                 {/* End period Switch */}
                 <ToggleButton
                     label="종료"
-                    defaultValue={hasEndDate}
+                    defaultValue={endDate !== null}
                     onChange={handleEndDateToggle}
                 />
                 {/* Confirm button */}
