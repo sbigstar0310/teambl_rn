@@ -45,7 +45,9 @@ const SkillInput = (props: any) => {
     };
 
     const onConfirm = (newSkillList: any) => {
-        updateSelectedSkills(newSkillList);
+        console.log(newSkillList);
+        console.log(selectedSkills);
+        //updateSelectedSkills(newSkillList);
         onClose();
     };
 
@@ -73,8 +75,8 @@ const SkillInput = (props: any) => {
                         selectedSkills.map((skill: any, index: number) => {
                             return (
                                 <SkillBadge
-                                    key={index + skill}
-                                    skill={skill}
+                                    key={index + skill.skill}
+                                    skill={skill.skill}
                                     onDelete={() => onRemoveSkill(index)}
                                 />
                             );

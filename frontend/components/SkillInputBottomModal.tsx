@@ -245,7 +245,6 @@ const SkillInputBottomModal = (props: any) => {
             try {
                 const skills = await recommendSkill();
                 setSuggestingSkills(skills);
-                console.log("fetched recommend skills:", skills);
             } catch (error) {
                 console.error("Failed to load recommended skills:", error);
             }
@@ -277,7 +276,14 @@ const SkillInputBottomModal = (props: any) => {
                 return;
             }
             try {
-                const skills = await searchSkill(searchQuery);
+                let skills = await searchSkill(searchQuery);
+                skills = skills.filter((skill) => {
+                    const isAlreadySelected = currentSelectedSkills.some(
+                        (selectedSkill: any) => selectedSkill.id === skill.id
+                    );
+                    return !isAlreadySelected;
+                })
+                console.log("searched skills:", skills);
                 setSearchedSkills(skills);
             } catch (error) {
                 console.error("Failed to search skills:", error);
@@ -298,14 +304,14 @@ const SkillInputBottomModal = (props: any) => {
     };
 
     /** 스킬 삭제 */
-    const onRemoveSkill = async (skillId: number) => {
-        try {
-            await deleteSkill(skillId);
-            setCurrentSelectedSkills(currentSelectedSkills.filter(skill => skill.id !== skillId));
-        } catch (error) {
-            console.error("Failed to delete skill:", error);
-        }
-    };
+    // const onRemoveSkill = async (skillId: number) => {
+    //     try {
+    //         await deleteSkill(skillId);
+    //         setCurrentSelectedSkills(currentSelectedSkills.filter(skill => skill.id !== skillId));
+    //     } catch (error) {
+    //         console.error("Failed to delete skill:", error);
+    //     }
+    // };
 
     const matchSkills = (skill: any, query: string) => {
         const matches = skill.matches;
@@ -337,11 +343,11 @@ const SkillInputBottomModal = (props: any) => {
     //     setCurrentSelectedSkills([...currentSelectedSkills, skill]);
     // };
 
-    // const onRemoveSkill = (index: number) => {
-    //     const newSelectedSkills = [...currentSelectedSkills];
-    //     newSelectedSkills.splice(index, 1);
-    //     setCurrentSelectedSkills(newSelectedSkills);
-    // };
+    const onRemoveSkill = (index: number) => {
+        const newSelectedSkills = [...currentSelectedSkills];
+        newSelectedSkills.splice(index, 1);
+        setCurrentSelectedSkills(newSelectedSkills);
+    };
 
     const body = (
         <View style={styles.container}>

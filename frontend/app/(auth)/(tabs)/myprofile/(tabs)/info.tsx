@@ -34,6 +34,7 @@ const MyProfileInfoView = () => {
         // Get user from Zustand store
         const user = useAuthStore.getState().user;
 
+        console.log(user);
         if (user) {
             console.log("User found in Zustand store:", user);
             setCurrentKeywordList(user.profile.keywords);

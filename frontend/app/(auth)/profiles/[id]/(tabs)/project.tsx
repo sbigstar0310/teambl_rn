@@ -1,6 +1,6 @@
 import { useScroll } from '@/components/provider/ScrollContext';
 import React from 'react';
-import { Text, View, ScrollView, Animated } from 'react-native';
+import { Text, View, ScrollView, Animated, StyleSheet } from 'react-native';
 
 const OtherProfileProjectView = () => {
 
@@ -15,9 +15,13 @@ const OtherProfileProjectView = () => {
             )}
             scrollEventThrottle={16}
         >
-
+            
         </ScrollView>
     );
 };
+
+const styles = StyleSheet.create({
+    
+});
 
 export default OtherProfileProjectView;
