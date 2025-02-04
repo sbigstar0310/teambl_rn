@@ -420,7 +420,7 @@ const NewProfileHeader = (props: any) => {
                             </View>
                         )}
                         {/** bridge view */}
-                        {!isMyProfile && userInfo?.choneDegree !== 1 && (
+                        {(userInfo?.choneDegree != null) && (userInfo?.choneDegree !== 1) && (!isMyProfile) && (
                             <View style={styles.bridgeContainer}>
                                 <Text style={styles.bridgeTitle}>
                                     {"나와의 관계"}
