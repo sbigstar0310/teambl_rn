@@ -169,9 +169,14 @@ const dummySkillData = [
 // };
 
 const SkillBadge = ({ skill, onDelete }: SkillBadgeProps) => {
+    if (!skill || typeof skill !== "object" || !skill.skill) {
+        console.error("SkillBadge received invalid skill:", skill);
+        return null;
+    }
+
     return (
         <View style={styles.badgeContainer}>
-            <Text style={styles.badgeText}>{skill.skill}</Text>
+            <Text style={styles.badgeText}>{String(skill.skill)}</Text> {/* 문자열로 변환 */}
             {onDelete && (
                 <TouchableOpacity onPress={onDelete}>
                     <DeleteIcon />
@@ -180,6 +185,7 @@ const SkillBadge = ({ skill, onDelete }: SkillBadgeProps) => {
         </View>
     );
 };
+
 
 // interface OptionBadgeProps {
 //     name: string;
@@ -203,14 +209,20 @@ interface OptionBadgeProps {
 }
 
 const OptionBadge = ({ skill, onSelect }: OptionBadgeProps) => {
+    if (!skill || typeof skill !== "object" || !skill.skill) {
+        console.error("OptionBadge received invalid skill:", skill);
+        return null;
+    }
+
     return (
         <TouchableOpacity onPress={onSelect}>
             <View style={styles.optionBadgeContainer}>
-                <Text style={styles.optionBadgeText}>{skill.skill}</Text>
+                <Text style={styles.optionBadgeText}>{String(skill.skill)}</Text> {/* 문자열 변환 */}
             </View>
         </TouchableOpacity>
     );
 };
+
 
 const SkillInputBottomModal = (props: any) => {
     const { visible, onClose, selectedSkills, onConfirm, style } = props;
@@ -224,7 +236,8 @@ const SkillInputBottomModal = (props: any) => {
     const [searchedSkills, setSearchedSkills] = useState<api.Skill[]>([]);
 
     // const [currentSelectedSkills, setCurrentSelectedSkills] = useState(selectedSkills);
-    const [currentSelectedSkills, setCurrentSelectedSkills] = useState<api.Skill[]>([]);
+    const [currentSelectedSkills, setCurrentSelectedSkills] = useState<api.Skill[]>(selectedSkills || []);
+
 
     /** 추천 스킬 가져오기 */
     useEffect(() => {
@@ -301,21 +314,21 @@ const SkillInputBottomModal = (props: any) => {
         );
     };
 
-    const searchSkills = (query: string) => {
-        if (query === "") {
-            setSearchedSkills([]);
-        } else {
-            setSearchedSkills(
-                suggestingSkills.filter((skill) => {
-                    const matchRes = matchSkills(skill, query);
-                    const isAlreadySelected = currentSelectedSkills.some(
-                        (selectedSkill: any) => selectedSkill === skill
-                    );
-                    return matchRes && !isAlreadySelected;
-                })
-            );
-        }
-    };
+    // const searchSkills = (query: string) => {
+    //     if (query === "") {
+    //         setSearchedSkills([]);
+    //     } else {
+    //         setSearchedSkills(
+    //             suggestingSkills.filter((skill) => {
+    //                 const matchRes = matchSkills(skill, query);
+    //                 const isAlreadySelected = currentSelectedSkills.some(
+    //                     (selectedSkill: any) => selectedSkill === skill
+    //                 );
+    //                 return matchRes && !isAlreadySelected;
+    //             })
+    //         );
+    //     }
+    // };
 
     // const onSelectSkill = (skill: any) => {
     //     if (searchQuery !== "") {
@@ -352,11 +365,12 @@ const SkillInputBottomModal = (props: any) => {
                 {currentSelectedSkills.length > 0 &&
                     currentSelectedSkills.map((skill: any, index: number) => {
                         return (
-                            <SkillBadge
-                                key={index + skill}
-                                skill={skill}
-                                onDelete={() => onRemoveSkill(index)}
-                            />
+                            // <SkillBadge
+                            //     key={index + skill}
+                            //     skill={skill}
+                            //     onDelete={() => onRemoveSkill(index)}
+                            // />
+                            <SkillBadge key={skill.id} skill={skill} onDelete={() => onRemoveSkill(skill.id)} />
                         );
                     })}
             </View>
