@@ -42,7 +42,7 @@ class RecommendedSkillsView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return Skill.objects.values("skill").annotate(count=Count("skill")).order_by("-count")[:5]
+        return Skill.objects.values("id", "skill").annotate(count=Count("skill")).order_by("-count")[:5]
 
 
 # 사용자가 선택한 스킬을 추가하는 뷰
