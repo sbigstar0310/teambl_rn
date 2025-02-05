@@ -6,10 +6,10 @@ type FilterTabsProps = {
     handleFilterChange: (filter: string | null) => void;
 };
 
-export default function FilterTabs({ activeFilter, handleFilterChange }: FilterTabsProps) {
+export default function ProjFilterTabs({ activeFilter, handleFilterChange }: FilterTabsProps) {
     return (
         <View style={styles.filterContainer}>
-            {["1촌", "2촌", "3촌"].map((filter, index) => (
+            {["프로젝트", "게시물"].map((filter, index) => (
                 <TouchableOpacity
                     key={index}
                     style={[

@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
-import FilterTabs from "@/components/search/FilterTabs";
+import UserFilterTabs from "@/components/search/UserFilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 import searchUser from "@/libs/apis/Search/searchUser";
@@ -19,6 +19,7 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { USER_ID } from "@/shared/constants";
 import NoSearchResult from "@/components/common/NoSearchResult";
+import ProjFilterTabs from "@/components/search/ProjFilterTabs";
 
 // 데이터 타입 정의
 interface SearchData {
@@ -62,17 +63,18 @@ export default function SearchScreen() {
     const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">(
         "사람"
     );
-    const [activeFilter, setActiveFilter] = useState<string | null>(null);
+    const [activeUserFilter, setActiveUserFilter] = useState<string | null>(null);
     const [loading, setLoading] = useState(false); // 로딩 상태 추가
+    const [activeProjFilter, setActiveProjFilter] = useState<string | null>(null);
 
     const filteredResults = React.useMemo(() => {
-        if (activeFilter === null) {
+        if (activeUserFilter === null) {
             return searchData;
         }
         return searchData.filter((item) => {
-            return item.relation_degree?.toString() === activeFilter;
+            return item.relation_degree?.toString() === activeUserFilter;
         });
-    }, [searchData, activeFilter]);
+    }, [searchData, activeUserFilter]);
 
     // 컴포넌트가 마운트될 때 초기 검색 실행
     useEffect(() => {
@@ -147,9 +149,9 @@ export default function SearchScreen() {
                 {activeTab === "사람" && (
                     <View style={{ flex: 1 }}>
                         {/* 필터 */}
-                        <FilterTabs
-                            activeFilter={activeFilter}
-                            handleFilterChange={setActiveFilter}
+                        <UserFilterTabs
+                            activeFilter={activeUserFilter}
+                            handleFilterChange={setActiveUserFilter}
                         />
 
                         {/* 결과 개수 */}
@@ -169,7 +171,14 @@ export default function SearchScreen() {
                     </View>
                 )}
                 {activeTab === "프로젝트 + 게시물" && (
-                    <Text>프로젝트 검색 결과</Text>
+                    <View style={{ flex: 1 }}>
+                        {/* 필터 */}
+                        <ProjFilterTabs
+                            activeFilter={activeProjFilter}
+                            handleFilterChange={setActiveProjFilter}
+                        />
+                        <Text>프로젝트 검색 결과</Text>
+                    </View>
                 )}
             </View>
 
