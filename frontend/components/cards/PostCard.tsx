@@ -41,8 +41,15 @@ export default function PostCard(props: PostCardProps) {
         router.push(`/profiles/${props.post.user.id}`);
     }
 
+    const goToDetailedPostView = () => {
+        router.push(`/posts/${props.post.id}`);
+    }
+
     return (
-        <View style={styles.container}>
+        <TouchableOpacity
+            style={styles.container}
+            onPress={goToDetailedPostView}
+        >
             {/*    Header */}
             <View style={styles.header}>
                 <View>
@@ -81,7 +88,7 @@ export default function PostCard(props: PostCardProps) {
                     </View>
                 </View>
             </View>
-        </View>
+        </TouchableOpacity>
     )
 }
 
