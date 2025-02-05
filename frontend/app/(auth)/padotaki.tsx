@@ -15,11 +15,10 @@ import SearchIcon from "@/assets/padotaki/SearchIcon.svg";
 import DefaultProfile from "@/assets/DefaultProfile.svg";
 import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
 import PostCard from "@/components/cards/PostCard";
-import { mockPost1, mockPost2, mockUser1 } from "@/shared/mock-data";
 import fetchOneDegreeProjectCard from "@/libs/apis/ProjectCard/fetchOneDegreeProjectCard";
-import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
 import ProjectCard from "@/components/cards/ProjectCard";
 import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
+import NoSearchResult from "@/components/common/NoSearchResult";
 
 type HeaderProps = {
     onBackPress: () => void;
@@ -182,24 +181,28 @@ const PadoTakiScreen = () => {
                             <ActivityIndicator size="large" color="#0923A9" />
                         </View>
                     ) : activeTab === "projects" ? (
-                        projectCardList.map((projectCard) =>
-                            projectCard.posts.length > 0 ? (
-                                <FlatList
-                                    key={projectCard.id} // Ensure each FlatList has a unique key
-                                    contentContainerStyle={{
-                                        gap: 20,
-                                        padding: 2,
-                                    }}
-                                    data={projectCard.posts}
-                                    renderItem={({ item }) => (
-                                        <PostCard post={item} />
-                                    )}
-                                />
-                            ) : (
-                                <ProjectCard
-                                    key={projectCard.id}
-                                    projectCard={projectCard}
-                                />
+                        projectCardList.length === 0 ? (
+                            <NoSearchResult title="검색된 프로젝트가 없습니다." message="이어지는 프로젝트 탭에서 더 많은 프로젝트를 확인해보세요." />
+                        ) : (
+                            projectCardList.map((projectCard) =>
+                                projectCard.posts.length > 0 ? (
+                                    <FlatList
+                                        key={projectCard.id} // Ensure each FlatList has a unique key
+                                        contentContainerStyle={{
+                                            gap: 20,
+                                            padding: 2,
+                                        }}
+                                        data={projectCard.posts}
+                                        renderItem={({ item }) => (
+                                            <PostCard post={item} />
+                                        )}
+                                    />
+                                ) : (
+                                    <ProjectCard
+                                        key={projectCard.id}
+                                        projectCard={projectCard}
+                                    />
+                                )
                             )
                         )
                     ) : (
@@ -207,13 +210,17 @@ const PadoTakiScreen = () => {
                             <Text style={styles.resultCount}>
                                 {userList.length}명
                             </Text>
-                            <FlatList
-                                data={userList}
-                                keyExtractor={(item) => item.id.toString()}
-                                renderItem={({ item }) => (
-                                    <UserRow item={item} />
-                                )}
-                            />
+                            {userList.length === 0 ? (
+                                <NoSearchResult title="이어지는 프로젝트가 없습니다." message="우측 상단의 탐색 버튼을 눌러 탐색 화면으로 이동하세요." />
+                            ) : (
+                                <FlatList
+                                    data={userList}
+                                    keyExtractor={(item) => item.id.toString()}
+                                    renderItem={({ item }) => (
+                                        <UserRow item={item} />
+                                    )}
+                                />
+                            )}
                         </>
                     )}
                 </View>

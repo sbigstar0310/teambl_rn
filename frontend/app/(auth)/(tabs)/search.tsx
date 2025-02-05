@@ -18,7 +18,7 @@ import searchUser from "@/libs/apis/Search/searchUser";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { USER_ID } from "@/shared/constants";
-import { getCurrentUserId } from "@/shared/utils";
+import NoSearchResult from "@/components/common/NoSearchResult";
 
 // 데이터 타입 정의
 interface SearchData {
@@ -145,7 +145,7 @@ export default function SearchScreen() {
             {/* 탭 내용 */}
             <View style={styles.contentContainer}>
                 {activeTab === "사람" && (
-                    <View>
+                    <View style={{ flex: 1 }}>
                         {/* 필터 */}
                         <FilterTabs
                             activeFilter={activeFilter}
@@ -157,12 +157,15 @@ export default function SearchScreen() {
                             {filteredResults.length}명
                         </Text>
 
-                        {/* 검색 결과 리스트 */}
-                        <FlatList
-                            data={filteredResults}
-                            keyExtractor={(item) => String(item.user.id)}
-                            renderItem={({ item }) => <UserCard {...item} />}
-                        />
+                        {filteredResults.length === 0 ? (
+                            <NoSearchResult title="검색 결과가 없습니다." message="필터를 조정하거나 새로운 검색어를 입력해보세요." />
+                        ) : (
+                            <FlatList
+                                data={filteredResults}
+                                keyExtractor={(item) => String(item.user.id)}
+                                renderItem={({ item }) => <UserCard {...item} />}
+                            />
+                        )}
                     </View>
                 )}
                 {activeTab === "프로젝트 + 게시물" && (
@@ -196,7 +199,6 @@ const styles = StyleSheet.create({
         borderTopWidth: 4,
         borderColor: "#F5F5F5",
         padding: 16,
-        marginBottom: 54,
     },
     resultCount: {
         marginLeft: 8,
