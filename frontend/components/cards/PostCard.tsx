@@ -1,27 +1,29 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EllipsisIcon from '@/assets/ellipsis-icon.svg';
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {shorten} from "@/shared/utils";
 import Avatar from "@/components/common/Avatar";
 import {sharedStyles} from "@/app/_layout";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import {router} from "expo-router";
+import {mockUser1} from "@/shared/mock-data";
 
 interface PostCardProps {
     post: api.Post;
 }
 
 export default function PostCard(props: PostCardProps) {
-    const title = props.post.title;
+    const title = "Project title";
     const content = shorten(props.post.content, 100);
     const createdDate = props.post.created_at.toLocaleDateString('ru-RU', {
         year: '2-digit',
         month: '2-digit',
         day: '2-digit',
     });
-    const authorAvatarUrl = props.post.user.profile.image;
-    const authorName = props.post.user.profile.user_name;
-    const authorRelation = props.post.user.profile.one_degree_count;
+    const user = useMemo(() => mockUser1, [props.post.user]);
+    const authorAvatarUrl = user.profile.image;
+    const authorName = user.profile.user_name;
+    const authorRelation = user.profile.one_degree_count;
     const likeCount = props.post.like_count;
 
     // Indicates whether context menu is open or not (activated by pressing more button)
@@ -38,7 +40,7 @@ export default function PostCard(props: PostCardProps) {
     }
 
     const goToAuthorProfile = () => {
-        router.push(`/profiles/${props.post.user.id}`);
+        router.push(`/profiles/${user.id}`);
     }
 
     const goToDetailedPostView = () => {

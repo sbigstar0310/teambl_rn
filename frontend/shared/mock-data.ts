@@ -138,30 +138,26 @@ export const mockProject3: api.ProjectCard = {
 
 export const mockPost1: api.Post = {
     id: 1,
-    project_card_id: 1,
-    user: mockUser1,
-    title: "ColligoLink",
+    project_card: 1,
+    user: 1,
     content:
         "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
     created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
-    keywords: ["teambl", "project"],
-    like_count: 24,
+    like_count: 0,
     tagged_users: [],
-    contact: "",
     liked_users: [],
+    images: []
 };
 
 export const mockPost2: api.Post = {
     id: 2,
-    project_card_id: 2,
-    user: mockUser1,
-    title: "Progress Update",
+    project_card: 2,
+    user: 1,
     content:
         "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
     created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
-    keywords: ["teambl", "project"],
-    like_count: 12,
+    like_count: 0,
     tagged_users: [],
-    contact: "",
     liked_users: [],
+    images: []
 };

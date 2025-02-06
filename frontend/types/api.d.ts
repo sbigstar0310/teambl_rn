@@ -96,16 +96,14 @@ declare module api {
 
     type Post = {
         id: number;
-        project_card_id: number;
-        user: User;
-        title: string;
+        project_card: number;
+        user: number;
         content: string;
         created_at: Date;
-        keywords: string[];
         like_count: number;
         tagged_users: User[];
-        contact: string;
         liked_users: User[];
+        images: string[];
     };
 
     type Friend = {
