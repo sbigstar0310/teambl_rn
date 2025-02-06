@@ -144,7 +144,7 @@ export const mockPost1: api.Post = {
         "첫번째 난관 스마트폰과 블루투스로 통신하여 전자기기를 제어할 수 있는 리모컨 제작을 목표로 프로젝트를 시작하였으나 처음부터 난관이 생겨...",
     created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
     like_count: 0,
-    tagged_users: [],
+    tagged_users: [mockUser1, mockUser2, mockUser3],
     liked_users: [],
     images: []
 };

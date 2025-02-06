@@ -40,7 +40,7 @@ export const sharedStyles = StyleSheet.create({
     },
     secondaryText: {
         fontSize: 12,
-        color: "gray"
+        color: theme.colors.achromatic01
     },
     rounded: {
         borderRadius: 500
