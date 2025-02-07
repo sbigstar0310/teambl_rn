@@ -161,3 +161,22 @@ export const mockPost2: api.Post = {
     liked_users: [],
     images: []
 };
+
+export const mockComment1: api.Comment = {
+    id: 1,
+    post: 1,
+    user: 1,
+    content: "Great post!",
+    created_at: new Date("Thu, 06 Jan 2025 11:59:15 GMT"),
+    likes: 1
+}
+
+export const mockComment2: api.Comment = {
+    id: 1,
+    post: 1,
+    user: 2,
+    content: "Thanks!",
+    created_at: new Date("Thu, 06 Jan 2025 12:00:15 GMT"),
+    likes: 0,
+    parent_comment: 1
+}

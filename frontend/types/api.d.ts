@@ -113,4 +113,14 @@ declare module api {
         created_at: Date;
         status: string;
     };
+
+    type Comment = {
+        id: number;
+        user: number;
+        post: number;
+        content: string;
+        created_at: Date;
+        likes: number;
+        parent_comment?: number;
+    }
 }
