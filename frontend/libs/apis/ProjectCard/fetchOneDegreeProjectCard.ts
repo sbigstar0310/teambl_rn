@@ -13,7 +13,7 @@ const fetchOneDegreeProjectCard = async (
         const response = await api.get<Response>(
             `project-card/list/${user_id}/`
         );
-        console.log("projectCardList", response.data);
+        console.log("projectCardList: ", response.data);
         return response.data;
     } catch (error) {
         console.error("Error fetching project card list:", error);

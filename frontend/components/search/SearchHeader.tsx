@@ -1,4 +1,10 @@
-import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import {
+    View,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    Text,
+} from "react-native";
 import React from "react";
 import LeftArrowIcon from "@/assets/search/LeftArrowIcon.svg";
 
