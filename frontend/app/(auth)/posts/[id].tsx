@@ -1,15 +1,15 @@
 import {useLocalSearchParams} from "expo-router";
-import {Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
 import {useEffect, useState} from "react";
-import {mockComment1, mockComment2, mockPost1, mockProject1, mockUser1, mockUser2} from "@/shared/mock-data";
+import {mockComment1, mockComment2, mockPost1, mockProject1, mockUser1} from "@/shared/mock-data";
 import dayjs from "dayjs";
 import PostContent from "@/components/PostContent";
 import ProjectDetailsInPost from "@/components/post/ProjectDetailsInPost";
 import PostInteractions from "@/components/post/PostInteractions";
 import CommentDummyInput from "@/components/post/CommentDummyInput";
-import PostComment from "@/components/post/PostComment";
+import CommentThread, {getThread, Thread} from "@/components/post/CommentThread";
 import theme from "@/shared/styles/theme";
 
 export default function PostView() {
@@ -19,9 +19,10 @@ export default function PostView() {
     const [projectData, setProjectData] = useState<api.ProjectCard>();
     const [authorData, setAuthorData] = useState<api.User>();
     const [commentsData, setCommentsData] = useState<api.Comment[]>([]);
+    const [threadData, setThreadData] = useState<Thread[]>([]);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [isContextOpen, setIsContextOpen] = useState(false);
-    const [replyingTo, setReplyingTo] = useState<api.Comment | null>(null);
+    const [replyingTo, setReplyingTo] = useState<number | null>(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [commentText, setCommentText] = useState("");
 
@@ -42,6 +43,15 @@ export default function PostView() {
             mockComment2
         ])
     }, [postData]);
+
+    useEffect(() => {
+        const threads: Thread[] = commentsData
+            .filter(c => !c.parent_comment)
+            // Sort the comments to show latest first
+            .sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+            .map(c => getThread(c, commentsData.filter(c2 => c2.id !== c.id)));
+        setThreadData(threads);
+    }, [commentsData]);
 
     const handleSubscribe = () => {
         // TODO: make api call to subscribe to project
@@ -70,7 +80,7 @@ export default function PostView() {
                 content: commentText,
                 created_at: new Date(),
                 likes: 0,
-                parent_comment: replyingTo ? replyingTo.id : undefined
+                parent_comment: replyingTo ?? undefined
             }
             return [...comments, newComment];
         })
@@ -78,10 +88,10 @@ export default function PostView() {
         setIsInputFocused(false);
     }
 
-    const handleInputFocus = (comment?: api.Comment) => {
-        if (comment) {
+    const handleInputFocus = (parentCommentId?: number) => {
+        if (parentCommentId !== undefined) {
             // Reply to another comment
-            setReplyingTo(comment);
+            setReplyingTo(parentCommentId);
         } else {
             // New comment
             setReplyingTo(null);
@@ -122,24 +132,26 @@ export default function PostView() {
                             comments={0}
                             onOptions={setIsContextOpen.bind(null, true)}
                             onLike={handleLike}
-                            onComment={handleInputFocus}
+                            onComment={() => handleInputFocus()}
                         />
                     </View>
                     {/* Comment input */}
                     {me && <CommentDummyInput
                         user={me}
-                        onModalOpen={handleInputFocus}
+                        onModalOpen={() => handleInputFocus()}
                     />}
                     {/* Comments thread */}
-                    <View style={sharedStyles.horizontalPadding}>
-                        {commentsData.map((commentData, index) =>
-                            <PostComment
+                    <ScrollView
+                        style={[sharedStyles.horizontalPadding, {flex: 1}]}
+                        contentContainerStyle={{paddingBottom: 12}}
+                    >
+                        {threadData.map((threadData, index) =>
+                            <CommentThread
                                 key={index}
-                                comment={commentData}
-                                user={mockUser2}
+                                thread={threadData}
                                 onReply={handleInputFocus}
                             />)}
-                    </View>
+                    </ScrollView>
                 </View>
             }
             <Modal

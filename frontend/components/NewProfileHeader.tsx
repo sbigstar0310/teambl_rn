@@ -133,6 +133,7 @@ type UserInfo = {
         current_user_id: number;
         target_user_id: number;
     };
+    isOneChonRequested: boolean;
 };
 
 const NewProfileHeader = (props: any) => {
@@ -166,12 +167,16 @@ const NewProfileHeader = (props: any) => {
             // Fetch chonInfoFromMe
             const pathInfo = await getUserPath(userId);
 
+            // TODO
+            const isOneChonRequested = false;
+
             // Update state correctly
-            setUserInfo((prev) => ({
+            setUserInfo({
                 profile: profile,
                 choneDegree: choneDegree,
                 chonInfoFromMe: pathInfo,
-            }));
+                isOneChonRequested: isOneChonRequested,
+            });
 
             // TODO: get chonInfoFromMe
         } catch (error) {
@@ -400,13 +405,33 @@ const NewProfileHeader = (props: any) => {
                         {/** requesting 1-chon & sending message */}
                         {!isMyProfile && (
                             <View style={styles.requestAndMessageContainer}>
-                                {userInfo?.choneDegree !== 1 && (
+                                {(userInfo?.choneDegree !== 1) && (!userInfo?.isOneChonRequested) && (
                                     <SmallButton
                                         text={"1촌 신청"}
                                         onClickCallback={async () => {
                                             await createFriend(userId);
                                         }}
                                         isLoading={false}
+                                    />
+                                )}
+                                {(userInfo?.choneDegree !== 1) && (userInfo?.isOneChonRequested) && (
+                                    <SmallButton
+                                        text={"수락 대기"}
+                                        onClickCallback={async () => {
+                                            //TODO
+                                        }}
+                                        isLoading={false}
+                                        type={"disabled"}
+                                    />
+                                )}
+                                {(userInfo?.choneDegree === 1) && (
+                                    <SmallButton
+                                        text={"1촌 취소"}
+                                        onClickCallback={async () => {
+                                            //TODO
+                                        }}
+                                        isLoading={false}
+                                        type={"secondary"}
                                     />
                                 )}
                                 <SmallButton
