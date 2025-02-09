@@ -8,12 +8,17 @@ import SettingIcon from "@/assets/header/SettingIcon.svg";
 import FriendsIcon from "@/assets/header/FriendsIcon.svg";
 import { SafeAreaView } from "react-native-safe-area-context";
 import unreadNotificationCount from "@/libs/apis/Notification/unreadNotificationCount";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 const Header: React.FC = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(0); // 읽지 않은 알림 수
 
   useEffect(() => {
       fetchUnreadNotifications();
+      eventEmitter.on("notificationRead", fetchUnreadNotifications);
+      return () => {
+        eventEmitter.off("notificationRead", fetchUnreadNotifications);
+      };
   }, []);
 
   const fetchUnreadNotifications = async () => {
