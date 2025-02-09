@@ -39,7 +39,7 @@ export default function FriendsCard({
         try {
             setIsLoading(true); // 로딩 시작
             await updateFriend(id, { status });
-            eventEmitter.emit("handleFriend");
+            await eventEmitter.emit("handleFriend");
         } catch (error) {
             console.log(`Failed to ${status} friend request:`, error);
         } finally {
