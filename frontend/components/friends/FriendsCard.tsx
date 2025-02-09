@@ -14,6 +14,7 @@ import WaitingIcon from "@/assets/friends/WaitingIcon.svg";
 import RefuseIcon from "@/assets/friends/RefuseIcon.svg";
 import AcceptIcon from "@/assets/friends/AcceptIcon.svg";
 import updateFriend from "@/libs/apis/Friend/updateFriend";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 // 상태 타입 정의
 type RelationStatus = "accepted" | "requested" | "received" | "rejected";
@@ -30,8 +31,7 @@ export default function FriendsCard({
     relation_degree,
     user,
     status,
-    fetchFriends,
-}: FriendsCardData & { fetchFriends?: () => void }) {
+}: FriendsCardData) {
     const profile = user.profile;
     const [isLoading, setIsLoading] = useState(false);
 
@@ -39,7 +39,7 @@ export default function FriendsCard({
         try {
             setIsLoading(true); // 로딩 시작
             await updateFriend(id, { status });
-            await fetchFriends?.();
+            eventEmitter.emit("handleFriend");
         } catch (error) {
             console.log(`Failed to ${status} friend request:`, error);
         } finally {

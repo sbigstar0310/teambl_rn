@@ -15,6 +15,7 @@ import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
 import { getCurrentUserId } from "@/shared/utils";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import getUserDistance from "@/libs/apis/getUserDistance";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 type FriendExtension = {
     id: number;
@@ -105,6 +106,10 @@ export default function MyFriendsScreen() {
 
     useEffect(() => {
         fetchFriends();
+        eventEmitter.on("handleFriend", fetchFriends);
+        return () => {
+          eventEmitter.off("handleFriend", fetchFriends);
+        };
     }, []);
 
     return (
@@ -170,7 +175,6 @@ export default function MyFriendsScreen() {
                                             ? "received"
                                             : friend.status
                                     }
-                                    fetchFriends={fetchFriends}
                                 />
                             ))}
                         </ScrollView>

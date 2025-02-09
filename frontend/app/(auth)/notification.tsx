@@ -19,6 +19,7 @@ import "dayjs/locale/ko"; // 한국어 로케일 사용
 import ScreenHeader from "@/components/common/ScreenHeader";
 import { sharedStyles } from "../_layout";
 import NotificationItem from "@/components/NotificationItem";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -81,6 +82,7 @@ const Notification = () => {
                         : notification
                 )
             );
+            eventEmitter.emit("notificationRead");
         } catch (error) {
             console.error("Failed to update notification", error);
         }
