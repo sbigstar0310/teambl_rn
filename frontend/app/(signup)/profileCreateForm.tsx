@@ -128,12 +128,9 @@ export default function ProfileCreateFormScreen() {
     return (
         <View style={sharedStyles.container}>
             {/* Screen header */}
-            <ScreenHeader />
+            <ScreenHeader title={"프로필 작성하기"} />
 
             <View style={sharedStyles.horizontalPadding}>
-                {/* Title */}
-                <Text style={styles.title}>프로필 작성하기</Text>
-
                 {/* Name */}
                 <Text style={styles.semiTitle}>이름</Text>
                 <TextInput
@@ -213,7 +210,10 @@ export default function ProfileCreateFormScreen() {
                     visible={majorModalVisible}
                     onClose={() => toggleModal("major")}
                     handleMajorSelect={handleMajorSelect}
-                    selectedMajors={[profile.major1, profile.major2 || ""]}
+                    selectedMajors={[
+                        profile.major1,
+                        profile.major2 || "",
+                    ].filter((major) => major !== "")}
                 />
             </View>
         </View>

@@ -72,12 +72,9 @@ const SignUpScreen = () => {
     return (
         <View style={sharedStyles.container}>
             {/* Shared Header */}
-            <ScreenHeader />
+            <ScreenHeader title="회원가입" />
 
             <View style={sharedStyles.horizontalPadding}>
-                {/* Title */}
-                <Text style={styles.title}>회원가입</Text>
-
                 {/* 이메일 입력 */}
                 <Text style={styles.label}>학교 이메일</Text>
                 <View style={styles.inputRow}>

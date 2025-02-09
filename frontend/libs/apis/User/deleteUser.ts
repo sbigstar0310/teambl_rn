@@ -9,7 +9,7 @@ type Response = {
 };
 
 const deleteUser = async (): Promise<Response> => {
-    const response = await api.delete<Response>("user/delete/");
+    const response = await api.delete<Response>("user/current/delete/");
     return response.data;
 };
 

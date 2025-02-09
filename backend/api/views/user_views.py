@@ -19,6 +19,7 @@ from staff_emails import STAFF_EMAILS
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from ..HelperFuntions import update_profile_one_degree_count
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 # 초대 없이 스스로 회원가입하는 뷰
@@ -297,18 +298,22 @@ class ChangePasswordView(generics.UpdateAPIView):
     authentication_classes = []  # 인증 비활성화
 
     def get_object(self):
-        if self.request.user.is_authenticated:
-            # If the user is logged in, return the currently authenticated user
-            print("Authenticated user:", self.request.user)
-            return self.request.user
-        else:
-            # If the user is logged out, get the user by email from the request data
-            email = self.request.data.get("email")
-            print("Provided email:", email)
-            if email:
-                return get_object_or_404(CustomUser, email=email)
-            else:
-                return None
+        # ✅ Authorization 헤더에서 JWT 토큰 직접 추출
+        auth_header = self.request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            jwt_auth = JWTAuthentication()
+            validated_token = jwt_auth.get_validated_token(token)
+            user = jwt_auth.get_user(validated_token)
+            print("Authenticated user via JWT:", user)
+            return user
+
+        # ✅ 인증된 사용자가 없을 경우, email로 사용자 찾기
+        email = self.request.data.get("email")
+        print("Provided email:", email)
+        if email:
+            return get_object_or_404(CustomUser, email=email)
+        return None
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()

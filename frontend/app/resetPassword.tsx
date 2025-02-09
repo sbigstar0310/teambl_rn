@@ -79,11 +79,9 @@ const ResetPasswordScreen = () => {
 
     return (
         <View style={sharedStyles.container}>
-            <ScreenHeader />
+            <ScreenHeader title="비밀번호 재설정" />
 
             <View style={sharedStyles.horizontalPadding}>
-                <Text style={styles.title}>비밀번호 재설정</Text>
-
                 <Text style={styles.label}>학교 이메일</Text>
                 <View style={styles.inputRow}>
                     <TextInput

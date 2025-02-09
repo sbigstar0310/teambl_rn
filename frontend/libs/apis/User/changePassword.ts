@@ -11,12 +11,6 @@ type Response = {
     detail?: string;
 };
 
-const fetchCurrentUserAPI = async (): Promise<{ email: string }> => {
-    // 현재 로그인한 유저 정보를 가져오는 API
-    const response = await api.get<{ email: string }>("user/current/");
-    return response.data;
-};
-
 const changePassword = async (params: RequestParams): Promise<Response> => {
     try {
         // 비밀번호 변경 API 호출

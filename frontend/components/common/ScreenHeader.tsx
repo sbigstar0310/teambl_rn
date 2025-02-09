@@ -41,6 +41,7 @@ const ExtraContainer = styled.View`
 
 const BtnContainer = styled(TouchableOpacity)`
     padding-vertical: 16px;
+    padding-horizontal: 14px;
     // border-width: 1px;
 `;
 
