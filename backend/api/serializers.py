@@ -830,7 +830,11 @@ class FriendCreateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """✅ 응답 시 to_user를 CustomUserSerializer로 변환"""
         representation = super().to_representation(instance)
-        representation["to_user"] = CustomUserSerializer(instance.to_user).data
+
+        # 🔹 `instance`가 `dict`일 수도 있기 때문에 안전하게 `hasattr()` 체크
+        if hasattr(instance, "to_user") and instance.to_user:
+            representation["to_user"] = CustomUserSerializer(instance.to_user).data
+
         return representation
 
 

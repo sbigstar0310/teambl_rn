@@ -45,11 +45,6 @@ class FriendCreateView(generics.CreateAPIView):
         from_user = self.request.user
         to_user = serializer.validated_data.get("to_user")
 
-        if not serializer.is_valid():
-            print(
-                "❌ Serializer errors:", serializer.errors
-            )  # 유효성 검사 실패 시 오류 출력
-            raise ValidationError(serializer.errors)  # 명확한 오류 메시지 출력
         if not from_user:
             print("❌ 인증되지 않은 사용자입니다.")
             raise ValidationError({"message": "인증되지 않은 사용자입니다."})
@@ -74,9 +69,44 @@ class FriendCreateView(generics.CreateAPIView):
             elif existing_friendship.status == "accepted":
                 print("❌ 이미 친구 관계입니다.")
                 raise ValidationError({"message": "이미 친구 관계입니다."})
-            else:
-                print("❌ 이미 친구 요청을 거절했습니다.")
-                raise ValidationError({"message": "이미 친구 요청을 거절했습니다."})
+
+        # ✅ `serializer.save()`를 사용하여 from_user 저장
+        friend_request = serializer.save(from_user=from_user)
+
+        # 친구 추가 요청 알림 생성
+        user_profile = Profile.objects.get(user=from_user)
+        Notification.objects.create(
+            user=to_user,
+            message=f"{user_profile.user_name}님의 일촌 신청이 도착했습니다.\n일촌 리스트에서 확인해보세요!",
+            notification_type="friend_request",
+        )
+
+        email_body = f"""
+                <p>안녕하세요. 팀블입니다.</p>
+                <br>
+                <p>{user_profile.user_name}님의 일촌 신청이 도착했습니다.</p>
+                <p>팀블 일촌 리스트에서 확인해보세요!</p>
+                <br>
+                <p>감사합니다. <br> 팀블 드림.</p>
+                <p><a href="{settings.TEAMBL_URL}" target="_blank" style="color: #3498db; text-decoration: none;">팀블 바로가기</a></p>
+                """
+        send_mail(
+            f"[팀블] {user_profile.user_name}님의 일촌 신청이 도착했습니다.",
+            "",  # 텍스트 메시지는 사용하지 않음.
+            "info@teambl.net",
+            [to_user.email],
+            fail_silently=False,
+            html_message=email_body,  # HTML 형식 메시지 추가
+        )
+
+        # Profile의 one_degree_count도 업데이트
+        update_profile_one_degree_count(from_user)
+        update_profile_one_degree_count(to_user)
+
+        # ✅ 응답에서 `FriendCreateSerializer`를 다시 직렬화하여 반환
+        return Response(
+            FriendCreateSerializer(friend_request).data, status=status.HTTP_201_CREATED
+        )
 
         # ✅ `serializer.save()`를 사용하여 from_user 저장
         friend_request = serializer.save(from_user=from_user)
