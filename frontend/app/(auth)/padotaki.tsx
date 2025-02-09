@@ -122,9 +122,7 @@ type Params = {
 
 const PadoTakiScreen = () => {
     const searchParams = useSearchParams();
-    const userName = searchParams.get("userName")
-        ? `${searchParams.get("userName")}님`
-        : "내";
+    const [userName, setUserName] = useState("내");
     const initialTab = searchParams.get("activeTab") || "projects";
     const [activeTab, setActiveTab] = useState(initialTab);
     const [projectCardList, setProjectCardList] = useState<api.ProjectCard[]>(
@@ -137,6 +135,9 @@ const PadoTakiScreen = () => {
 
     useEffect(() => {
         fetchPadoTaki();
+        if (current_target_user_id !== current_user_id?.toString()){
+            setUserName(`${searchParams.get("userName")}님`);
+        }
     }, []);
 
     const fetchPadoTaki = async () => {
@@ -156,11 +157,7 @@ const PadoTakiScreen = () => {
             const oneDegreefriendList = await fetchOneDegreeFriends(
                 current_target_user_id_number
             );
-            // Current User(로그인 유저)는 oneDegreefriendList에 포함되지 않도록 필터링
-            const filteredOneDegreefriendList = oneDegreefriendList.filter(
-                (user) => user.id !== current_user_id
-            );
-            setUserList(filteredOneDegreefriendList);
+            setUserList(oneDegreefriendList);
         } catch (error) {
             console.error("Failed to fetch pado taki:", error);
         } finally {
