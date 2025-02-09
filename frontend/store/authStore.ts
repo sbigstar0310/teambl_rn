@@ -10,7 +10,7 @@ export type AuthStoreState = {
 };
 
 export type AuthStoreAction = {
-    login: (email: string, password: string) => void;
+    login: (email: string, password: string) => Promise<void>;
     logout: () => void;
     updateUser: (user: api.User) => void;
 };
@@ -32,6 +32,7 @@ export const useAuthStore = create<AuthStoreState & AuthStoreAction>((set) => ({
             set({ user: userData, isLoggedIn: true });
         } catch (error) {
             console.error("Login failed:", error);
+            throw error;
         }
     },
     logout: async () => {

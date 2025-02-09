@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-    StyleSheet,
-    Text,
-    TextInput,
-    Alert, Keyboard,
-} from "react-native";
+import { StyleSheet, Text, TextInput, Alert, Keyboard } from "react-native";
 import { router } from "expo-router";
 import { sharedStyles } from "@/app/_layout";
 import TeamblLogo from "@/assets/teambl.svg";
@@ -93,8 +88,10 @@ const LoginScreen = () => {
 
         try {
             Keyboard.dismiss();
-            await useAuthStore.getState().login(email, password);
-            router.push("/home");
+            // ✅ 로그인 성공 여부 확인 (true/false 반환)
+            const _ = await useAuthStore.getState().login(email, password);
+            console.log("✅ 로그인 성공!");
+            router.push("/home"); // ✅ 로그인 성공 시에만 이동
         } catch (error) {
             Alert.alert(
                 "로그인 실패",
