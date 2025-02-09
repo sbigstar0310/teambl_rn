@@ -17,13 +17,12 @@ const TabsLayout = () => {
     return (
         <SafeAreaView
             style={{ flex: 1, backgroundColor: "#fff" }}
-            edges={["bottom"]}
+            edges={[]}
         >
             <Tabs
                 screenOptions={({ route }) => ({
                     headerShown: false,
                     tabBarStyle: {
-                        height: 54,
                         backgroundColor: "#fff",
                     },
                     tabBarIcon: ({ focused }) => {
