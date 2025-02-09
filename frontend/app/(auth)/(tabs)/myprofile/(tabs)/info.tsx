@@ -114,7 +114,7 @@ const MyProfileInfoView = () => {
 
     return (
         <ScrollView
-            contentContainerStyle={{ paddingVertical: 10 }}
+            contentContainerStyle={{ paddingVertical: 10, paddingBottom: 15 }}
             onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                 { useNativeDriver: false }
