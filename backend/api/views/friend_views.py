@@ -42,6 +42,14 @@ class FriendCreateView(generics.CreateAPIView):
     pagination_class = None
 
     def perform_create(self, serializer):
+        print(
+            "✅ Request received in perform_create!"
+        )  # 🛠 로그 출력 (View가 실행되는지 확인)
+        print("✅ Request Data:", self.request.data)  # 🛠 요청 데이터 확인
+
+        if not serializer.is_valid():
+            print("🔴 Serializer Errors:")
+
         from_user = self.request.user
         to_user = serializer.validated_data.get("to_user")
 

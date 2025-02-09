@@ -404,7 +404,7 @@ const NewProfileHeader = (props: any) => {
                                     <SmallButton
                                         text={"1촌 신청"}
                                         onClickCallback={async () => {
-                                            //TODO
+                                            await createFriend(userId);
                                         }}
                                         isLoading={false}
                                     />
@@ -420,24 +420,26 @@ const NewProfileHeader = (props: any) => {
                             </View>
                         )}
                         {/** bridge view */}
-                        {(userInfo?.choneDegree != null) && (userInfo?.choneDegree !== 1) && (!isMyProfile) && (
-                            <View style={styles.bridgeContainer}>
-                                <Text style={styles.bridgeTitle}>
-                                    {"나와의 관계"}
-                                </Text>
-                                <RelationShipBridgeView
-                                    startName={userInfo?.profile.user_name}
-                                    endName={userInfo?.chonInfoFromMe?.paths_name.findLast(
-                                        () => true
-                                    )}
-                                    relationShipList={
-                                        userInfo?.chonInfoFromMe?.paths_name
-                                    }
-                                    distance={userInfo?.choneDegree}
-                                    isLoading={false}
-                                />
-                            </View>
-                        )}
+                        {userInfo?.choneDegree != null &&
+                            userInfo?.choneDegree !== 1 &&
+                            !isMyProfile && (
+                                <View style={styles.bridgeContainer}>
+                                    <Text style={styles.bridgeTitle}>
+                                        {"나와의 관계"}
+                                    </Text>
+                                    <RelationShipBridgeView
+                                        startName={userInfo?.profile.user_name}
+                                        endName={userInfo?.chonInfoFromMe?.paths_name.findLast(
+                                            () => true
+                                        )}
+                                        relationShipList={
+                                            userInfo?.chonInfoFromMe?.paths_name
+                                        }
+                                        distance={userInfo?.choneDegree}
+                                        isLoading={false}
+                                    />
+                                </View>
+                            )}
                     </View>
                 </View>
             </Animated.View>

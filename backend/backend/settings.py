@@ -163,7 +163,7 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "info@teambl.net"
-EMAIL_HOST_PASSWORD = "amil wtzv ybgq lltk"
+EMAIL_HOST_PASSWORD = "neaf ykxc tvfd xfmc"
 
 # 프로필 이미지를 위한 Media
 # MEDIA_URL은 미디어 파일에 접근할 URL 경로를 지정합니다.

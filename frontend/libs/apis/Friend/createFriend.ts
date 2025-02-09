@@ -9,6 +9,7 @@ type Response = api.Friend;
 const createFriend = async (params: RequestParams): Promise<Response> => {
     try {
         // POST 요청으로 친구 추가
+        console.log(params);
         const response = await api.post<Response>("friend/create/", params);
 
         console.log("Friend request sent successfully:", response.data);
