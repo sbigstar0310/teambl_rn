@@ -11,6 +11,34 @@ const SmallButton = (props: any) => {
         type="point"
     } = props;
 
+    if (type === "disabled") {
+        return (
+            <TouchableOpacity
+                style={[
+                    styles.disabledButton,
+                ]}
+                onPress={async () => await onClickCallback()}
+                disabled={!isActive || isLoading}
+            >
+                {isLoading ? (
+                    <ActivityIndicator
+                        color={
+                            theme.colors.white
+                        }
+                        style={styles.loader}
+                    />
+                ) : (
+                    <Text
+                        style={
+                            styles.pointText
+                        }
+                    >
+                        {text}
+                    </Text>
+                )}
+            </TouchableOpacity>
+        );
+    }
     return (
         <TouchableOpacity
             style={[
@@ -55,6 +83,14 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.achromatic05,
         justifyContent: "center",
         alignItems: "center",
+    },
+    disabledButton : {
+        flex: 1,
+        height: 32,
+        borderRadius: 5,
+        backgroundColor: theme.colors.achromatic03,
+        justifyContent: "center",
+        alignItems: "center",  
     },
     pointText: {
         color: theme.colors.white,
