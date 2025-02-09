@@ -26,6 +26,7 @@ const Container = styled(SafeAreaView)`
     padding-horizontal: 16px;
     gap: 16px;
     align-items: center;
+    background-color: #fff;
     // justify-content: center;
 `;
 
@@ -39,7 +40,6 @@ const ExtraContainer = styled.View`
 `;
 
 const BtnContainer = styled(TouchableOpacity)`
-    padding-horizontal: 14px;
     padding-vertical: 16px;
     // border-width: 1px;
 `;
