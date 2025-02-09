@@ -42,22 +42,21 @@ class FriendCreateView(generics.CreateAPIView):
     pagination_class = None
 
     def perform_create(self, serializer):
-        print(
-            "✅ Request received in perform_create!"
-        )  # 🛠 로그 출력 (View가 실행되는지 확인)
-        print("✅ Request Data:", self.request.data)  # 🛠 요청 데이터 확인
-
-        if not serializer.is_valid():
-            print("🔴 Serializer Errors:")
-
         from_user = self.request.user
         to_user = serializer.validated_data.get("to_user")
 
+        if not serializer.is_valid():
+            print(
+                "❌ Serializer errors:", serializer.errors
+            )  # 유효성 검사 실패 시 오류 출력
+            raise ValidationError(serializer.errors)  # 명확한 오류 메시지 출력
         if not from_user:
+            print("❌ 인증되지 않은 사용자입니다.")
             raise ValidationError({"message": "인증되지 않은 사용자입니다."})
 
         # 자기 자신에게 친구 요청 방지
         if from_user == to_user:
+            print("❌ 자기 자신에게 친구 요청을 보낼 수 없습니다.")
             raise ValidationError(
                 {"message": "자기 자신에게 친구 요청을 보낼 수 없습니다."}
             )
@@ -70,9 +69,14 @@ class FriendCreateView(generics.CreateAPIView):
 
         if existing_friendship:
             if existing_friendship.status == "pending":
+                print("❌ 이미 친구 요청이 진행 중입니다.")
                 raise ValidationError({"message": "이미 친구 요청이 진행 중입니다."})
             elif existing_friendship.status == "accepted":
+                print("❌ 이미 친구 관계입니다.")
                 raise ValidationError({"message": "이미 친구 관계입니다."})
+            else:
+                print("❌ 이미 친구 요청을 거절했습니다.")
+                raise ValidationError({"message": "이미 친구 요청을 거절했습니다."})
 
         # ✅ `serializer.save()`를 사용하여 from_user 저장
         friend_request = serializer.save(from_user=from_user)

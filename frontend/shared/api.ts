@@ -19,6 +19,18 @@ const api = axios.create({
     baseURL: BASE_URL,
 });
 
+// 요청 인터셉터 (헤더에 Content-Type 자동 추가)
+api.interceptors.request.use(
+    async (config) => {
+        if (!config.headers) {
+            config.headers = new AxiosHeaders();
+        }
+        config.headers.set("Content-Type", "application/json");
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 // 요청 인터셉터 (헤더에 Authorization 자동 추가)
 api.interceptors.request.use(
     async (

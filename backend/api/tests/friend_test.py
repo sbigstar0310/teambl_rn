@@ -36,7 +36,6 @@ class FriendCreateViewTestCase(TestCase):
 
     def test_create_friend(self):
         data = {
-            "from_user": self.testuser01.id,
             "to_user": self.testuser02.id,
         }
         response = self.client.post(self.url, data=data, format="json")
@@ -54,7 +53,6 @@ class FriendCreateViewTestCase(TestCase):
 
     def test_create_friend_with_invalid_user(self):
         data = {
-            "from_user": self.testuser01.id,
             "to_user": 100,
         }
         response = self.client.post(self.url, data=data, format="json")
