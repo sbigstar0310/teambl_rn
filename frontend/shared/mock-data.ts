@@ -172,7 +172,7 @@ export const mockComment1: api.Comment = {
 }
 
 export const mockComment2: api.Comment = {
-    id: 1,
+    id: 2,
     post: 1,
     user: 2,
     content: "Thanks!",
