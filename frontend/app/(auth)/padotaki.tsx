@@ -19,6 +19,7 @@ import fetchOneDegreeProjectCard from "@/libs/apis/ProjectCard/fetchOneDegreePro
 import ProjectCard from "@/components/cards/ProjectCard";
 import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
 import NoSearchResult from "@/components/common/NoSearchResult";
+import { useAuthStore } from "@/store/authStore";
 
 type HeaderProps = {
     onBackPress: () => void;
@@ -132,6 +133,7 @@ const PadoTakiScreen = () => {
     const [userList, setUserList] = useState<api.User[]>([]);
     const [loading, setLoading] = useState(false);
     const { current_target_user_id } = useLocalSearchParams<Params>();
+    const current_user_id = useAuthStore.getState().user?.id;
 
     useEffect(() => {
         fetchPadoTaki();
@@ -154,7 +156,11 @@ const PadoTakiScreen = () => {
             const oneDegreefriendList = await fetchOneDegreeFriends(
                 current_target_user_id_number
             );
-            setUserList(oneDegreefriendList);
+            // Current User(로그인 유저)는 oneDegreefriendList에 포함되지 않도록 필터링
+            const filteredOneDegreefriendList = oneDegreefriendList.filter(
+                (user) => user.id !== current_user_id
+            );
+            setUserList(filteredOneDegreefriendList);
         } catch (error) {
             console.error("Failed to fetch pado taki:", error);
         } finally {
@@ -182,7 +188,10 @@ const PadoTakiScreen = () => {
                         </View>
                     ) : activeTab === "projects" ? (
                         projectCardList.length === 0 ? (
-                            <NoSearchResult title="검색된 프로젝트가 없습니다." message="이어지는 프로젝트 탭에서 더 많은 프로젝트를 확인해보세요." />
+                            <NoSearchResult
+                                title="검색된 프로젝트가 없습니다."
+                                message="이어지는 프로젝트 탭에서 더 많은 프로젝트를 확인해보세요."
+                            />
                         ) : (
                             projectCardList.map((projectCard) =>
                                 projectCard.posts.length > 0 ? (
@@ -211,7 +220,10 @@ const PadoTakiScreen = () => {
                                 {userList.length}명
                             </Text>
                             {userList.length === 0 ? (
-                                <NoSearchResult title="이어지는 프로젝트가 없습니다." message="우측 상단의 탐색 버튼을 눌러 탐색 화면으로 이동하세요." />
+                                <NoSearchResult
+                                    title="이어지는 프로젝트가 없습니다."
+                                    message="우측 상단의 탐색 버튼을 눌러 탐색 화면으로 이동하세요."
+                                />
                             ) : (
                                 <FlatList
                                     data={userList}

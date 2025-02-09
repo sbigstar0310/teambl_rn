@@ -10,7 +10,7 @@ import {
 import { FC } from "react";
 import { router } from "expo-router";
 import { sharedStyles } from "@/app/_layout";
-
+import LeftArrowIcon from "@/assets/left-arrow.svg";
 interface ScreenHeaderProps {
     title?: string | FC;
     actionButton?: FC;
@@ -38,11 +38,9 @@ export default function ScreenHeader(props: ScreenHeaderProps) {
                     style={styles.backButton}
                     onPress={handleBackButton}
                 >
-                    <Image
-                        source={require("@/assets/left-arrow.png")}
-                        style={styles.backIcon}
-                    />
+                    <LeftArrowIcon />
                 </TouchableOpacity>
+
                 {/* Optionally provided extra details */}
                 {/* e.g. Screen title */}
                 <View style={styles.extraContainer}>
@@ -71,8 +69,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     backButton: {
-        paddingTop: 16,
-        paddingBottom: 20,
+        alignItems: "center",
     },
     backIcon: {
         width: 20,
