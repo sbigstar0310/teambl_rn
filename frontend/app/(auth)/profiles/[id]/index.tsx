@@ -1,13 +1,12 @@
 import { getCurrentUserId } from "@/shared/utils";
 import { useAuthStore } from "@/store/authStore";
-import { Redirect } from "expo-router";
-import { useRouter, useSearchParams } from "expo-router/build/hooks";
+import { Redirect, useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 
 const ProfileDetailPage = () => {
     const router = useRouter();
 
-    const id = useSearchParams().get("id");
+    const { id } = useLocalSearchParams();
     const [myId, setMyId] = useState(-99);
 
     const getMyId = async () => {

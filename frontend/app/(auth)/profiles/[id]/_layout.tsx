@@ -1,8 +1,7 @@
 
 import { sharedStyles } from '@/app/_layout';
 import NewProfileHeader from '@/components/NewProfileHeader';
-import { Stack, useRouter } from 'expo-router';
-import { usePathname, useSearchParams } from 'expo-router/build/hooks';
+import { Stack, useRouter, usePathname, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +11,7 @@ import { ScrollProvider } from '@/components/provider/ScrollContext';
 /** For the profile of other users */
 const ProfileDetailLayout = () => {
 
-    const id = useSearchParams().get('id');
+    const { id } = useLocalSearchParams();
 
     const router = useRouter();
     const pathname = usePathname();
