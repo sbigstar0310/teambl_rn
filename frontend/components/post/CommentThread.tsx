@@ -23,8 +23,8 @@ export const getThread = (comment: api.Comment, otherComments: api.Comment[]) =>
         const subOtherComments = otherComments.filter(c => c.id !== subComment.id);
         thread.sub.push(getThread(subComment, subOtherComments));
     }
-    // Sort the sub comments to show latest first
-    thread.sub.sort((a, b) => b.comment.created_at.getTime() - a.comment.created_at.getTime());
+    // Sort the sub comments to show oldest first
+    thread.sub.sort((a, b) => a.comment.created_at.getTime() - b.comment.created_at.getTime());
     return thread;
 }
 

@@ -2,7 +2,7 @@ import {useLocalSearchParams} from "expo-router";
 import {Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {mockComment1, mockComment2, mockPost1, mockProject1, mockUser1} from "@/shared/mock-data";
 import dayjs from "dayjs";
 import PostContent from "@/components/PostContent";
@@ -24,7 +24,8 @@ export default function PostView() {
     const [isContextOpen, setIsContextOpen] = useState(false);
     const [replyingTo, setReplyingTo] = useState<number | null>(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
-    const [commentText, setCommentText] = useState("");
+    const [commentText, setCommentText] = useState("")
+    const containerRef = useRef<ScrollView | null>(null);
 
     useEffect(() => {
         // TODO: fetch current authenticated user data
@@ -47,8 +48,8 @@ export default function PostView() {
     useEffect(() => {
         const threads: Thread[] = commentsData
             .filter(c => !c.parent_comment)
-            // Sort the comments to show latest first
-            .sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+            // Sort the comments to show oldest first
+            .sort((a, b) => a.created_at.getTime() - b.created_at.getTime())
             .map(c => getThread(c, commentsData.filter(c2 => c2.id !== c.id)));
         setThreadData(threads);
     }, [commentsData]);
@@ -84,6 +85,10 @@ export default function PostView() {
             }
             return [...comments, newComment];
         })
+        if (replyingTo == null) {
+            // Scroll to the bottom of the comments
+            containerRef.current?.scrollToEnd();
+        }
         setReplyingTo(null);
         setIsInputFocused(false);
     }
@@ -103,7 +108,11 @@ export default function PostView() {
         <View style={sharedStyles.container}>
             <ScreenHeader/>
             {postData &&
-                <View style={styles.main}>
+                <ScrollView
+                    style={styles.main}
+                    showsVerticalScrollIndicator={false}
+                    ref={containerRef}
+                >
                     {/* Project details */}
                     {projectData &&
                         <ProjectDetailsInPost
@@ -141,18 +150,15 @@ export default function PostView() {
                         onModalOpen={() => handleInputFocus()}
                     />}
                     {/* Comments thread */}
-                    <ScrollView
-                        style={[sharedStyles.horizontalPadding, {flex: 1}]}
-                        contentContainerStyle={{paddingBottom: 12}}
-                    >
+                    <View style={sharedStyles.horizontalPadding}>
                         {threadData.map((threadData, index) =>
                             <CommentThread
                                 key={index}
                                 thread={threadData}
                                 onReply={handleInputFocus}
                             />)}
-                    </ScrollView>
-                </View>
+                    </View>
+                </ScrollView>
             }
             <Modal
                 visible={isInputFocused}
