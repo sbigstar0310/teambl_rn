@@ -3,10 +3,13 @@ import Avatar from "@/components/common/Avatar";
 import {timeAgo} from "@/shared/utils";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Feather from '@expo/vector-icons/Feather';
 import theme from "@/shared/styles/theme";
 import {sharedStyles} from "@/app/_layout";
 import {useEffect, useMemo, useState} from "react";
 import {mockUser2} from "@/shared/mock-data";
+import BottomModal from "@/components/BottomModal";
 
 export type Thread = {
     comment: api.Comment;
@@ -31,10 +34,12 @@ export const getThread = (comment: api.Comment, otherComments: api.Comment[]) =>
 interface CommentThreadProps {
     thread: Thread;
     onReply: (parentCommentId: number) => void;
+    myUserId: number;
 }
 
 export default function CommentThread(props: CommentThreadProps) {
     const comment = useMemo(() => props.thread.comment, [props.thread]);
+    const isMyComment = useMemo(() => comment.user === props.myUserId, [comment, props.myUserId]);
     const [user, setUser] = useState<api.User>();
 
     const [isContextOpen, setIsContextOpen] = useState(false);
@@ -105,10 +110,17 @@ export default function CommentThread(props: CommentThreadProps) {
                             key={index}
                             thread={subThread}
                             onReply={props.onReply}
+                            myUserId={props.myUserId}
                         />
                     )))}
                 </View>
             )}
+            <BottomModal
+                visible={isContextOpen}
+                onClose={setIsContextOpen.bind(null, false)}
+                body={isMyComment ? <MyOptions/> : <Options/>}
+                heightPercentage={0.2}
+            />
         </View>
     )
 }
@@ -130,6 +142,59 @@ function ShowThreadButton(props: ShowThreadButtonProps) {
                 color={theme.colors.achromatic01}
             />
         </TouchableOpacity>
+    )
+}
+
+function MyOptions() {
+    const handleEdit = () => {
+
+    }
+
+    const handleDelete = () => {
+
+    }
+
+    return (
+        <View style={styles.optionsContainer}>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.black}]}
+                    onPress={handleEdit}
+                >
+                    <MaterialCommunityIcons name="pencil" size={24} color={theme.colors.black}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.black}}>수정</Text>
+            </View>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.message2}]}
+                    onPress={handleDelete}
+                >
+                    <Feather name="trash-2" size={24} color={theme.colors.message2}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.message2}}>삭제</Text>
+            </View>
+        </View>
+    )
+}
+
+function Options() {
+    const handleReport = () => {
+
+    }
+
+    return (
+        <View style={styles.optionsContainer}>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.message2}]}
+                    onPress={handleReport}
+                >
+                    <AntDesign name="warning" size={24} color={theme.colors.message2}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.message2}}>신고</Text>
+            </View>
+        </View>
     )
 }
 
@@ -155,9 +220,6 @@ const styles = StyleSheet.create({
     contentText: {
         color: theme.colors.black
     },
-    optionsButtonContainer: {
-        paddingLeft: 24
-    },
     subContainer: {
         paddingLeft: 32
     },
@@ -170,5 +232,24 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 12
+    },
+    optionsButtonContainer: {
+        paddingLeft: 24
+    },
+    optionsContainer: {
+        flex: 1,
+        flexDirection: "row",
+        gap: 8,
+        alignItems: "center",
+        justifyContent: "space-evenly"
+    },
+    optionButton: {
+        padding: 12,
+        borderRadius: 999,
+        borderWidth: 1
+    },
+    optionButtonWrapper: {
+        alignItems: "center",
+        gap: 4
     }
 })
