@@ -25,7 +25,7 @@ const LoadingContainer = styled.View`
 
 type UserExtension = {
     user: api.User;
-    relation_degree?: number;
+    relation_degree: number | undefined;
 };
 
 // 상대방의 일촌 리스트를 보여주는 화면

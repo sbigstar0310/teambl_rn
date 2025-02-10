@@ -7,7 +7,7 @@ import FriendsCard from "@/components/friends/FriendsCard";
 
 type UserListItem = {
     user: api.User;
-    relation_degree: number;
+    relation_degree: number | undefined;
 }
 
 interface UserListProps {

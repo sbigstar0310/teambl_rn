@@ -7,9 +7,12 @@ import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackIcon from '@/assets/BackIcon.svg';
 import { ScrollProvider } from '@/components/provider/ScrollContext';
+import { useAuthStore } from "@/store/authStore";
 
 /** For the profile of other users */
 const ProfileDetailLayout = () => {
+    const user = useAuthStore((state) => state.user); // ✅ Get user from Zustand
+    const myid = user?.id; // ✅ Extract profile image URL
 
     const { id } = useLocalSearchParams();
 

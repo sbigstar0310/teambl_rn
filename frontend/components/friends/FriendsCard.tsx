@@ -15,6 +15,7 @@ import RefuseIcon from "@/assets/friends/RefuseIcon.svg";
 import AcceptIcon from "@/assets/friends/AcceptIcon.svg";
 import updateFriend from "@/libs/apis/Friend/updateFriend";
 import eventEmitter from "@/libs/utils/eventEmitter";
+import { useAuthStore } from "@/store/authStore";
 
 // 상태 타입 정의
 type RelationStatus = "accepted" | "requested" | "received" | "rejected";
@@ -34,6 +35,7 @@ export default function FriendsCard({
 }: FriendsCardData) {
     const profile = user.profile;
     const [isLoading, setIsLoading] = useState(false);
+    const myid = useAuthStore((state) => state.user)?.id; // ✅ Get myid from Zustand
 
     const handleFriendRequest = async (status: "accepted" | "rejected") => {
         try {
@@ -76,11 +78,13 @@ export default function FriendsCard({
                         style={[styles.infoContainer, styles.nameAndRelation]}
                     >
                         <Text style={styles.userName}>{profile.user_name}</Text>
-                        <Text style={styles.relation}>
-                            {relation_degree
-                                ? ` · ${relation_degree}촌`
-                                : " · 4촌 이상"}
-                        </Text>
+                        {(id !== myid) && 
+                            <Text style={styles.relation}>
+                                {relation_degree
+                                    ? ` · ${relation_degree}촌`
+                                    : " · 4촌 이상"}
+                            </Text>
+                        }
                     </View>
                     <View style={styles.infoContainer}>
                         <Text style={styles.infoText}>

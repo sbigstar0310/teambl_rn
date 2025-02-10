@@ -377,7 +377,14 @@ const NewProfileHeader = (props: any) => {
                         <View style={[styles.bottomContainer]}>
                             <TouchableOpacity
                                 style={[styles.bottomButton, styles.withMR17]}
-                                onPress={() => router.push("/myfriends")}
+                                onPress={isMyProfile ? 
+                                    () => router.push("/myfriends") : 
+                                    () => router.push({
+                                        pathname: "/oneChon",
+                                        params: {
+                                            target_user_id_string: userId,
+                                        },
+                                    })}
                             >
                                 <ChonIcon style={[styles.bottomButtonIcon]} />
                                 <Text style={[styles.bottomButtonText]}>
@@ -392,6 +399,8 @@ const NewProfileHeader = (props: any) => {
                                         params: {
                                             current_target_user_id:
                                                 userId.toString(),
+                                            userName:
+                                                userInfo?.profile.user_name,
                                         },
                                     });
                                 }}
