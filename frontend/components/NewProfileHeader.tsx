@@ -27,6 +27,9 @@ import getUserPath from "@/libs/apis/getUserPath";
 import { getCurrentUserId } from "@/shared/utils";
 import { useScroll } from "./provider/ScrollContext";
 import { useAuthStore } from "@/store/authStore";
+import deleteFriend from "@/libs/apis/Friend/deleteFriend";
+import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
+import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
 
 const MyProfileDummyData = {
     id: 1,
@@ -144,7 +147,8 @@ const NewProfileHeader = (props: any) => {
     const [isImageUploadModalVisible, setIsImageUploadModalVisible] =
         useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [isFriendRequesting, setIsFriendRequesting] = useState(false);
+    const [isFriendCanceling, setIsFriendCanceling] = useState(false);
     const [userInfo, setUserInfo] = useState<UserInfo>();
     const [currentImageURL, setCurrentImageURL] = useState("");
 
@@ -237,6 +241,58 @@ const NewProfileHeader = (props: any) => {
             newList.push(info.BridgeNames);
         });
         return newList;
+    };
+
+    const createFriendRequest = async () => {
+        try {
+            setIsFriendRequesting(true);
+
+            // Simulate network delay for testing (3 seconds)
+            // await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            // Send friend request
+            await createFriend({ to_user: userId });
+
+            console.log("Friend request sent successfully!");
+        } catch (error) {
+            console.error("Failed to create friend request:", error);
+        } finally {
+            setIsFriendRequesting(false);
+        }
+    };
+
+    const cancelFriendRequest = async () => {
+        try {
+            setIsFriendCanceling(true);
+            const current_user_id = useAuthStore.getState().user!.id;
+            const friendList = await fetchFriendList(current_user_id);
+
+            // Find the friend relationship where the current user and target user are linked
+            const friend = friendList.find((friend) => {
+                return (
+                    (friend.from_user.id === current_user_id &&
+                        friend.to_user.id === Number(userId)) ||
+                    (friend.from_user.id === Number(userId) &&
+                        friend.to_user.id === current_user_id)
+                );
+            });
+
+            if (!friend) {
+                console.warn("Friend request not found or already canceled.");
+                return;
+            }
+
+            // Delete the friend request
+            await deleteFriend(friend.id);
+
+            // refetch user info (to update the choneDegree)
+            fetchUserInfo();
+            console.log("Friend request successfully canceled.");
+        } catch (error) {
+            console.error("Failed to cancel friend request:", error);
+        } finally {
+            setIsFriendCanceling(false);
+        }
     };
 
     useEffect(() => {
@@ -342,7 +398,11 @@ const NewProfileHeader = (props: any) => {
                                 </TouchableOpacity>
                             )}
                             {!isMyProfile && (
-                                <Text>{`・ ${userInfo?.choneDegree}촌`}</Text>
+                                <Text>{`・ ${
+                                    userInfo?.choneDegree
+                                        ? `${userInfo?.choneDegree}촌`
+                                        : `4촌 이상`
+                                }`}</Text>
                             )}
                         </View>
                         <View style={[styles.schoolContainer]}>
@@ -377,14 +437,18 @@ const NewProfileHeader = (props: any) => {
                         <View style={[styles.bottomContainer]}>
                             <TouchableOpacity
                                 style={[styles.bottomButton, styles.withMR17]}
-                                onPress={isMyProfile ? 
-                                    () => router.push("/myfriends") : 
-                                    () => router.push({
-                                        pathname: "/oneChon",
-                                        params: {
-                                            target_user_id_string: userId,
-                                        },
-                                    })}
+                                onPress={
+                                    isMyProfile
+                                        ? () => router.push("/myfriends")
+                                        : () =>
+                                              router.push({
+                                                  pathname: "/oneChon",
+                                                  params: {
+                                                      target_user_id_string:
+                                                          userId,
+                                                  },
+                                              })
+                                }
                             >
                                 <ChonIcon style={[styles.bottomButtonIcon]} />
                                 <Text style={[styles.bottomButtonText]}>
@@ -418,12 +482,10 @@ const NewProfileHeader = (props: any) => {
                                     !userInfo?.isOneChonRequested && (
                                         <SmallButton
                                             text={"1촌 신청"}
-                                            onClickCallback={async () => {
-                                                await createFriend({
-                                                    to_user: Number(userId),
-                                                });
-                                            }}
-                                            isLoading={false}
+                                            onClickCallback={
+                                                createFriendRequest
+                                            }
+                                            isLoading={isFriendRequesting}
                                         />
                                     )}
                                 {userInfo?.choneDegree !== 1 &&
@@ -440,10 +502,8 @@ const NewProfileHeader = (props: any) => {
                                 {userInfo?.choneDegree === 1 && (
                                     <SmallButton
                                         text={"1촌 취소"}
-                                        onClickCallback={async () => {
-                                            //TODO
-                                        }}
-                                        isLoading={false}
+                                        onClickCallback={cancelFriendRequest}
+                                        isLoading={isFriendCanceling}
                                         type={"secondary"}
                                     />
                                 )}
