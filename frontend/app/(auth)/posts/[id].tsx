@@ -156,6 +156,7 @@ export default function PostView() {
                                 key={index}
                                 thread={threadData}
                                 onReply={handleInputFocus}
+                                myUserId={me?.id || 0}
                             />)}
                     </View>
                 </ScrollView>
