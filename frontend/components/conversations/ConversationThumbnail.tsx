@@ -1,10 +1,10 @@
 import {StyleSheet, Text, TouchableHighlight, View} from "react-native";
 import {useEffect, useState} from "react";
-import {mockMessage1} from "@/shared/mock-data";
 import {shorten, timeAgo} from "@/shared/utils";
 import Avatar from "@/components/common/Avatar";
 import UnreadIndicator from "@/components/conversations/UnreadIndicator";
 import {sharedStyles} from "@/app/_layout";
+import getLatestMessage from "@/libs/apis/Conversation/getLatestMessage";
 
 interface ConversationThumbnailProps {
     conversation: api.Conversation;
@@ -15,9 +15,21 @@ export default function ConversationThumbnail(props: ConversationThumbnailProps)
     const [lastMessage, setLastMessage] = useState<api.Message | null>(null);
 
     useEffect(() => {
-        // TODO: fetch latest message in the conversation
-        setLastMessage(mockMessage1);
+        fetchLatestMessage();
     }, []);
+
+    const fetchLatestMessage = async () => {
+        try {
+            const data = await getLatestMessage(String(props.conversation.id));
+            if (data) {
+                setLastMessage({...data, created_at: new Date(data.created_at)});
+            } else {
+                setLastMessage(null);
+            }
+        } catch (error) {
+            setLastMessage(null);
+        }
+    };
 
     const avatarImageURL = props.conversation.other_user_profile.image;
     const name = shorten(props.conversation.other_user_profile.user_name);
