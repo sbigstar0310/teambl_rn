@@ -30,6 +30,7 @@ import { useAuthStore } from "@/store/authStore";
 import deleteFriend from "@/libs/apis/Friend/deleteFriend";
 import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
 import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
+import isFriendRequested from "@/libs/apis/Friend/isFriendRequested";
 
 const MyProfileDummyData = {
     id: 1,
@@ -142,7 +143,7 @@ type UserInfo = {
 const NewProfileHeader = (props: any) => {
     const { userId, isMyProfile } = props;
     const router = useRouter();
-    const myId = getCurrentUserId();
+    const myId = useAuthStore.getState().user!.id;
 
     const [isImageUploadModalVisible, setIsImageUploadModalVisible] =
         useState(false);
@@ -154,6 +155,8 @@ const NewProfileHeader = (props: any) => {
 
     const fetchUserInfo = async () => {
         try {
+            setIsLoading(true);
+
             // Fetch user profile
             let profile;
             if (isMyProfile) {
@@ -171,20 +174,25 @@ const NewProfileHeader = (props: any) => {
             // Fetch chonInfoFromMe
             const pathInfo = await getUserPath(userId);
 
-            // TODO
-            const isOneChonRequested = false;
+            // Check isOneChonRequested
+            const isOneChonRequested = await isFriendRequested({
+                user1_id: Number(userId),
+                user2_id: myId,
+            });
 
             // Update state correctly
             setUserInfo({
                 profile: profile,
                 choneDegree: choneDegree,
                 chonInfoFromMe: pathInfo,
-                isOneChonRequested: isOneChonRequested,
+                isOneChonRequested: isOneChonRequested.isRequested,
             });
 
             // TODO: get chonInfoFromMe
         } catch (error) {
             console.error("프로필 정보를 불러오는 중 오류 발생:", error);
+        } finally {
+            setIsLoading(false);
         }
 
         // if (`${userId}` === `${myId}`) {
