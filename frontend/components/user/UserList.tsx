@@ -1,33 +1,39 @@
-import React from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-} from "react-native";
-import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, {useMemo} from "react";
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {router} from "expo-router";
+import {SafeAreaView} from "react-native-safe-area-context";
 import LeftArrowIcon from "@/assets/search/LeftArrowIcon.svg";
 import FriendsCard from "@/components/friends/FriendsCard";
 
+type UserListItem = {
+    user: api.User;
+    relation_degree: number;
+}
+
 interface UserListProps {
     title: string;
-    userList: any[];
+    userList: UserListItem[];
+    hideBackButton?: boolean;
 }
 
 export default function UserListScreen(props: UserListProps) {
+    const isBackButtonHidden = useMemo(
+        () => props.hideBackButton === true,
+        [props.hideBackButton]
+    );
 
     return (
         <SafeAreaView
-            style={{ flex: 1, backgroundColor: "#fff" }}
+            style={{flex: 1, backgroundColor: "#fff"}}
             edges={["top"]}
         >
             {/* 상단 헤더 */}
             <View style={styles.headerContainer}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <LeftArrowIcon/>
-                </TouchableOpacity>
+                {!isBackButtonHidden &&
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                        <LeftArrowIcon/>
+                    </TouchableOpacity>
+                }
                 <Text style={styles.title}>{props.title}</Text>
             </View>
 
