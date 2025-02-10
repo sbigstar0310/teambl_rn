@@ -1,14 +1,7 @@
 import api from "@/shared/api";
 
 type Response = {
-    last_message: {
-        id: string;
-        conversation: string;
-        sender: string;
-        message: string;
-        is_read: boolean;
-        created_at: string;
-    } | null;
+    last_message: api.Message | null;
 };
 
 const getLatestMessage = async (conversationId: string): Promise<Response["last_message"] | undefined> => {

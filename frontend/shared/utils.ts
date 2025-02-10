@@ -48,17 +48,17 @@ export function isSameDay(date1: Date, date2: Date): boolean {
 
 export type MessageEntity =
     | {
-          type: "message";
-          data: api.Message;
-      }
+    type: "message";
+    data: api.Message;
+}
     | {
-          type: "date";
-          data: Date;
-      }
+    type: "date";
+    data: Date;
+}
     | {
-          type: "system_message";
-          data: api.Message;
-      };
+    type: "system_message";
+    data: api.Message;
+};
 
 export const produceMessageEntities = (messages: api.Message[]) => {
     const entities: MessageEntity[] = [];
@@ -68,15 +68,20 @@ export const produceMessageEntities = (messages: api.Message[]) => {
         // (or if it's the very first message)
         if (
             !lastMessage ||
-            !isSameDay(lastMessage.created_at, message.created_at)
+            !isSameDay(new Date(lastMessage.created_at), new Date(message.created_at))
         ) {
-            entities.push({ type: "date", data: message.created_at });
+            entities.push({type: "date", data: new Date(message.created_at)});
         }
         // Add system message entity if it's system message
         if (message.is_system) {
-            entities.push({ type: "system_message", data: message });
+            entities.push({type: "system_message", data: message});
         } else {
-            entities.push({ type: "message", data: message });
+            entities.push({
+                type: "message", data: {
+                    ...message,
+                    created_at: new Date(message.created_at)
+                }
+            });
         }
         lastMessage = message;
     }
