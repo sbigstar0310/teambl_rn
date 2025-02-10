@@ -78,7 +78,7 @@ export default function FriendsCard({
                         style={[styles.infoContainer, styles.nameAndRelation]}
                     >
                         <Text style={styles.userName}>{profile.user_name}</Text>
-                        {(id !== myid) && 
+                        {(user.id !== myid) && 
                             <Text style={styles.relation}>
                                 {relation_degree
                                     ? ` · ${relation_degree}촌`

@@ -1,9 +1,5 @@
 import {
-    Image,
-    StyleSheet,
-    Text,
     TouchableOpacity,
-    View,
     ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,7 +19,7 @@ const Container = styled(SafeAreaView)`
     // flex: 1;
     width: 100%;
     flex-direction: row;
-    padding-horizontal: 8px;
+    padding: 16px;
     gap: 16px;
     align-items: center;
     background-color: #fff;
@@ -40,8 +36,6 @@ const ExtraContainer = styled.View`
 `;
 
 const BtnContainer = styled(TouchableOpacity)`
-    padding-vertical: 16px;
-    padding-horizontal: 14px;
     // border-width: 1px;
 `;
 
