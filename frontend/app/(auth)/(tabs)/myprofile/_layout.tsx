@@ -2,7 +2,6 @@
 import { sharedStyles } from '@/app/_layout';
 import NewProfileHeader from '@/components/NewProfileHeader';
 import { Stack, useRouter } from 'expo-router';
-import { usePathname, useSearchParams } from 'expo-router/build/hooks';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

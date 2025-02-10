@@ -10,14 +10,30 @@ import LeftSmallArrow from "@/assets/LeftSmallArrow.svg";
 import RightSmallArrow from "@/assets/RightSmallArrow.svg";
 import LeftSmallArrowDisabled from "@/assets/LeftSmallArrowDisabled.svg";
 import RightSmallArrowDisabled from "@/assets/RightSmallArrowDisabled.svg";
+import { ICarouselInstance } from "react-native-reanimated-carousel";
+import ProjectPreview from "@/components/ProjectPreview";
+import { useAuthStore } from "@/store/authStore";
 
 const { width, height } = Dimensions.get("window");
 
 const MyProfileProjectView = () => {
+
+    const myId = useAuthStore.getState().user?.id || -99;
+
+    if (myId === -99) {
+        return (
+            <View>
+                <Text>
+                    Error in getting user id
+                </Text>
+            </View>
+        );
+    }
     
     const [projectCards, setProjectCards] = useState<api.ProjectCard[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const carouselRef = useRef<typeof Carousel>(null);
+    
+    const carouselRef = useRef<ICarouselInstance>(null);
 
     const fetchMyProjectCard = async () => {
         try {
@@ -99,8 +115,10 @@ const MyProfileProjectView = () => {
                     </View>
                 </View>
                 {/** project preview call */}
-
-
+                <ProjectPreview
+                    projectInfo={item}
+                    myId={myId}
+                />
             </View>
         </ScrollView>
     );

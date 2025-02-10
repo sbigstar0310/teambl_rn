@@ -25,7 +25,7 @@ const MyProfileTabLayout = () => {
                         paddingBottom: 0,
                         paddingTop: 0,
                         height: 42,
-                        borderBottomWidth: 0,
+                        borderBottomWidth: 0
                     },
                     tabBarItemStyle: {
                         paddingBottom: 0,
@@ -41,7 +41,7 @@ const MyProfileTabLayout = () => {
                     tabBarIcon: () => null,
                     tabBarIconStyle: {
                         display: 'none',
-                    },
+                    }
                 })}
             >
                 <Tabs.Screen name="project" options={{ title: '프로젝트' }} />

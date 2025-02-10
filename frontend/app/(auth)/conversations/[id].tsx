@@ -9,7 +9,7 @@ import Message from "@/components/conversations/Message";
 import MessageInput from "@/components/conversations/MessageInput";
 import InfoMessage from "@/components/conversations/InfoMessage";
 import ExitIcon from '@/assets/conversations/exit-icon.svg';
-import getConversation from "@/libs/apis/Conversation/getConversations";
+import getConversation from "@/libs/apis/Conversation/getConversation";
 import deleteConversation from "@/libs/apis/Conversation/deleteConversation";
 import getMessage from "@/libs/apis/Conversation/getMessage";
 import createMessage from "@/libs/apis/Conversation/createMessage";

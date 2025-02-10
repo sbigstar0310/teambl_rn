@@ -4,7 +4,7 @@ import {router} from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
 import ConversationThumbnail from "@/components/conversations/ConversationThumbnail";
-import getConversation from "@/libs/apis/Conversation/getConversations";
+import getConversation from "@/libs/apis/Conversation/getConversation";
 
 export default function InboxScreen() {
     const [conversations, setConversations] = useState<api.Conversation[]>([]);
