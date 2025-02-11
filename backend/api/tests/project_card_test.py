@@ -185,6 +185,149 @@ class ProjectCardOneDegreeListViewTestCase(TestCase):
         self.assertEqual(response.data[0].get("id"), self.project_card2.id)
 
 
+class ProjectCardUpdateViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Create a test user
+        self.testuser01 = create_user_with_profile(
+            email="testuser01@email.com", password="test", user_name="testuser1"
+        )
+        self.testuser02 = create_user_with_profile(
+            email="testuser02@email.com", password="test", user_name="testuser2"
+        )
+
+        # Create Project Cards
+        self.project_card1 = ProjectCard.objects.create(
+            title="Test Project Card 1",
+            creator=self.testuser01,
+            description="This is a test project card 1.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+        self.project_card1.accepted_users.set([self.testuser01, self.testuser02])
+
+        self.project_card2 = ProjectCard.objects.create(
+            title="Test Project Card 2",
+            creator=self.testuser02,
+            description="This is a test project card 2.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+        self.project_card2.accepted_users.set([self.testuser01, self.testuser02])
+
+        # Authenticate the user
+        self.client.force_authenticate(user=self.testuser01)
+
+    def test_update_project_card(self):
+        """
+        Ensure we can update a project card object.
+        """
+        url = reverse("project-card-update", args=[self.project_card1.id])
+        data = {
+            "title": "Updated Project Card 1",
+            "keywords": ["updated", "project", "card"],
+            "accepted_users": [self.testuser01.id],
+            "bookmark_users": [],
+            "description": "This is an updated test project card 1.",
+            "start_date": "2022-12-31",
+            "end_date": "2023-01-01",
+        }
+
+        response = self.client.put(url, data, format="json")
+        self.project_card1.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("title"), self.project_card1.title)
+
+    def test_update_project_card_creator(self):
+        """
+        Ensure the only creator can update a project card object.
+        """
+        url = reverse("project-card-update", args=[self.project_card2.id])
+        data = {
+            "title": "Updated Project Card 2",
+            "keywords": ["updated", "project", "card"],
+            "accepted_users": [self.testuser01.id],
+            "bookmark_users": [],
+            "description": "This is an updated test project card 2.",
+            "start_date": "2022-12-31",
+            "end_date": "2023-01-01",
+        }
+
+        response = self.client.put(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data["detail"], "관리자만 프로젝트 카드를 수정할 수 있습니다."
+        )
+
+
+class ProjectCardBookmarkToggleViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Create a test user
+        self.testuser01 = create_user_with_profile(
+            email="testuser01@email.com", password="test", user_name="testuser1"
+        )
+        self.testuser02 = create_user_with_profile(
+            email="testuser02@email.com", password="test", user_name="testuser2"
+        )
+
+        # Create Project Cards
+        self.project_card1 = ProjectCard.objects.create(
+            title="Test Project Card 1",
+            creator=self.testuser01,
+            description="This is a test project card 1.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+        self.project_card1.accepted_users.set([self.testuser01, self.testuser02])
+
+        self.project_card2 = ProjectCard.objects.create(
+            title="Test Project Card 2",
+            creator=self.testuser02,
+            description="This is a test project card 2.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+        self.project_card2.accepted_users.set([self.testuser01, self.testuser02])
+
+        # Authenticate the user
+        self.client.force_authenticate(user=self.testuser01)
+
+    def test_bookmark_toggle_add(self):
+        """
+        Ensure we can bookmark a project card object.
+        """
+        url = reverse("project-card-bookmark-toggle", args=[self.project_card2.id])
+        response = self.client.patch(url, format="json")
+
+        # Refresh project_card2 object from the database
+        self.project_card2.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.project_card2.bookmarked_users.count(), 1)
+        self.assertEqual(self.project_card2.bookmarked_users.first(), self.testuser01)
+
+    def test_bookmark_toggle_remove(self):
+        """
+        Ensure we can remove a bookmark from a project card object.
+        """
+        # Add a bookmark
+        self.project_card2.bookmarked_users.add(self.testuser01)
+
+        # Remove the bookmark
+        url = reverse("project-card-bookmark-toggle", args=[self.project_card2.id])
+        response = self.client.patch(url, format="json")
+
+        # Refresh project_card1 object from the database
+        self.project_card1.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.project_card1.bookmarked_users.count(), 0)
+
+
 class ProjectCardLeaveViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()

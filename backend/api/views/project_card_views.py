@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 from ..models import Friend, ProjectCard, ProjectCardInvitation, CustomUser
 from ..serializers import ProjectCardSerializer, ProjectCardInvitationSerializer
 from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
 
 
 ## 프로젝트 카드 (ProjectCard) 관련 API 뷰
@@ -76,12 +77,35 @@ class ProjectCardUpdateView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         project_card = self.get_object()
+
+        # ✅ 관리자(creator)만 업데이트 가능하도록 예외 발생
         if project_card.creator != self.request.user:
-            return Response(
-                {"error": "관리자만 프로젝트 카드를 수정할 수 있습니다."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+            raise PermissionDenied(
+                "관리자만 프로젝트 카드를 수정할 수 있습니다."
+            )  # ❗ Response가 아니라 예외 발생
+
         serializer.save()
+
+
+# 프로젝트 카드 소식받기(북마크)를 토클 하는 뷰
+# bookmarked_users 필드에 사용자 추가/제거
+class ProjectCardBookmarkToggleView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    queryset = ProjectCard.objects.all()
+
+    def perform_update(self, serializer):
+        project_card = self.get_object()
+        user = self.request.user
+
+        # 북마크 토글
+        if user in project_card.bookmarked_users.all():
+            project_card.bookmarked_users.remove(user)
+        else:
+            project_card.bookmarked_users.add(user)
+
+        serializer.instance = project_card
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # 프로젝트 카드에서 탈퇴하는 뷰

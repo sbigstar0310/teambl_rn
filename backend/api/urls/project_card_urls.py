@@ -25,6 +25,11 @@ urlpatterns = [
         name="project-card-update",
     ),
     path(
+        "<int:pk>/bookmark-toggle/",
+        views.ProjectCardBookmarkToggleView.as_view(),
+        name="project-card-bookmark-toggle",
+    ),
+    path(
         "<int:pk>/leave/",
         views.ProjectCardLeaveView.as_view(),
         name="project-card-leave",
