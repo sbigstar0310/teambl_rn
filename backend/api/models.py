@@ -161,7 +161,7 @@ class Post(models.Model):
     project_card = models.ForeignKey(
         "ProjectCard", on_delete=models.CASCADE, related_name="posts", null=True
     )
-    content = models.TextField()
+    content = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     like_count = models.IntegerField(default=0)
     tagged_users = models.ManyToManyField(
@@ -173,6 +173,11 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Post by {self.user} - {self.content[:30]}..."
+
+    def update_like_count(self):
+        """liked_users 수를 기반으로 like_count 업데이트"""
+        self.like_count = self.liked_users.count()
+        self.save(update_fields=["like_count"])
 
 
 # New 게시물 이미지 모델

@@ -175,6 +175,27 @@ class PostUpdateViewTestCase(TestCase):
         self.post.refresh_from_db()
         self.assertEqual(self.post.content, "updated content")
 
+    def test_update_post_add_like(self):
+        data = {"liked_users": [self.testuser02.id]}
+        response = self.client.put(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check the like was added
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.liked_users.count(), 1)
+        self.assertEqual(self.post.liked_users.first(), self.testuser02)
+
+    def test_update_post_remove_like(self):
+        self.post.liked_users.add(self.testuser02)
+        data = {"liked_users": []}
+        response = self.client.put(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check the like was removed
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.liked_users.count(), 0)
+
 
 class PostDeleteViewTestCase(TestCase):
     def setUp(self):

@@ -590,6 +590,7 @@ class PostSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(
         many=True, required=False
     )  # Nested serializer for images
+    content = serializers.CharField(required=False)
 
     class Meta:
         model = Post
@@ -631,8 +632,8 @@ class PostSerializer(serializers.ModelSerializer):
         return post
 
     def update(self, instance, validated_data):
-        tagged_users_data = validated_data.pop("tagged_users", [])
-        liked_users_data = validated_data.pop("liked_users", [])
+        tagged_users_data = validated_data.pop("tagged_users", None)
+        liked_users_data = validated_data.pop("liked_users", None)
         images_data = self.context["request"].FILES.getlist(
             "images"
         )  # 이미지 파일 가져오기
@@ -643,11 +644,11 @@ class PostSerializer(serializers.ModelSerializer):
         instance.save()
 
         # Update tagged users
-        if tagged_users_data:
+        if tagged_users_data is not None:
             instance.tagged_users.set(tagged_users_data)
 
         # Update liked users
-        if liked_users_data:
+        if liked_users_data is not None:
             instance.liked_users.set(liked_users_data)
 
         # Update images: Clear existing and add new ones
@@ -655,6 +656,10 @@ class PostSerializer(serializers.ModelSerializer):
             instance.images.all().delete()  # Clear existing images
             for image_data in images_data:
                 PostImage.objects.create(post=instance, **image_data)
+
+        instance.update_like_count()  # Update like count
+
+        instance.refresh_from_db()  # Refresh the instance to get the updated like count
 
         return instance
 
