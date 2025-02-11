@@ -10,6 +10,11 @@ urlpatterns = [
         name="project-card-current-list",
     ),
     path(
+        "list/current/bookmarked/",
+        views.ProjectCardBookmarkedListView.as_view(),
+        name="project-card-bookmarked-list",
+    ),
+    path(
         "list/<int:user_id>/",
         views.ProjectCardOneDegreeListView.as_view(),
         name="project-card-one-degree-list",

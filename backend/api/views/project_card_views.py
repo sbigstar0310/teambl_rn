@@ -159,6 +159,17 @@ class ProjectCardDestroyView(generics.DestroyAPIView):
         super().perform_destroy(instance)
 
 
+# 사용자의 북마크(소식 받기)한 프로젝트 카드 목록을 불러오는 뷰
+class ProjectCardBookmarkedListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.bookmarked_project_cards.all()
+
+
 class ProjectCardInvitationCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardInvitationSerializer
