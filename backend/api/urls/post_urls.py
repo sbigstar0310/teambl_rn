@@ -6,6 +6,7 @@ urlpatterns = [
     path("create/", views.PostCreateView.as_view(), name="post-create"),
     path("list/", views.PostListView.as_view(), name="post-list"),
     path("list/<int:project_card_id>/", views.PostListView.as_view(), name="post-list"),
+    path("list/liked/", views.PostLikedListView.as_view(), name="post-liked-list"),
     path("<int:pk>/update/", views.PostUpdateView.as_view(), name="post-update"),
     path("<int:pk>/delete/", views.PostDeleteView.as_view(), name="post-delete"),
     # path("list-current/", views.ProjectListCreate.as_view(), name="post-list-current"),

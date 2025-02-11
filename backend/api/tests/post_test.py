@@ -132,6 +132,54 @@ class PostListViewTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
+class PostLikedListViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Create a test user
+        self.testuser01 = create_user_with_profile(
+            email="test@email.com", password="test", user_name="testuser1"
+        )
+
+        # Create a project card (if required by the post)
+        self.project_card = ProjectCard.objects.create(
+            title="test1",
+            creator=self.testuser01,
+            start_date="2021-01-01",
+            end_date="2021-12-31",
+            description="test1",
+        )
+
+        # Authenticate the user
+        self.client.force_authenticate(user=self.testuser01)
+
+        # Create posts
+        self.post1 = create_post_with_images(
+            user=self.testuser01, project_card=self.project_card, content="post 1"
+        )
+        self.post2 = create_post_with_images(
+            user=self.testuser01, project_card=self.project_card, content="post 2"
+        )
+        self.post3 = create_post_with_images(
+            user=self.testuser01, project_card=self.project_card, content="post 3"
+        )
+
+        # Do Like
+        self.post1.liked_users.add(self.testuser01)
+        self.post2.liked_users.add(self.testuser01)
+
+        # URL for the PostListView
+        self.url = reverse("post-liked-list")
+
+    def test_list_liked_posts(self):
+        """Test listing all liked posts"""
+        response = self.client.get(reverse("post-liked-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0].get("id"), self.post2.id)
+        self.assertEqual(response.data[1].get("id"), self.post1.id)
+
+
 class PostUpdateViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()

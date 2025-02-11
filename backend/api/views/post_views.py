@@ -46,6 +46,17 @@ class PostListView(generics.ListAPIView):
             return Post.objects.all().order_by("-created_at")
 
 
+class PostLikedListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        user = self.request.user
+        liked_posts = Post.objects.filter(liked_users=user).order_by("-created_at")
+        return liked_posts
+
+
 class PostUpdateView(generics.UpdateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
