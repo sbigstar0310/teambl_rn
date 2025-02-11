@@ -29,10 +29,10 @@ const MyProfileProjectView = () => {
             </View>
         );
     }
-    
+
     const [projectCards, setProjectCards] = useState<api.ProjectCard[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    
+
     const carouselRef = useRef<ICarouselInstance>(null);
 
     const fetchMyProjectCard = async () => {
@@ -68,60 +68,112 @@ const MyProfileProjectView = () => {
 
     const scrollY = useScroll() || new Animated.Value(0);
 
-    const renderItem = ({ item }) => (
-        <ScrollView
-            contentContainerStyle={{ ...styles.cardScrollContainer, paddingVertical: 10 }}
-            onScroll={Animated.event(
-                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                { useNativeDriver: false }
-            )}
-            scrollEventThrottle={16}
-            keyboardShouldPersistTaps={"handled"}
-        >
-            <View style={styles.cardContainer}>
-                {/** badge for the pagination */}
-                <View
-                    style={styles.indexPaginationContainer}
-                >
+    const renderItem = ({ item }: { item: api.ProjectCard }) => {
+        item['posts'] = [
+            {
+                "id": item.id + 1,
+                "user": 1,
+                "project_card": item.id,
+                "content": "게시글이 없어서 더미 데이터로 대체합니다.",
+                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
+                "like_count": 0,
+                "tagged_users": [],
+                "liked_users": [],
+                "images": []
+            },
+            {
+                "id": item.id + 2,
+                "user": 1,
+                "project_card": item.id,
+                "content": "게시글이 없어서 대체한 더미 데이터입니다. \n긴 글이 포함된 경우를 확인하기 위한 데이터입니다. \n안녕하세요.게시글이 없어서 대체한 더미 데이터입니다. \n긴 글이 포함된 경우를 확인하기 위한 데이터입니다. \n안녕하세요.게시글이 없어서 대체한 더미 데이터입니다. \n긴 글이 포함된 경우를 확인하기 위한 데이터입니다. \n안녕하세요.",
+                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
+                "like_count": 0,
+                "tagged_users": [],
+                "liked_users": [],
+                "images": [
+                    "https://image.newdaily.co.kr/site/data/img/2024/12/06/2024120600173_0.jpg",
+                    "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg",
+                    "https://img.segye.com/content/image/2024/06/20/20240620502126.jpg"
+                ]
+            }
+        ];
+        return (
+            <ScrollView
+                key={item.id}
+                contentContainerStyle={{ ...styles.cardScrollContainer, paddingVertical: 10 }}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: false }
+                )}
+                scrollEventThrottle={16}
+                keyboardShouldPersistTaps={"handled"}
+            >
+                <View style={styles.cardContainer}>
+                    {/** badge for the pagination */}
                     <View
-                        style={styles.indexPagination}
+                        style={styles.indexPaginationContainer}
                     >
-                        <TouchableOpacity
-                            onPress={prevSlide}
-                            style={{ paddingRight: 10 }}
+                        <View
+                            style={styles.indexPagination}
                         >
-                            {
-                                (currentIndex <= 0) ?
-                                    <LeftSmallArrowDisabled />
-                                    :
-                                    <LeftSmallArrow />
-                            }
-                        </TouchableOpacity>
-                        {/** text */}
-                        <Text style={styles.indexText}>
-                            {currentIndex + 1} ・ {projectCards.length}
-                        </Text>
-                        <TouchableOpacity
-                            onPress={nextSlide}
-                            style={{ paddingLeft: 10 }}
-                        >
-                            {
-                                (currentIndex >= projectCards.length - 1) ?
-                                    <RightSmallArrowDisabled />
-                                    :
-                                    <RightSmallArrow />
-                            }
-                        </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={prevSlide}
+                                style={{ paddingRight: 10 }}
+                            >
+                                {
+                                    (currentIndex <= 0) ?
+                                        <LeftSmallArrowDisabled />
+                                        :
+                                        <LeftSmallArrow />
+                                }
+                            </TouchableOpacity>
+                            {/** text */}
+                            <Text style={styles.indexText}>
+                                {currentIndex + 1} ・ {projectCards.length}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={nextSlide}
+                                style={{ paddingLeft: 10 }}
+                            >
+                                {
+                                    (currentIndex >= projectCards.length - 1) ?
+                                        <RightSmallArrowDisabled />
+                                        :
+                                        <RightSmallArrow />
+                                }
+                            </TouchableOpacity>
+                        </View>
                     </View>
+                    {/** project preview call */}
+                    <ProjectPreview
+                        projectInfo={item}
+                        myId={myId}
+                    />
+                    {/** post preview call */}
+                    {
+                        item.posts.length > 0 &&
+                        <View
+                            style={styles.postViewContainer}
+                        >
+                            {
+                                item.posts.map((post: any, index: number) => {
+                                    return (
+                                        <View
+                                            key={index}
+                                        >
+                                            <Text>
+                                                {post.title}
+                                            </Text>
+                                        </View>
+                                    );
+                                })
+                            }
+                        </View>
+                    }
                 </View>
-                {/** project preview call */}
-                <ProjectPreview
-                    projectInfo={item}
-                    myId={myId}
-                />
-            </View>
-        </ScrollView>
-    );
+            </ScrollView>
+        )
+    };
 
     return (
         <View style={styles.carouselContainer}>
@@ -156,7 +208,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         alignItems: "center",
     },
-    indexPaginationContainer : {
+    indexPaginationContainer: {
         width: "100%",
         display: "flex",
         flexDirection: "row",
@@ -179,6 +231,15 @@ const styles = StyleSheet.create({
         fontWeight: 400,
         color: theme.colors.achromatic01,
     },
+    postViewContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 20,
+        backgroundColor: theme.colors.white
+    }
 });
 
 export default MyProfileProjectView;

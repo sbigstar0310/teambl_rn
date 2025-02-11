@@ -1,6 +1,13 @@
 import React from 'react';
 
-const PostInProjectPreview = () => {
+const PostInProjectPreview = (props: any) => {
+
+    const {
+        postInfo,
+        myId,
+        isLiked=false
+    } = props;
+
     return (
         <div>
             
