@@ -10,7 +10,8 @@ const colors = {
     achromatic03: "#a8a8a8",
     achromatic04: "#d9d9d9",
     achromatic05: "#f5f5f5",
-    white: "#FFFFFF"
+    achromatic06: "#F5F7FA",
+    white: "#ffffff"
 };
   
 export default colors;

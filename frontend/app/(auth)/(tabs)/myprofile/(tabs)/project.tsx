@@ -13,6 +13,7 @@ import RightSmallArrowDisabled from "@/assets/RightSmallArrowDisabled.svg";
 import { ICarouselInstance } from "react-native-reanimated-carousel";
 import ProjectPreview from "@/components/ProjectPreview";
 import { useAuthStore } from "@/store/authStore";
+import PostInProjectPreview from "@/components/PostInProjectPreview";
 
 const { width, height } = Dimensions.get("window");
 
@@ -74,7 +75,7 @@ const MyProfileProjectView = () => {
                 "id": item.id + 1,
                 "user": 1,
                 "project_card": item.id,
-                "content": "게시글이 없어서 더미 데이터로 대체합니다.",
+                "content": "현재 등록된 게시글이 없어 임시 데이터를 제공합니다.",
                 "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
                 "like_count": 0,
                 "tagged_users": [],
@@ -85,7 +86,7 @@ const MyProfileProjectView = () => {
                 "id": item.id + 2,
                 "user": 1,
                 "project_card": item.id,
-                "content": "게시글이 없어서 대체한 더미 데이터입니다. \n긴 글이 포함된 경우를 확인하기 위한 데이터입니다. \n안녕하세요.게시글이 없어서 대체한 더미 데이터입니다. \n긴 글이 포함된 경우를 확인하기 위한 데이터입니다. \n안녕하세요.게시글이 없어서 대체한 더미 데이터입니다. \n긴 글이 포함된 경우를 확인하기 위한 데이터입니다. \n안녕하세요.",
+                "content": "등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요.",
                 "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
                 "like_count": 0,
                 "tagged_users": [],
@@ -95,8 +96,46 @@ const MyProfileProjectView = () => {
                     "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg",
                     "https://img.segye.com/content/image/2024/06/20/20240620502126.jpg"
                 ]
+            },
+            {
+                "id": item.id + 4,
+                "user": 1,
+                "project_card": item.id,
+                "content": "현재 등록된 게시글이 없어 임시 데이터를 제공합니다.",
+                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
+                "like_count": 10,
+                "tagged_users": [],
+                "liked_users": [],
+                "images": []
+            },
+            {
+                "id": item.id + 3,
+                "user": 1,
+                "project_card": item.id,
+                "content": "등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요.",
+                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
+                "like_count": 99,
+                "tagged_users": [],
+                "liked_users": [],
+                "images": [
+                    "https://image.newdaily.co.kr/site/data/img/2024/12/06/2024120600173_0.jpg",
+                    "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg"
+                ]
+            },
+            {
+                "id": item.id + 35,
+                "user": 1,
+                "project_card": item.id,
+                "content": "등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요.",
+                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
+                "like_count": 3,
+                "tagged_users": [],
+                "liked_users": [],
+                "images": [
+                    "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg"
+                ]
             }
-        ];
+        ];        
         return (
             <ScrollView
                 key={item.id}
@@ -158,13 +197,11 @@ const MyProfileProjectView = () => {
                             {
                                 item.posts.map((post: any, index: number) => {
                                     return (
-                                        <View
-                                            key={index}
-                                        >
-                                            <Text>
-                                                {post.title}
-                                            </Text>
-                                        </View>
+                                        <PostInProjectPreview
+                                            key={post.id}
+                                            postInfo={post}
+                                            myId={myId}
+                                        />
                                     );
                                 })
                             }
@@ -175,24 +212,35 @@ const MyProfileProjectView = () => {
         )
     };
 
+    // return (
+    //     <View style={styles.carouselContainer}>
+    //         <Carousel
+    //             ref={carouselRef}
+    //             data={projectCards}
+    //             renderItem={renderItem}
+    //             width={width}
+    //             height={height}
+    //             loop={false}
+    //             onSnapToItem={(index) => setCurrentIndex(index)}
+    //         />
+    //     </View>
+    // );
     return (
-        <View style={styles.carouselContainer}>
-            <Carousel
-                ref={carouselRef}
-                data={projectCards}
-                renderItem={renderItem}
-                width={width}
-                height={height}
-                loop={false}
-                onSnapToItem={(index) => setCurrentIndex(index)}
-            />
-        </View>
+        <Carousel
+            ref={carouselRef}
+            data={projectCards}
+            renderItem={renderItem}
+            width={width}
+            height={height - 370}
+            loop={false}
+            onSnapToItem={(index) => setCurrentIndex(index)}
+        />
     );
 };
 
 const styles = StyleSheet.create({
     carouselContainer: {
-        flex: 1,
+        height: 200,
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
@@ -237,8 +285,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 20,
-        backgroundColor: theme.colors.white
+        padding: 20,
+        backgroundColor: theme.colors.white,
+        gap: 15
     }
 });
 
