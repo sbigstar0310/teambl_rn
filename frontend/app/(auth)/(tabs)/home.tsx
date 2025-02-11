@@ -11,6 +11,7 @@ import { router } from "expo-router";
 import { USER_ID } from "@/shared/constants";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { getCurrentUserId } from "@/shared/utils";
+import PostInProjectPreview from "@/components/PostInProjectPreview";
 
 const mockPosts = [mockPost1, mockPost2];
 
@@ -118,7 +119,11 @@ export default function HomeScreen() {
                     }}
                     data={posts}
                     renderItem={({ item, index }) => (
-                        <PostCard key={index} post={item} />
+                        <PostInProjectPreview
+                            key={index}
+                            postInfo={item}
+                            myId={currentUserId}
+                        />
                     )}
                 />
             </View>
