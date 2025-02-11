@@ -4,9 +4,10 @@ import { StyleSheet, View, Image, TouchableOpacity, Text } from 'react-native';
 import EmptyHeart from '@/assets/EmptyHeartIcon.svg';
 import EmptyComment from '@/assets/CommentEmptyIcon.svg';
 import ThreeDots from '@/assets/ThreeDotsVerticalSM.svg';
+import {router} from "expo-router";
 
 const PostInProjectPreview = (props: any) => {
-    const { postInfo } = props;
+    const { postInfo, myId } = props;
     const images = postInfo?.images || [];
 
     const formatDate = (dateString: Date) => {
@@ -18,13 +19,19 @@ const PostInProjectPreview = (props: any) => {
         return `${year}.${month}.${day}`;
     }
 
+    const goToDetailedPostView = () => {
+        router.push(`/posts/${postInfo.id}`);
+    }
+
     return (
         <View
             style={[styles.container, images.length > 0 ? { padding: 0 } : {}]}
         >
             {/** when image exists */}
             {images.length > 0 && (
-                <TouchableOpacity>
+                <TouchableOpacity
+                    onPress={goToDetailedPostView}
+                >
                     <View style={styles.imageContainer}>
                         {images.length === 1 && (
                             <Image source={{ uri: images[0] }} style={styles.singleImage} />
@@ -52,15 +59,22 @@ const PostInProjectPreview = (props: any) => {
                 style={[styles.contentContainer, images.length > 0 ? { padding: 16 } : {}]}
             >
                 {/** content */}
-                <View
-                    style={styles.contentTextContainer}
+                <TouchableOpacity
+                    onPress={goToDetailedPostView}
+                    style={{ width: '100%' }}
                 >
-                    <Text
-                        style={styles.contentText}
+                    <View
+                        style={styles.contentTextContainer}
                     >
-                        {postInfo?.content}
-                    </Text>
-                </View>
+                        <Text
+                            style={styles.contentText}
+                            numberOfLines={3}
+                            ellipsizeMode="tail"
+                        >
+                            {postInfo?.content}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
                 {/** date */}
                 <View
                     style={styles.dateContainer}
@@ -88,6 +102,7 @@ const PostInProjectPreview = (props: any) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}
+                        onPress={goToDetailedPostView}
                     >
                         <EmptyComment />
                         <Text
@@ -96,11 +111,14 @@ const PostInProjectPreview = (props: any) => {
                             {0}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{ marginLeft: 'auto', paddingLeft: 15 }}
-                    >
-                        <ThreeDots />
-                    </TouchableOpacity>
+                    {
+                        (`${myId}` === `${postInfo?.user}`) &&
+                        <TouchableOpacity
+                            style={{ marginLeft: 'auto', paddingLeft: 15 }}
+                        >
+                            <ThreeDots />
+                        </TouchableOpacity>
+                    }
                 </View>
             </View>
         </View>
@@ -150,7 +168,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         flexWrap: 'wrap',
-        maxHeight: 57
     },
     footerContainer: {
         width: '100%',

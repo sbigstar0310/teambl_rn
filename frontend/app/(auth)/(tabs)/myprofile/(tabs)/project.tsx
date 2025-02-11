@@ -212,35 +212,23 @@ const MyProfileProjectView = () => {
         )
     };
 
-    // return (
-    //     <View style={styles.carouselContainer}>
-    //         <Carousel
-    //             ref={carouselRef}
-    //             data={projectCards}
-    //             renderItem={renderItem}
-    //             width={width}
-    //             height={height}
-    //             loop={false}
-    //             onSnapToItem={(index) => setCurrentIndex(index)}
-    //         />
-    //     </View>
-    // );
     return (
-        <Carousel
-            ref={carouselRef}
-            data={projectCards}
-            renderItem={renderItem}
-            width={width}
-            height={height - 370}
-            loop={false}
-            onSnapToItem={(index) => setCurrentIndex(index)}
-        />
+        <View style={styles.carouselContainer}>
+            <Carousel
+                ref={carouselRef}
+                data={projectCards}
+                renderItem={renderItem}
+                width={width}
+                height={height - 370}
+                loop={false}
+                onSnapToItem={(index) => setCurrentIndex(index)}
+            />
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     carouselContainer: {
-        height: 200,
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",

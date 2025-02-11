@@ -1,10 +1,13 @@
 import theme from '@/shared/styles/theme';
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ThreeDotsVertical from '@/assets/ThreeDotsVertical.svg';
 import VerticalBar from '@/assets/VerticalBar.svg';
 import AddPostIcon from '@/assets/AddPostIcon.svg';
 import ProfileImagePreviewer from './ProfileImagePreviewer';
+import BottomModal from './BottomModal';
+import ProjectBottomModal from './ProjectBottomModal';
+import { isEnabled } from 'react-native/Libraries/Performance/Systrace';
 
 const KeywordBadge = (props: any) => {
     const {
@@ -64,6 +67,8 @@ const ProjectPreview = (props: any) => {
         myId
     } = props;
 
+    const [isOptionVisible, setIsOptionVisible] = useState(false);
+
     const formatDateToYearMonth = (dateString: String) => {
         const [year, month] = dateString.split('-');
         return `${year}.${month}`;
@@ -92,6 +97,7 @@ const ProjectPreview = (props: any) => {
                 </Text>
                 <TouchableOpacity
                     style={{ paddingLeft: 10 }}
+                    onPress={() => setIsOptionVisible(true)}
                 >
                     <ThreeDotsVertical />
                 </TouchableOpacity>
@@ -159,6 +165,13 @@ const ProjectPreview = (props: any) => {
                     />
                 }
             </View>
+            {/** bottom sheet */}
+            <ProjectBottomModal
+                isVisible={isOptionVisible}
+                onClose={() => setIsOptionVisible(false)}
+                isMyProject={projectInfo.creator.id === myId}
+                projectId={projectInfo.id}
+            />
         </View>
     );
 };
@@ -250,7 +263,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: theme.colors.achromatic03
     },
-    subscribeButton : {
+    subscribeButton: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
