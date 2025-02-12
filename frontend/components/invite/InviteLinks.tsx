@@ -1,11 +1,33 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+} from "react-native";
 import InviteLinkModal from "./InviteLinkModal";
+import createInvitationLink from "@/libs/apis/InvitationLink/createInvitationLink";
 
 export default function InviteLinks() {
     const [modalVisible, setModalVisible] = useState(false);
     const [name, setName] = useState("");
-    const inviteLink = `https://example.com/invite?name=${name}`; // 예시 링크
+    const [inviteLink, setInviteLink] = useState<api.InvitationLink>();
+
+    const createInviteLink = async () => {
+        // name이 비어있으면 함수 종료
+        if (!name) {
+            return;
+        }
+
+        try {
+            const response = await createInvitationLink({ name: name });
+            setInviteLink(response);
+            setModalVisible(true);
+        } catch (error) {
+            console.error("Error creating invite link:", error);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -19,10 +41,13 @@ export default function InviteLinks() {
                     value={name}
                     onChangeText={setName}
                 />
-                <TouchableOpacity 
-                    style={[styles.button, name ? styles.buttonActive : styles.buttonDisabled]}
+                <TouchableOpacity
+                    style={[
+                        styles.button,
+                        name ? styles.buttonActive : styles.buttonDisabled,
+                    ]}
                     disabled={!name}
-                    onPress={() => setModalVisible(true)}
+                    onPress={createInviteLink}
                 >
                     <Text style={styles.buttonText}>링크 생성</Text>
                 </TouchableOpacity>
@@ -33,7 +58,7 @@ export default function InviteLinks() {
                 onClose={() => setModalVisible(false)}
                 inviteeName={name}
                 expirationDate="2024.07.24 18:30까지"
-                inviteLink={inviteLink}
+                inviteLink={inviteLink?.link ?? ""}
             />
         </View>
     );

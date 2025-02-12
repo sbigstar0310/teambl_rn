@@ -11,7 +11,7 @@ declare module api {
         id: number;
         skill: string;
         profile: Profile;
-    };    
+    };
 
     type Conversation = {
         id: number;
@@ -123,5 +123,15 @@ declare module api {
         created_at: Date;
         likes: number;
         parent_comment?: number;
-    }
+    };
+
+    type InvitationLink = {
+        id: number;
+        inviter: number;
+        invitee_name: string;
+        invitee_id?: number;
+        link: string;
+        created_at: Date;
+        status: string;
+    };
 }

@@ -18,5 +18,9 @@ urlpatterns = [
         views.InvitationLinkList.as_view(),
         name="invitation-link-list",
     ),
-    path("welcome/", views.WelcomeView.as_view(), name="invitation-link-welcome"),
+    path(
+        "retrieve-from-code/",
+        views.InvitationLinkRetrieveFromCodeView.as_view(),
+        name="invitation-link-retrieve-from-code",
+    ),
 ]

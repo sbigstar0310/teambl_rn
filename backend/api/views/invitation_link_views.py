@@ -58,7 +58,8 @@ class InvitationLinkList(generics.ListAPIView):
 
 
 # Code로부터 초대 링크를 찾아서 반환하는 뷰
-class WelcomeView(generics.GenericAPIView):
+# OldName: WelcomeView
+class InvitationLinkRetrieveFromCodeView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     authentication_classes = []  # 인증 비활성화
 
@@ -116,10 +117,8 @@ class WelcomeView(generics.GenericAPIView):
                     f"Invitation link valid: code={code}, inviter={inviter_name}, invitee={invitee_name}"
                 )  # 로그 추가
                 return Response(
-                    {
-                        "inviter_name": inviter_name,
-                        "invitee_name": invitee_name,
-                    }
+                    InvitationLinkSerializer(invite_link).data,
+                    status=status.HTTP_200_OK,
                 )
             except InvitationLink.DoesNotExist:
                 logger.warning(f"Invalid invitation code: {code}")  # 로그 추가

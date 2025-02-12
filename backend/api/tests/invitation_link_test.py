@@ -143,7 +143,7 @@ class InvitationLinkListTestCase(TestCase):
         self.assertEqual(len(response.data), 3)
 
 
-class WelcomeViewTestCase(TestCase):
+class InvitationLinkRetrieveFromCodeViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
 
@@ -185,21 +185,25 @@ class WelcomeViewTestCase(TestCase):
         Ensure we can get the inviter and invitee names from the invitation link.
         """
         # Test listing invitation links
-        response = self.client.get(reverse("invitation-link-welcome"), {"code": "1111"})
+        response = self.client.get(
+            reverse("invitation-link-retrieve-from-code"), {"code": "1111"}
+        )
 
         # Check the response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["inviter"], self.invitation_link01.inviter.pk)
         self.assertEqual(
-            response.data["inviter_name"], self.testuser01.profile.user_name
+            response.data["invitee_name"], self.invitation_link01.invitee_name
         )
-        self.assertEqual(response.data["invitee_name"], "testuser2")
 
     def test_welcome_invitation_link_with_expired_code(self):
         """
         Ensure we can get the inviter and invitee names from the invitation link.
         """
         # Test listing invitation links
-        response = self.client.get(reverse("invitation-link-welcome"), {"code": "2222"})
+        response = self.client.get(
+            reverse("invitation-link-retrieve-from-code"), {"code": "2222"}
+        )
 
         # Check the response
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -210,7 +214,9 @@ class WelcomeViewTestCase(TestCase):
         Ensure we can get the inviter and invitee names from the invitation link.
         """
         # Test listing invitation links
-        response = self.client.get(reverse("invitation-link-welcome"), {"code": "3333"})
+        response = self.client.get(
+            reverse("invitation-link-retrieve-from-code"), {"code": "3333"}
+        )
 
         # Check the response
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
