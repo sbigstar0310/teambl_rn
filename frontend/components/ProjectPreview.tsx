@@ -1,15 +1,18 @@
 import theme from '@/shared/styles/theme';
-import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, {Fragment, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import ThreeDotsVertical from '@/assets/ThreeDotsVertical.svg';
 import VerticalBar from '@/assets/VerticalBar.svg';
 import AddPostIcon from '@/assets/AddPostIcon.svg';
 import ProfileImagePreviewer from './ProfileImagePreviewer';
-import BottomModal from './BottomModal';
 import ProjectBottomModal from './ProjectBottomModal';
-import { isEnabled } from 'react-native/Libraries/Performance/Systrace';
+import dayjs from "dayjs";
 
-const KeywordBadge = (props: any) => {
+interface KeywordBadgeProps {
+    keyword: string;
+}
+
+const KeywordBadge = (props: KeywordBadgeProps) => {
     const {
         keyword
     } = props;
@@ -27,14 +30,18 @@ const KeywordBadge = (props: any) => {
     );
 };
 
-const AddPostButton = (props: { onPress: () => void }) => {
-    const { onPress } = props;
+interface AddPostButtonProps {
+    onPress: () => void;
+}
+
+const AddPostButton = (props: AddPostButtonProps) => {
+    const {onPress} = props;
     return (
         <TouchableOpacity
             style={styles.addPostButton}
             onPress={onPress}
         >
-            <AddPostIcon />
+            <AddPostIcon/>
             <Text
                 style={styles.addPostText}
             >
@@ -44,8 +51,12 @@ const AddPostButton = (props: { onPress: () => void }) => {
     );
 }
 
-const SubsribeButton = (props: { onPress: () => void }) => {
-    const { onPress } = props;
+interface SubscribeButtonProps {
+    onPress: () => void;
+}
+
+const SubscribeButton = (props: SubscribeButtonProps) => {
+    const {onPress} = props;
     return (
         <TouchableOpacity
             style={styles.subscribeButton}
@@ -60,8 +71,12 @@ const SubsribeButton = (props: { onPress: () => void }) => {
     );
 }
 
-const ProjectPreview = (props: any) => {
+interface ProjectPreviewProps {
+    projectInfo: api.ProjectCard;
+    myId: number;
+}
 
+const ProjectPreview = (props: ProjectPreviewProps) => {
     const {
         projectInfo,
         myId
@@ -69,9 +84,8 @@ const ProjectPreview = (props: any) => {
 
     const [isOptionVisible, setIsOptionVisible] = useState(false);
 
-    const formatDateToYearMonth = (dateString: String) => {
-        const [year, month] = dateString.split('-');
-        return `${year}.${month}`;
+    const formatDateToYearMonth = (date: Date) => {
+        return dayjs(date).format('YYYY.MM');
     };
 
     const extractImages = (projectInfo: any) => {
@@ -96,10 +110,10 @@ const ProjectPreview = (props: any) => {
                     {projectInfo.title}
                 </Text>
                 <TouchableOpacity
-                    style={{ paddingLeft: 10 }}
+                    style={{paddingLeft: 10}}
                     onPress={() => setIsOptionVisible(true)}
                 >
-                    <ThreeDotsVertical />
+                    <ThreeDotsVertical/>
                 </TouchableOpacity>
             </View>
             {
@@ -131,22 +145,26 @@ const ProjectPreview = (props: any) => {
             <View
                 style={styles.bottomTabContainer}
             >
-                <Text
-                    style={styles.dateText}
-                >
-                    {`${formatDateToYearMonth(projectInfo.start_date)} ~`}
-                </Text>
-                {
-                    projectInfo.end_date &&
-                    <Text
-                        style={styles.dateText}
-                    >
-                        {` ${formatDateToYearMonth(projectInfo.end_date)}`}
-                    </Text>
-                }
-                <VerticalBar
-                    style={{ marginLeft: 16, marginRight: 16 }}
-                />
+                {projectInfo.start_date && ( // start_date can also be null
+                    <Fragment>
+                        <Text
+                            style={styles.dateText}
+                        >
+                            {`${formatDateToYearMonth(projectInfo.start_date)} ~`}
+                        </Text>
+                        {
+                            projectInfo.end_date &&
+                            <Text
+                                style={styles.dateText}
+                            >
+                                {` ${formatDateToYearMonth(projectInfo.end_date)}`}
+                            </Text>
+                        }
+                        <VerticalBar
+                            style={{marginLeft: 16, marginRight: 16}}
+                        />
+                    </Fragment>
+                )}
                 <ProfileImagePreviewer
                     imageUrlList={extractImages(projectInfo)}
                 />
@@ -159,8 +177,7 @@ const ProjectPreview = (props: any) => {
                 {/** 아래 true는 현재 로그인한 사용자가 해당 프로젝트를 구독했는지 여부의 negate로 수정 : TODO */}
                 {
                     (projectInfo.creator.id !== myId) &&
-                    (true) &&
-                    <SubsribeButton
+                    <SubscribeButton
                         onPress={() => console.log('subscribe')}
                     />
                 }
