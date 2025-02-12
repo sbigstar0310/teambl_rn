@@ -43,7 +43,7 @@ class CommentCreateView(generics.CreateAPIView):
             Notification.objects.create(
                 user=post.user,  # 프로젝트 작성자에게 알림
                 message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물에 새로운 댓글을 작성했습니다.",
-                notification_type="new_comment",
+                notification_type="comment_create",
                 related_user_id=post.user.id,
                 related_project_id=post.post_id,
             )
@@ -53,7 +53,7 @@ class CommentCreateView(generics.CreateAPIView):
             Notification.objects.create(
                 user=parent_comment.user,  # 부모 댓글 작성자에게 알림
                 message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물의 당신의 댓글에 답글을 남겼습니다.",
-                notification_type="reply_comment",
+                notification_type="comment_child_create",
                 related_user_id=parent_comment.user.id,
                 related_project_id=post.post_id,
             )
@@ -66,8 +66,8 @@ class CommentListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        project_id = self.kwargs.get("project_id")
-        return Comment.objects.filter(project_id=project_id)
+        post_id = self.kwargs.get("post_id")
+        return Comment.objects.filter(post_id=post_id)
 
 
 # 댓글 수정

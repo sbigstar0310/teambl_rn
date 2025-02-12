@@ -3,7 +3,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from ..models import Friend, ProjectCard, ProjectCardInvitation, CustomUser
+from ..models import Friend, ProjectCard, ProjectCardInvitation, CustomUser, Notification
 from ..serializers import ProjectCardSerializer, ProjectCardInvitationSerializer
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
@@ -174,8 +174,27 @@ class ProjectCardInvitationCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardInvitationSerializer
 
+    # def perform_create(self, serializer):
+    #     return super().perform_create(serializer)
+    
     def perform_create(self, serializer):
-        return super().perform_create(serializer)
+        invitation = serializer.save()
+
+        # Project Card에 초대받은 유저에게 알림 생성
+        notification_exists = Notification.objects.filter(
+            user=invitation.invitee,
+            message=f"{invitation.inviter.profile.user_name}님이 당신을 {invitation.project_card.title} 프로젝트에 초대했습니다.",
+            notification_type="project_card_invite",
+            related_project_card_id=invitation.project_card.id,
+        ).exists()
+
+        if not notification_exists:
+            Notification.objects.create(
+                user=invitation.invitee,
+                message=f"{invitation.inviter.profile.user_name}님이 당신을 {invitation.project_card.title} 프로젝트에 초대했습니다.",
+                notification_type="project_card_invite",
+                related_project_card_id=invitation.project_card.id,
+            )
 
 
 class ProjectCardInvitationResponseView(generics.UpdateAPIView):

@@ -673,21 +673,36 @@ class Friend(models.Model):
 
 class Notification(models.Model):
     NOTIFICATION_TYPE_CHOICES = [
-        ("invitation_register", "Invitation Register"),
-        ("invitation_expired", "Invitation Expired"),
-        ("friend_accept", "Friend Accept"),
-        ("friend_reject", "Friend Reject"),
-        ("friend_request", "Friend Request"),
-        ("project_tag", "Project Tag"),
-        ("new_comment", "New Comment"),
-        ("reply_comment", "Reply Comment"),
-        ("project_profile_keyword", "Project Profile Keyword"),
-        ("experience_register", "Experience Register"),
-        ("experience_request", "Experience Request"),
-        ("experience_accept", "Experience Accept"),
-        ("experience_reject", "Experience Reject"),
-        ("experience_deleted", "Experience Deleted"),
-        ("experience_invitation_deleted", "Experience Invitation Deleted"),
+        # 초대한 사람이 가입, 초대링크 만료
+        ("invitation_register", "Invitation Register"), # done
+        ("invitation_expired", "Invitation Expired"), # done
+        
+        # 일촌 신청 수락, 거절, 요청
+        ("friend_accept", "Friend Accept"), # done
+        ("friend_reject", "Friend Reject"), # done
+        ("friend_request", "Friend Request"), # done
+        
+        # Project Card 초대, 수락, 거절, 수정, 매칭 추천
+        ("project_card_invite", "ProjectCard Invite"),
+        ("project_card_accept", "ProjectCard Accept"),
+        ("project_card_reject", "ProjectCard Reject"),
+        ("project_card_update", "ProjectCard Update"),
+        ("project_card_recommend", "ProjectCard Recommend"),
+        
+        # Post 추가(팀원), 수정(팀원), 추가(저장), 수정(저장), 좋아요(생성자)
+        ("post_create_team", "Post Create Team"), # postserializer, done
+        ("post_update_team", "Post Update Team"), # postserializer, done
+        ("post_create_save", "Post Create Save"), # postserializer, done
+        ("post_update_save", "Post Update Save"), # postserializer, done
+        ("post_like", "Post Like"),
+        
+        # Comment 추가(생성자), 대댓글 추가(댓글작성자), 수정(생성자), 대댓글 수정(댓글작성자)
+        ("comment_create", "Comment Create"),
+        ("comment_child_create", "Comment Child Create"),
+        ("comment_update", "Comment Update"),
+        ("comment_child_update", "Comment Child Update"),
+        
+        # Conversation (todo)
         ("new_message", "New Message"),
     ]
 
@@ -701,7 +716,8 @@ class Notification(models.Model):
         max_length=30, choices=NOTIFICATION_TYPE_CHOICES
     )
     related_user_id = models.IntegerField(null=True, blank=True)
-    related_project_id = models.IntegerField(null=True, blank=True)
+    related_post_id = models.IntegerField(null=True, blank=True)
+    related_project_card_id = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"Notification for {self.user.email} - {self.message}"
