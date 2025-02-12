@@ -17,6 +17,7 @@ const Container = styled(SafeAreaView)`
     width: 100%;
     flex-direction: row;
     padding-horizontal: 16px;
+    padding-top: 16px;
     gap: 16px;
     align-items: center;
     background-color: #fff;
