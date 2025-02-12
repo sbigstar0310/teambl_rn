@@ -72,6 +72,34 @@ class PostDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+class PostLikeToggleView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        post_id = kwargs.get("post_id")
+        post = get_object_or_404(Post, pk=post_id)
+        user = request.user
+
+        if user in post.liked_users.all():
+            # 이미 좋아요를 눌렀다면, 좋아요 취소
+            post.liked_users.remove(user)
+            post.like_count -= 1
+            message = "Post unliked"
+        else:
+            # 좋아요를 새로 누르면 추가
+            post.liked_users.add(user)
+            post.like_count += 1
+            message = "Post liked"
+
+        # 변경된 좋아요 개수 저장
+        post.save(update_fields=["like_count"])
+
+        return Response(
+            {"message": message, "like_count": post.like_count},
+            status=status.HTTP_200_OK,
+        )
+
+
 # TODO: The following are all old post codes. To be deleted later
 class ProjectListCreate(generics.ListCreateAPIView):
     serializer_class = ProjectSerializer

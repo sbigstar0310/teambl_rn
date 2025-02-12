@@ -12,6 +12,12 @@ import CommentDummyInput from "@/components/post/CommentDummyInput";
 import CommentThread, {getThread, Thread} from "@/components/post/CommentThread";
 import theme from "@/shared/styles/theme";
 
+import fetchCurrentUserAPI from "@/libs/apis/User/currentUser";
+import fetchPostById from "@/libs/apis/Post/fetchPostById";
+import toggleLikePost from "@/libs/apis/Post/toggleLikePost";
+import toggleBookmarkProjectCard from "@/libs/apis/ProjectCard/toggleBookmarkProjectCard";
+import createComment from "@/libs/apis/Comment/CommentCreate";
+
 export default function PostView() {
     const {id} = useLocalSearchParams();
     const [me, setMe] = useState<api.User>();
@@ -27,23 +33,59 @@ export default function PostView() {
     const [commentText, setCommentText] = useState("")
     const containerRef = useRef<ScrollView | null>(null);
 
+    const [loading, setLoading] = useState(true);
+
+    // 현재 로그인한 유저 정보 불러오기
+    const fetchCurrentUser = async () => {
+        try {
+            const currentUser = await fetchCurrentUserAPI();
+            setMe(currentUser?? undefined);
+            console.log("fetched current user: ", currentUser);
+        } catch (error) {
+            console.error("Failed to fetch current user", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchPost = async (postId: number) => { 
+        try {
+            const postData = await fetchPostById(postId);
+            console.log("Fetched post:", postData);
+            setPostData(postData);
+        } catch (error) {
+            console.error("Failed to fetch posts:", error);
+        }
+    };
+
     useEffect(() => {
         // TODO: fetch current authenticated user data
-        setMe(mockUser1);
+        fetchCurrentUser();
+        // setMe(mockUser1);
     }, []);
     useEffect(() => {
         // TODO: Fetch post by ID
-        setPostData(mockPost1);
+        if (id) {
+            fetchPost(Number(id));
+        }
+        // setPostData(mockPost1);
     }, [id]);
+    // useEffect(() => {
+    //     // TODO: fetch project, author data, comments by post id
+    //     setProjectData(mockProject1);
+    //     setAuthorData(mockUser1);
+    //     setCommentsData([
+    //         mockComment1,
+    //         mockComment2
+    //     ])
+    // }, [postData]);
     useEffect(() => {
-        // TODO: fetch project, author data, comments by post id
-        setProjectData(mockProject1);
-        setAuthorData(mockUser1);
-        setCommentsData([
-            mockComment1,
-            mockComment2
-        ])
+        if (!postData) return;
+        setProjectData(postData.project_card);
+        setAuthorData(postData.user);
+        setCommentsData(postData.comments);
     }, [postData]);
+    
 
     useEffect(() => {
         const threads: Thread[] = commentsData
@@ -54,44 +96,108 @@ export default function PostView() {
         setThreadData(threads);
     }, [commentsData]);
 
-    const handleSubscribe = () => {
-        // TODO: make api call to subscribe to project
-        setIsSubscribed(true);
-        console.log('Subscribed')
-    }
+    // const handleSubscribe = () => {
+    //     // TODO: make api call to subscribe to project
+    //     setIsSubscribed(true);
+    //     console.log('Subscribed')
+    // }
+    const handleSubscribe = async (projectCardId: number) => {
+        try {
+            // 프로젝트 카드 북마크 토글 API 호출
+            const updatedProject = await toggleBookmarkProjectCard({ projectCardId });
 
-    const handleLike = () => {
-        // TODO: make api call to like post
-        console.log('Liked')
-    }
+            // 북마크 상태 업데이트 (bookmarked_users 길이를 기반으로 결정)
+            const isBookmarked = updatedProject.bookmarked_users?.some(user => user.id === me?.id);
 
-    const handleCommentSubmit = () => {
-        // TODO: make api call to submit comment
-        if (!postData || !me) return;
-        console.log('Comment submitted')
-        console.log(commentText);
-        setCommentsData((comments) => {
-            const lastId = comments.length > 0
-                ? comments[comments.length - 1].id
-                : 1;
-            const newComment: api.Comment = {
-                id: lastId + 1,
-                post: postData.id,
-                user: me.id,
-                content: commentText,
-                created_at: new Date(),
-                likes: 0,
-                parent_comment: replyingTo ?? undefined
-            }
-            return [...comments, newComment];
-        })
-        if (replyingTo == null) {
-            // Scroll to the bottom of the comments
-            containerRef.current?.scrollToEnd();
+            setIsSubscribed(isBookmarked);
+
+            console.log(isBookmarked ? "Subscribed" : "Unsubscribed");
+        } catch (error) {
+            console.error("Failed to toggle subscription:", error);
         }
-        setReplyingTo(null);
-        setIsInputFocused(false);
-    }
+    };
+
+
+    const handleLike = async (postId: number, likedUsers: number[] = [], setPostData: (data: any) => void) => {
+        try {
+            if (!postId || !me?.id) return; // postId 또는 me.id가 없으면 실행 안 함
+    
+            const userId = me.id;
+            const isLiked = likedUsers.includes(userId);
+    
+            const updatedLikedUsers = isLiked
+                ? likedUsers.filter((id) => id !== userId) // 좋아요 취소
+                : [...likedUsers, userId]; // 좋아요 추가
+    
+            const updatedPost = await toggleLikePost(postId, { liked_users: updatedLikedUsers });
+    
+            setPostData(updatedPost);
+        } catch (error) {
+            console.error("Failed to toggle like:", error);
+        }
+    };    
+
+    // const handleLike = () => {
+    //     // TODO: make api call to like post
+    //     console.log('Liked')
+    // }
+
+    // const handleCommentSubmit = () => {
+    //     // TODO: make api call to submit comment
+    //     if (!postData || !me) return;
+    //     console.log('Comment submitted')
+    //     console.log(commentText);
+    //     setCommentsData((comments) => {
+    //         const lastId = comments.length > 0
+    //             ? comments[comments.length - 1].id
+    //             : 1;
+    //         const newComment: api.Comment = {
+    //             id: lastId + 1,
+    //             post: postData.id,
+    //             user: me.id,
+    //             content: commentText,
+    //             created_at: new Date(),
+    //             likes: 0,
+    //             parent_comment: replyingTo ?? undefined
+    //         }
+    //         return [...comments, newComment];
+    //     })
+    //     if (replyingTo == null) {
+    //         // Scroll to the bottom of the comments
+    //         containerRef.current?.scrollToEnd();
+    //     }
+    //     setReplyingTo(null);
+    //     setIsInputFocused(false);
+    // }
+    const handleCommentSubmit = async () => {
+        if (!postData || !me || !commentText.trim()) return; // 유효성 검사
+    
+        try {
+            // API 호출하여 새로운 댓글 생성
+            const newComment = await createComment({
+                post_id: postData.id,
+                content: commentText,
+                parent_comment: replyingTo ?? undefined,  // 대댓글 여부 확인
+            });
+    
+            // 상태 업데이트: 기존 댓글 목록에 새 댓글 추가
+            setCommentsData((prevComments) => [...prevComments, newComment]);
+    
+            console.log("Comment submitted:", newComment);
+    
+            if (replyingTo == null) {
+                // 스크롤을 최신 댓글로 이동
+                containerRef.current?.scrollToEnd();
+            }
+    
+            // 입력 필드 초기화
+            setReplyingTo(null);
+            setIsInputFocused(false);
+            setCommentText(""); // 댓글 입력 필드 초기화
+        } catch (error) {
+            console.error("Failed to submit comment:", error);
+        }
+    };
 
     const handleInputFocus = (parentCommentId?: number) => {
         if (parentCommentId !== undefined) {
@@ -118,7 +224,8 @@ export default function PostView() {
                         <ProjectDetailsInPost
                             project={projectData}
                             post={postData}
-                            onSubscribe={handleSubscribe}
+                            // onSubscribe={handleSubscribe}
+                            onSubscribe={() => handleSubscribe(projectData?.id ?? 0)}
                             isSubscribed={isSubscribed}
                         />
                     }
@@ -140,7 +247,12 @@ export default function PostView() {
                             likes={postData.like_count}
                             comments={0}
                             onOptions={setIsContextOpen.bind(null, true)}
-                            onLike={handleLike}
+                            // onLike={handleLike}
+                            onLike={() => handleLike(
+                                postData?.id ?? 0, 
+                                postData?.liked_users?.map(user => user.id) ?? [],
+                                setPostData
+                            )}
                             onComment={() => handleInputFocus()}
                         />
                     </View>

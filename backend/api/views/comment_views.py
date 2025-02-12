@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from ..models import (
     Notification,
-    Project,
+    Post,
     Comment,
 )
 from ..serializers import CommentSerializer, CustomUserSerializer
@@ -22,8 +22,8 @@ class CommentCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        project_id = self.kwargs.get("project_id")
-        project = get_object_or_404(Project, pk=project_id)
+        post_id = self.kwargs.get("post_id")
+        post = get_object_or_404(Post, pk=post_id)
 
         parent_comment_id = self.request.data.get(
             "parent_comment"
@@ -35,27 +35,27 @@ class CommentCreateView(generics.CreateAPIView):
             )  # Validate the parent comment
 
         serializer.save(
-            user=self.request.user, project=project, parent_comment=parent_comment
+            user=self.request.user, post=post, parent_comment=parent_comment
         )
 
         # 프로젝트 작성자가 본인이 아닌 경우에만 Notification 생성
-        if project.user != self.request.user:
+        if post.user != self.request.user:
             Notification.objects.create(
-                user=project.user,  # 프로젝트 작성자에게 알림
-                message=f"{self.request.user.profile.user_name}님이 '{project.title}' 게시물에 새로운 댓글을 작성했습니다.",
+                user=post.user,  # 프로젝트 작성자에게 알림
+                message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물에 새로운 댓글을 작성했습니다.",
                 notification_type="new_comment",
-                related_user_id=project.user.id,
-                related_project_id=project.project_id,
+                related_user_id=post.user.id,
+                related_project_id=post.post_id,
             )
 
         # 부모 댓글 작성자가 본인이 아닌 경우에만 Notification 생성
         if parent_comment and parent_comment.user != self.request.user:
             Notification.objects.create(
                 user=parent_comment.user,  # 부모 댓글 작성자에게 알림
-                message=f"{self.request.user.profile.user_name}님이 '{project.title}' 게시물의 당신의 댓글에 답글을 남겼습니다.",
+                message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물의 당신의 댓글에 답글을 남겼습니다.",
                 notification_type="reply_comment",
                 related_user_id=parent_comment.user.id,
-                related_project_id=project.project_id,
+                related_project_id=post.post_id,
             )
 
 

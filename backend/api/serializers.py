@@ -939,14 +939,14 @@ class CommentSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "user_name",
-            "project",
+            "post",
             "content",
             "created_at",
             "likes",
             "parent_comment",
             "replies",
         ]
-        read_only_fields = ["user", "project", "created_at", "likes"]
+        read_only_fields = ["user", "post", "created_at", "likes"]
 
     def get_replies(self, obj):
         # Fetching replies related to the current comment
