@@ -2,7 +2,7 @@ import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {sharedStyles} from "@/app/_layout";
 import {router, useLocalSearchParams} from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {combineUserDetails, MessageEntity, produceMessageEntities, shorten} from "@/shared/utils";
 import Popup from "@/components/Popup";
 import Message from "@/components/conversations/Message";
@@ -14,14 +14,16 @@ import deleteConversation from "@/libs/apis/Conversation/deleteConversation";
 import getMessage from "@/libs/apis/Conversation/getMessage";
 import createMessage from "@/libs/apis/Conversation/createMessage";
 import deleteMessage from "@/libs/apis/Conversation/deleteMessage";
+import {useAuthStore} from "@/store/authStore";
+import markConversationAsRead from "@/libs/apis/Conversation/markConversationAsRead";
 
 export default function Conversation() {
     const {id} = useLocalSearchParams();
-    const myId = 1;
     const [conversation, setConversation] = useState<api.Conversation>();
     const [entities, setEntities] = useState<MessageEntity[]>([]);
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const listRef = useRef<FlatList>(null);
+    const myId = useAuthStore.getState().user?.id || -99;
 
     useEffect(() => {
         fetchConversation();
@@ -59,7 +61,7 @@ export default function Conversation() {
         } catch (error) {
             console.error("Failed to fetch messages:", error);
         } finally {
-            // setLoading(false);
+            await markConversationAsRead(id as string);
         }
     };
 
@@ -109,11 +111,10 @@ export default function Conversation() {
         }
     };
 
-
     return (
         <View style={sharedStyles.container}>
             <ScreenHeader
-                title={() => <ConversationHeaderTitle conversation={conversation}/>}
+                title={() => <ConversationHeaderTitle conversation={conversation} myId={myId}/>}
                 actionButton={() => <ExitConversationButton onPress={handleExitButtonPress}/>}
             />
             <View style={styles.body}>
@@ -156,6 +157,7 @@ export default function Conversation() {
 
 interface ConversationHeaderTitleProps {
     conversation?: api.Conversation;
+    myId: number;
 }
 
 function ConversationHeaderTitle(props: ConversationHeaderTitleProps) {
@@ -165,11 +167,19 @@ function ConversationHeaderTitle(props: ConversationHeaderTitleProps) {
         props.conversation?.other_user_profile.major1
     );
 
+    const goToOtherUserProfile = () => {
+        if (!props.conversation) return;
+        const otherUserId = props.conversation.user_1 === props.myId
+            ? props.conversation.user_2
+            : props.conversation.user_1;
+        router.push(`/profiles/${otherUserId}`);
+    }
+
     return (
-        <View>
+        <TouchableOpacity onPress={goToOtherUserProfile}>
             <Text style={sharedStyles.primaryText}>{title}</Text>
             <Text style={sharedStyles.secondaryText}>{subtitle}</Text>
-        </View>
+        </TouchableOpacity>
     )
 }
 

@@ -8,6 +8,7 @@ import getLatestMessage from "@/libs/apis/Conversation/getLatestMessage";
 
 interface ConversationThumbnailProps {
     conversation: api.Conversation;
+    myId: number;
     onPress: () => void;
 }
 
@@ -36,7 +37,7 @@ export default function ConversationThumbnail(props: ConversationThumbnailProps)
     const details = shorten(`${props.conversation.other_user_profile.school}・${props.conversation.other_user_profile.major1}`);
     const lastMessageContent = lastMessage ? shorten(lastMessage.message) : "채팅을 시작하세요!";
     const lastMessageSinceDate = lastMessage ? timeAgo(lastMessage.created_at) : "";
-    const isUnread = lastMessage ? !lastMessage.is_read : false;
+    const isUnread = lastMessage ? (lastMessage.sender !== props.myId && !lastMessage.is_read) : false;
 
     return (
         <TouchableHighlight onPress={props.onPress} underlayColor="transparent" activeOpacity={0.6}>

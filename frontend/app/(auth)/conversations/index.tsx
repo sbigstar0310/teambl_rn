@@ -1,14 +1,16 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {FlatList, StyleSheet, Text, View} from "react-native";
 import {router} from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
 import ConversationThumbnail from "@/components/conversations/ConversationThumbnail";
 import getConversation from "@/libs/apis/Conversation/getConversation";
+import {useAuthStore} from "@/store/authStore";
 
 export default function InboxScreen() {
     const [conversations, setConversations] = useState<api.Conversation[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const myId = useAuthStore.getState().user?.id || -99;
 
     useEffect(() => {
         fetchConversation();
@@ -52,7 +54,12 @@ export default function InboxScreen() {
                 keyExtractor={(_, i) => i.toString()}
                 renderItem={
                     ({item, index}) =>
-                        <ConversationThumbnail key={index} conversation={item} onPress={() => handleSelect(item)}/>
+                        <ConversationThumbnail
+                            key={index}
+                            conversation={item}
+                            onPress={() => handleSelect(item)}
+                            myId={myId}
+                        />
                 }
                 ListEmptyComponent={NoConversationFound}
             />
@@ -79,6 +86,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     listContainer: {
-        gap: 20
+        gap: 20,
+        paddingTop: 16
     }
 });

@@ -14,9 +14,7 @@ import {
 import ChonIcon from "@/assets/chon-icon.svg";
 import PadoIcon from "@/assets/pado-icon.svg";
 import DefaultImage from "@/assets/DefaultProfile.svg";
-import BackIcon from "@/assets/BackIcon.svg";
 import ImageUploadModal from "./ImageUploadModal";
-import PrimeButton from "./PrimeButton";
 import SmallButton from "./buttons/SmallButton";
 import RelationShipBridgeView from "./RelationShipBridgeView";
 import updateProfile from "@/libs/apis/Profile/updateProfile";
@@ -24,109 +22,11 @@ import createFriend from "@/libs/apis/Friend/createFriend";
 import getProfile from "@/libs/apis/Profile/getProfile";
 import getUserDistance from "@/libs/apis/getUserDistance";
 import getUserPath from "@/libs/apis/getUserPath";
-import { getCurrentUserId } from "@/shared/utils";
 import { useScroll } from "./provider/ScrollContext";
 import { useAuthStore } from "@/store/authStore";
 import deleteFriend from "@/libs/apis/Friend/deleteFriend";
 import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
-import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
 import isFriendRequested from "@/libs/apis/Friend/isFriendRequested";
-
-const MyProfileDummyData = {
-    id: 1,
-    profileImageUrl:
-        "https://image.fnnews.com/resource/media/image/2024/10/10/202410100737527065_l.jpg",
-    name: "성이름",
-    school: "카이스트",
-    degree: "학사",
-    admissionYear: 18,
-    chonDegree: 0,
-    departments: ["전산학부", "산업디자인과"],
-    chonCount: 32,
-};
-
-const OtherProfileDummyDataTwoChon = {
-    id: 2,
-    profileImageUrl:
-        "https://i.namu.wiki/i/YrgbR0y6Q9LAd2ij9Yu7b1IxViYEzXmxOm6lH617nsOkVwa13wp4sEIwFwwTqoAqc_rqhft21sdcO388UKcGZw.webp",
-    name: "김두촌",
-    school: "카이스트",
-    degree: "석사",
-    admissionYear: 24,
-    departments: ["전산학부", "김재철AI대학원"],
-    chonCount: 30,
-    isChon: false,
-    chonDegree: 2,
-    chonInfoFromMe: [
-        { myName: "성이름", BridgeNames: ["김중간"] },
-        { myName: "성이름", BridgeNames: ["박중간"] },
-        { myName: "성이름", BridgeNames: ["James"] },
-    ],
-};
-
-const OtherProfileDummyDataThreeChon = {
-    id: 3,
-    profileImageUrl:
-        "https://mblogthumb-phinf.pstatic.net/MjAyMjA4MjdfMTA1/MDAxNjYxNTkwMDA1NjM1.XFF4jbmfPTQoLHyI7Trx4fb4JH4zeXFTVykFyqHjG_og.S7-DPx-F8kGoUG2oYY5wZmZ24kJCwgl_lGtxIhsOijUg.JPEG.dearmy098/76adcbd9441095dae1080cc53a9a727d.jpg?type=w800",
-    name: "김삼촌",
-    school: "카이스트",
-    degree: "박사",
-    admissionYear: 19,
-    departments: ["전산학부", "전기및전자공학부"],
-    chonCount: 15,
-    isChon: false,
-    chonDegree: 3,
-    chonInfoFromMe: [
-        { myName: "성이름", BridgeNames: ["김중간", "이중간"] },
-        { myName: "성이름", BridgeNames: ["박중간", "최중간"] },
-        { myName: "성이름", BridgeNames: ["James", "Tom"] },
-    ],
-};
-
-const OtherProfileDummyDataFourChon = {
-    id: 4,
-    profileImageUrl:
-        "https://blog.kakaocdn.net/dn/eyeYET/btrWoo5nDmr/MJPSlKZD1mNubibCMtRGbK/img.png",
-    name: "김사촌",
-    school: "카이스트",
-    degree: "학사",
-    admissionYear: 19,
-    departments: ["생명과학과", "전기및전자공학부"],
-    chonCount: 3,
-    isChon: false,
-    chonDegree: 4,
-};
-
-const oneChonProfileDummyData = {
-    id: 5,
-    profileImageUrl:
-        "https://entertainimg.kbsmedia.co.kr/cms/uploads/PERSON_20241013124916_43de76d0e8469192a63783030a894944.png",
-    name: "김일촌",
-    school: "카이스트",
-    degree: "학사",
-    admissionYear: 19,
-    departments: ["건설및환경공학과", "전기및전자공학부"],
-    chonCount: 301,
-    chonDegree: 1,
-    isChon: true,
-};
-
-type ProfileDummyData = {
-    id?: number;
-    profileImageUrl?: string;
-    name?: string;
-    school?: string;
-    degree?: string;
-    admissionYear?: number;
-    departments?: string[];
-    chonCount?: number;
-    isChon?: boolean;
-    chonDegree?: number;
-    chonInfoFromMe?: {
-        myName: string;
-        BridgeNames: string[];
-    }[];
-};
 
 type UserInfo = {
     profile: api.Profile;
@@ -194,18 +94,6 @@ const NewProfileHeader = (props: any) => {
         } finally {
             setIsLoading(false);
         }
-
-        // if (`${userId}` === `${myId}`) {
-        //     setUserInfo(MyProfileDummyData);
-        // } else if (`${userId}` === "2") {
-        //     setUserInfo(OtherProfileDummyDataTwoChon);
-        // } else if (`${userId}` === "3") {
-        //     setUserInfo(OtherProfileDummyDataThreeChon);
-        // } else if (`${userId}` === "4") {
-        //     setUserInfo(OtherProfileDummyDataFourChon);
-        // } else {
-        //     setUserInfo(oneChonProfileDummyData);
-        // }
     };
 
     const uploadImage = async (file: any): Promise<void> => {
@@ -238,17 +126,6 @@ const NewProfileHeader = (props: any) => {
         });
         setIsLoading(false);
         setCurrentImageURL("");
-    };
-
-    const extractBridgeNames = (chonInfoFromMe: any) => {
-        if (!chonInfoFromMe) {
-            return [];
-        }
-        let newList: any[] = [];
-        chonInfoFromMe.forEach((info: any) => {
-            newList.push(info.BridgeNames);
-        });
-        return newList;
     };
 
     const createFriendRequest = async () => {
@@ -302,6 +179,10 @@ const NewProfileHeader = (props: any) => {
             setIsFriendCanceling(false);
         }
     };
+
+    const openUserChat = async () => {
+        router.push(`/conversations/with/${userId}`);
+    }
 
     useEffect(() => {
         fetchUserInfo();
@@ -517,9 +398,7 @@ const NewProfileHeader = (props: any) => {
                                 )}
                                 <SmallButton
                                     text={"메시지"}
-                                    onClickCallback={async () => {
-                                        //TODO
-                                    }}
+                                    onClickCallback={openUserChat}
                                     isLoading={false}
                                     type={"secondary"}
                                 />
