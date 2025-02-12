@@ -9,7 +9,7 @@ const fetchPostList = async (params?: RequestParams): Promise<api.Post[]> => {
         let url = "post/list/";
 
         if (params?.project_card_id) {
-            url = `post/list/?project_card_id=${params.project_card_id}`; // 특정 프로젝트 카드 ID로 필터링
+            url = `post/${params.project_card_id}/`; // 특정 ProjectCard의 게시물 조회
         }
 
         const response = await api.get<api.Post[]>(url);

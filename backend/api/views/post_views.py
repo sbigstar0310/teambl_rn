@@ -30,20 +30,45 @@ class PostCreateView(generics.CreateAPIView):
         post.save()
 
 
+# class PostListView(generics.ListAPIView):
+#     serializer_class = PostSerializer
+#     permission_classes = [IsAuthenticated]
+#     pagination_class = None
+
+#     def get_queryset(self):
+#         project_card_id = self.request.query_params.get("project_card_id")
+
+#         if project_card_id:
+#             return Post.objects.filter(project_card__id=project_card_id).order_by(
+#                 "-created_at"
+#             )
+#         else:
+#             return Post.objects.all().order_by("-created_at")
+
+# 모든 게시물을 조회하는 API (ListAPIView)
 class PostListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+    queryset = Post.objects.all().order_by("-created_at")
+
+
+# 특정 ProjectCard에 속한 게시물을 조회하는 API (ListAPIView)
+class PostByProjectView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = None
 
     def get_queryset(self):
-        project_card_id = self.request.query_params.get("project_card_id")
+        project_card_id = self.kwargs.get("project_card_id")  # URL에서 project_card_id 가져오기
+        return Post.objects.filter(project_card__id=project_card_id).order_by("-created_at")
+    
 
-        if project_card_id:
-            return Post.objects.filter(project_card__id=project_card_id).order_by(
-                "-created_at"
-            )
-        else:
-            return Post.objects.all().order_by("-created_at")
+# 특정 Post ID로 게시물 하나만 조회하는 API (RetrieveAPIView)
+class PostRetrieveView(generics.RetrieveAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Post.objects.all()  # 단일 게시물 조회
 
 
 class PostLikedListView(generics.ListAPIView):
