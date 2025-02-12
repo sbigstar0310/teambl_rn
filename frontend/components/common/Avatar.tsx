@@ -1,21 +1,29 @@
-import { Image } from "react-native";
-import { DEFAULT_AVATAR_IMAGE_URL } from "@/shared/constants";
+import {Image} from "react-native";
+import DEFAULT_AVATAR_IMAGE from '@/assets/DefaultProfile.svg';
 
 interface AvatarProps {
     imageURL?: string | null;
     size?: number;
 }
 
+const style = {borderRadius: 1000};
+
 export default function Avatar(props: AvatarProps) {
-    const imageURL = props.imageURL ?? DEFAULT_AVATAR_IMAGE_URL;
     const size = props.size ?? 52;
 
-    return (
-        <Image
+    if (!props.imageURL) return (
+        <DEFAULT_AVATAR_IMAGE
             width={size}
             height={size}
-            source={{ uri: imageURL }}
-            style={{ borderRadius: 1000 }}
+            style={style}
+        />
+    )
+    return (
+        <Image
+            width={props.size ?? 52}
+            height={props.size ?? 52}
+            source={{uri: props.imageURL}}
+            style={style}
         />
     );
 }

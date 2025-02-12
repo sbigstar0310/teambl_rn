@@ -1,8 +1,3 @@
-/* Default avatar image to show when no valid avatar image is provided (e.g. user does not have avatar) */
-/* Used in Avatar UI component */
-export const DEFAULT_AVATAR_IMAGE_URL =
-    "https://teambl.net/media/profile_images/IMG_2868.jpeg";
-
 /* Max number of characters to display when the text is shortened and showed on UI */
 /* Used in shorten function in utils.ts */
 export const DEFAULT_TEXT_MAX_LENGTH = 32;
