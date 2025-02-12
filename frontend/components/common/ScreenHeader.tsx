@@ -1,7 +1,4 @@
-import {
-    TouchableOpacity,
-    ViewStyle,
-} from "react-native";
+import { TouchableOpacity, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FC } from "react";
 import { router } from "expo-router";
@@ -19,10 +16,11 @@ const Container = styled(SafeAreaView)`
     // flex: 1;
     width: 100%;
     flex-direction: row;
-    padding: 16px;
+    padding-horizontal: 16px;
     gap: 16px;
     align-items: center;
     background-color: #fff;
+    // border-width: 1px;
     // justify-content: center;
 `;
 
@@ -36,6 +34,8 @@ const ExtraContainer = styled.View`
 `;
 
 const BtnContainer = styled(TouchableOpacity)`
+    // padding-vertical: 16px;
+    // padding-horizontal: 14px;
     // border-width: 1px;
 `;
 
