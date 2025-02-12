@@ -13,7 +13,6 @@ import MyFriendsTabs from "@/components/friends/MyFriendsTabs";
 import FriendsCard from "@/components/friends/FriendsCard";
 import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
 import { getCurrentUserId } from "@/shared/utils";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import getUserDistance from "@/libs/apis/getUserDistance";
 import eventEmitter from "@/libs/utils/eventEmitter";
 

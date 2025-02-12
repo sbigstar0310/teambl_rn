@@ -3,14 +3,14 @@ import React from "react";
 import LeftArrowIcon from "@/assets/search/LeftArrowIcon.svg";
 import { router } from "expo-router";
 
-export default function MyFriendsHeader() {
+export default function InviteHeader() {
     return (
         <View style={styles.headerContainer}>
             {/* 뒤로가기 버튼 */}
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                 <LeftArrowIcon/>
             </TouchableOpacity>
-            <Text style={styles.title}>1촌</Text>
+            <Text style={styles.title}>초대하기</Text>
         </View>
     );
 }
