@@ -132,24 +132,6 @@ urlpatterns += [
 ]
 
 
-# Invitation
-urlpatterns += [
-    path(
-        "create-invitation-link/",
-        views.CreateInvitationLinkView.as_view(),
-        name="create-invitation-link",
-    ),
-    path(
-        "delete-invitation-link/<int:pk>/",
-        views.InvitationLinkDelete.as_view(),
-        name="delete-invitation-link",
-    ),
-    path(
-        "invitation-links/", views.InvitationLinkList.as_view(), name="invitation-links"
-    ),
-]
-
-
 # User Similarity
 urlpatterns += [
     path(
@@ -190,7 +172,6 @@ urlpatterns += [
 # Others
 urlpatterns += [
     path("check-email/", views.CheckEmailExistsView.as_view(), name="check-email"),
-    path("welcome/", views.WelcomeView.as_view(), name="welcome-view"),
     path("search/", views.SearchUsersAPIView.as_view(), name="search-view"),
     path(
         "search-users/", views.SearchUsersByNameAPIView.as_view(), name="search-by-name"
