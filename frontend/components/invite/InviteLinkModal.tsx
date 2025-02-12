@@ -129,7 +129,9 @@ const styles = StyleSheet.create({
     },
     copyButtonText: {
         fontSize: 14,
+        fontFamily: "PretendardSemiBold",
+        color: "#121212",
+        lineHeight: 17,
         marginLeft: 6,
-        fontWeight: "600",
     },
 });

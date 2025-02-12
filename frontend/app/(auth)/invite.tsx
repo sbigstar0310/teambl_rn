@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import InviteHeader from "@/components/invite/InviteHeader";
 import InviteTabs from "@/components/invite/InviteTabs";
 import InviteLinks from "@/components/invite/InviteLinks";
+import InviteCard from "@/components/invite/InviteCard";
 
 
 export default function MyFriendsScreen() {
@@ -16,8 +17,6 @@ export default function MyFriendsScreen() {
         "가입 대기"
     );
     const [loading, setLoading] = useState(false); // 로딩 상태 추가
-
-
 
     return (
         <SafeAreaView
@@ -48,14 +47,47 @@ export default function MyFriendsScreen() {
             <View style={styles.contentContainer}>
                 {activeTab === "가입 대기" && (
                     <View>
+                        <InviteCard
+                            name={"이규원"}
+                            status={"대기"}
+                            expirationDate={"2025"}
+                            inviteLink={"https"}
+                            inviteRecall={async () => {
+                                //TODO
+                            }}
+                        />
+                        <InviteCard
+                            name={"이규원"}
+                            status={"대기"}
+                            expirationDate={"2025"}
+                            inviteLink={"https"}
+                            inviteRecall={async () => {
+                                //TODO
+                            }}
+                        />
                     </View>
                 )}
                 {activeTab === "기간 만료" && (
                     <View>
+                        <InviteCard
+                            name={"이규원"}
+                            status={"만료"}
+                            inviteLink={"https"}
+                            inviteRecall={async () => {
+                                //TODO
+                            }}
+                        />
                     </View>
                 )}
                 {activeTab === "가입 완료" && (
                     <View>
+                        <InviteCard
+                            name={"이규원"}
+                            status={"완료"}
+                            expirationDate={"2025"}
+                            inviteLink={"https"}
+                            userid={1}
+                        />
                     </View>
                 )}
             </View>
