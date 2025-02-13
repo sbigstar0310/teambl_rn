@@ -164,26 +164,20 @@ export default function PostView() {
         if (!postData || !me || !commentText.trim()) return; // 유효성 검사
         try {
             // API 호출하여 새로운 댓글 생성
-            const newComment = await createComment({
+            await createComment({
                 post_id: postData.id,
                 content: commentText,
                 parent_comment: replyingTo ?? undefined,  // 대댓글 여부 확인
             });
-
-            // 상태 업데이트: 기존 댓글 목록에 새 댓글 추가
-            setCommentsData((prevComments) => [...prevComments, newComment]);
-
-            console.log("Comment submitted:", newComment);
-
             if (replyingTo == null) {
                 // 스크롤을 최신 댓글로 이동
                 containerRef.current?.scrollToEnd();
             }
-
             // 입력 필드 초기화
             setReplyingTo(null);
             setIsInputFocused(false);
             setCommentText(""); // 댓글 입력 필드 초기화
+            await fetchComments(postData.id);
         } catch (error) {
             console.error("Failed to submit comment:", error);
         }
