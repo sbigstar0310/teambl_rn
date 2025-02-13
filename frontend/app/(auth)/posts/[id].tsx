@@ -2,7 +2,7 @@ import {useLocalSearchParams} from "expo-router";
 import {Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import dayjs from "dayjs";
 import PostContent from "@/components/PostContent";
 import ProjectDetailsInPost from "@/components/post/ProjectDetailsInPost";
@@ -18,6 +18,12 @@ import createComment from "@/libs/apis/Comment/CommentCreate";
 import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
 import fetchComment from "@/libs/apis/Comment/fetchComment";
+import {SafeAreaView} from "react-native-safe-area-context";
+import LoadingOverlay from "@/components/common/LoadingOverlay";
+import BottomModal from "@/components/BottomModal";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Feather from "@expo/vector-icons/Feather";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -33,7 +39,11 @@ export default function PostView() {
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [commentText, setCommentText] = useState("")
     const [loading, setLoading] = useState(true);
-    const containerRef = useRef<ScrollView | null>(null);
+    const containerRef = useRef<ScrollView | null>(null)
+    const isMyPost = useMemo(() => {
+        if (!me || !authorData) return false;
+        return me.id === authorData.id;
+    }, [me, authorData])
 
     useEffect(() => {
         fetchCurrentUser();
@@ -65,6 +75,7 @@ export default function PostView() {
     // 현재 로그인한 유저 정보 불러오기
     const fetchCurrentUser = async () => {
         try {
+            setLoading(true);
             const currentUser = await fetchCurrentUserAPI();
             setMe(currentUser ?? undefined);
             console.log("fetched current user: ", currentUser);
@@ -76,15 +87,19 @@ export default function PostView() {
     };
     const fetchPost = async (postId: number) => {
         try {
+            setLoading(true);
             const postData = await fetchPostById(postId);
             console.log("Fetched post:", postData);
             setPostData(postData);
         } catch (error) {
             console.error("Failed to fetch posts:", error);
+        } finally {
+            setLoading(false);
         }
     };
     const fetchProjectCard = async (projectId: number) => {
         try {
+            setLoading(true);
             // TODO: use specific api route to get single project card data by id
             const projectCardsData = await fetchMyProjectCard();
             const projectCardData = projectCardsData.find(p => p.id === projectId);
@@ -95,22 +110,30 @@ export default function PostView() {
             setProjectData(projectCardData);
         } catch (error) {
             console.error("Failed to fetch project card:", error);
+        } finally {
+            setLoading(false);
         }
     }
     const fetchUser = async (userId: number) => {
         try {
+            setLoading(true);
             const userData = await getUserInfo(userId);
             setAuthorData(userData);
         } catch (error) {
             console.error("Failed to fetch user:", error);
+        } finally {
+            setLoading(false);
         }
     }
     const fetchComments = async (postId: number) => {
         try {
+            setLoading(true);
             const commentsData = await fetchComment({post_id: postId});
             setCommentsData(commentsData);
         } catch (error) {
             console.error("Failed to fetch comments:", error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -178,7 +201,8 @@ export default function PostView() {
     }
 
     return (
-        <View style={sharedStyles.container}>
+        <SafeAreaView style={sharedStyles.container} edges={["top"]}>
+            <LoadingOverlay isLoading={loading}/>
             <ScreenHeader/>
             {postData &&
                 <ScrollView
@@ -240,6 +264,7 @@ export default function PostView() {
                     </View>
                 </ScrollView>
             }
+            {/* Text input */}
             <Modal
                 visible={isInputFocused}
                 onRequestClose={setIsInputFocused.bind(null, false)}
@@ -264,15 +289,103 @@ export default function PostView() {
                     </View>
                 </View>
             </Modal>
+            {/* Post Options */}
+            <BottomModal
+                visible={isContextOpen}
+                onClose={setIsContextOpen.bind(null, false)}
+                body={isMyPost ? <MyOptions/> : <Options/>}
+                heightPercentage={0.2}
+            />
+        </SafeAreaView>
+    )
+}
+
+function MyOptions() {
+    const handleCopyLink = () => {
+
+    }
+
+    const handleEdit = () => {
+
+    }
+
+    const handleDelete = () => {
+
+    }
+
+    return (
+        <View style={styles.optionsContainer}>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.black}]}
+                    onPress={handleCopyLink}
+                >
+                    <Feather name="link" size={24} color={theme.colors.black}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.black}}>링크 복사</Text>
+            </View>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.black}]}
+                    onPress={handleEdit}
+                >
+                    <MaterialCommunityIcons name="pencil" size={24} color={theme.colors.black}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.black}}>수정</Text>
+            </View>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.message2}]}
+                    onPress={handleDelete}
+                >
+                    <Feather name="trash-2" size={24} color={theme.colors.message2}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.message2}}>삭제</Text>
+            </View>
         </View>
     )
 }
+
+function Options() {
+    const handleCopyLink = () => {
+
+    }
+
+    const handleReport = () => {
+
+    }
+
+    return (
+        <View style={styles.optionsContainer}>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.black}]}
+                    onPress={handleCopyLink}
+                >
+                    <Feather name="link" size={24} color={theme.colors.black}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.black}}>링크 복사</Text>
+            </View>
+            <View style={styles.optionButtonWrapper}>
+                <TouchableOpacity
+                    style={[styles.optionButton, {borderColor: theme.colors.message2}]}
+                    onPress={handleReport}
+                >
+                    <AntDesign name="warning" size={24} color={theme.colors.message2}/>
+                </TouchableOpacity>
+                <Text style={{color: theme.colors.message2}}>신고</Text>
+            </View>
+        </View>
+    )
+}
+
 const styles = StyleSheet.create({
     main: {
-        flex: 1
+        flex: 1,
+        paddingVertical: 12
     },
     postContent: {
-        paddingVertical: 24,
+        paddingVertical: 16,
         gap: 8
     },
     interactions: {
@@ -308,5 +421,21 @@ const styles = StyleSheet.create({
     submitButtonText: {
         color: theme.colors.main,
         fontSize: 14
+    },
+    optionsContainer: {
+        flex: 1,
+        flexDirection: "row",
+        gap: 8,
+        alignItems: "center",
+        justifyContent: "space-evenly"
+    },
+    optionButton: {
+        padding: 12,
+        borderRadius: 999,
+        borderWidth: 1
+    },
+    optionButtonWrapper: {
+        alignItems: "center",
+        gap: 4
     }
 })

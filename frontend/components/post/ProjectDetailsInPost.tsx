@@ -14,14 +14,14 @@ interface ProjectDetailsInPostProps {
 export default function ProjectDetailsInPost(props: ProjectDetailsInPostProps) {
     return (
         <View style={styles.container}>
+            {/* Vertical line */}
+            <View style={styles.verticalLine}/>
             <View style={styles.detailsContainer}>
                 {/* Project title */}
                 <Text>{props.project.title}</Text>
                 {/* Tagged user profiles */}
                 <TaggedUserAvatars taggedUsers={props.post.tagged_users}/>
             </View>
-            {/* Vertical line */}
-            <View style={styles.verticalLine}/>
             {/* Subscribe button */}
             <TouchableOpacity
                 style={styles.buttonContainer}
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         gap: 10,
-        paddingHorizontal: 20
+        paddingHorizontal: 16
     },
     detailsContainer: {
         flexGrow: 1,
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between"
     },
     verticalLine: {
-        width: 1,
+        width: 2,
         height: "100%",
         backgroundColor: theme.colors.achromatic04
     },

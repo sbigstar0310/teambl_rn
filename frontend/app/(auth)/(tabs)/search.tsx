@@ -1,25 +1,18 @@
-import React, { useState, useEffect } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    ActivityIndicator,
-    Modal,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, {useEffect, useState} from "react";
+import {FlatList, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
 import UserFilterTabs from "@/components/search/UserFilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 import searchUser from "@/libs/apis/Search/searchUser";
-import { router } from "expo-router";
+import {router} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { USER_ID } from "@/shared/constants";
+import {USER_ID} from "@/shared/constants";
 import NoSearchResult from "@/components/common/NoSearchResult";
 import ProjFilterTabs from "@/components/search/ProjFilterTabs";
+import LoadingOverlay from "@/components/common/LoadingOverlay";
 
 // 데이터 타입 정의
 interface SearchData {
@@ -85,7 +78,7 @@ export default function SearchScreen() {
     const fetchSearchResults = async (query: string) => {
         setLoading(true); // 로딩 시작
         try {
-            const response = await searchUser({ q: query, degree: [] });
+            const response = await searchUser({q: query, degree: []});
             setSearchData(response.results);
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
@@ -119,15 +112,11 @@ export default function SearchScreen() {
 
     return (
         <SafeAreaView
-            style={{ flex: 1, backgroundColor: "#fff" }}
+            style={{flex: 1, backgroundColor: "#fff"}}
             edges={["top"]}
         >
             {/* 로딩 모달 */}
-            <Modal visible={loading} transparent>
-                <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color="#0000ff" />
-                </View>
-            </Modal>
+            <LoadingOverlay isLoading={loading}/>
 
             {/* 상단 헤더 */}
             <SearchHeader
@@ -147,7 +136,7 @@ export default function SearchScreen() {
             {/* 탭 내용 */}
             <View style={styles.contentContainer}>
                 {activeTab === "사람" && (
-                    <View style={{ flex: 1 }}>
+                    <View style={{flex: 1}}>
                         {/* 필터 */}
                         <UserFilterTabs
                             activeFilter={activeUserFilter}
@@ -160,18 +149,18 @@ export default function SearchScreen() {
                         </Text>
 
                         {filteredResults.length === 0 ? (
-                            <NoSearchResult title="검색 결과가 없습니다." message="필터를 조정하거나 새로운 검색어를 입력해보세요." />
+                            <NoSearchResult title="검색 결과가 없습니다." message="필터를 조정하거나 새로운 검색어를 입력해보세요."/>
                         ) : (
                             <FlatList
                                 data={filteredResults}
                                 keyExtractor={(item) => String(item.user.id)}
-                                renderItem={({ item }) => <UserCard {...item} />}
+                                renderItem={({item}) => <UserCard {...item} />}
                             />
                         )}
                     </View>
                 )}
                 {activeTab === "프로젝트 + 게시물" && (
-                    <View style={{ flex: 1 }}>
+                    <View style={{flex: 1}}>
                         {/* 필터 */}
                         <ProjFilterTabs
                             activeFilter={activeProjFilter}
@@ -196,7 +185,7 @@ export default function SearchScreen() {
                     });
                 }}
             >
-                <SurfingIcon />
+                <SurfingIcon/>
             </TouchableOpacity>
         </SafeAreaView>
     );
@@ -223,14 +212,8 @@ const styles = StyleSheet.create({
         right: 20,
         justifyContent: "center",
         alignItems: "center",
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.25,
         shadowRadius: 4,
-    },
-    loadingOverlay: {
-        flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        justifyContent: "center",
-        alignItems: "center",
-    },
+    }
 });
