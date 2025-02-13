@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ActivityIndicator, Modal } from "react-native";
+import { View, StyleSheet, ActivityIndicator, Modal, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InviteHeader from "@/components/invite/InviteHeader";
 import InviteTabs from "@/components/invite/InviteTabs";
@@ -8,6 +8,7 @@ import InviteCard from "@/components/invite/InviteCard";
 import fetchInvitationLinks from "@/libs/apis/InvitationLink/fetchInvitationLinks";
 import deleteInvitationLink from "@/libs/apis/InvitationLink/deleteInvitationLink";
 import dayjs from "dayjs";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 export default function MyFriendsScreen() {
     const [activeTab, setActiveTab] = useState<
@@ -20,6 +21,10 @@ export default function MyFriendsScreen() {
 
     useEffect(() => {
         fetchInvites();
+        eventEmitter.on("handleInvite", fetchInvites);
+        return () => {
+          eventEmitter.off("handleInvite", fetchInvites);
+        };
     }, []);
 
     const fetchInvites = async () => {
@@ -104,20 +109,22 @@ export default function MyFriendsScreen() {
 
             {/* 탭 내용 */}
             <View style={styles.contentContainer}>
-                {filteredInvites.map((invitationLink) => (
-                    <InviteCard
-                        key={invitationLink.id}
-                        name={invitationLink.invitee_name}
-                        status={statusChange(activeTab)}
-                        expirationDate={getExpirationDate(
-                            invitationLink.created_at
-                        )}
-                        inviteLink={invitationLink.link}
-                        inviteRecall={() =>
-                            handleDeleteInvitationLink(invitationLink.id)
-                        }
-                    />
-                ))}
+                <ScrollView>
+                    {filteredInvites.map((invitationLink) => (
+                        <InviteCard
+                            key={invitationLink.id}
+                            name={invitationLink.invitee_name}
+                            status={statusChange(activeTab)}
+                            expirationDate={getExpirationDate(
+                                invitationLink.created_at
+                            )}
+                            inviteLink={invitationLink.link}
+                            inviteRecall={() =>
+                                handleDeleteInvitationLink(invitationLink.id)
+                            }
+                        />
+                    ))}
+                </ScrollView>
             </View>
         </SafeAreaView>
     );
@@ -127,13 +134,6 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
         padding: 16,
-    },
-    resultCount: {
-        fontSize: 14,
-        fontFamily: "PretendardRegular",
-        fontStyle: "normal",
-        lineHeight: 17,
-        color: "#595959",
     },
     loadingOverlay: {
         flex: 1,

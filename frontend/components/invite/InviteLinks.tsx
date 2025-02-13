@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import InviteLinkModal from "./InviteLinkModal";
 import createInvitationLink from "@/libs/apis/InvitationLink/createInvitationLink";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 export default function InviteLinks() {
     const [modalVisible, setModalVisible] = useState(false);
@@ -24,6 +25,7 @@ export default function InviteLinks() {
             const response = await createInvitationLink({ name: name });
             setInviteLink(response);
             setModalVisible(true);
+            eventEmitter.emit("handleInvite");
         } catch (error) {
             console.error("Error creating invite link:", error);
         }

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import * as Clipboard from 'expo-clipboard';
 import LinkIcon from "@/assets/invite/LinkIcon.svg";
+import Popup from "@/components/Popup";
 
 type InviteCardProps = {
     name: string;
@@ -19,6 +20,7 @@ export default function InviteCard({ name, status, expirationDate, inviteLink, i
         Clipboard.setStringAsync(inviteLink);  // 클립보드에 링크 복사
         alert("링크가 복사되었습니다!");  // 알림을 통해 복사 완료 메시지 표시
     };
+    const [isRecallPopupOpen, setIsRecallPopupOpen] = useState(false);
 
     return (
         <View style={styles.card}>
@@ -42,7 +44,7 @@ export default function InviteCard({ name, status, expirationDate, inviteLink, i
                     {/* 상단 */}
                     <View style={styles.topRow}>
                         <Text style={styles.name}>{name}</Text>
-                        <TouchableOpacity onPress={inviteRecall}>
+                        <TouchableOpacity onPress={setIsRecallPopupOpen.bind(null, true)}>
                             <Text style={styles.inviteRecall}>초대 회수</Text>
                         </TouchableOpacity>
                     </View>
@@ -66,6 +68,16 @@ export default function InviteCard({ name, status, expirationDate, inviteLink, i
                     </View>
                 </View>
             )}
+
+            {/* 회수 팝업 */}
+            <Popup
+                isVisible={isRecallPopupOpen}
+                onClose={setIsRecallPopupOpen.bind(null, false)}
+                onConfirm={inviteRecall}
+                title="초대를 회수할까요?"
+                confirmLabel="회수"
+                closeLabel="취소"
+            />
         </View>
     );
 }
