@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "teambl_rn",
-    "slug": "teambl_rn",
+    "name": "teambl",
+    "slug": "teambl",
     "scheme": "teambl",
     "version": "1.0.0",
     "orientation": "portrait",

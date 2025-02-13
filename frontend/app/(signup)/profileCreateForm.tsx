@@ -154,14 +154,17 @@ export default function ProfileCreateFormScreen() {
 
                 {/* Current Degree */}
                 <Text style={styles.semiTitle}>재학 과정</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="재학 과정 선택"
-                    placeholderTextColor="#A8A8A8"
-                    value={profile.current_academic_degree}
-                    editable={false} // Prevent user editing
+                <TouchableOpacity
                     onPress={() => toggleModal("degree")}
-                />
+                >
+                    <TextInput
+                        style={styles.input}
+                        placeholder="재학 과정 선택"
+                        placeholderTextColor="#A8A8A8"
+                        value={profile.current_academic_degree}
+                        editable={false} // Prevent user editing
+                    />
+                </TouchableOpacity>
 
                 {/* Year */}
                 <Text style={styles.semiTitle}>입학년도</Text>

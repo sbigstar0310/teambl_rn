@@ -5,6 +5,9 @@ import { ACCESS_TOKEN, USER_ID } from "@/shared/constants";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { useAuthStore } from "@/store/authStore";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
+import * as SplashScreen from "expo-splash-screen";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function IndexScreen() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // 로그인 상태 추가
@@ -33,6 +36,7 @@ export default function IndexScreen() {
             useAuthStore.getState().logout(); // AuthStore 초기화
         } finally {
             setLoading(false); // 로딩 상태 완료
+            SplashScreen.hideAsync();
         }
     };
 
