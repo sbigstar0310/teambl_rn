@@ -122,6 +122,7 @@ export default function MyFriendsScreen() {
                             inviteRecall={() =>
                                 handleDeleteInvitationLink(invitationLink.id)
                             }
+                            userid={invitationLink.invitee_id}
                         />
                     ))}
                 </ScrollView>

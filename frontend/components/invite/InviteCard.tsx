@@ -44,7 +44,7 @@ export default function InviteCard({ name, status, expirationDate, inviteLink, i
                     {/* 상단 */}
                     <View style={styles.topRow}>
                         <Text style={styles.name}>{name}</Text>
-                        <TouchableOpacity onPress={setIsRecallPopupOpen.bind(null, true)}>
+                        <TouchableOpacity onPress={(setIsRecallPopupOpen.bind(null, true))}>
                             <Text style={styles.inviteRecall}>초대 회수</Text>
                         </TouchableOpacity>
                     </View>
@@ -68,7 +68,6 @@ export default function InviteCard({ name, status, expirationDate, inviteLink, i
                     </View>
                 </View>
             )}
-
             {/* 회수 팝업 */}
             <Popup
                 isVisible={isRecallPopupOpen}
