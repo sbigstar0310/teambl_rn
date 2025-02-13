@@ -3,7 +3,6 @@ import {Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} 
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
 import {useEffect, useRef, useState} from "react";
-import {mockComment1, mockComment2, mockPost1, mockProject1, mockUser1} from "@/shared/mock-data";
 import dayjs from "dayjs";
 import PostContent from "@/components/PostContent";
 import ProjectDetailsInPost from "@/components/post/ProjectDetailsInPost";
@@ -11,12 +10,14 @@ import PostInteractions from "@/components/post/PostInteractions";
 import CommentDummyInput from "@/components/post/CommentDummyInput";
 import CommentThread, {getThread, Thread} from "@/components/post/CommentThread";
 import theme from "@/shared/styles/theme";
-
 import fetchCurrentUserAPI from "@/libs/apis/User/currentUser";
 import fetchPostById from "@/libs/apis/Post/fetchPostById";
 import toggleLikePost from "@/libs/apis/Post/toggleLikePost";
 import toggleBookmarkProjectCard from "@/libs/apis/ProjectCard/toggleBookmarkProjectCard";
 import createComment from "@/libs/apis/Comment/CommentCreate";
+import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
+import getUserInfo from "@/libs/apis/User/getUserInfo";
+import fetchComment from "@/libs/apis/Comment/fetchComment";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -31,62 +32,23 @@ export default function PostView() {
     const [replyingTo, setReplyingTo] = useState<number | null>(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [commentText, setCommentText] = useState("")
+    const [loading, setLoading] = useState(true);
     const containerRef = useRef<ScrollView | null>(null);
 
-    const [loading, setLoading] = useState(true);
-
-    // 현재 로그인한 유저 정보 불러오기
-    const fetchCurrentUser = async () => {
-        try {
-            const currentUser = await fetchCurrentUserAPI();
-            setMe(currentUser?? undefined);
-            console.log("fetched current user: ", currentUser);
-        } catch (error) {
-            console.error("Failed to fetch current user", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchPost = async (postId: number) => { 
-        try {
-            const postData = await fetchPostById(postId);
-            console.log("Fetched post:", postData);
-            setPostData(postData);
-        } catch (error) {
-            console.error("Failed to fetch posts:", error);
-        }
-    };
-
     useEffect(() => {
-        // TODO: fetch current authenticated user data
         fetchCurrentUser();
-        // setMe(mockUser1);
     }, []);
     useEffect(() => {
-        // TODO: Fetch post by ID
         if (id) {
             fetchPost(Number(id));
         }
-        // setPostData(mockPost1);
     }, [id]);
-    // useEffect(() => {
-    //     // TODO: fetch project, author data, comments by post id
-    //     setProjectData(mockProject1);
-    //     setAuthorData(mockUser1);
-    //     setCommentsData([
-    //         mockComment1,
-    //         mockComment2
-    //     ])
-    // }, [postData]);
     useEffect(() => {
         if (!postData) return;
-        setProjectData(postData.project_card);
-        setAuthorData(postData.user);
-        setCommentsData(postData.comments);
+        fetchProjectCard(postData.project_card);
+        fetchUser(postData.user);
+        fetchComments(postData.id);
     }, [postData]);
-    
-
     useEffect(() => {
         const threads: Thread[] = commentsData
             .filter(c => !c.parent_comment)
@@ -95,83 +57,88 @@ export default function PostView() {
             .map(c => getThread(c, commentsData.filter(c2 => c2.id !== c.id)));
         setThreadData(threads);
     }, [commentsData]);
+    useEffect(() => {
+        if (!projectData || !me) return;
+        setIsSubscribed(projectData.bookmarked_users.includes(me.id));
+    }, [projectData, me]);
 
-    // const handleSubscribe = () => {
-    //     // TODO: make api call to subscribe to project
-    //     setIsSubscribed(true);
-    //     console.log('Subscribed')
-    // }
+    // 현재 로그인한 유저 정보 불러오기
+    const fetchCurrentUser = async () => {
+        try {
+            const currentUser = await fetchCurrentUserAPI();
+            setMe(currentUser ?? undefined);
+            console.log("fetched current user: ", currentUser);
+        } catch (error) {
+            console.error("Failed to fetch current user", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const fetchPost = async (postId: number) => {
+        try {
+            const postData = await fetchPostById(postId);
+            console.log("Fetched post:", postData);
+            setPostData(postData);
+        } catch (error) {
+            console.error("Failed to fetch posts:", error);
+        }
+    };
+    const fetchProjectCard = async (projectId: number) => {
+        try {
+            // TODO: use specific api route to get single project card data by id
+            const projectCardsData = await fetchMyProjectCard();
+            const projectCardData = projectCardsData.find(p => p.id === projectId);
+            if (!projectCardData) {
+                console.error("Project card not found");
+                return;
+            }
+            setProjectData(projectCardData);
+        } catch (error) {
+            console.error("Failed to fetch project card:", error);
+        }
+    }
+    const fetchUser = async (userId: number) => {
+        try {
+            const userData = await getUserInfo(userId);
+            setAuthorData(userData);
+        } catch (error) {
+            console.error("Failed to fetch user:", error);
+        }
+    }
+    const fetchComments = async (postId: number) => {
+        try {
+            const commentsData = await fetchComment({post_id: postId});
+            setCommentsData(commentsData);
+        } catch (error) {
+            console.error("Failed to fetch comments:", error);
+        }
+    }
+
     const handleSubscribe = async (projectCardId: number) => {
         try {
             // 프로젝트 카드 북마크 토글 API 호출
-            const updatedProject = await toggleBookmarkProjectCard({ projectCardId });
-
-            // 북마크 상태 업데이트 (bookmarked_users 길이를 기반으로 결정)
-            const isBookmarked = updatedProject.bookmarked_users?.some(user => user.id === me?.id);
-
-            setIsSubscribed(isBookmarked);
-
-            console.log(isBookmarked ? "Subscribed" : "Unsubscribed");
+            const updatedProjectData = await toggleBookmarkProjectCard({projectCardId});
+            setProjectData(updatedProjectData);
         } catch (error) {
             console.error("Failed to toggle subscription:", error);
         }
     };
-
-
     const handleLike = async (postId: number, likedUsers: number[] = [], setPostData: (data: any) => void) => {
         try {
             if (!postId || !me?.id) return; // postId 또는 me.id가 없으면 실행 안 함
-    
             const userId = me.id;
             const isLiked = likedUsers.includes(userId);
-    
             const updatedLikedUsers = isLiked
                 ? likedUsers.filter((id) => id !== userId) // 좋아요 취소
                 : [...likedUsers, userId]; // 좋아요 추가
-    
-            const updatedPost = await toggleLikePost(postId, { liked_users: updatedLikedUsers });
-    
+            const updatedPost = await toggleLikePost(postId, {liked_users: updatedLikedUsers});
             setPostData(updatedPost);
         } catch (error) {
             console.error("Failed to toggle like:", error);
         }
-    };    
-
-    // const handleLike = () => {
-    //     // TODO: make api call to like post
-    //     console.log('Liked')
-    // }
-
-    // const handleCommentSubmit = () => {
-    //     // TODO: make api call to submit comment
-    //     if (!postData || !me) return;
-    //     console.log('Comment submitted')
-    //     console.log(commentText);
-    //     setCommentsData((comments) => {
-    //         const lastId = comments.length > 0
-    //             ? comments[comments.length - 1].id
-    //             : 1;
-    //         const newComment: api.Comment = {
-    //             id: lastId + 1,
-    //             post: postData.id,
-    //             user: me.id,
-    //             content: commentText,
-    //             created_at: new Date(),
-    //             likes: 0,
-    //             parent_comment: replyingTo ?? undefined
-    //         }
-    //         return [...comments, newComment];
-    //     })
-    //     if (replyingTo == null) {
-    //         // Scroll to the bottom of the comments
-    //         containerRef.current?.scrollToEnd();
-    //     }
-    //     setReplyingTo(null);
-    //     setIsInputFocused(false);
-    // }
+    };
     const handleCommentSubmit = async () => {
         if (!postData || !me || !commentText.trim()) return; // 유효성 검사
-    
         try {
             // API 호출하여 새로운 댓글 생성
             const newComment = await createComment({
@@ -179,17 +146,17 @@ export default function PostView() {
                 content: commentText,
                 parent_comment: replyingTo ?? undefined,  // 대댓글 여부 확인
             });
-    
+
             // 상태 업데이트: 기존 댓글 목록에 새 댓글 추가
             setCommentsData((prevComments) => [...prevComments, newComment]);
-    
+
             console.log("Comment submitted:", newComment);
-    
+
             if (replyingTo == null) {
                 // 스크롤을 최신 댓글로 이동
                 containerRef.current?.scrollToEnd();
             }
-    
+
             // 입력 필드 초기화
             setReplyingTo(null);
             setIsInputFocused(false);
@@ -249,7 +216,7 @@ export default function PostView() {
                             onOptions={setIsContextOpen.bind(null, true)}
                             // onLike={handleLike}
                             onLike={() => handleLike(
-                                postData?.id ?? 0, 
+                                postData?.id ?? 0,
                                 postData?.liked_users?.map(user => user.id) ?? [],
                                 setPostData
                             )}

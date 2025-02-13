@@ -26,7 +26,6 @@ export default function ProjectDetailsInPost(props: ProjectDetailsInPostProps) {
             <TouchableOpacity
                 style={styles.buttonContainer}
                 onPress={props.onSubscribe}
-                disabled={props.isSubscribed}
             >
                 {props.isSubscribed
                     ? <Fragment>

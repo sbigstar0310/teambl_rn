@@ -84,8 +84,8 @@ declare module api {
         id: number;
         title: string;
         keywords: string[];
-        accepted_users: User[];
-        bookmarked_users: User[];
+        accepted_users: number[];
+        bookmarked_users: number[];
         creator: User;
         created_at: Date;
         start_date?: Date;
@@ -96,8 +96,8 @@ declare module api {
 
     type Post = {
         id: number;
-        project_card: ProjectCard;
-        user: User;
+        project_card: number;
+        user: number;
         content: string;
         created_at: Date;
         like_count: number;
