@@ -9,6 +9,7 @@ import {
 import InviteLinkModal from "./InviteLinkModal";
 import createInvitationLink from "@/libs/apis/InvitationLink/createInvitationLink";
 import eventEmitter from "@/libs/utils/eventEmitter";
+import dayjs from "dayjs";
 
 export default function InviteLinks() {
     const [modalVisible, setModalVisible] = useState(false);
@@ -31,6 +32,13 @@ export default function InviteLinks() {
         }
     };
 
+    const getExpirationDate = (created_at: Date) => {
+        const expDate = new Date(
+            new Date(created_at).getTime() + 7 * 24 * 60 * 60 * 1000
+        );
+        return dayjs(expDate).format("YYYY.MM.DD HH:mm까지");
+    };
+    
     return (
         <View style={styles.container}>
             <Text style={styles.title}>초대 링크 생성</Text>
@@ -59,7 +67,7 @@ export default function InviteLinks() {
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 inviteeName={name}
-                expirationDate="2024.07.24 18:30까지"
+                expirationDate={inviteLink ? getExpirationDate(inviteLink.created_at) : ""}
                 inviteLink={inviteLink?.link ?? ""}
             />
         </View>

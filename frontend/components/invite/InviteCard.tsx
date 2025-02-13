@@ -10,7 +10,7 @@ type InviteCardProps = {
     status: "대기" | "만료" | "완료";
     expirationDate?: string;
     inviteLink: string;
-    inviteRecall?: any;
+    inviteRecall?: () => void;
     userid?: number;
 };
 

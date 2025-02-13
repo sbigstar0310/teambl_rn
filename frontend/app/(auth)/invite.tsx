@@ -56,7 +56,7 @@ export default function MyFriendsScreen() {
         const expDate = new Date(
             new Date(created_at).getTime() + 7 * 24 * 60 * 60 * 1000
         );
-        return dayjs(expDate).format("YYYY-MM-DD");
+        return dayjs(expDate).format("YYYY.MM.DD HH:mm까지");
     };
 
     const filteredInvites = invitationLinks.filter((invitationLink) => {
