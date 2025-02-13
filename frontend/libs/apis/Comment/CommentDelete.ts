@@ -6,7 +6,7 @@ type RequestParams = {
 
 const deleteComment = async (params: RequestParams): Promise<void> => {
     try {
-        await api.delete(`${params.comment_id}/delete/`);
+        await api.delete(`comment/${params.comment_id}/delete/`);
         console.log(`Comment ${params.comment_id} deleted successfully`);
     } catch (error) {
         console.error("Error deleting comment:", error);

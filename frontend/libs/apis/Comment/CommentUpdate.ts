@@ -9,7 +9,7 @@ type Response = api.Comment; // 서버에서 반환하는 댓글 데이터 타�
 
 const updateComment = async (params: RequestParams): Promise<Response> => {
     try {
-        const response = await api.patch<Response>(`${params.comment_id}/edit/`, {
+        const response = await api.patch<Response>(`comment/${params.comment_id}/edit/`, {
             content: params.content,
         });
         return response.data;

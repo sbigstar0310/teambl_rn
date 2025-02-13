@@ -4,12 +4,12 @@ from .. import views
 # Comment
 urlpatterns = [
     path(
-        "post/<int:project_id>/list",
+        "<int:post_id>/list/",
         views.CommentListView.as_view(),
         name="comment-list",
     ),
     path(
-        "post/<int:project_id>/create",
+        "<int:post_id>/create/",
         views.CommentCreateView.as_view(),
         name="comment-create",
     ),

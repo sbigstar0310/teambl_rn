@@ -8,7 +8,7 @@ type RequestParams = {
 
 const createComment = async (params: RequestParams): Promise<api.Comment> => {
     try {
-        const response = await api.post<api.Comment>(`post/${params.post_id}/create`, params);
+        const response = await api.post<api.Comment>(`comment/${params.post_id}/create`, params);
         return response.data;
     } catch (error) {
         console.error("Error creating comment:", error);
