@@ -8,8 +8,9 @@ import Feather from '@expo/vector-icons/Feather';
 import theme from "@/shared/styles/theme";
 import {sharedStyles} from "@/app/_layout";
 import {useEffect, useMemo, useState} from "react";
-import {mockUser2} from "@/shared/mock-data";
 import BottomModal from "@/components/BottomModal";
+import Popup from "@/components/Popup";
+import getUserInfo from "@/libs/apis/User/getUserInfo";
 
 export type Thread = {
     comment: api.Comment;
@@ -34,6 +35,8 @@ export const getThread = (comment: api.Comment, otherComments: api.Comment[]) =>
 interface CommentThreadProps {
     thread: Thread;
     onReply: (parentCommentId: number) => void;
+    onEdit: (commentId: number) => void;
+    onDelete: (commentId: number) => void;
     myUserId: number;
 }
 
@@ -46,12 +49,31 @@ export default function CommentThread(props: CommentThreadProps) {
     const [isHidden, setIsHidden] = useState(false);
 
     useEffect(() => {
-        // TODO: fetch user data by comment author id
-        setUser(mockUser2);
+        if (!comment?.user) return;
+        fetchUser(comment.user);
     }, [comment]);
+
+    const fetchUser = async (userId: number) => {
+        try {
+            const userData = await getUserInfo(userId);
+            setUser(userData);
+        } catch (error) {
+            console.error("Failed to comment user:", error);
+        }
+    }
 
     const toggleHidden = () => {
         setIsHidden((isHidden) => !isHidden);
+    }
+
+    const handleEdit = () => {
+        setIsContextOpen(false);
+        props.onEdit(comment.id);
+    }
+
+    const handleDelete = () => {
+        setIsContextOpen(false);
+        props.onDelete(comment.id);
     }
 
     return (
@@ -108,9 +130,8 @@ export default function CommentThread(props: CommentThreadProps) {
                     {!isHidden && props.thread.sub.map(((subThread, index) => (
                         <CommentThread
                             key={index}
+                            {...props}
                             thread={subThread}
-                            onReply={props.onReply}
-                            myUserId={props.myUserId}
                         />
                     )))}
                 </View>
@@ -118,7 +139,9 @@ export default function CommentThread(props: CommentThreadProps) {
             <BottomModal
                 visible={isContextOpen}
                 onClose={setIsContextOpen.bind(null, false)}
-                body={isMyComment ? <MyOptions/> : <Options/>}
+                body={isMyComment
+                    ? <MyOptions onEdit={handleEdit} onDelete={handleDelete}/>
+                    : <Options/>}
                 heightPercentage={0.2}
             />
         </View>
@@ -145,13 +168,16 @@ function ShowThreadButton(props: ShowThreadButtonProps) {
     )
 }
 
-function MyOptions() {
-    const handleEdit = () => {
+interface MyOptionsProps {
+    onEdit: () => void;
+    onDelete: () => void;
+}
 
-    }
+function MyOptions(props: MyOptionsProps) {
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-    const handleDelete = () => {
-
+    const handleDeletePress = () => {
+        setIsPopupOpen(true);
     }
 
     return (
@@ -159,7 +185,7 @@ function MyOptions() {
             <View style={styles.optionButtonWrapper}>
                 <TouchableOpacity
                     style={[styles.optionButton, {borderColor: theme.colors.black}]}
-                    onPress={handleEdit}
+                    onPress={props.onEdit}
                 >
                     <MaterialCommunityIcons name="pencil" size={24} color={theme.colors.black}/>
                 </TouchableOpacity>
@@ -168,12 +194,21 @@ function MyOptions() {
             <View style={styles.optionButtonWrapper}>
                 <TouchableOpacity
                     style={[styles.optionButton, {borderColor: theme.colors.message2}]}
-                    onPress={handleDelete}
+                    onPress={handleDeletePress}
                 >
                     <Feather name="trash-2" size={24} color={theme.colors.message2}/>
                 </TouchableOpacity>
                 <Text style={{color: theme.colors.message2}}>삭제</Text>
             </View>
+            <Popup
+                title="댓글을 정말 삭제하시겠습니까?"
+                isVisible={isPopupOpen}
+                onClose={setIsPopupOpen.bind(null, false)}
+                closeLabel="댓글 삭제"
+                onConfirm={props.onDelete}
+                confirmLabel="삭제"
+                confirmLabelColor={theme.colors.point}
+            />
         </View>
     )
 }

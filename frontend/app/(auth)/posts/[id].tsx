@@ -24,6 +24,8 @@ import BottomModal from "@/components/BottomModal";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import updateComment from "@/libs/apis/Comment/CommentUpdate";
+import deleteComment from "@/libs/apis/Comment/CommentDelete";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -36,6 +38,7 @@ export default function PostView() {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [isContextOpen, setIsContextOpen] = useState(false);
     const [replyingTo, setReplyingTo] = useState<number | null>(null);
+    const [editingComment, setEditingComment] = useState<number | null>(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [commentText, setCommentText] = useState("")
     const [loading, setLoading] = useState(true);
@@ -78,7 +81,6 @@ export default function PostView() {
             setLoading(true);
             const currentUser = await fetchCurrentUserAPI();
             setMe(currentUser ?? undefined);
-            console.log("fetched current user: ", currentUser);
         } catch (error) {
             console.error("Failed to fetch current user", error);
         } finally {
@@ -89,7 +91,6 @@ export default function PostView() {
         try {
             setLoading(true);
             const postData = await fetchPostById(postId);
-            console.log("Fetched post:", postData);
             setPostData(postData);
         } catch (error) {
             console.error("Failed to fetch posts:", error);
@@ -163,25 +164,44 @@ export default function PostView() {
     const handleCommentSubmit = async () => {
         if (!postData || !me || !commentText.trim()) return; // 유효성 검사
         try {
-            // API 호출하여 새로운 댓글 생성
-            await createComment({
-                post_id: postData.id,
-                content: commentText,
-                parent_comment: replyingTo ?? undefined,  // 대댓글 여부 확인
-            });
+            if (editingComment) {
+                // Edit existing comment content
+                await updateComment({comment_id: editingComment, content: commentText});
+            } else {
+                // Create new comment
+                // API 호출하여 새로운 댓글 생성
+                await createComment({
+                    post_id: postData.id,
+                    content: commentText,
+                    parent_comment: replyingTo ?? undefined,  // 대댓글 여부 확인
+                });
+            }
             if (replyingTo == null) {
                 // 스크롤을 최신 댓글로 이동
                 containerRef.current?.scrollToEnd();
             }
             // 입력 필드 초기화
-            setReplyingTo(null);
-            setIsInputFocused(false);
-            setCommentText(""); // 댓글 입력 필드 초기화
+            handleInputUnfocus();
             await fetchComments(postData.id);
         } catch (error) {
             console.error("Failed to submit comment:", error);
         }
     };
+    const handleCommentDelete = async (commentId: number) => {
+        if (!commentId || !postData || !me) return;
+        try {
+            // 댓글 삭제 API 호출
+            await deleteComment({comment_id: commentId});
+            await fetchComments(postData.id);
+        } catch (error) {
+            console.error("Failed to delete comment:", error);
+        }
+    }
+    const handleCommentEdit = (commentId: number) => {
+        setEditingComment(commentId);
+        setCommentText(commentsData.find(c => c.id === commentId)?.content ?? "");
+        handleInputFocus();
+    }
 
     const handleInputFocus = (parentCommentId?: number) => {
         if (parentCommentId !== undefined) {
@@ -192,6 +212,12 @@ export default function PostView() {
             setReplyingTo(null);
         }
         setIsInputFocused(true);
+    }
+    const handleInputUnfocus = () => {
+        setReplyingTo(null);
+        setEditingComment(null);
+        setIsInputFocused(false);
+        setCommentText("");
     }
 
     return (
@@ -253,6 +279,8 @@ export default function PostView() {
                                 key={index}
                                 thread={threadData}
                                 onReply={handleInputFocus}
+                                onEdit={handleCommentEdit}
+                                onDelete={handleCommentDelete}
                                 myUserId={me?.id || 0}
                             />)}
                     </View>
@@ -261,7 +289,7 @@ export default function PostView() {
             {/* Text input */}
             <Modal
                 visible={isInputFocused}
-                onRequestClose={setIsInputFocused.bind(null, false)}
+                onRequestClose={handleInputUnfocus}
                 transparent={true}
             >
                 <View style={styles.modalContainer}>
@@ -272,13 +300,16 @@ export default function PostView() {
                             autoFocus={true}
                             multiline={true}
                             numberOfLines={3}
+                            value={commentText}
                             onChangeText={setCommentText}
                         />
                         <TouchableOpacity
                             style={styles.submitButton}
                             onPress={handleCommentSubmit}
                         >
-                            <Text style={styles.submitButtonText}>댓글 추가</Text>
+                            <Text style={styles.submitButtonText}>
+                                {editingComment === null ? "댓글 추가" : "댓글 수정"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
