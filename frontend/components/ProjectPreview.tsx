@@ -7,6 +7,7 @@ import AddPostIcon from '@/assets/AddPostIcon.svg';
 import ProfileImagePreviewer from './ProfileImagePreviewer';
 import ProjectBottomModal from './ProjectBottomModal';
 import dayjs from "dayjs";
+import {router} from "expo-router";
 
 interface KeywordBadgeProps {
     keyword: string;
@@ -97,6 +98,10 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
         return images;
     }
 
+    const handleAddPost = () => {
+        router.push(`/project/${projectInfo.id}/post`)
+    }
+
     return (
         <View
             style={styles.container}
@@ -171,7 +176,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                 {
                     projectInfo.creator.id === myId &&
                     <AddPostButton
-                        onPress={() => console.log('add post')}
+                        onPress={handleAddPost}
                     />
                 }
                 {/** 아래 true는 현재 로그인한 사용자가 해당 프로젝트를 구독했는지 여부의 negate로 수정 : TODO */}
