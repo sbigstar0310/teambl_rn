@@ -51,8 +51,8 @@ class InvitationLinkList(generics.ListAPIView):
                 inviter=self.request.user
             )  # invitee_id가 없는 경우 로그인한 user가 초대한 링크들 반환
 
-        # print(f"Fetching InvitationLinks for invitee_id: {invitee_id}")
-        # print(f"Queryset: {queryset}")
+        print(f"Fetching InvitationLinks for invitee_id: {invitee_id}")
+        print(f"Queryset: {queryset}")
 
         return queryset
 
