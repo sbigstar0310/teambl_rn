@@ -15,6 +15,7 @@ export default function InviteLinks() {
     const [modalVisible, setModalVisible] = useState(false);
     const [name, setName] = useState("");
     const [inviteLink, setInviteLink] = useState<api.InvitationLink>();
+    const [isLoading, setIsLoading] = useState(false);
 
     const createInviteLink = async () => {
         // name이 비어있으면 함수 종료
@@ -23,12 +24,15 @@ export default function InviteLinks() {
         }
 
         try {
+            setIsLoading(true);
             const response = await createInvitationLink({ name: name });
             setInviteLink(response);
             setModalVisible(true);
             eventEmitter.emit("handleInvite");
         } catch (error) {
             console.error("Error creating invite link:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -56,7 +60,7 @@ export default function InviteLinks() {
                         styles.button,
                         name ? styles.buttonActive : styles.buttonDisabled,
                     ]}
-                    disabled={!name}
+                    disabled={!name || isLoading}
                     onPress={createInviteLink}
                 >
                     <Text style={styles.buttonText}>링크 생성</Text>
