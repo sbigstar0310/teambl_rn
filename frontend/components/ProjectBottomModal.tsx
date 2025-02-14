@@ -1,7 +1,9 @@
 import React from 'react';
 import BottomModal from './BottomModal';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import CircularIconButton from './CircularIconButton';
+import InlineIconButton from './InlineIconButton';
+import theme from '@/shared/styles/theme';
 
 const ProjectBottomModal = (props: any) => {
 
@@ -12,12 +14,71 @@ const ProjectBottomModal = (props: any) => {
         projectId
     } = props;
 
+    const handleLinkCopy = () => {  
+        // TODO : Copy project link
+    }
+
+    const handleEdit = () => {  
+        // TODO : Edit project
+    }
+
+    const handleDelete = () => {
+        // TODO : Delete project
+    }
+
+    const handleInviteLinkCopy = () => {
+        // TODO : Copy invite link
+    }
+
+    const handleQRCodeShare = () => {
+        // TODO : Share QR code
+    }
+
+    const handleNewPostInProject =  () => {
+        // TODO : Navigate to new post page
+    }
+    
+
     const MyProject = () => {
         return (
             <View
                 style={styles.myContainer}
             >
-                {/** todo */}
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>{"프로젝트에 팀원 초대"}</Text>
+                </View>
+                <View
+                    style={styles.otherContainer}
+                >
+                    <CircularIconButton
+                        type="INVITELINK"
+                        onPress={handleInviteLinkCopy}
+                    />
+                    <CircularIconButton
+                        type="QRCODE"
+                        onPress={handleQRCodeShare}
+                    />
+                </View>
+                <View
+                    style={styles.buttonContainer}
+                >
+                    <InlineIconButton
+                        type="NEWPOST"
+                        onPress={handleNewPostInProject}
+                    />
+                    <InlineIconButton
+                        type="COPYLINK"
+                        onPress={handleLinkCopy}
+                    />
+                    <InlineIconButton
+                        type="EDITPROJECT"
+                        onPress={handleEdit}
+                    />
+                    <InlineIconButton
+                        type="DELETEPROJECT"
+                        onPress={handleDelete}
+                    />
+                </View>
             </View>
         );
     };
@@ -28,12 +89,12 @@ const ProjectBottomModal = (props: any) => {
                 style={styles.otherContainer}
             >
                 <CircularIconButton
-                    type="EDIT"
-                    onPress={() => {}}
+                    type="COPYLINK"
+                    onPress={handleLinkCopy}
                 />
                 <CircularIconButton
                     type="DELETE"
-                    onPress={() => {}}
+                    onPress={handleDelete}
                 />
             </View>
         );
@@ -45,13 +106,14 @@ const ProjectBottomModal = (props: any) => {
             onClose={onClose}
             body={isMyProject ? <MyProject /> : <OthersProject />}
             heightPercentage={isMyProject ? 0.6 : 0.2}
+            fixedHeight={isMyProject ? 430 : undefined}
         />
     );
 };
 
 const styles = StyleSheet.create({
     otherContainer : {
-        flex: 1,
+        width: "100%",
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-around",
@@ -59,10 +121,36 @@ const styles = StyleSheet.create({
     },
     myContainer : {
         flex: 1,
+        width: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",
-        alignItems: "center"
+        alignItems: "center",
+        padding: 10
+    },
+    titleContainer : {
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        marginBottom: 16
+    },
+    title : {
+        fontSize: theme.fontSizes.body1,
+        fontWeight: 600,
+        color: theme.colors.black
+    },
+    buttonContainer : {
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        marginTop: 20,
+        padding: 0,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.achromatic04
     }
 });
 

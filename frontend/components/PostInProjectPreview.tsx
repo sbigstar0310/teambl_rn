@@ -1,14 +1,17 @@
 import theme from '@/shared/styles/theme';
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text } from 'react-native';
 import EmptyHeart from '@/assets/EmptyHeartIcon.svg';
 import EmptyComment from '@/assets/CommentEmptyIcon.svg';
 import ThreeDots from '@/assets/ThreeDotsVerticalSM.svg';
-import {router} from "expo-router";
+import { router } from "expo-router";
+import PostBottomModal from './PostBottomModal';
 
 const PostInProjectPreview = (props: any) => {
     const { postInfo, myId } = props;
     const images = postInfo?.images || [];
+
+    const [isOptionVisible, setIsOptionVisible] = useState(false);
 
     const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
@@ -108,19 +111,25 @@ const PostInProjectPreview = (props: any) => {
                         <Text
                             style={styles.footerText}
                         >
+                            {/** TODO : change value */}
                             {0}
                         </Text>
                     </TouchableOpacity>
-                    {
-                        (`${myId}` === `${postInfo?.user}`) &&
-                        <TouchableOpacity
-                            style={{ marginLeft: 'auto', paddingLeft: 15 }}
-                        >
-                            <ThreeDots />
-                        </TouchableOpacity>
-                    }
+                    <TouchableOpacity
+                        onPress={() => setIsOptionVisible(true)}
+                        style={{ marginLeft: 'auto', paddingLeft: 15 }}
+                    >
+                        <ThreeDots />
+                    </TouchableOpacity>
                 </View>
             </View>
+            {/** option */}
+            <PostBottomModal
+                visible={isOptionVisible}
+                onClose={() => setIsOptionVisible(false)}
+                isMyPost={`${postInfo?.user}` === `${myId}`}
+                postId={postInfo?.id}
+            />
         </View>
     );
 };
@@ -177,7 +186,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 16
     },
-    footerText : {
+    footerText: {
         fontSize: theme.fontSizes.body2,
         fontWeight: 400,
         color: theme.colors.achromatic01,

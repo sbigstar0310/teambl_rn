@@ -191,7 +191,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
             <ProjectBottomModal
                 isVisible={isOptionVisible}
                 onClose={() => setIsOptionVisible(false)}
-                isMyProject={projectInfo.creator.id === myId}
+                isMyProject={`${projectInfo.creator.id}` === `${myId}`}
                 projectId={projectInfo.id}
             />
         </View>
