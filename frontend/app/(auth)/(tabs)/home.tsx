@@ -1,41 +1,20 @@
-import { Button, FlatList, ScrollView, View, Text, StyleSheet } from "react-native";
-import React, { Fragment, useEffect, useState } from "react";
-import { sharedStyles } from "@/app/_layout";
+import {ScrollView, StyleSheet, Text, View} from "react-native";
+import React, {Fragment, useEffect, useState} from "react";
 import Header from "@/components/Header";
-import PostCard from "@/components/cards/PostCard";
-import { mockPost1, mockPost2 } from "@/shared/mock-data";
-
-import fetchPostList from "@/libs/apis/Post/fetchPost";
-
-import { router } from "expo-router";
-import { USER_ID } from "@/shared/constants";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import { getCurrentUserId } from "@/shared/utils";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
-import fetchOneDegreeProjectCard from "@/libs/apis/ProjectCard/fetchOneDegreeProjectCard";
-import { useAuthStore } from "@/store/authStore";
+import {useAuthStore} from "@/store/authStore";
 import theme from "@/shared/styles/theme";
 import ProjectPreview from "@/components/ProjectPreview";
 import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 
-const mockPosts = [mockPost1, mockPost2];
-
 export default function HomeScreen() {
     const [projects, setProjects] = useState<api.ProjectCard[]>([]);
-    const [posts, setPosts] = useState<api.Post[]>([]);
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     const myId = useAuthStore.getState().user?.id || -99;
 
-    if (myId === -99) {
-        return (
-            <View>
-                <Text>
-                    {"사용자 정보 수신에 실패했습니다."}
-                </Text>
-            </View>
-        );
-    }
+    useEffect(() => {
+        fetchHomeProjects();
+    }, []);
 
     const fetchHomeProjects = async () => {
         try {
@@ -47,45 +26,28 @@ export default function HomeScreen() {
         }
     };
 
-    useEffect(() => {
-        fetchHomeProjects();
-        fetchPosts();
-        fetchCurrentUserID();
-    }, []);
-
-    const fetchPosts = () => {
-        setPosts(mockPosts);
-    };
-
-    const fetchCurrentUserID = async () => {
-        setCurrentUserId(await getCurrentUserId());
-    };
-
-    // You can use fetchPosts function below! (API is connected.)
-
-    // const fetchPosts = async () => {
-    //     try {
-    //         const fetchedPosts = await fetchPostList();
-    //         console.log("fetch post:", fetchedPosts);
-    //         setPosts(fetchedPosts);
-    //     } catch (error) {
-    //         console.error("Failed to fetch posts:", error);
-    //     }
-    // };
-
+    if (myId === -99) {
+        return (
+            <View>
+                <Text>
+                    {"사용자 정보 수신에 실패했습니다."}
+                </Text>
+            </View>
+        );
+    }
     return (
         <>
-            <Header />
+            <Header/>
             <ScrollView
                 contentContainerStyle={[{
-                        flexGrow: 1,
-                        paddingVertical: 8,
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "flex-start",
-                        alignItems: "center",
-                        gap: 8
-                    },
+                    flexGrow: 1,
+                    paddingVertical: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    gap: 8
+                },
                 ]}
             >
                 {/* Comment / Remove the following ScrollView to see the PostCard views only */}
@@ -168,11 +130,10 @@ export default function HomeScreen() {
                 {
                     (projects.length > 0) &&
                     projects.map((project: api.ProjectCard, index: number) => {
-                        console.log("project: ", project);
                         return (
                             <View
-                                key={project.id}
-                                style={styles.projectContainer}    
+                                key={index}
+                                style={styles.projectContainer}
                             >
                                 {/** project preview call */}
                                 <ProjectPreview
@@ -189,7 +150,7 @@ export default function HomeScreen() {
                                             project.posts.map((post: any, index: number) => {
                                                 return (
                                                     <PostInProjectPreview
-                                                        key={post.id}
+                                                        key={index}
                                                         postInfo={post}
                                                         myId={myId}
                                                     />
@@ -208,7 +169,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    projectContainer : {
+    projectContainer: {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',

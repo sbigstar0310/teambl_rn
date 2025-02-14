@@ -50,7 +50,7 @@ export default function EditPost() {
 
             // go Back
             setData(defaultPostFormData);
-            router.back();
+            router.replace(`/posts/${id}`);
         } catch (error) {
             console.log(error);
         } finally {
