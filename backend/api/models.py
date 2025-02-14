@@ -745,3 +745,19 @@ class SearchHistory(models.Model):
         return (
             f'Search by {self.user.username} for "{self.keyword}" at {self.created_at}'
         )
+
+
+class Report(models.Model):
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="reports"
+    )
+    content = models.CharField(max_length=100)  # 신고 내용
+    created_at = models.DateTimeField(auto_now_add=True)  # 생성 시간
+
+    related_project_card_id = models.IntegerField(blank=True, null=True)
+    related_post_id = models.IntegerField(blank=True, null=True)
+    related_comment_id = models.IntegerField(blank=True, null=True)
+    related_user_id = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Report by {self.user.email} - {self.content[:30]}..."

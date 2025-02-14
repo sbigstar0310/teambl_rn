@@ -115,6 +115,27 @@ class PostLikeToggleView(generics.GenericAPIView):
             post.liked_users.add(user)
             post.like_count += 1
             message = "Post liked"
+            
+            # 게시물 생성자에게 좋아요 알림 생성
+            if post.user != user:
+                notification_exists = Notification.objects.filter(
+                    user=post.user,
+                    message=f"{user.profile.user_name}님이 {post.project_card.title}의 게시물을 좋아합니다.",
+                    notification_type="post_like",
+                    related_user_id=user.id,
+                    related_project_card_id=post.project_card.id,
+                    related_post_id=post.id,
+                ).exists()
+
+                if not notification_exists:
+                    Notification.objects.create(
+                        user=post.user,  # 게시물 작성자
+                        message=f"{user.profile.user_name}님이 {post.project_card.title}의 게시물을 좋아합니다.",
+                        notification_type="post_like",
+                        related_user_id=user.id,
+                        related_project_card_id=post.project_card.id,
+                        related_post_id=post.id,
+                    )
 
         # 변경된 좋아요 개수 저장
         post.save(update_fields=["like_count"])

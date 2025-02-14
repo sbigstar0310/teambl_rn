@@ -40,7 +40,7 @@ declare module api {
     type UserSearchResult = {
         is_new_user: boolean;
         relation_degree: number | null;
-        user: api.User;
+        user: User;
     };
 
     type Profile = {
@@ -96,8 +96,8 @@ declare module api {
 
     type Post = {
         id: number;
-        project_card: number;
-        user: number;
+        project_card: ProjectCard;
+        user: User;
         content: string;
         created_at: Date;
         like_count: number;
@@ -109,8 +109,8 @@ declare module api {
 
     type Friend = {
         id: number;
-        from_user: api.User;
-        to_user: api.User;
+        from_user: User;
+        to_user: User;
         created_at: Date;
         status: string;
     };
@@ -134,4 +134,16 @@ declare module api {
         created_at: Date;
         status: string;
     };
+
+    type Report = {
+        id: number;
+        user: User;  // 신고한 사용자 ID
+        content: string;  // 신고 내용
+        created_at: Date;  // 신고 생성 시간
+        related_project_card_id?: number | null;  // 프로젝트 카드 신고 (선택)
+        related_post_id?: number | null;  // 게시글 신고 (선택)
+        related_comment_id?: number | null;  // 댓글 신고 (선택)
+        related_user_id?: number | null;  // 사용자 신고 (선택)
+    };
+    
 }
