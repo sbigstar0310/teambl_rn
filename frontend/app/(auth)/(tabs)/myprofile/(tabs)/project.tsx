@@ -80,7 +80,8 @@ const MyProfileProjectView = () => {
                 "like_count": 0,
                 "tagged_users": [],
                 "liked_users": [],
-                "images": []
+                "images": [],
+                comments: []
             },
             {
                 "id": item.id + 2,
@@ -95,7 +96,8 @@ const MyProfileProjectView = () => {
                     "https://image.newdaily.co.kr/site/data/img/2024/12/06/2024120600173_0.jpg",
                     "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg",
                     "https://img.segye.com/content/image/2024/06/20/20240620502126.jpg"
-                ]
+                ],
+                comments: []
             },
             {
                 "id": item.id + 4,
@@ -106,7 +108,8 @@ const MyProfileProjectView = () => {
                 "like_count": 10,
                 "tagged_users": [],
                 "liked_users": [],
-                "images": []
+                "images": [],
+                comments: []
             },
             {
                 "id": item.id + 3,
@@ -120,7 +123,8 @@ const MyProfileProjectView = () => {
                 "images": [
                     "https://image.newdaily.co.kr/site/data/img/2024/12/06/2024120600173_0.jpg",
                     "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg"
-                ]
+                ],
+                comments: []
             },
             {
                 "id": item.id + 35,
@@ -133,9 +137,10 @@ const MyProfileProjectView = () => {
                 "liked_users": [],
                 "images": [
                     "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg"
-                ]
+                ],
+                comments: []
             }
-        ];        
+        ];
         return (
             <ScrollView
                 key={item.id}

@@ -6,9 +6,9 @@ import CircularIconButton from './CircularIconButton';
 const PostBottomModal = (props: any) => {
 
     const {
-        isVisible,
+        visible,
         onClose,
-        isMyProject,
+        isMyPost,
         postId
     } = props;
 
@@ -24,6 +24,10 @@ const PostBottomModal = (props: any) => {
         // TODO : Delete project
     }
 
+    const handleEdit = () => {
+        // TODO : Edit project
+    }
+
     const Body = () => {
         return (
             <View
@@ -33,13 +37,34 @@ const PostBottomModal = (props: any) => {
                     type="COPYLINK"
                     onPress={handleLinkCopy}
                 />
+                {
+                    isMyPost &&
+                    <CircularIconButton
+                        type="EDIT"
+                        onPress={handleEdit}
+                    />
+                }
+                {
+                    isMyPost &&
+                    <CircularIconButton
+                        type="DELETE"
+                        onPress={handleDelete}
+                    />
+                }
+                {
+                    (!isMyPost) &&
+                    <CircularIconButton
+                        type="REPORT"
+                        onPress={handleReport}
+                    />
+                }
             </View>
         );
     }
 
     return (
         <BottomModal
-            visible={isVisible}
+            visible={visible}
             onClose={onClose}
             body={<Body />}
             heightPercentage={0.2}
@@ -53,10 +78,9 @@ const styles = StyleSheet.create({
         flex: 1,
         width: "100%",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        padding: 10
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center"
     }
 });
 
