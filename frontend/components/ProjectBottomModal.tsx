@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import CircularIconButton from './CircularIconButton';
 import InlineIconButton from './InlineIconButton';
 import theme from '@/shared/styles/theme';
-import {router} from "expo-router";
+import { router } from 'expo-router';
 
 interface ProjectBottomModalProps {
     isVisible: boolean;

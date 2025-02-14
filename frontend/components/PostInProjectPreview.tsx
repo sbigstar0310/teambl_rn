@@ -26,6 +26,10 @@ const PostInProjectPreview = (props: any) => {
         router.push(`/posts/${postInfo.id}`);
     }
 
+    const handleToggleLike = () => {
+
+    };
+
     return (
         <View
             style={[styles.container, images.length > 0 ? { padding: 0 } : {}]}
@@ -95,6 +99,7 @@ const PostInProjectPreview = (props: any) => {
                     {/** likes and comments */}
                     <TouchableOpacity
                         style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+                        onPress={handleToggleLike}
                     >
                         <EmptyHeart />
                         <Text

@@ -89,6 +89,10 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
         return dayjs(date).format('YYYY.MM');
     };
 
+    const handleSubscribe = () => {
+
+    };
+
     const extractImages = (projectInfo: any) => {
         let images = [];
         images.push(projectInfo.creator.profile.image);
@@ -186,7 +190,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                 {
                     (projectInfo.creator.id !== myId) &&
                     <SubscribeButton
-                        onPress={() => console.log('subscribe')}
+                        onPress={() => handleSubscribe()}
                     />
                 }
             </View>
@@ -209,7 +213,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: 20
     },
     titleContainer: {
         width: '100%',

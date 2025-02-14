@@ -85,6 +85,53 @@ class ProjectCardUpdateView(generics.UpdateAPIView):
             )  # ❗ Response가 아니라 예외 발생
 
         serializer.save()
+        
+        # 프로젝트 카드 수정 알림 생성
+        request_user = self.request.user
+        accept_users = project_card.accepted_users.all()
+        bookmark_users = project_card.bookmarked_users.all()
+
+        # 팀원에게 수정 알림 생성
+        for user in accept_users:
+            # 본인이면 알림 안 보냄
+            if user == request_user:
+                continue
+
+            # 중복 알림 방지
+            notification_exists = Notification.objects.filter(
+                user=user,
+                message=f"{request_user.profile.user_name}님이 {project_card.title} 카드를 수정했습니다.",
+                notification_type="project_card_update",
+                related_project_card_id=project_card.id,
+            ).exists()
+
+            if not notification_exists:
+                Notification.objects.create(
+                    user=user,
+                    message=f"{request_user.profile.user_name}님이 {project_card.title} 카드를 수정했습니다.",
+                    notification_type="project_card_update",
+                    related_project_card_id=project_card.id,
+                )
+        
+        # 북마크(저장)한 회원에게 수정 알림 생성
+        for user in bookmark_users:
+            # 중복 알림 방지
+            notification_exists = Notification.objects.filter(
+                user=user,
+                # message=f"{request_user.profile.user_name}님이 당신이 저장한 {project_card.title} 카드를 수정했습니다.",
+                message=f"당신이 저장한 {project_card.title} 카드가 수정되었습니다.",
+                notification_type="project_card_update",
+                related_project_card_id=project_card.id,
+            ).exists()
+
+            if not notification_exists:
+                Notification.objects.create(
+                    user=user,
+                    # message=f"{request_user.profile.user_name}님이 당신이 저장한 {project_card.title} 카드를 수정했습니다.",
+                    message=f"당신이 저장한 {project_card.title} 카드가 수정되었습니다.",
+                    notification_type="project_card_update",
+                    related_project_card_id=project_card.id,
+                )
 
 
 # 프로젝트 카드 소식받기(북마크)를 토클 하는 뷰
@@ -215,11 +262,49 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
         # 초대 수락 처리
         if serializer.validated_data.get("status") == "accepted":
             invitation.project_card.accepted_users.add(invitation.invitee)
+            
+            # 프로젝트 카드 생성자에게 수락 알림 생성
+            notification_exists = Notification.objects.filter(
+                user=invitation.inviter,  # 초대한 사람에게 알림
+                message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 수락했습니다.",
+                notification_type="project_card_accept",
+                related_user_id=invitation.invitee.id,
+                related_project_card_id=invitation.project_card.id,
+            ).exists()
+
+            if not notification_exists:
+                Notification.objects.create(
+                    user=invitation.inviter,
+                    message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 수락했습니다.",
+                    notification_type="project_card_accept",
+                    related_user_id=invitation.invitee.id,
+                    related_project_card_id=invitation.project_card.id,
+                )
+            
             return Response(
                 {"message": "프로젝트 카드 초대를 수락했습니다."},
                 status=status.HTTP_200_OK,
             )
         elif serializer.validated_data.get("status") == "rejected":
+            
+            # 프로젝트 카드 생성자에게 거절 알림 생성
+            notification_exists = Notification.objects.filter(
+                user=invitation.inviter,  # 초대한 사람에게 알림
+                message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 거절했습니다.",
+                notification_type="project_card_reject",
+                related_user_id=invitation.invitee.id,
+                related_project_card_id=invitation.project_card.id,
+            ).exists()
+
+            if not notification_exists:
+                Notification.objects.create(
+                    user=invitation.inviter,
+                    message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 거절했습니다.",
+                    notification_type="project_card_reject",
+                    related_user_id=invitation.invitee.id,
+                    related_project_card_id=invitation.project_card.id,
+                )
+            
             return Response(
                 {"message": "프로젝트 카드 초대를 거절했습니다."},
                 status=status.HTTP_200_OK,

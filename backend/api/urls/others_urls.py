@@ -141,10 +141,11 @@ urlpatterns += [
     ),
 ]
 
-# 이메일로 문의 보내기 기능이 구현되어서 삭제해도 되지 않을까..?
+# 이메일로 문의 보내기 기능이 구현되어서 삭제해도 되지 않을까..? 신고하기도 여기에 작성해둠
 # Inquiry
 urlpatterns += [
     path("create-inquiry/", views.InquiryCreateView.as_view(), name="create-inquiry"),
+    path("report/", views.ReportCreateView.as_view(), name="report-create"),
 ]
 
 # Email

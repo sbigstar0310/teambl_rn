@@ -29,6 +29,7 @@ from .models import (
     Contact,
     Conversation,
     Message,
+    Report,
 )
 import os
 from django.db import transaction
@@ -1258,23 +1259,23 @@ class ProjectCardSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        # Project Card가 수정되었으므로 팀원, 저장한 인원 모두에게 알림
-        request_user = self.context["request"].user
-        for user in instance.project_card.accepted_users.all() + instance.project_card.bookmarked_users.all():
-            notification_exists = Notification.objects.filter(
-                user=user,
-                message=f"{request_user.profile.user_name}님이 {instance.project_card.title} 카드를 수정했습니다.",
-                notification_type="project_card_update",
-                related_project_card_id=instance.project_card.id,
-            ).exists()
+        # # Project Card가 수정되었으므로 팀원, 저장한 인원 모두에게 알림 (View에서 구현)
+        # request_user = self.context["request"].user
+        # for user in instance.project_card.accepted_users.all() + instance.project_card.bookmarked_users.all():
+        #     notification_exists = Notification.objects.filter(
+        #         user=user,
+        #         message=f"{request_user.profile.user_name}님이 {instance.project_card.title} 카드를 수정했습니다.",
+        #         notification_type="project_card_update",
+        #         related_project_card_id=instance.project_card.id,
+        #     ).exists()
 
-            if not notification_exists:
-                Notification.objects.create(
-                    user=user,
-                    message=f"{request_user.profile.user_name}님이 {instance.project_card.title} 카드를 수정했습니다.",
-                    notification_type="project_card_update",
-                    related_project_card_id=instance.project_card.id,
-                )
+        #     if not notification_exists:
+        #         Notification.objects.create(
+        #             user=user,
+        #             message=f"{request_user.profile.user_name}님이 {instance.project_card.title} 카드를 수정했습니다.",
+        #             notification_type="project_card_update",
+        #             related_project_card_id=instance.project_card.id,
+        #         )
 
         instance.save()
         return instance
@@ -1300,3 +1301,20 @@ class ProjectCardInvitationSerializer(serializers.ModelSerializer):
             "status",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = [
+            "id",
+            "user",
+            "content",
+            "created_at",
+            "related_project_card_id",
+            "related_post_id",
+            "related_comment_id",
+            "related_user_id",
+        ]
+        read_only_fields = ["id", "user", "created_at"]  # 생성 시 자동으로 설정되는 필드
