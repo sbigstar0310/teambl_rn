@@ -1,4 +1,4 @@
-import {useLocalSearchParams} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import {Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
@@ -26,6 +26,8 @@ import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import updateComment from "@/libs/apis/Comment/CommentUpdate";
 import deleteComment from "@/libs/apis/Comment/CommentDelete";
+import Popup from "@/components/Popup";
+import deletePost from "@/libs/apis/Post/deletePost";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -203,6 +205,27 @@ export default function PostView() {
         handleInputFocus();
     }
 
+    const handlePostDelete = async () => {
+        if (!postData) return;
+        setIsContextOpen(false);
+        try {
+            await deletePost(postData.id);
+            router.back();
+        } catch (error) {
+            console.error("Failed to delete post:", error);
+        }
+    }
+    const handlePostEdit = () => {
+        if (!postData || !projectData) return;
+        setIsContextOpen(false);
+        router.push({
+            pathname: `/posts/${postData.id}/edit`,
+            params: {
+                project_title: projectData.title
+            }
+        });
+    }
+
     const handleInputFocus = (parentCommentId?: number) => {
         if (parentCommentId !== undefined) {
             // Reply to another comment
@@ -318,23 +341,25 @@ export default function PostView() {
             <BottomModal
                 visible={isContextOpen}
                 onClose={setIsContextOpen.bind(null, false)}
-                body={isMyPost ? <MyOptions/> : <Options/>}
+                body={isMyPost
+                    ? <MyOptions onDelete={handlePostDelete} onEdit={handlePostEdit}/>
+                    : <Options/>
+                }
                 heightPercentage={0.2}
             />
         </SafeAreaView>
     )
 }
 
-function MyOptions() {
+interface MyOptionsProps {
+    onDelete: () => void;
+    onEdit: () => void;
+}
+
+function MyOptions(props: MyOptionsProps) {
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+
     const handleCopyLink = () => {
-
-    }
-
-    const handleEdit = () => {
-
-    }
-
-    const handleDelete = () => {
 
     }
 
@@ -352,7 +377,7 @@ function MyOptions() {
             <View style={styles.optionButtonWrapper}>
                 <TouchableOpacity
                     style={[styles.optionButton, {borderColor: theme.colors.black}]}
-                    onPress={handleEdit}
+                    onPress={props.onEdit}
                 >
                     <MaterialCommunityIcons name="pencil" size={24} color={theme.colors.black}/>
                 </TouchableOpacity>
@@ -361,12 +386,22 @@ function MyOptions() {
             <View style={styles.optionButtonWrapper}>
                 <TouchableOpacity
                     style={[styles.optionButton, {borderColor: theme.colors.message2}]}
-                    onPress={handleDelete}
+                    onPress={setIsPopupOpen.bind(null, true)}
                 >
                     <Feather name="trash-2" size={24} color={theme.colors.message2}/>
                 </TouchableOpacity>
                 <Text style={{color: theme.colors.message2}}>삭제</Text>
             </View>
+            <Popup
+                title="이 게시물을 삭제하시겠습니까?"
+                isVisible={isPopupOpen}
+                onClose={setIsPopupOpen.bind(null, false)}
+                closeLabel="취소"
+                closeLabelColor={theme.colors.point}
+                onConfirm={props.onDelete}
+                confirmLabel="게시물 삭제"
+                confirmLabelColor={theme.colors.black}
+            />
         </View>
     )
 }

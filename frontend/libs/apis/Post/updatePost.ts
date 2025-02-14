@@ -1,9 +1,11 @@
 import api from "@/shared/api";
+import {PostImage} from "@/components/forms/PostCreateForm";
 
 type RequestParams = {
     title?: string; // 업데이트할 게시물 제목 (선택)
     content?: string; // 업데이트할 게시물 내용 (선택)
-    image?: File | Blob; // 업데이트할 게시물 이미지 (선택)
+    tagged_users?: number[];
+    images?: PostImage[]; // 게시물 이미지 (선택)
 };
 
 const updatePost = async (postId: number, params: RequestParams): Promise<api.Post> => {
@@ -17,8 +19,15 @@ const updatePost = async (postId: number, params: RequestParams): Promise<api.Po
         if (params.content) {
             formData.append("content", params.content);
         }
-        if (params.image) {
-            formData.append("image", params.image);
+        if (params.tagged_users) {
+            for (const userId of params.tagged_users) {
+                formData.append("tagged_users", String(userId));
+            }
+        }
+        if (params.images) {
+            for (const image of params.images) {
+                formData.append("images", image as any);
+            }
         }
 
         // PUT 요청으로 게시물 업데이트

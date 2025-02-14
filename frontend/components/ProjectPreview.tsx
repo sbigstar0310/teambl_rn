@@ -99,7 +99,10 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
     }
 
     const handleAddPost = () => {
-        router.push(`/project/${projectInfo.id}/post`)
+        router.push({
+            pathname: `/project/${projectInfo.id}/new_post`,
+            params: {project_title: projectInfo.title}
+        })
     }
 
     return (
@@ -193,6 +196,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                 onClose={() => setIsOptionVisible(false)}
                 isMyProject={`${projectInfo.creator.id}` === `${myId}`}
                 projectId={projectInfo.id}
+                projectTitle={projectInfo.title}
             />
         </View>
     );

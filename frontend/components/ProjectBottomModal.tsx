@@ -4,14 +4,23 @@ import { StyleSheet, Text, View } from 'react-native';
 import CircularIconButton from './CircularIconButton';
 import InlineIconButton from './InlineIconButton';
 import theme from '@/shared/styles/theme';
+import {router} from "expo-router";
 
-const ProjectBottomModal = (props: any) => {
+interface ProjectBottomModalProps {
+    isVisible: boolean;
+    onClose: () => void;
+    isMyProject: boolean;
+    projectId: number;
+    projectTitle: string;
+}
 
+const ProjectBottomModal = (props: ProjectBottomModalProps) => {
     const {
         isVisible,
         onClose,
         isMyProject,
-        projectId
+        projectId,
+        projectTitle
     } = props;
 
     const handleLinkCopy = () => {  
@@ -35,7 +44,11 @@ const ProjectBottomModal = (props: any) => {
     }
 
     const handleNewPostInProject =  () => {
-        // TODO : Navigate to new post page
+        props.onClose();
+        router.push({
+            pathname: `/project/${projectId}/new_post`,
+            params: { project_title: projectTitle }
+        })
     }
     
 

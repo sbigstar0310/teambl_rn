@@ -144,7 +144,7 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                     </View>
                     <TextField
                         defaultValue={props.projectTitle}
-                        placeholder="게시물 제목을 작성해 보세요."
+                        placeholder="프로젝트 제목"
                         editable={false}
                     />
                 </View>

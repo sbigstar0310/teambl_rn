@@ -204,10 +204,11 @@ function MyOptions(props: MyOptionsProps) {
                 title="댓글을 정말 삭제하시겠습니까?"
                 isVisible={isPopupOpen}
                 onClose={setIsPopupOpen.bind(null, false)}
-                closeLabel="댓글 삭제"
+                closeLabel="취소"
+                closeLabelColor={theme.colors.point}
                 onConfirm={props.onDelete}
-                confirmLabel="삭제"
-                confirmLabelColor={theme.colors.point}
+                confirmLabelColor={theme.colors.black}
+                confirmLabel="댓글 삭제"
             />
         </View>
     )

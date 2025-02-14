@@ -1,4 +1,5 @@
 import {Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import theme from "@/shared/styles/theme";
 
 interface PopupProps {
     title: string;
@@ -7,6 +8,7 @@ interface PopupProps {
     onClose: () => void;
     onConfirm?: () => void;
     closeLabel?: string;
+    closeLabelColor?: string;
     confirmLabel?: string;
     confirmLabelColor?: string;
 }
@@ -18,8 +20,9 @@ export default function Popup({
                                   onClose,
                                   onConfirm,
                                   closeLabel = "취소",
+                                  closeLabelColor = theme.colors.black,
                                   confirmLabel = "확인",
-                                  confirmLabelColor = "#2546F3"
+                                  confirmLabelColor = theme.colors.point
                               }: PopupProps) {
     return (
         <Modal
@@ -44,7 +47,7 @@ export default function Popup({
 
                     <View style={styles.buttonsContainer}>
                         <TouchableOpacity style={styles.button} onPress={onClose}>
-                            <Text style={[styles.buttonText]}>{closeLabel}</Text>
+                            <Text style={[styles.buttonText, {color: closeLabelColor}]}>{closeLabel}</Text>
                         </TouchableOpacity>
                         {onConfirm &&
                             <TouchableOpacity
