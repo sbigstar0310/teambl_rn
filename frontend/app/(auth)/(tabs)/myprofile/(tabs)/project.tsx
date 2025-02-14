@@ -49,10 +49,6 @@ const MyProfileProjectView = () => {
         fetchMyProjectCard();
     }, []);
 
-    // const goToNewPostForProject = (projectId, projectTitle) => {
-    //     router.push(`/project/${projectId}/post?project_title=${projectTitle}`);
-    // };
-
     const prevSlide = async () => {
         if (currentIndex > 0) {
             setCurrentIndex((prev) => prev - 1);
@@ -70,77 +66,6 @@ const MyProfileProjectView = () => {
     const scrollY = useScroll() || new Animated.Value(0);
 
     const renderItem = ({ item }: { item: api.ProjectCard }) => {
-        item['posts'] = [
-            {
-                "id": item.id + 1,
-                "user": 1,
-                "project_card": item.id,
-                "content": "현재 등록된 게시글이 없어 임시 데이터를 제공합니다.",
-                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
-                "like_count": 0,
-                "tagged_users": [],
-                "liked_users": [],
-                "images": [],
-                comments: []
-            },
-            {
-                "id": item.id + 2,
-                "user": 1,
-                "project_card": item.id,
-                "content": "등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요.",
-                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
-                "like_count": 0,
-                "tagged_users": [],
-                "liked_users": [],
-                "images": [
-                    "https://image.newdaily.co.kr/site/data/img/2024/12/06/2024120600173_0.jpg",
-                    "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg",
-                    "https://img.segye.com/content/image/2024/06/20/20240620502126.jpg"
-                ],
-                comments: []
-            },
-            {
-                "id": item.id + 4,
-                "user": 1,
-                "project_card": item.id,
-                "content": "현재 등록된 게시글이 없어 임시 데이터를 제공합니다.",
-                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
-                "like_count": 10,
-                "tagged_users": [],
-                "liked_users": [],
-                "images": [],
-                comments: []
-            },
-            {
-                "id": item.id + 3,
-                "user": 1,
-                "project_card": item.id,
-                "content": "등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요.",
-                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
-                "like_count": 99,
-                "tagged_users": [],
-                "liked_users": [],
-                "images": [
-                    "https://image.newdaily.co.kr/site/data/img/2024/12/06/2024120600173_0.jpg",
-                    "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg"
-                ],
-                comments: []
-            },
-            {
-                "id": item.id + 35,
-                "user": 1,
-                "project_card": item.id,
-                "content": "등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요. 등록된 게시글이 없어 임시 데이터를 제공합니다.\n긴 텍스트가 포함된 경우를 테스트하기 위한 샘플입니다.\n안녕하세요.",
-                "created_at": new Date("2025-02-09T16:14:08.500206+09:00"),
-                "like_count": 3,
-                "tagged_users": [],
-                "liked_users": [],
-                "images": [
-                    "https://image.news1.kr/system/photos/2024/12/25/7054289/high.jpg"
-                ],
-                comments: []
-            }
-        ];
         return (
             <ScrollView
                 key={item.id}
@@ -217,6 +142,19 @@ const MyProfileProjectView = () => {
         )
     };
 
+    if (projectCards.length === 0) {
+            return (
+                <View
+                    style={styles.noProjContainer}
+                >
+                    <Text
+                        style={styles.noProjText}
+                    >
+                        {"프로젝트가 없습니다."}
+                    </Text>
+                </View>
+            );
+    }
     return (
         <View style={styles.carouselContainer}>
             <Carousel
@@ -233,6 +171,16 @@ const MyProfileProjectView = () => {
 };
 
 const styles = StyleSheet.create({
+    noProjContainer : {
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 50,
+    },
+    noProjText: {
+        fontSize: theme.fontSizes.body1,
+        color: theme.colors.achromatic01
+    },
     carouselContainer: {
         flexDirection: "column",
         justifyContent: "center",

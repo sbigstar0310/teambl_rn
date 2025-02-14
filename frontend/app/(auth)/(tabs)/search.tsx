@@ -1,18 +1,26 @@
-import React, {useEffect, useState} from "react";
-import {FlatList, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import React, { useEffect, useState } from "react";
+import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View, } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
 import UserFilterTabs from "@/components/search/UserFilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 import searchUser from "@/libs/apis/Search/searchUser";
-import {router} from "expo-router";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {USER_ID} from "@/shared/constants";
+import { USER_ID } from "@/shared/constants";
 import NoSearchResult from "@/components/common/NoSearchResult";
 import ProjFilterTabs from "@/components/search/ProjFilterTabs";
 import LoadingOverlay from "@/components/common/LoadingOverlay";
+import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
+import { mockPost1, mockPost2 } from "@/shared/mock-data";
+import ProjectPreview from "@/components/ProjectPreview";
+import { useAuthStore } from "@/store/authStore";
+import theme from "@/shared/styles/theme";
+import PostInProjectPreview from "@/components/PostInProjectPreview";
+
+const mockPosts = [mockPost1, mockPost2];
 
 // 데이터 타입 정의
 interface SearchData {
@@ -60,6 +68,21 @@ export default function SearchScreen() {
     const [loading, setLoading] = useState(false); // 로딩 상태 추가
     const [activeProjFilter, setActiveProjFilter] = useState<string | null>(null);
 
+    const [resultProject, setResultProject] = useState<api.ProjectCard[] | null>(null);
+    const [resultPosts, setResultPosts] = useState<api.Post[] | null>(null);
+
+    const myId = useAuthStore.getState().user?.id || -99;
+
+    if (myId === -99) {
+        return (
+            <View>
+                <Text>
+                    {"사용자 정보 수신에 실패했습니다."}
+                </Text>
+            </View>
+        );
+    }
+
     const filteredResults = React.useMemo(() => {
         if (activeUserFilter === null) {
             return searchData;
@@ -78,7 +101,7 @@ export default function SearchScreen() {
     const fetchSearchResults = async (query: string) => {
         setLoading(true); // 로딩 시작
         try {
-            const response = await searchUser({q: query, degree: []});
+            const response = await searchUser({ q: query, degree: [] });
             setSearchData(response.results);
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
@@ -110,13 +133,116 @@ export default function SearchScreen() {
         setSearchHistory((prevHistory) => [...prevHistory, query]);
     };
 
+    const searchProject = async (query: string) => {
+        setLoading(true);
+        try {
+            const response = await fetchMyProjectCard();
+            setResultProject(response);
+        }
+        catch (error) {
+            console.error("Failed to search project:", error);
+            setResultProject([]);
+        }
+        finally {
+            setLoading(false);
+        }
+    };
+
+    const searchPosts = async (query: string) => {
+        setLoading(true);
+        try {
+            setResultPosts(mockPosts);
+        } catch (error) {
+            console.error("Failed to search posts:", error);
+            setResultPosts([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /** just for dev */
+    useEffect(() => {
+        searchProject("");
+        searchPosts("");
+    }, []);
+
+    const ProjectListView = () => {
+        return (
+            <ScrollView
+                contentContainerStyle={styles.projectContainer}
+            >
+                {
+                    (!resultProject) || resultProject.length === 0 &&
+                    <Text style={styles.resultCount}>
+                        {"검색된 프로젝트가 없습니다."}
+                    </Text>
+                }
+                {
+                    (resultProject) && resultProject.length > 0 &&
+                    resultProject.map((project, index) => (
+                        <View
+                            key={project.id + index}
+                            style={{
+                                width: "100%",
+                                paddingVertical: 16,
+                                backgroundColor: theme.colors.white,
+                            }}
+                        >
+                            <ProjectPreview
+                                projectInfo={project}
+                                myId={myId}
+                            />
+                        </View>
+                    ))
+                }
+            </ScrollView>
+        );
+    };
+
+    const PostListView = () => {
+        return (
+            <ScrollView
+                contentContainerStyle={[
+                    styles.projectContainer,
+                    {
+                        backgroundColor: theme.colors.white,
+                        padding: 16,
+                    }
+                ]}
+            >
+                {
+                    (!resultPosts) || resultPosts.length === 0 &&
+                    <Text style={styles.resultCount}>
+                        {"검색된 게시물이 없습니다."}
+                    </Text>
+                }
+                {
+                    (resultPosts) && resultPosts.length > 0 &&
+                    resultPosts.map((post, index) => (
+                        <View
+                            key={post.id + index}
+                            style={{
+                                width: "100%",
+                            }}
+                        >
+                            <PostInProjectPreview
+                                postInfo={post}
+                                myId={myId}
+                            />
+                        </View>
+                    ))
+                }
+            </ScrollView>
+        );
+    };
+
     return (
         <SafeAreaView
-            style={{flex: 1, backgroundColor: "#fff"}}
+            style={{ flex: 1, backgroundColor: "#fff" }}
             edges={["top"]}
         >
             {/* 로딩 모달 */}
-            <LoadingOverlay isLoading={loading}/>
+            <LoadingOverlay isLoading={loading} />
 
             {/* 상단 헤더 */}
             <SearchHeader
@@ -136,7 +262,7 @@ export default function SearchScreen() {
             {/* 탭 내용 */}
             <View style={styles.contentContainer}>
                 {activeTab === "사람" && (
-                    <View style={{flex: 1}}>
+                    <View style={{ flex: 1 }}>
                         {/* 필터 */}
                         <UserFilterTabs
                             activeFilter={activeUserFilter}
@@ -149,24 +275,44 @@ export default function SearchScreen() {
                         </Text>
 
                         {filteredResults.length === 0 ? (
-                            <NoSearchResult title="검색 결과가 없습니다." message="필터를 조정하거나 새로운 검색어를 입력해보세요."/>
+                            <NoSearchResult title="검색 결과가 없습니다." message="필터를 조정하거나 새로운 검색어를 입력해보세요." />
                         ) : (
                             <FlatList
                                 data={filteredResults}
                                 keyExtractor={(item) => String(item.user.id)}
-                                renderItem={({item}) => <UserCard {...item} />}
+                                renderItem={({ item }) => <UserCard {...item} />}
                             />
                         )}
                     </View>
                 )}
                 {activeTab === "프로젝트 + 게시물" && (
-                    <View style={{flex: 1}}>
+                    <View style={{ flex: 1 }}>
                         {/* 필터 */}
-                        <ProjFilterTabs
-                            activeFilter={activeProjFilter}
-                            handleFilterChange={setActiveProjFilter}
-                        />
-                        <Text>프로젝트 검색 결과</Text>
+                        <View
+                            style={{
+                                paddingLeft: 16,
+                                paddingTop: 16
+                            }}
+                        >
+                            <ProjFilterTabs
+                                activeFilter={activeProjFilter}
+                                handleFilterChange={setActiveProjFilter}
+                            />
+                        </View>
+                        {
+                            (activeProjFilter === null) &&
+                            <Text style={styles.resultCount}>
+                                {"검색 타입을 선택해주세요."}
+                            </Text>
+                        }
+                        {
+                            (`${activeProjFilter}` === `${1}`) &&
+                            <ProjectListView />
+                        }
+                        {
+                            (`${activeProjFilter}` === `${2}`) &&
+                            <PostListView />
+                        }
                     </View>
                 )}
             </View>
@@ -185,7 +331,7 @@ export default function SearchScreen() {
                     });
                 }}
             >
-                <SurfingIcon/>
+                <SurfingIcon />
             </TouchableOpacity>
         </SafeAreaView>
     );
@@ -196,7 +342,6 @@ const styles = StyleSheet.create({
         flex: 1,
         borderTopWidth: 4,
         borderColor: "#F5F5F5",
-        padding: 16,
     },
     resultCount: {
         marginLeft: 8,
@@ -212,8 +357,18 @@ const styles = StyleSheet.create({
         right: 20,
         justifyContent: "center",
         alignItems: "center",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
+    },
+    projectContainer: {
+        flexGrow: 1,
+        paddingVertical: 16,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        gap: 10,
+        backgroundColor: theme.colors.achromatic05,
     }
 });

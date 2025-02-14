@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import CircularIconButton from './CircularIconButton';
 import InlineIconButton from './InlineIconButton';
 import theme from '@/shared/styles/theme';
+import { router } from 'expo-router';
 
 const ProjectBottomModal = (props: any) => {
 
@@ -34,8 +35,9 @@ const ProjectBottomModal = (props: any) => {
         // TODO : Share QR code
     }
 
-    const handleNewPostInProject =  () => {
-        // TODO : Navigate to new post page
+    const handleNewPostInProject = async () => {
+        onClose();
+        router.push(`/project/${projectId}/post`);
     }
     
 

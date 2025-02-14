@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import DefaultImage from "@/assets/DefaultProfile.svg";
 import RightArrow from "@/assets/RightArrow.svg";
 import theme from '@/shared/styles/theme';
+import { router } from 'expo-router';
 
 interface MySettingSideModalProps {
     visible: boolean;
@@ -23,11 +24,49 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
     }
     
     const [userInfo, setUserInfo] = useState<UserInfo>({});
+    const [userId, setUserId] = useState<number | null>(null);
+
+    const handleMyOneChone = () => {
+        if (!userId) {
+            return;
+        }
+        onClose();
+        router.push({
+            pathname: "/oneChon",
+            params: {
+                target_user_id_string: userId,
+            },
+        });
+    }
+
+    const handleLikedPosts = () => {
+        if (!userId) {
+            return;
+        }
+        onClose();
+        router.push({
+            pathname: "/likedPosts",
+            params: {
+                target_user_id_string: userId,
+            },
+        });
+    };
+
+    const handleSubscribedProjects = () => {
+        if (!userId) {
+            return;
+        }
+        onClose();
+        router.push({
+            pathname: "/subscribedProjects",
+        });
+    };
 
     const getUserInfo = async () => {
         try {
             const user = useAuthStore.getState().user;
-            if (user && user.profile) {
+            if (user && user.profile && user.id) {
+                setUserId(user.id);
                 setUserInfo(user.profile);
                 return;
             }
@@ -98,9 +137,7 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
                     >
                         <TouchableOpacity
                             style={styles.settingItem}
-                            onPress={() => {
-                                console.log('Do something');
-                            }}
+                            onPress={handleSubscribedProjects}
                         >
                             <Text
                                 style={styles.settingTitleText}
@@ -110,9 +147,7 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.settingItem}
-                            onPress={() => {
-                                console.log('Do something');
-                            }}
+                            onPress={handleLikedPosts}
                         >
                             <Text
                                 style={styles.settingTitleText}
@@ -122,9 +157,7 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.settingItem}
-                            onPress={() => {
-                                console.log('Do something');
-                            }}
+                            onPress={handleMyOneChone}
                         >
                             <Text
                                 style={styles.settingTitleText}

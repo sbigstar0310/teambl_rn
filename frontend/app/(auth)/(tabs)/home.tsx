@@ -1,5 +1,5 @@
-import { Button, FlatList, ScrollView, View, Text } from "react-native";
-import React, { useEffect, useState } from "react";
+import { Button, FlatList, ScrollView, View, Text, StyleSheet } from "react-native";
+import React, { Fragment, useEffect, useState } from "react";
 import { sharedStyles } from "@/app/_layout";
 import Header from "@/components/Header";
 import PostCard from "@/components/cards/PostCard";
@@ -12,14 +12,43 @@ import { USER_ID } from "@/shared/constants";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { getCurrentUserId } from "@/shared/utils";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
+import fetchOneDegreeProjectCard from "@/libs/apis/ProjectCard/fetchOneDegreeProjectCard";
+import { useAuthStore } from "@/store/authStore";
+import theme from "@/shared/styles/theme";
+import ProjectPreview from "@/components/ProjectPreview";
+import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 
 const mockPosts = [mockPost1, mockPost2];
 
 export default function HomeScreen() {
+    const [projects, setProjects] = useState<api.ProjectCard[]>([]);
     const [posts, setPosts] = useState<api.Post[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+    const myId = useAuthStore.getState().user?.id || -99;
+
+    if (myId === -99) {
+        return (
+            <View>
+                <Text>
+                    {"사용자 정보 수신에 실패했습니다."}
+                </Text>
+            </View>
+        );
+    }
+
+    const fetchHomeProjects = async () => {
+        try {
+            const fetchedProjects = await fetchMyProjectCard();
+            setProjects(fetchedProjects);
+        } catch (error) {
+            console.error("Failed to fetch posts:", error);
+            setProjects([]);
+        }
+    };
+
     useEffect(() => {
+        fetchHomeProjects();
         fetchPosts();
         fetchCurrentUserID();
     }, []);
@@ -47,17 +76,20 @@ export default function HomeScreen() {
     return (
         <>
             <Header />
-            <View
-                style={[
-                    sharedStyles.container,
-                    {
-                        backgroundColor: "#EEF4FF",
-                        padding: 16,
+            <ScrollView
+                contentContainerStyle={[{
+                        flexGrow: 1,
+                        paddingVertical: 8,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        gap: 8
                     },
                 ]}
             >
                 {/* Comment / Remove the following ScrollView to see the PostCard views only */}
-                <ScrollView
+                {/* <ScrollView
                     style={{
                         width: "100%",
                     }}
@@ -125,8 +157,75 @@ export default function HomeScreen() {
                             myId={currentUserId}
                         />
                     )}
-                />
-            </View>
+                /> */}
+
+                {
+                    (projects.length === 0) &&
+                    <Text>
+                        {"프로젝트가 없습니다."}
+                    </Text>
+                }
+                {
+                    (projects.length > 0) &&
+                    projects.map((project: api.ProjectCard, index: number) => {
+                        console.log("project: ", project);
+                        return (
+                            <View
+                                key={project.id}
+                                style={styles.projectContainer}    
+                            >
+                                {/** project preview call */}
+                                <ProjectPreview
+                                    projectInfo={project}
+                                    myId={myId}
+                                />
+                                {/** post preview call */}
+                                {
+                                    project.posts.length > 0 &&
+                                    <View
+                                        style={styles.postViewContainer}
+                                    >
+                                        {
+                                            project.posts.map((post: any, index: number) => {
+                                                return (
+                                                    <PostInProjectPreview
+                                                        key={post.id}
+                                                        postInfo={post}
+                                                        myId={myId}
+                                                    />
+                                                );
+                                            })
+                                        }
+                                    </View>
+                                }
+                            </View>
+                        );
+                    })
+                }
+            </ScrollView>
         </>
     );
 }
+
+const styles = StyleSheet.create({
+    projectContainer : {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 10,
+        backgroundColor: theme.colors.white,
+        paddingVertical: 20
+    },
+    postViewContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: theme.colors.white,
+        gap: 15
+    }
+});
