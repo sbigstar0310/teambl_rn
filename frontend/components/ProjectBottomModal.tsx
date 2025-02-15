@@ -6,6 +6,9 @@ import InlineIconButton from './InlineIconButton';
 import theme from '@/shared/styles/theme';
 import { router } from 'expo-router';
 
+import createProjectLink from '@/libs/apis/ProjectCard/createProjectLink';
+import updateProjectCard from '@/libs/apis/ProjectCard/updateProjectCard';
+
 interface ProjectBottomModalProps {
     isVisible: boolean;
     onClose: () => void;
@@ -23,13 +26,42 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         projectTitle
     } = props;
 
-    const handleLinkCopy = () => {  
-        // TODO : Copy project link
-    }
+    const handleLinkCopy = async () => {  
+        try {
+            const response = await createProjectLink({ project_card_id: projectId });
+            const projectLink = response.unique_id;
 
-    const handleEdit = () => {  
-        // TODO : Edit project
-    }
+            // projectLink는 프로젝트의 고유한 코드. 이를 이용해서 전체 링크를 만들어야 함.
+
+            await navigator.clipboard.writeText(projectLink);
+            alert("프로젝트 링크가 클립보드에 복사되었습니다!");
+        } catch (error) {
+            console.error("프로젝트 링크 복사 실패:", error);
+            alert("링크를 복사하는 동안 오류가 발생했습니다.");
+        }
+    };
+
+    const handleEdit = async () => {  
+        if (!isMyProject) {
+            alert("이 프로젝트를 수정할 권한이 없습니다.");
+            return;
+        }
+
+        try {
+            // 업데이트할 데이터 (수정할 부분만 전달 가능)
+            const updatedProject = await updateProjectCard(projectId, {
+                title: projectTitle + " (Updated)", // 예제: 제목 변경
+                description: "프로젝트 설명이 업데이트되었습니다." // 예제: 설명 변경
+            });
+
+            alert("프로젝트가 성공적으로 수정되었습니다!");
+
+            console.log("업데이트된 프로젝트:", updatedProject);
+        } catch (error) {
+            console.error("프로젝트 수정 실패:", error);
+            alert("프로젝트를 수정하는 중 오류가 발생했습니다.");
+        }
+    };
 
     const handleDelete = () => {
         // TODO : Delete project

@@ -7,7 +7,7 @@ from ..models import Friend, ProjectCard, ProjectCardInvitation, CustomUser, Not
 from ..serializers import ProjectCardSerializer, ProjectCardInvitationSerializer
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
-
+import uuid
 
 ## 프로젝트 카드 (ProjectCard) 관련 API 뷰
 # 프로젝트 카드 리스트 뷰 (전체 최신순 정렬)
@@ -316,3 +316,23 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
             )
 
         serializer.save()
+
+
+
+class ProjectCardLinkView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # 요청에서 project_card_id 가져오기
+        project_card_id = request.data.get("project_card_id")
+
+        # 프로젝트 카드가 존재하는지 확인
+        project_card = get_object_or_404(ProjectCard, id=project_card_id)
+
+        # UUID4를 사용하여 고유 ID 생성
+        unique_id = str(uuid.uuid4())[:10] # 앞자리만 사용
+
+        return Response(
+            {"project_card_id": project_card.id, "unique_id": unique_id},
+            status=status.HTTP_200_OK
+        )
