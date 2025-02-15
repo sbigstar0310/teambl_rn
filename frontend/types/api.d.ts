@@ -103,7 +103,7 @@ declare module api {
         like_count: number;
         tagged_users: User[];
         liked_users: User[];
-        images: string[];
+        images: PostImage[];
         comments: Comment[];
     };
 
@@ -145,5 +145,10 @@ declare module api {
         related_comment_id?: number | null;  // 댓글 신고 (선택)
         related_user_id?: number | null;  // 사용자 신고 (선택)
     };
-    
+
+    type PostImage = {
+        id: number;
+        image: string;
+        created_at: Date;
+    }
 }

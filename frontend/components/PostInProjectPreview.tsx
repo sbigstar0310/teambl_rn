@@ -1,14 +1,20 @@
 import theme from '@/shared/styles/theme';
-import React, { useState } from 'react';
-import { StyleSheet, View, Image, TouchableOpacity, Text } from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import EmptyHeart from '@/assets/EmptyHeartIcon.svg';
 import EmptyComment from '@/assets/CommentEmptyIcon.svg';
 import ThreeDots from '@/assets/ThreeDotsVerticalSM.svg';
 import { router } from "expo-router";
 import PostBottomModal from './PostBottomModal';
+import PostImages from "@/components/post/PostImages";
 
-const PostInProjectPreview = (props: any) => {
-    const { postInfo, myId } = props;
+interface PostInProjectPreviewProps {
+    postInfo: api.Post;
+    myId: number;
+}
+
+const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
+    const {postInfo, myId} = props;
     const images = postInfo?.images || [];
 
     const [isOptionVisible, setIsOptionVisible] = useState(false);
@@ -40,24 +46,7 @@ const PostInProjectPreview = (props: any) => {
                     onPress={goToDetailedPostView}
                 >
                     <View style={styles.imageContainer}>
-                        {images.length === 1 && (
-                            <Image source={{ uri: images[0] }} style={styles.singleImage} />
-                        )}
-                        {images.length === 2 && (
-                            <View style={styles.twoImageWrapper}>
-                                <Image source={{ uri: images[0] }} style={[styles.flexImage, styles.imageSpacingRight]} />
-                                <Image source={{ uri: images[1] }} style={styles.flexImage} />
-                            </View>
-                        )}
-                        {images.length >= 3 && (
-                            <View style={styles.threeImageWrapper}>
-                                <Image source={{ uri: images[0] }} style={[styles.leftImage, styles.imageSpacingRight]} />
-                                <View style={styles.rightColumn}>
-                                    <Image source={{ uri: images[1] }} style={[styles.flexImage, styles.imageSpacingBottom]} />
-                                    <Image source={{ uri: images[2] }} style={styles.flexImage} />
-                                </View>
-                            </View>
-                        )}
+                        <PostImages images={images}/>
                     </View>
                 </TouchableOpacity>
             )}

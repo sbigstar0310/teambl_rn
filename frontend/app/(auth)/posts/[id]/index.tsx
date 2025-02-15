@@ -30,6 +30,7 @@ import Popup from "@/components/Popup";
 import deletePost from "@/libs/apis/Post/deletePost";
 import * as Clipboard from "expo-clipboard";
 import {createLinkToPost} from "@/shared/utils";
+import PostImages from "@/components/post/PostImages";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -266,7 +267,6 @@ export default function PostView() {
                                 isSubscribed={isSubscribed}
                             />
                         }
-                        {/* (optional) Images */}
                         {/* Post Content */}
                         <View style={[styles.postContent, sharedStyles.horizontalPadding]}>
                             <PostContent
@@ -279,12 +279,15 @@ export default function PostView() {
                             >
                                 {postData?.created_at ? dayjs(postData.created_at).format("YYYY.MM.DD") : ""}
                             </Text>
-                            {/* Likes, interactions */}
+                        </View>
+                        {/* (optional) Images */}
+                        <PostImages images={postData.images} previewEnabled={true}/>
+                        {/* Likes, interactions */}
+                        <View style={[styles.interactionsContainer, sharedStyles.horizontalPadding]}>
                             <PostInteractions
                                 likes={postData.like_count}
                                 comments={0}
                                 onOptions={setIsContextOpen.bind(null, true)}
-                                // onLike={handleLike}
                                 onLike={() => handleLike(
                                     postData?.id ?? 0,
                                     postData?.liked_users?.map(user => user.id) ?? [],
@@ -470,6 +473,9 @@ const styles = StyleSheet.create({
     postContent: {
         paddingVertical: 16,
         gap: 8
+    },
+    interactionsContainer: {
+        paddingVertical: 16
     },
     interactions: {
         flexDirection: "row",
