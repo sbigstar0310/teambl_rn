@@ -16,4 +16,5 @@ urlpatterns = [
     path("user/", include("api.urls.user_urls")),
     path("conversation/", include("api.urls.conversation_urls")),
     path("invitation-link/", include("api.urls.invitation_link_urls")),
+    path("report/", include("api.urls.report_urls")),
 ]

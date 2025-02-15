@@ -1,13 +1,19 @@
-import styled from '@emotion/native';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import {SafeAreaView} from "react-native-safe-area-context";
+import styled from "@emotion/native";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import LeftArrowIcon from "@/assets/search/LeftArrowIcon.svg";
-import theme from '@/shared/styles/theme';
-import PostInProjectPreview from '@/components/PostInProjectPreview';
-import fetchLikedPosts from '../../libs/apis/Post/fetchLikedPosts';
-import { mockPost1, mockPost2 } from '@/shared/mock-data';
+import theme from "@/shared/styles/theme";
+import PostInProjectPreview from "@/components/PostInProjectPreview";
+import fetchLikedPosts from "../../libs/apis/Post/fetchLikedPosts";
+import { mockPost1, mockPost2 } from "@/shared/mock-data";
 
 type Params = {
     target_user_id_string: string;
@@ -28,7 +34,6 @@ const LoadingContainer = styled.View`
 const mockPosts = [mockPost1, mockPost2];
 
 const likedPosts = () => {
-
     const { target_user_id_string } = useLocalSearchParams<Params>();
     const target_user_id = Number(target_user_id_string);
 
@@ -36,15 +41,19 @@ const likedPosts = () => {
     const [postList, setPostList] = useState<api.Post[]>([]);
 
     const fetchLikedPostsList = async () => {
-        // TODO
-        setPostList(mockPosts)
-        setLoading(false);
+        try {
+            const posts = await fetchLikedPosts();
+            setPostList(posts);
+        } catch (error) {
+            console.error("Failed to fetch liked posts:", error);
+        } finally {
+            setLoading(false);
+        }
     };
-    
-    useEffect(() => {   
+
+    useEffect(() => {
         fetchLikedPostsList();
-    }
-    , []);
+    }, []);
 
     return (
         <SafeAreaView
@@ -52,36 +61,32 @@ const likedPosts = () => {
             edges={["top"]}
         >
             <View style={styles.headerContainer}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                        <LeftArrowIcon/>
-                    </TouchableOpacity>
-                <Text style={styles.title}>
-                    {"좋아요 한 게시물"}
-                </Text>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.back()}
+                >
+                    <LeftArrowIcon />
+                </TouchableOpacity>
+                <Text style={styles.title}>{"좋아요 한 게시물"}</Text>
             </View>
-            {
-                (postList.length === 0) && (
-                    <View style={styles.noPostContainer}>
-                        <Text style={styles.noPostText}>
-                            {"내가 좋아요한 게시물이 없습니다."}
-                        </Text>
-                    </View>
-                )
-            }
-            {
-                (postList.length > 0) && (
-                    <ScrollView
-                        contentContainerStyle={styles.postContainer}
-                    >
-                        {postList.map((post, index) => (
-                            <PostInProjectPreview
-                                key={index}
-                                postInfo={post}
-                            />
-                        ))}
-                    </ScrollView>
-                )
-            }
+            {postList.length === 0 && (
+                <View style={styles.noPostContainer}>
+                    <Text style={styles.noPostText}>
+                        {"내가 좋아요한 게시물이 없습니다."}
+                    </Text>
+                </View>
+            )}
+            {postList.length > 0 && (
+                <ScrollView contentContainerStyle={styles.postContainer}>
+                    {postList.map((post, index) => (
+                        <PostInProjectPreview
+                            key={index}
+                            postInfo={post}
+                            myId={target_user_id}
+                        />
+                    ))}
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 };
@@ -112,16 +117,16 @@ const styles = StyleSheet.create({
         fontSize: theme.fontSizes.body1,
         color: theme.colors.achromatic01,
     },
-    postContainer : {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+    postContainer: {
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
         gap: 10,
         backgroundColor: theme.colors.white,
-        padding: 20
-    }
+        padding: 20,
+    },
 });
 
 export default likedPosts;

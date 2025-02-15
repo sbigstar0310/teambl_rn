@@ -1,33 +1,27 @@
-import theme from '@/shared/styles/theme';
-import React, { Fragment, useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import ThreeDotsVertical from '@/assets/ThreeDotsVertical.svg';
-import VerticalBar from '@/assets/VerticalBar.svg';
-import AddPostIcon from '@/assets/AddPostIcon.svg';
-import ProfileImagePreviewer from './ProfileImagePreviewer';
-import ProjectBottomModal from './ProjectBottomModal';
+import theme from "@/shared/styles/theme";
+import React, { Fragment, useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import ThreeDotsVertical from "@/assets/ThreeDotsVertical.svg";
+import VerticalBar from "@/assets/VerticalBar.svg";
+import AddPostIcon from "@/assets/AddPostIcon.svg";
+import ProfileImagePreviewer from "./ProfileImagePreviewer";
+import ProjectBottomModal from "./ProjectBottomModal";
 import dayjs from "dayjs";
 import { router } from "expo-router";
-import getUserInfo from '@/libs/apis/User/getUserInfo';
+import getUserInfo from "@/libs/apis/User/getUserInfo";
+import toggleBookmarkProjectCard from "@/libs/apis/ProjectCard/toggleBookmarkProjectCard";
+import getUserDistance from "@/libs/apis/getUserDistance";
 
 interface KeywordBadgeProps {
     keyword: string;
 }
 
 const KeywordBadge = (props: KeywordBadgeProps) => {
-    const {
-        keyword
-    } = props;
+    const { keyword } = props;
 
     return (
-        <View
-            style={styles.keywordBadge}
-        >
-            <Text
-                style={styles.keywordText}
-            >
-                {keyword}
-            </Text>
+        <View style={styles.keywordBadge}>
+            <Text style={styles.keywordText}>{keyword}</Text>
         </View>
     );
 };
@@ -39,19 +33,12 @@ interface AddPostButtonProps {
 const AddPostButton = (props: AddPostButtonProps) => {
     const { onPress } = props;
     return (
-        <TouchableOpacity
-            style={styles.addPostButton}
-            onPress={onPress}
-        >
+        <TouchableOpacity style={styles.addPostButton} onPress={onPress}>
             <AddPostIcon />
-            <Text
-                style={styles.addPostText}
-            >
-                게시물 작성
-            </Text>
+            <Text style={styles.addPostText}>게시물 작성</Text>
         </TouchableOpacity>
     );
-}
+};
 
 interface SubscribeButtonProps {
     onPress: () => void;
@@ -60,18 +47,11 @@ interface SubscribeButtonProps {
 const SubscribeButton = (props: SubscribeButtonProps) => {
     const { onPress } = props;
     return (
-        <TouchableOpacity
-            style={styles.subscribeButton}
-            onPress={onPress}
-        >
-            <Text
-                style={styles.subscribeText}
-            >
-                + 소식 받기
-            </Text>
+        <TouchableOpacity style={styles.subscribeButton} onPress={onPress}>
+            <Text style={styles.subscribeText}>+ 소식 받기</Text>
         </TouchableOpacity>
     );
-}
+};
 
 interface ProjectPreviewProps {
     projectInfo: api.ProjectCard;
@@ -79,21 +59,22 @@ interface ProjectPreviewProps {
 }
 
 const ProjectPreview = (props: ProjectPreviewProps) => {
-    const {
-        projectInfo,
-        myId
-    } = props;
+    const { projectInfo, myId } = props;
 
     const [isLoading, setIsLoading] = useState(true);
     const [isOptionVisible, setIsOptionVisible] = useState(false);
     const [memberList, setMemberList] = useState<any[]>([]);
 
     const formatDateToYearMonth = (date: Date) => {
-        return dayjs(date).format('YYYY.MM');
+        return dayjs(date).format("YYYY.MM");
     };
 
-    const handleSubscribe = () => {
-        // TODO
+    const handleSubscribe = async () => {
+        try {
+            await toggleBookmarkProjectCard({ projectCardId: projectInfo.id });
+        } catch (error) {
+            console.error("Failed to subscribe project:", error);
+        }
     };
 
     const extractImages = () => {
@@ -102,14 +83,14 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
             images.push(user?.user.profile?.image);
         });
         return images;
-    }
+    };
 
     const handleAddPost = () => {
         router.push({
             pathname: `/project/${projectInfo.id}/new_post`,
-            params: { project_title: projectInfo.title }
-        })
-    }
+            params: { project_title: projectInfo.title },
+        });
+    };
 
     const handleMemberView = () => {
         if (isLoading) {
@@ -118,25 +99,33 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
         router.push({
             pathname: `/project/members`,
             params: {
-                memberInfoList: JSON.stringify(memberList)
-            }
-        })
-    }
+                memberInfoList: JSON.stringify(memberList),
+            },
+        });
+    };
 
     const fetchMemberProfile = async () => {
         setIsLoading(true);
         setMemberList([]);
         const userIds = projectInfo.accepted_users;
-        const userInfoPromises = userIds.map(userId => getUserInfo(userId));
 
         try {
-            let responses = await Promise.all(userInfoPromises); // 촌수 정보도 가져와야 함 : TODO
-            const memberProfiles = responses.map((response, index) => {
-                return {
-                    user: {...response},
-                    relation_degree: 1
-                }
-            });
+            // Fetch user information
+            const accepted_users = await Promise.all(
+                userIds.map((userId) => getUserInfo(userId))
+            );
+
+            // Fetch relation degrees
+            const memberProfiles = await Promise.all(
+                accepted_users.map(async (user) => {
+                    const relation_degree = await getUserDistance(user.id);
+                    return {
+                        user: { ...user },
+                        relation_degree, // Use the actual fetched relation degree
+                    };
+                })
+            );
+
             console.log("memberProfiles", memberProfiles);
             setMemberList(memberProfiles);
         } catch (error) {
@@ -151,17 +140,9 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
     }, []);
 
     return (
-        <View
-            style={styles.container}
-        >
-            <View
-                style={styles.titleContainer}
-            >
-                <Text
-                    style={styles.title}
-                >
-                    {projectInfo.title}
-                </Text>
+        <View style={styles.container}>
+            <View style={styles.titleContainer}>
+                <Text style={styles.title}>{projectInfo.title}</Text>
                 <TouchableOpacity
                     style={{ paddingLeft: 10 }}
                     onPress={() => setIsOptionVisible(true)}
@@ -169,50 +150,37 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                     <ThreeDotsVertical />
                 </TouchableOpacity>
             </View>
-            {
-                projectInfo.keywords.length > 0 &&
-                <View
-                    style={styles.keywordContainer}
-                >
-                    {
-                        projectInfo.keywords.map((keyword: string, index: number) => {
+            {projectInfo.keywords.length > 0 && (
+                <View style={styles.keywordContainer}>
+                    {projectInfo.keywords.map(
+                        (keyword: string, index: number) => {
                             return (
-                                <KeywordBadge
-                                    key={index}
-                                    keyword={keyword}
-                                />
+                                <KeywordBadge key={index} keyword={keyword} />
                             );
-                        })
-                    }
+                        }
+                    )}
                 </View>
-            }
-            <View
-                style={styles.descriptionContainer}
-            >
-                <Text
-                    style={styles.descriptionText}
-                >
+            )}
+            <View style={styles.descriptionContainer}>
+                <Text style={styles.descriptionText}>
                     {projectInfo.description}
                 </Text>
             </View>
-            <View
-                style={styles.bottomTabContainer}
-            >
+            <View style={styles.bottomTabContainer}>
                 {projectInfo.start_date && ( // start_date can also be null
                     <Fragment>
-                        <Text
-                            style={styles.dateText}
-                        >
-                            {`${formatDateToYearMonth(projectInfo.start_date)} ~`}
+                        <Text style={styles.dateText}>
+                            {`${formatDateToYearMonth(
+                                projectInfo.start_date
+                            )} ~`}
                         </Text>
-                        {
-                            projectInfo.end_date &&
-                            <Text
-                                style={styles.dateText}
-                            >
-                                {` ${formatDateToYearMonth(projectInfo.end_date)}`}
+                        {projectInfo.end_date && (
+                            <Text style={styles.dateText}>
+                                {` ${formatDateToYearMonth(
+                                    projectInfo.end_date
+                                )}`}
                             </Text>
-                        }
+                        )}
                         <VerticalBar
                             style={{ marginLeft: 16, marginRight: 16 }}
                         />
@@ -222,19 +190,13 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                     imageUrlList={extractImages()}
                     onClick={handleMemberView}
                 />
-                {
-                    projectInfo.creator.id === myId &&
-                    <AddPostButton
-                        onPress={handleAddPost}
-                    />
-                }
+                {projectInfo.creator.id === myId && (
+                    <AddPostButton onPress={handleAddPost} />
+                )}
                 {/** 아래 true는 현재 로그인한 사용자가 해당 프로젝트를 구독했는지 여부의 negate로 수정 : TODO */}
-                {
-                    (projectInfo.creator.id !== myId) &&
-                    <SubscribeButton
-                        onPress={() => handleSubscribe()}
-                    />
-                }
+                {projectInfo.creator.id !== myId && (
+                    <SubscribeButton onPress={() => handleSubscribe()} />
+                )}
             </View>
             {/** bottom sheet */}
             <ProjectBottomModal
@@ -250,40 +212,40 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 20,
     },
     titleContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     title: {
         fontSize: theme.fontSizes.body1,
         fontWeight: 600,
-        color: theme.colors.black
+        color: theme.colors.black,
     },
     keywordContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        flexWrap: 'wrap',
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexWrap: "wrap",
         marginTop: 12,
-        gap: 8
+        gap: 8,
     },
     keywordBadge: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
         backgroundColor: theme.colors.background2,
         borderRadius: 10,
         paddingHorizontal: 6,
@@ -292,71 +254,71 @@ const styles = StyleSheet.create({
     keywordText: {
         color: theme.colors.point,
         fontSize: theme.fontSizes.caption,
-        fontWeight: 600
+        fontWeight: 600,
     },
     descriptionContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        marginTop: 20
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexWrap: "wrap",
+        marginTop: 20,
     },
     descriptionText: {
         fontSize: theme.fontSizes.body1,
         fontWeight: 400,
-        color: theme.colors.black
+        color: theme.colors.black,
     },
     bottomTabContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        marginTop: 20
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        marginTop: 20,
     },
     dateText: {
         fontSize: theme.fontSizes.caption,
         fontWeight: 400,
-        color: theme.colors.achromatic01
+        color: theme.colors.achromatic01,
     },
     addPostButton: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
         backgroundColor: theme.colors.white,
         borderRadius: 5,
         paddingHorizontal: 8,
         height: 28,
-        marginLeft: 'auto',
+        marginLeft: "auto",
         gap: 8,
         borderWidth: 1,
-        borderColor: theme.colors.achromatic03
+        borderColor: theme.colors.achromatic03,
     },
     subscribeButton: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
         backgroundColor: theme.colors.achromatic05,
         borderRadius: 5,
         paddingHorizontal: 8,
         height: 28,
-        marginLeft: 'auto',
+        marginLeft: "auto",
         gap: 8,
     },
     addPostText: {
         color: theme.colors.achromatic01,
         fontSize: theme.fontSizes.caption,
-        fontWeight: 600
+        fontWeight: 600,
     },
     subscribeText: {
         color: theme.colors.black,
         fontSize: theme.fontSizes.caption,
-        fontWeight: 600
-    }
+        fontWeight: 600,
+    },
 });
 
 export default ProjectPreview;

@@ -15,3 +15,4 @@ from .experience_views import *
 from .endorsement_views import *
 from .search_history_views import *
 from .invitation_link_views import *
+from .report_views import *

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View, } from "react-native";
+import {
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
@@ -19,6 +26,8 @@ import ProjectPreview from "@/components/ProjectPreview";
 import { useAuthStore } from "@/store/authStore";
 import theme from "@/shared/styles/theme";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
+import searchProjectCard from "@/libs/apis/Search/searchProjectCard";
+import searchPost from "@/libs/apis/Search/searchPost";
 
 const mockPosts = [mockPost1, mockPost2];
 
@@ -64,11 +73,17 @@ export default function SearchScreen() {
     const [activeTab, setActiveTab] = useState<"사람" | "프로젝트 + 게시물">(
         "사람"
     );
-    const [activeUserFilter, setActiveUserFilter] = useState<string | null>(null);
+    const [activeUserFilter, setActiveUserFilter] = useState<string | null>(
+        null
+    );
     const [loading, setLoading] = useState(false); // 로딩 상태 추가
-    const [activeProjFilter, setActiveProjFilter] = useState<string | null>(null);
+    const [activeProjFilter, setActiveProjFilter] = useState<string | null>(
+        null
+    );
 
-    const [resultProject, setResultProject] = useState<api.ProjectCard[] | null>(null);
+    const [resultProject, setResultProject] = useState<
+        api.ProjectCard[] | null
+    >(null);
     const [resultPosts, setResultPosts] = useState<api.Post[] | null>(null);
 
     const myId = useAuthStore.getState().user?.id || -99;
@@ -76,9 +91,7 @@ export default function SearchScreen() {
     if (myId === -99) {
         return (
             <View>
-                <Text>
-                    {"사용자 정보 수신에 실패했습니다."}
-                </Text>
+                <Text>{"사용자 정보 수신에 실패했습니다."}</Text>
             </View>
         );
     }
@@ -136,14 +149,13 @@ export default function SearchScreen() {
     const searchProject = async (query: string) => {
         setLoading(true);
         try {
-            const response = await fetchMyProjectCard();
-            setResultProject(response);
-        }
-        catch (error) {
+            const searchedProjectCards = await searchProjectCard({ q: query });
+            console.log("searchedProjectCards", searchedProjectCards);
+            setResultProject(searchedProjectCards.results);
+        } catch (error) {
             console.error("Failed to search project:", error);
             setResultProject([]);
-        }
-        finally {
+        } finally {
             setLoading(false);
         }
     };
@@ -151,7 +163,8 @@ export default function SearchScreen() {
     const searchPosts = async (query: string) => {
         setLoading(true);
         try {
-            setResultPosts(mockPosts);
+            const searchedPosts = await searchPost({ q: query });
+            setResultPosts(searchedPosts.results);
         } catch (error) {
             console.error("Failed to search posts:", error);
             setResultPosts([]);
@@ -168,33 +181,27 @@ export default function SearchScreen() {
 
     const ProjectListView = () => {
         return (
-            <ScrollView
-                contentContainerStyle={styles.projectContainer}
-            >
-                {
-                    (!resultProject) || resultProject.length === 0 &&
-                    <Text style={styles.resultCount}>
-                        {"검색된 프로젝트가 없습니다."}
-                    </Text>
-                }
-                {
-                    (resultProject) && resultProject.length > 0 &&
+            <ScrollView contentContainerStyle={styles.projectContainer}>
+                {!resultProject ||
+                    (resultProject.length === 0 && (
+                        <Text style={styles.resultCount}>
+                            {"검색된 프로젝트가 없습니다."}
+                        </Text>
+                    ))}
+                {resultProject &&
+                    resultProject.length > 0 &&
                     resultProject.map((project, index) => (
                         <View
-                            key={project.id + ' ' + index}
+                            key={project.id + " " + index}
                             style={{
                                 width: "100%",
                                 paddingVertical: 16,
                                 backgroundColor: theme.colors.white,
                             }}
                         >
-                            <ProjectPreview
-                                projectInfo={project}
-                                myId={myId}
-                            />
+                            <ProjectPreview projectInfo={project} myId={myId} />
                         </View>
-                    ))
-                }
+                    ))}
             </ScrollView>
         );
     };
@@ -207,17 +214,17 @@ export default function SearchScreen() {
                     {
                         backgroundColor: theme.colors.white,
                         padding: 16,
-                    }
+                    },
                 ]}
             >
-                {
-                    (!resultPosts) || resultPosts.length === 0 &&
-                    <Text style={styles.resultCount}>
-                        {"검색된 게시물이 없습니다."}
-                    </Text>
-                }
-                {
-                    (resultPosts) && resultPosts.length > 0 &&
+                {!resultPosts ||
+                    (resultPosts.length === 0 && (
+                        <Text style={styles.resultCount}>
+                            {"검색된 게시물이 없습니다."}
+                        </Text>
+                    ))}
+                {resultPosts &&
+                    resultPosts.length > 0 &&
                     resultPosts.map((post, index) => (
                         <View
                             key={post.id + index}
@@ -225,13 +232,9 @@ export default function SearchScreen() {
                                 width: "100%",
                             }}
                         >
-                            <PostInProjectPreview
-                                postInfo={post}
-                                myId={myId}
-                            />
+                            <PostInProjectPreview postInfo={post} myId={myId} />
                         </View>
-                    ))
-                }
+                    ))}
             </ScrollView>
         );
     };
@@ -275,12 +278,17 @@ export default function SearchScreen() {
                         </Text>
 
                         {filteredResults.length === 0 ? (
-                            <NoSearchResult title="검색 결과가 없습니다." message="필터를 조정하거나 새로운 검색어를 입력해보세요." />
+                            <NoSearchResult
+                                title="검색 결과가 없습니다."
+                                message="필터를 조정하거나 새로운 검색어를 입력해보세요."
+                            />
                         ) : (
                             <FlatList
                                 data={filteredResults}
                                 keyExtractor={(item) => String(item.user.id)}
-                                renderItem={({ item }) => <UserCard {...item} />}
+                                renderItem={({ item }) => (
+                                    <UserCard {...item} />
+                                )}
                             />
                         )}
                     </View>
@@ -291,7 +299,7 @@ export default function SearchScreen() {
                         <View
                             style={{
                                 paddingLeft: 16,
-                                paddingTop: 16
+                                paddingTop: 16,
                             }}
                         >
                             <ProjFilterTabs
@@ -299,20 +307,15 @@ export default function SearchScreen() {
                                 handleFilterChange={setActiveProjFilter}
                             />
                         </View>
-                        {
-                            (activeProjFilter === null) &&
+                        {activeProjFilter === null && (
                             <Text style={styles.resultCount}>
                                 {"검색 타입을 선택해주세요."}
                             </Text>
-                        }
-                        {
-                            (`${activeProjFilter}` === `${1}`) &&
+                        )}
+                        {`${activeProjFilter}` === `${1}` && (
                             <ProjectListView />
-                        }
-                        {
-                            (`${activeProjFilter}` === `${2}`) &&
-                            <PostListView />
-                        }
+                        )}
+                        {`${activeProjFilter}` === `${2}` && <PostListView />}
                     </View>
                 )}
             </View>
@@ -371,5 +374,5 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 10,
         backgroundColor: theme.colors.achromatic05,
-    }
+    },
 });

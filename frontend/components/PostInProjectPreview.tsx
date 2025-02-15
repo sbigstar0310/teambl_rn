@@ -1,12 +1,13 @@
-import theme from '@/shared/styles/theme';
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import EmptyHeart from '@/assets/EmptyHeartIcon.svg';
-import EmptyComment from '@/assets/CommentEmptyIcon.svg';
-import ThreeDots from '@/assets/ThreeDotsVerticalSM.svg';
+import theme from "@/shared/styles/theme";
+import React, { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import EmptyHeart from "@/assets/EmptyHeartIcon.svg";
+import EmptyComment from "@/assets/CommentEmptyIcon.svg";
+import ThreeDots from "@/assets/ThreeDotsVerticalSM.svg";
 import { router } from "expo-router";
-import PostBottomModal from './PostBottomModal';
+import PostBottomModal from "./PostBottomModal";
 import PostImages from "@/components/post/PostImages";
+import toggleLikePost from "@/libs/apis/Post/toggleLikePost";
 
 interface PostInProjectPreviewProps {
     postInfo: api.Post;
@@ -14,7 +15,7 @@ interface PostInProjectPreviewProps {
 }
 
 const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
-    const {postInfo, myId} = props;
+    const { postInfo, myId } = props;
     const images = postInfo?.images || [];
 
     const [isOptionVisible, setIsOptionVisible] = useState(false);
@@ -22,18 +23,22 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
     const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
         const year = date.getFullYear().toString().slice(-2); // 연도의 마지막 두 자리
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // 월 (0부터 시작하므로 +1)
-        const day = String(date.getDate()).padStart(2, '0'); // 일
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // 월 (0부터 시작하므로 +1)
+        const day = String(date.getDate()).padStart(2, "0"); // 일
 
         return `${year}.${month}.${day}`;
-    }
+    };
 
     const goToDetailedPostView = () => {
         router.push(`/posts/${postInfo.id}`);
-    }
+    };
 
-    const handleToggleLike = () => {
-
+    const handleToggleLike = async () => {
+        try {
+            await toggleLikePost(postInfo.id, myId);
+        } catch (error) {
+            console.log("Failed to toggle like:", error);
+        }
     };
 
     return (
@@ -42,26 +47,25 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
         >
             {/** when image exists */}
             {images.length > 0 && (
-                <TouchableOpacity
-                    onPress={goToDetailedPostView}
-                >
+                <TouchableOpacity onPress={goToDetailedPostView}>
                     <View style={styles.imageContainer}>
-                        <PostImages images={images}/>
+                        <PostImages images={images} />
                     </View>
                 </TouchableOpacity>
             )}
             {/** content area */}
             <View
-                style={[styles.contentContainer, images.length > 0 ? { padding: 16 } : {}]}
+                style={[
+                    styles.contentContainer,
+                    images.length > 0 ? { padding: 16 } : {},
+                ]}
             >
                 {/** content */}
                 <TouchableOpacity
                     onPress={goToDetailedPostView}
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                 >
-                    <View
-                        style={styles.contentTextContainer}
-                    >
+                    <View style={styles.contentTextContainer}>
                         <Text
                             style={styles.contentText}
                             numberOfLines={3}
@@ -72,46 +76,45 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
                     </View>
                 </TouchableOpacity>
                 {/** date */}
-                <View
-                    style={styles.dateContainer}
-                >
-                    <Text
-                        style={styles.dateText}
-                    >
+                <View style={styles.dateContainer}>
+                    <Text style={styles.dateText}>
                         {formatDate(postInfo?.created_at)}
                     </Text>
                 </View>
                 {/** footer */}
-                <View
-                    style={styles.footerContainer}
-                >
+                <View style={styles.footerContainer}>
                     {/** likes and comments */}
                     <TouchableOpacity
-                        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+                        style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                        }}
                         onPress={handleToggleLike}
                     >
                         <EmptyHeart />
-                        <Text
-                            style={styles.footerText}
-                        >
+                        <Text style={styles.footerText}>
                             {postInfo?.like_count}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}
+                        style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            marginLeft: 10,
+                        }}
                         onPress={goToDetailedPostView}
                     >
                         <EmptyComment />
-                        <Text
-                            style={styles.footerText}
-                        >
+                        <Text style={styles.footerText}>
                             {/** TODO : change value */}
                             {0}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => setIsOptionVisible(true)}
-                        style={{ marginLeft: 'auto', paddingLeft: 15 }}
+                        style={{ marginLeft: "auto", paddingLeft: 15 }}
                     >
                         <ThreeDots />
                     </TouchableOpacity>
@@ -130,21 +133,21 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
+        width: "100%",
         borderRadius: 5,
         padding: 16,
         backgroundColor: theme.colors.achromatic06,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
     },
     contentContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
     },
     contentText: {
         fontSize: theme.fontSizes.body1,
@@ -152,81 +155,81 @@ const styles = StyleSheet.create({
         fontWeight: 400,
     },
     dateContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        marginTop: 4
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        marginTop: 4,
     },
     dateText: {
         fontSize: theme.fontSizes.caption,
         fontWeight: 400,
-        color: theme.colors.achromatic01
+        color: theme.colors.achromatic01,
     },
     contentTextContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        flexWrap: 'wrap',
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexWrap: "wrap",
     },
     footerContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        marginTop: 16
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        marginTop: 16,
     },
     footerText: {
         fontSize: theme.fontSizes.body2,
         fontWeight: 400,
         color: theme.colors.achromatic01,
-        marginLeft: 4
+        marginLeft: 4,
     },
     imageContainer: {
-        width: '100%',
+        width: "100%",
         height: 150,
         borderRadius: 5,
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
-        overflow: 'hidden',
-        flexDirection: 'row',
+        overflow: "hidden",
+        flexDirection: "row",
     },
     singleImage: {
         flex: 1,
-        resizeMode: 'cover',
+        resizeMode: "cover",
     },
     twoImageWrapper: {
-        flexDirection: 'row',
+        flexDirection: "row",
         flex: 1,
-        justifyContent: 'space-between',
+        justifyContent: "space-between",
     },
     threeImageWrapper: {
-        flexDirection: 'row',
+        flexDirection: "row",
         flex: 1,
-        justifyContent: 'space-between',
+        justifyContent: "space-between",
     },
     leftImage: {
         flex: 1,
-        resizeMode: 'cover',
+        resizeMode: "cover",
     },
     rightColumn: {
         flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'space-between',
+        flexDirection: "column",
+        justifyContent: "space-between",
     },
     flexImage: {
         flex: 1,
-        resizeMode: 'cover',
+        resizeMode: "cover",
     },
     imageSpacingRight: {
-        marginRight: 4
+        marginRight: 4,
     },
     imageSpacingBottom: {
-        marginBottom: 4
+        marginBottom: 4,
     },
 });
 
