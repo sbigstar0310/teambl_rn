@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {RefreshControl, ScrollView, StyleSheet, Text, View} from "react-native";
 import React, {Fragment, useEffect, useState} from "react";
 import Header from "@/components/Header";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
@@ -49,6 +49,10 @@ export default function HomeScreen() {
                     gap: 8
                 },
                 ]}
+                refreshControl={<RefreshControl
+                    refreshing={false}
+                    onRefresh={fetchHomeProjects}
+                />}
             >
                 {/* Comment / Remove the following ScrollView to see the PostCard views only */}
                 {/* <ScrollView

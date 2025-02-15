@@ -1,5 +1,5 @@
 import {router, useLocalSearchParams} from "expo-router";
-import {Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {Modal, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
 import React, {Fragment, useEffect, useMemo, useRef, useState} from "react";
@@ -152,16 +152,11 @@ export default function PostView() {
             console.error("Failed to toggle subscription:", error);
         }
     };
-    const handleLike = async (postId: number, likedUsers: number[] = [], setPostData: (data: any) => void) => {
+    const handleLike = async (postId: number) => {
         try {
             if (!postId || !me?.id) return; // postId 또는 me.id가 없으면 실행 안 함
-            const userId = me.id;
-            const isLiked = likedUsers.includes(userId);
-            const updatedLikedUsers = isLiked
-                ? likedUsers.filter((id) => id !== userId) // 좋아요 취소
-                : [...likedUsers, userId]; // 좋아요 추가
-            const updatedPost = await toggleLikePost(postId, {liked_users: updatedLikedUsers});
-            setPostData(updatedPost);
+            await toggleLikePost(postId, me.id);
+            await fetchPost(postId);
         } catch (error) {
             console.error("Failed to toggle like:", error);
         }
@@ -256,6 +251,13 @@ export default function PostView() {
                         style={styles.main}
                         showsVerticalScrollIndicator={false}
                         ref={containerRef}
+                        refreshControl={<RefreshControl
+                            refreshing={false}
+                            onRefresh={() => {
+                                fetchPost(postData.id);
+                                fetchComments(postData.id);
+                            }}
+                        />}
                     >
                         {/* Project details */}
                         {projectData &&
@@ -281,18 +283,17 @@ export default function PostView() {
                             </Text>
                         </View>
                         {/* (optional) Images */}
-                        <PostImages images={postData.images} previewEnabled={true}/>
+                        {postData.images.length > 0 &&
+                            <PostImages images={postData.images} previewEnabled={true}/>
+                        }
                         {/* Likes, interactions */}
                         <View style={[styles.interactionsContainer, sharedStyles.horizontalPadding]}>
                             <PostInteractions
+                                isLikedByMe={postData.liked_users.includes(me?.id as any ?? 0)}
                                 likes={postData.like_count}
-                                comments={0}
+                                comments={commentsData.length}
                                 onOptions={setIsContextOpen.bind(null, true)}
-                                onLike={() => handleLike(
-                                    postData?.id ?? 0,
-                                    postData?.liked_users?.map(user => user.id) ?? [],
-                                    setPostData
-                                )}
+                                onLike={() => handleLike(postData?.id ?? 0)}
                                 onComment={() => handleInputFocus()}
                             />
                         </View>

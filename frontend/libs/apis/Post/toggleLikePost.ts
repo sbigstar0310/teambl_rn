@@ -1,12 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "@/shared/api";
-import { ACCESS_TOKEN, REFRESH_TOKEN, USER_ID } from "@/shared/constants";
 import fetchPostById from "./fetchPostById";
-import { useAuthStore } from "@/store/authStore";
-
-type RequestParams = {
-    liked_users: number[];
-};
 
 type Response = api.Post;
 
@@ -24,15 +17,15 @@ const toggleLikePost = async (
         const post = await fetchPostById(postId);
 
         // 좋아요를 누른 유저 목록
-        const likedUsers = post.liked_users;
+        const likedUserIds = (post.liked_users as any) as number[];
 
         // 현재 유저가 이미 좋아요를 눌렀는지 확인
-        const isLiked = likedUsers.some((user) => user.id === myId);
+        const isLiked = likedUserIds.includes(myId);
 
         // 새로 업데이트할 liked_users 필드
         const newLikedUsers = isLiked
-            ? likedUsers.filter((user) => user.id !== myId) // Remove like
-            : [...likedUsers, { id: myId }]; // Add like as an object
+            ? likedUserIds.filter(id => id !== myId) // Remove like
+            : [...likedUserIds] // Add like as an object
 
         // 좋아요 토글 요청
         const response = await api.patch<Response>(`post/${postId}/update/`, {

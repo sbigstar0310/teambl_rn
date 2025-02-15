@@ -1,8 +1,10 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import theme from "@/shared/styles/theme";
 
 interface PostInteractionsProps {
+    isLikedByMe: boolean;
     likes: number,
     comments: number,
     onOptions?: () => void;
@@ -17,7 +19,10 @@ export default function PostInteractions(props: PostInteractionsProps) {
             <View style={styles.indicatorsContainer}>
                 {/* Likes */}
                 <TouchableOpacity style={styles.indicator} onPress={props.onLike}>
-                    <FontAwesome6 name="heart" size={20} color={theme.colors.achromatic01}/>
+                    {props.isLikedByMe
+                        ? <FontAwesome name="heart" size={20} color={theme.colors.achromatic01}/>
+                        : <FontAwesome name="heart-o" size={20} color={theme.colors.achromatic01}/>
+                    }
                     <Text style={styles.indicatorText}>{props.likes}</Text>
                 </TouchableOpacity>
                 {/* Comments */}

@@ -1,13 +1,14 @@
 import theme from "@/shared/styles/theme";
-import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import EmptyHeart from "@/assets/EmptyHeartIcon.svg";
+import React, {useEffect, useMemo, useState} from "react";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EmptyComment from "@/assets/CommentEmptyIcon.svg";
 import ThreeDots from "@/assets/ThreeDotsVerticalSM.svg";
-import { router } from "expo-router";
+import {router} from "expo-router";
 import PostBottomModal from "./PostBottomModal";
 import PostImages from "@/components/post/PostImages";
 import toggleLikePost from "@/libs/apis/Post/toggleLikePost";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import fetchComment from "@/libs/apis/Comment/fetchComment";
 
 interface PostInProjectPreviewProps {
     postInfo: api.Post;
@@ -15,10 +16,28 @@ interface PostInProjectPreviewProps {
 }
 
 const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
-    const { postInfo, myId } = props;
+    const {postInfo, myId} = props;
     const images = postInfo?.images || [];
-
     const [isOptionVisible, setIsOptionVisible] = useState(false);
+    const [commentsData, setCommentsData] = useState<api.Comment[]>([]);
+    const isLikedByMe = useMemo(() => {
+        if (!postInfo.liked_users || !postInfo.liked_users.length) return false;
+        return postInfo.liked_users.includes(myId as any);
+    }, [postInfo.liked_users, myId]);
+
+    useEffect(() => {
+        if (!postInfo.id) return;
+        fetchComments(postInfo.id);
+    }, [postInfo]);
+
+    const fetchComments = async (postId: number) => {
+        try {
+            const commentsData = await fetchComment({post_id: postId});
+            setCommentsData(commentsData);
+        } catch (error) {
+            console.error("Failed to fetch comments:", error);
+        }
+    }
 
     const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
@@ -43,13 +62,13 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
 
     return (
         <View
-            style={[styles.container, images.length > 0 ? { padding: 0 } : {}]}
+            style={[styles.container, images.length > 0 ? {padding: 0} : {}]}
         >
             {/** when image exists */}
             {images.length > 0 && (
                 <TouchableOpacity onPress={goToDetailedPostView}>
                     <View style={styles.imageContainer}>
-                        <PostImages images={images} />
+                        <PostImages images={images}/>
                     </View>
                 </TouchableOpacity>
             )}
@@ -57,13 +76,13 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
             <View
                 style={[
                     styles.contentContainer,
-                    images.length > 0 ? { padding: 16 } : {},
+                    images.length > 0 ? {padding: 16} : {},
                 ]}
             >
                 {/** content */}
                 <TouchableOpacity
                     onPress={goToDetailedPostView}
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                 >
                     <View style={styles.contentTextContainer}>
                         <Text
@@ -92,7 +111,9 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
                         }}
                         onPress={handleToggleLike}
                     >
-                        <EmptyHeart />
+                        {isLikedByMe
+                            ? <FontAwesome name="heart" size={20} color={theme.colors.achromatic01}/>
+                            : <FontAwesome name="heart-o" size={20} color={theme.colors.achromatic01}/>}
                         <Text style={styles.footerText}>
                             {postInfo?.like_count}
                         </Text>
@@ -106,17 +127,16 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
                         }}
                         onPress={goToDetailedPostView}
                     >
-                        <EmptyComment />
+                        <EmptyComment/>
                         <Text style={styles.footerText}>
-                            {/** TODO : change value */}
-                            {0}
+                            {commentsData.length}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => setIsOptionVisible(true)}
-                        style={{ marginLeft: "auto", paddingLeft: 15 }}
+                        style={{marginLeft: "auto", paddingLeft: 15}}
                     >
-                        <ThreeDots />
+                        <ThreeDots/>
                     </TouchableOpacity>
                 </View>
             </View>
