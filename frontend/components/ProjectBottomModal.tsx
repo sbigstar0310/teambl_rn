@@ -7,7 +7,6 @@ import theme from '@/shared/styles/theme';
 import { router } from 'expo-router';
 
 import createProjectLink from '@/libs/apis/ProjectCard/createProjectLink';
-import updateProjectCard from '@/libs/apis/ProjectCard/updateProjectCard';
 
 interface ProjectBottomModalProps {
     isVisible: boolean;
@@ -47,20 +46,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
             return;
         }
 
-        try {
-            // 업데이트할 데이터 (수정할 부분만 전달 가능)
-            const updatedProject = await updateProjectCard(projectId, {
-                title: projectTitle + " (Updated)", // 예제: 제목 변경
-                description: "프로젝트 설명이 업데이트되었습니다." // 예제: 설명 변경
-            });
-
-            alert("프로젝트가 성공적으로 수정되었습니다!");
-
-            console.log("업데이트된 프로젝트:", updatedProject);
-        } catch (error) {
-            console.error("프로젝트 수정 실패:", error);
-            alert("프로젝트를 수정하는 중 오류가 발생했습니다.");
-        }
+        router.push(`project/${projectId}/edit`);
     };
 
     const handleDelete = () => {
