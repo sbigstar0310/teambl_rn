@@ -2,7 +2,7 @@ import {router, useLocalSearchParams} from "expo-router";
 import {Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {Fragment, useEffect, useMemo, useRef, useState} from "react";
 import dayjs from "dayjs";
 import PostContent from "@/components/PostContent";
 import ProjectDetailsInPost from "@/components/post/ProjectDetailsInPost";
@@ -28,6 +28,8 @@ import updateComment from "@/libs/apis/Comment/CommentUpdate";
 import deleteComment from "@/libs/apis/Comment/CommentDelete";
 import Popup from "@/components/Popup";
 import deletePost from "@/libs/apis/Post/deletePost";
+import * as Clipboard from "expo-clipboard";
+import {createLinkToPost} from "@/shared/utils";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -248,110 +250,113 @@ export default function PostView() {
             <LoadingOverlay isLoading={loading}/>
             <ScreenHeader/>
             {postData &&
-                <ScrollView
-                    style={styles.main}
-                    showsVerticalScrollIndicator={false}
-                    ref={containerRef}
-                >
-                    {/* Project details */}
-                    {projectData &&
-                        <ProjectDetailsInPost
-                            project={projectData}
-                            post={postData}
-                            // onSubscribe={handleSubscribe}
-                            onSubscribe={() => handleSubscribe(projectData?.id ?? 0)}
-                            isSubscribed={isSubscribed}
-                        />
-                    }
-                    {/* (optional) Images */}
-                    {/* Post Content */}
-                    <View style={[styles.postContent, sharedStyles.horizontalPadding]}>
-                        <PostContent
-                            content={postData.content}
-                            taggedUsers={postData.tagged_users}
-                        />
-                        {/* Date */}
-                        <Text
-                            style={sharedStyles.secondaryText}
-                        >
-                            {postData?.created_at ? dayjs(postData.created_at).format("YYYY.MM.DD") : ""}
-                        </Text>
-                        {/* Likes, interactions */}
-                        <PostInteractions
-                            likes={postData.like_count}
-                            comments={0}
-                            onOptions={setIsContextOpen.bind(null, true)}
-                            // onLike={handleLike}
-                            onLike={() => handleLike(
-                                postData?.id ?? 0,
-                                postData?.liked_users?.map(user => user.id) ?? [],
-                                setPostData
-                            )}
-                            onComment={() => handleInputFocus()}
-                        />
-                    </View>
-                    {/* Comment input */}
-                    {me && <CommentDummyInput
-                        user={me}
-                        onModalOpen={() => handleInputFocus()}
-                    />}
-                    {/* Comments thread */}
-                    <View style={sharedStyles.horizontalPadding}>
-                        {threadData.map((threadData, index) =>
-                            <CommentThread
-                                key={index}
-                                thread={threadData}
-                                onReply={handleInputFocus}
-                                onEdit={handleCommentEdit}
-                                onDelete={handleCommentDelete}
-                                myUserId={me?.id || 0}
-                            />)}
-                    </View>
-                </ScrollView>
-            }
-            {/* Text input */}
-            <Modal
-                visible={isInputFocused}
-                onRequestClose={handleInputUnfocus}
-                transparent={true}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="댓글 작성하기..."
-                            autoFocus={true}
-                            multiline={true}
-                            numberOfLines={3}
-                            value={commentText}
-                            onChangeText={setCommentText}
-                        />
-                        <TouchableOpacity
-                            style={styles.submitButton}
-                            onPress={handleCommentSubmit}
-                        >
-                            <Text style={styles.submitButtonText}>
-                                {editingComment === null ? "댓글 추가" : "댓글 수정"}
+                <Fragment>
+                    <ScrollView
+                        style={styles.main}
+                        showsVerticalScrollIndicator={false}
+                        ref={containerRef}
+                    >
+                        {/* Project details */}
+                        {projectData &&
+                            <ProjectDetailsInPost
+                                project={projectData}
+                                post={postData}
+                                // onSubscribe={handleSubscribe}
+                                onSubscribe={() => handleSubscribe(projectData?.id ?? 0)}
+                                isSubscribed={isSubscribed}
+                            />
+                        }
+                        {/* (optional) Images */}
+                        {/* Post Content */}
+                        <View style={[styles.postContent, sharedStyles.horizontalPadding]}>
+                            <PostContent
+                                content={postData.content}
+                                taggedUsers={postData.tagged_users}
+                            />
+                            {/* Date */}
+                            <Text
+                                style={sharedStyles.secondaryText}
+                            >
+                                {postData?.created_at ? dayjs(postData.created_at).format("YYYY.MM.DD") : ""}
                             </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-            {/* Post Options */}
-            <BottomModal
-                visible={isContextOpen}
-                onClose={setIsContextOpen.bind(null, false)}
-                body={isMyPost
-                    ? <MyOptions onDelete={handlePostDelete} onEdit={handlePostEdit}/>
-                    : <Options/>
-                }
-                heightPercentage={0.2}
-            />
+                            {/* Likes, interactions */}
+                            <PostInteractions
+                                likes={postData.like_count}
+                                comments={0}
+                                onOptions={setIsContextOpen.bind(null, true)}
+                                // onLike={handleLike}
+                                onLike={() => handleLike(
+                                    postData?.id ?? 0,
+                                    postData?.liked_users?.map(user => user.id) ?? [],
+                                    setPostData
+                                )}
+                                onComment={() => handleInputFocus()}
+                            />
+                        </View>
+                        {/* Comment input */}
+                        {me && <CommentDummyInput
+                            user={me}
+                            onModalOpen={() => handleInputFocus()}
+                        />}
+                        {/* Comments thread */}
+                        <View style={sharedStyles.horizontalPadding}>
+                            {threadData.map((threadData, index) =>
+                                <CommentThread
+                                    key={index}
+                                    thread={threadData}
+                                    onReply={handleInputFocus}
+                                    onEdit={handleCommentEdit}
+                                    onDelete={handleCommentDelete}
+                                    myUserId={me?.id || 0}
+                                />)}
+                        </View>
+                    </ScrollView>
+                    {/* Text input */}
+                    <Modal
+                        visible={isInputFocused}
+                        onRequestClose={handleInputUnfocus}
+                        transparent={true}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="댓글 작성하기..."
+                                    autoFocus={true}
+                                    multiline={true}
+                                    numberOfLines={3}
+                                    value={commentText}
+                                    onChangeText={setCommentText}
+                                />
+                                <TouchableOpacity
+                                    style={styles.submitButton}
+                                    onPress={handleCommentSubmit}
+                                >
+                                    <Text style={styles.submitButtonText}>
+                                        {editingComment === null ? "댓글 추가" : "댓글 수정"}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+                    {/* Post Options */}
+                    <BottomModal
+                        visible={isContextOpen}
+                        onClose={setIsContextOpen.bind(null, false)}
+                        body={isMyPost
+                            ? <MyOptions onDelete={handlePostDelete} onEdit={handlePostEdit} postId={postData.id}/>
+                            : <Options postId={postData.id}/>
+                        }
+                        heightPercentage={0.2}
+                    />
+                </Fragment>
+            }
         </SafeAreaView>
     )
 }
 
 interface MyOptionsProps {
+    postId: number;
     onDelete: () => void;
     onEdit: () => void;
 }
@@ -359,8 +364,15 @@ interface MyOptionsProps {
 function MyOptions(props: MyOptionsProps) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-    const handleCopyLink = () => {
-
+    const handleCopyLink = async () => {
+        try {
+            await Clipboard.setStringAsync(
+                createLinkToPost(props.postId)
+            );
+            alert("프로젝트 링크가 클립보드에 복사되었습니다!");
+        } catch (error) {
+            alert("링크를 복사하는 동안 오류가 발생했습니다.");
+        }
     }
 
     return (
@@ -406,9 +418,20 @@ function MyOptions(props: MyOptionsProps) {
     )
 }
 
-function Options() {
-    const handleCopyLink = () => {
+interface OptionsProps {
+    postId: number;
+}
 
+function Options(props: OptionsProps) {
+    const handleCopyLink = async () => {
+        try {
+            await Clipboard.setStringAsync(
+                createLinkToPost(props.postId)
+            );
+            alert("프로젝트 링크가 클립보드에 복사되었습니다!");
+        } catch (error) {
+            alert("링크를 복사하는 동안 오류가 발생했습니다.");
+        }
     }
 
     const handleReport = () => {

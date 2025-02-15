@@ -1,5 +1,6 @@
-import { DEFAULT_TEXT_MAX_LENGTH, USER_ID } from "@/shared/constants";
+import {DEFAULT_TEXT_MAX_LENGTH, USER_ID} from "@/shared/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Linking from "expo-linking";
 
 export function timeAgo(date: Date): string {
     const now = new Date();
@@ -102,4 +103,8 @@ export const getAddedCharIndex = (prevText: string, newText: string, character =
         }
     }
     return -1;
+}
+
+export const createLinkToPost = (postId: number) => {
+    return Linking.createURL(`posts/${postId}/`);
 }
