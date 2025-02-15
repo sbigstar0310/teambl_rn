@@ -187,7 +187,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        padding: 16,
+        paddingVertical: 0,
         backgroundColor: theme.colors.white,
         gap: 15
     }

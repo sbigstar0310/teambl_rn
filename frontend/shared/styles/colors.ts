@@ -3,6 +3,7 @@ const colors = {
     point: "#2546F3",
     background1: "#2546F3",
     background2: "#EEF4FF",
+    background3: "#EBEFF5",
     message1: "#42A513",
     message2: "#B80000",
     black: "#121212",

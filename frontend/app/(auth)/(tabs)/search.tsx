@@ -181,7 +181,7 @@ export default function SearchScreen() {
                     (resultProject) && resultProject.length > 0 &&
                     resultProject.map((project, index) => (
                         <View
-                            key={project.id + index}
+                            key={project.id + ' ' + index}
                             style={{
                                 width: "100%",
                                 paddingVertical: 16,
@@ -260,9 +260,9 @@ export default function SearchScreen() {
             />
 
             {/* 탭 내용 */}
-            <View style={styles.contentContainer}>
+            <View style={[styles.contentContainer]}>
                 {activeTab === "사람" && (
-                    <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1, padding: 20 }}>
                         {/* 필터 */}
                         <UserFilterTabs
                             activeFilter={activeUserFilter}
@@ -364,6 +364,7 @@ const styles = StyleSheet.create({
     projectContainer: {
         flexGrow: 1,
         paddingVertical: 16,
+        paddingTop: 0,
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",

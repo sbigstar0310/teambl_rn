@@ -1,13 +1,14 @@
 import theme from '@/shared/styles/theme';
-import React, {Fragment, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, { Fragment, useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ThreeDotsVertical from '@/assets/ThreeDotsVertical.svg';
 import VerticalBar from '@/assets/VerticalBar.svg';
 import AddPostIcon from '@/assets/AddPostIcon.svg';
 import ProfileImagePreviewer from './ProfileImagePreviewer';
 import ProjectBottomModal from './ProjectBottomModal';
 import dayjs from "dayjs";
-import {router} from "expo-router";
+import { router } from "expo-router";
+import getUserInfo from '@/libs/apis/User/getUserInfo';
 
 interface KeywordBadgeProps {
     keyword: string;
@@ -36,13 +37,13 @@ interface AddPostButtonProps {
 }
 
 const AddPostButton = (props: AddPostButtonProps) => {
-    const {onPress} = props;
+    const { onPress } = props;
     return (
         <TouchableOpacity
             style={styles.addPostButton}
             onPress={onPress}
         >
-            <AddPostIcon/>
+            <AddPostIcon />
             <Text
                 style={styles.addPostText}
             >
@@ -57,7 +58,7 @@ interface SubscribeButtonProps {
 }
 
 const SubscribeButton = (props: SubscribeButtonProps) => {
-    const {onPress} = props;
+    const { onPress } = props;
     return (
         <TouchableOpacity
             style={styles.subscribeButton}
@@ -83,21 +84,22 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
         myId
     } = props;
 
+    const [isLoading, setIsLoading] = useState(true);
     const [isOptionVisible, setIsOptionVisible] = useState(false);
+    const [memberList, setMemberList] = useState<any[]>([]);
 
     const formatDateToYearMonth = (date: Date) => {
         return dayjs(date).format('YYYY.MM');
     };
 
     const handleSubscribe = () => {
-
+        // TODO
     };
 
-    const extractImages = (projectInfo: any) => {
-        let images = [];
-        images.push(projectInfo.creator.profile.image);
-        projectInfo.accepted_users.map((user: any) => {
-            images.push(user?.profile?.image);
+    const extractImages = () => {
+        let images: any[] = [];
+        memberList.map((user: any) => {
+            images.push(user?.user.profile?.image);
         });
         return images;
     }
@@ -105,9 +107,48 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
     const handleAddPost = () => {
         router.push({
             pathname: `/project/${projectInfo.id}/new_post`,
-            params: {project_title: projectInfo.title}
+            params: { project_title: projectInfo.title }
         })
     }
+
+    const handleMemberView = () => {
+        if (isLoading) {
+            return;
+        }
+        router.push({
+            pathname: `/project/members`,
+            params: {
+                memberInfoList: JSON.stringify(memberList)
+            }
+        })
+    }
+
+    const fetchMemberProfile = async () => {
+        setIsLoading(true);
+        setMemberList([]);
+        const userIds = projectInfo.accepted_users;
+        const userInfoPromises = userIds.map(userId => getUserInfo(userId));
+
+        try {
+            let responses = await Promise.all(userInfoPromises); // 촌수 정보도 가져와야 함 : TODO
+            const memberProfiles = responses.map((response, index) => {
+                return {
+                    user: {...response},
+                    relation_degree: 1
+                }
+            });
+            console.log("memberProfiles", memberProfiles);
+            setMemberList(memberProfiles);
+        } catch (error) {
+            console.error("Failed to fetch user info:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMemberProfile();
+    }, []);
 
     return (
         <View
@@ -122,10 +163,10 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                     {projectInfo.title}
                 </Text>
                 <TouchableOpacity
-                    style={{paddingLeft: 10}}
+                    style={{ paddingLeft: 10 }}
                     onPress={() => setIsOptionVisible(true)}
                 >
-                    <ThreeDotsVertical/>
+                    <ThreeDotsVertical />
                 </TouchableOpacity>
             </View>
             {
@@ -173,12 +214,13 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                             </Text>
                         }
                         <VerticalBar
-                            style={{marginLeft: 16, marginRight: 16}}
+                            style={{ marginLeft: 16, marginRight: 16 }}
                         />
                     </Fragment>
                 )}
                 <ProfileImagePreviewer
-                    imageUrlList={extractImages(projectInfo)}
+                    imageUrlList={extractImages()}
+                    onClick={handleMemberView}
                 />
                 {
                     projectInfo.creator.id === myId &&

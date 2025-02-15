@@ -7,6 +7,7 @@ import {
     StyleSheet,
     Image,
     ActivityIndicator,
+    ScrollView,
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +21,9 @@ import ProjectCard from "@/components/cards/ProjectCard";
 import fetchOneDegreeFriends from "@/libs/apis/Friend/fetchOneDegreeFriends";
 import NoSearchResult from "@/components/common/NoSearchResult";
 import { useAuthStore } from "@/store/authStore";
+import ProjectPreview from "@/components/ProjectPreview";
+import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
+import theme from "@/shared/styles/theme";
 
 type HeaderProps = {
     onBackPress: () => void;
@@ -111,7 +115,7 @@ const UserRow: React.FC<UserRowProps> = ({ item }) => (
         <View style={styles.contentText}>
             <Text style={styles.userName}>{item.profile.user_name}</Text>
             <Text style={styles.josa}>님</Text>
-            <Text style={styles.see}>{} 1촌의 프로젝트 보기</Text>
+            <Text style={styles.see}>{ } 1촌의 프로젝트 보기</Text>
         </View>
     </TouchableOpacity>
 );
@@ -135,10 +139,47 @@ const PadoTakiScreen = () => {
 
     useEffect(() => {
         fetchPadoTaki();
-        if (current_target_user_id !== current_user_id?.toString()){
+        if (current_target_user_id !== current_user_id?.toString()) {
             setUserName(`${searchParams.get("userName")}님`);
         }
     }, []);
+
+    const ProjectListView = () => {
+        let items: React.JSX.Element[] = [];
+        projectCardList.map((projectCard) =>
+            items.push(
+                <View
+                    style={{
+                        width: "100%",
+                        backgroundColor: theme.colors.white,
+                        paddingVertical: 16,
+                    }}
+                >
+                    <ProjectPreview
+                        key={projectCard.id}
+                        projectInfo={projectCard}
+                        myId={current_user_id ? current_user_id : -99}
+                    />
+                </View>
+            )
+        );
+
+        return (
+            <ScrollView
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    gap: 12,
+                    backgroundColor: theme.colors.background3,
+                }}
+            >
+                {items}
+            </ScrollView>
+        );
+    };
 
     const fetchPadoTaki = async () => {
         setLoading(true); // 로딩 시작
@@ -151,7 +192,10 @@ const PadoTakiScreen = () => {
             const projectCardList = await fetchOneDegreeProjectCard(
                 current_target_user_id_number
             );
-            setProjectCardList(projectCardList);
+
+            // For debugging
+            // const projectCardList = await fetchMyProjectCard();
+            // setProjectCardList(projectCardList);
 
             // fetch user(friend) list
             const oneDegreefriendList = await fetchOneDegreeFriends(
@@ -178,39 +222,26 @@ const PadoTakiScreen = () => {
                     userName={userName}
                 />
 
-                <View style={styles.content}>
+                <View style={[styles.content, (
+                    (activeTab === "projects") &&
+                    (projectCardList.length > 0) &&
+                    {
+                        paddingHorizontal: 0,
+                        paddingVertical: 0,
+                        backgroundColor: theme.colors.background3,
+                    }
+                )]}>
                     {loading ? (
                         <View style={styles.loadingContainer}>
                             <ActivityIndicator size="large" color="#0923A9" />
                         </View>
                     ) : activeTab === "projects" ? (
-                        projectCardList.length === 0 ? (
+                        projectCardList.length <= 0 ? (
                             <NoSearchResult
                                 title="검색된 프로젝트가 없습니다."
                                 message="이어지는 프로젝트 탭에서 더 많은 프로젝트를 확인해보세요."
                             />
-                        ) : (
-                            projectCardList.map((projectCard) =>
-                                projectCard.posts.length > 0 ? (
-                                    <FlatList
-                                        key={projectCard.id} // Ensure each FlatList has a unique key
-                                        contentContainerStyle={{
-                                            gap: 20,
-                                            padding: 2,
-                                        }}
-                                        data={projectCard.posts}
-                                        renderItem={({ item }) => (
-                                            <PostCard post={item} />
-                                        )}
-                                    />
-                                ) : (
-                                    <ProjectCard
-                                        key={projectCard.id}
-                                        projectCard={projectCard}
-                                    />
-                                )
-                            )
-                        )
+                        ) : <ProjectListView />
                     ) : (
                         <>
                             <Text style={styles.resultCount}>
