@@ -16,6 +16,7 @@ const ResetPasswordScreen = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [codeIsVerified, setCodeIsVerified] = useState(false);
     const [passwordIsVerified, setPasswordIsVerified] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);  // 인증코드 확인 상태 추가
 
     useEffect(() => {
         setPasswordIsVerified(
@@ -49,6 +50,7 @@ const ResetPasswordScreen = () => {
         } else {
             setCodeIsVerified(false);
         }
+        setShowConfirmation(true);  // 인증코드 확인 후 확인 메시지 보이도록 설정
     };
 
     const resetPassword = async () => {
@@ -77,6 +79,9 @@ const ResetPasswordScreen = () => {
         }
     };
 
+    // 이메일이 @kaist.ac.kr 포함되는지 체크
+    const isKaistEmail = email.includes("@kaist.ac.kr");
+
     return (
         <View style={sharedStyles.container}>
             <ScreenHeader title="비밀번호 재설정" />
@@ -90,11 +95,12 @@ const ResetPasswordScreen = () => {
                         placeholderTextColor="#A8A8A8"
                         value={email}
                         onChangeText={setEmail}
+                        readOnly={codeIsVerified}
                     />
                     <PrimeButton
                         text="인증코드 받기"
                         onClickCallback={sendCode}
-                        isActive={email.length > 0}
+                        isActive={isKaistEmail && !codeIsVerified}
                         isLoading={false}
                         styleOv={styles.smallButton}
                     />
@@ -120,7 +126,7 @@ const ResetPasswordScreen = () => {
 
                 <ConfirmText
                     isVerified={codeIsVerified}
-                    isActive={email.length > 0 && userCode.length > 0}
+                    isActive={showConfirmation}
                     successText="인증코드가 일치합니다"
                     errorText="인증코드가 일치하지 않습니다."
                 />

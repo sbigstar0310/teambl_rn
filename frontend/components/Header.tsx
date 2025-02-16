@@ -35,7 +35,7 @@ const Header: React.FC = () => {
     <SafeAreaView style={{ backgroundColor: "#fff" }} edges={["top"]}>
       <View style={styles.headerContainer}>
         {/* Left-aligned Icon */}
-        <TouchableOpacity onPress={() => router.push("/home")}>
+        <TouchableOpacity onPress={() => router.push("/login")}>
           <Teambl width={94} height={39} />
         </TouchableOpacity>
 
