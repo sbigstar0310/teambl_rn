@@ -68,7 +68,7 @@ class NotificationCreateViewTestCase(TestCase):
             "message": "test message",
             "notification_type": notificationType,
             "related_user_id": None,
-            "related_project_id": None,
+            "related_project_car_id": None,
         }
 
         response = self.client.post(self.url, data, format="json")

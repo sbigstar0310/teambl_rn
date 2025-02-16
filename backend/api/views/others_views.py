@@ -47,6 +47,7 @@ from uuid import uuid4
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from ..HelperFuntions import (
+    find_paths_to_target_user,
     get_user_distance,
     get_user_distances,
     get_users_by_degree,
@@ -363,58 +364,6 @@ class GetUserAllPathsAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     lookup_url_kwarg = "target_user_id"  # user_id로 lookup
 
-    # BFS를 통해 start_user와 target_user의 모든 중간 경로 배열을 반환합니다.
-    # 만약 경로가 4촌 이상인 경우 빈 리스트를 반환합니다.
-    # 예시, 성대규와 권대용의 모든 경로 배열이 다음과 같을 때,
-    # 성대규 -> 카리나 -> 권대용, 성대규 -> 아이유 -> 권대용인 경우.
-    # 반환값, [[카리나], [아이유]]
-    def find_paths_to_target_user(self, start_user, target_user):
-        # 결과 경로를 저장할 리스트
-        result_paths = []
-
-        # BFS를 위한 큐 초기화 (시작 사용자, 경로 히스토리 배열)
-        queue = deque([(start_user, [start_user])])
-
-        while queue:
-            # 큐에서 사용자와 그 경로를 꺼냄
-            last_path_user, path_history = queue.popleft()
-
-            # 4촌 이상의 관계인 경우, 종료
-            if len(path_history) >= 5:
-                return result_paths
-
-            # 타겟 유저에 도달한 경우
-            if last_path_user == target_user:
-                del path_history[0]  # start_user를 히스토리에서 제거
-                del path_history[-1]  # target_user를 히스토리에서 제거
-                result_paths.append(path_history)
-                continue
-
-            # 친구 관계 조회 (from_user 또는 to_user가 last_path_user인 경우)
-            friends = Friend.objects.filter(
-                Q(from_user=last_path_user) | Q(to_user=last_path_user),
-                status="accepted",
-            )
-
-            # 인접한 친구들을 큐에 추가
-            for friend in friends:
-                # friend가 from_user 또는 to_user 중 어떤 역할인지 판별
-                next_user = (
-                    friend.to_user
-                    if friend.from_user == last_path_user
-                    else friend.from_user
-                )
-
-                # next_user가 기존 path 경로에 없어야 함.
-                if next_user in path_history:
-                    continue
-
-                # 새로운 경로를 복사하여 큐에 추가
-                new_path = path_history + [next_user]
-                queue.append((next_user, new_path))
-
-        return result_paths
-
     def retrieve(self, request, *args, **kwargs):
         # 현재 로그인한 유저
         current_user = request.user
@@ -442,25 +391,20 @@ class GetUserAllPathsAPIView(generics.RetrieveAPIView):
                 status=status.HTTP_200_OK,
             )
 
-        results_path = self.find_paths_to_target_user(current_user, target_user)
+        results_path = find_paths_to_target_user(current_user, target_user)
+        print("Results path:", results_path)
 
-        # 최소 길이 계산
-        if results_path:
-            min_length = min(len(path) for path in results_path)
-            # 최소 길이에 해당하는 경로만 필터링
-            results_path = [path for path in results_path if len(path) == min_length]
-
-        # CustomUser를 user_id로 변환
+        # path as id
         paths_as_ids = []
         for path in results_path:
-            path_ids = [CustomUser.objects.get(id=u.id).id for u in path]
+            path_ids = [id for id in path]
             paths_as_ids.append(path_ids)
 
-        # CustomUser를 user_id로 변환
+        # path as name
         paths_as_names = []
         for path in results_path:
             path_names = [
-                CustomUser.objects.get(id=u.id).profile.user_name for u in path
+                CustomUser.objects.get(id=id).profile.user_name for id in path
             ]
             paths_as_names.append(path_names)
 

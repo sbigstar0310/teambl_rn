@@ -621,7 +621,6 @@ class PostSerializer(serializers.ModelSerializer):
         # Add tagged users
         if tagged_users_data:
             post.tagged_users.set(tagged_users_data)
-            
 
         # Add liked users
         if liked_users_data:
@@ -633,7 +632,7 @@ class PostSerializer(serializers.ModelSerializer):
 
         # Post가 생성되었으므로, Project Card의 참여자들에게 생성 알림 보내기
         users_in_project_card = post.project_card.accepted_users.all()
-        
+
         for user in users_in_project_card:
             notification_exists = Notification.objects.filter(
                 user=user,
@@ -651,10 +650,10 @@ class PostSerializer(serializers.ModelSerializer):
                     related_post_id=post.id,
                     related_project_card_id=post.project_card.id,
                 )
-                
+
         # Post가 생성되었으므로, Project Card의 구독자(저장)들에게 생성 알림 보내기
         bookmarked_users_in_project_card = post.project_card.bookmarked_users.all()
-        
+
         for user in bookmarked_users_in_project_card:
             notification_exists = Notification.objects.filter(
                 user=user,
@@ -705,7 +704,7 @@ class PostSerializer(serializers.ModelSerializer):
 
         # Post가 수정되었으므로, Project Card의 참여자들에게 수정 알림 보내기
         users_in_project_card = instance.project_card.accepted_users.all()
-        
+
         for user in users_in_project_card:
             notification_exists = Notification.objects.filter(
                 user=user,
@@ -723,10 +722,10 @@ class PostSerializer(serializers.ModelSerializer):
                     related_post_id=instance.id,
                     related_project_card_id=instance.project_card.id,
                 )
-                
+
         # Post가 수정되었으므로, Project Card의 구독자(저장)들에게 수정 알림 보내기
         bookmarked_users_in_project_card = instance.project_card.bookmarked_users.all()
-        
+
         for user in bookmarked_users_in_project_card:
             notification_exists = Notification.objects.filter(
                 user=user,
@@ -969,7 +968,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             "is_read",
             "notification_type",
             "related_user_id",
-            "related_project_id",
+            "related_project_card_id",
         ]
         read_only_fields = ["id", "user", "created_at"]
 
@@ -1303,7 +1302,6 @@ class ProjectCardInvitationSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
@@ -1317,4 +1315,8 @@ class ReportSerializer(serializers.ModelSerializer):
             "related_comment_id",
             "related_user_id",
         ]
-        read_only_fields = ["id", "user", "created_at"]  # 생성 시 자동으로 설정되는 필드
+        read_only_fields = [
+            "id",
+            "user",
+            "created_at",
+        ]  # 생성 시 자동으로 설정되는 필드
