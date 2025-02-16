@@ -11,6 +11,7 @@ import {useEffect, useMemo, useState} from "react";
 import BottomModal from "@/components/BottomModal";
 import Popup from "@/components/Popup";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
+import ReportCreateForm from "@/components/forms/ReportCreateForm";
 
 export type Thread = {
     comment: api.Comment;
@@ -33,6 +34,7 @@ export const getThread = (comment: api.Comment, otherComments: api.Comment[]) =>
 }
 
 interface CommentThreadProps {
+    projectId: number;
     thread: Thread;
     onReply: (parentCommentId: number) => void;
     onEdit: (commentId: number) => void;
@@ -140,8 +142,16 @@ export default function CommentThread(props: CommentThreadProps) {
                 visible={isContextOpen}
                 onClose={setIsContextOpen.bind(null, false)}
                 body={isMyComment
-                    ? <MyOptions onEdit={handleEdit} onDelete={handleDelete}/>
-                    : <Options/>}
+                    ? <MyOptions
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
+                    : <Options
+                        commentId={comment.id}
+                        postId={comment.post}
+                        projectId={props.projectId}
+                        authorId={comment.user}
+                    />}
                 heightPercentage={0.2}
             />
         </View>
@@ -214,22 +224,39 @@ function MyOptions(props: MyOptionsProps) {
     )
 }
 
-function Options() {
-    const handleReport = () => {
+interface OptionsProps {
+    commentId: number;
+    postId: number;
+    projectId: number;
+    authorId: number;
+}
 
-    }
+function Options(props: OptionsProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <View style={styles.optionsContainer}>
             <View style={styles.optionButtonWrapper}>
                 <TouchableOpacity
                     style={[styles.optionButton, {borderColor: theme.colors.message2}]}
-                    onPress={handleReport}
+                    onPress={setIsModalOpen.bind(null, true)}
                 >
                     <AntDesign name="warning" size={24} color={theme.colors.message2}/>
                 </TouchableOpacity>
                 <Text style={{color: theme.colors.message2}}>신고</Text>
             </View>
+            <BottomModal
+                heightPercentage={0.8}
+                visible={isModalOpen}
+                onClose={setIsModalOpen.bind(null, false)}
+                body={<ReportCreateForm
+                    onSubmit={setIsModalOpen.bind(null, false)}
+                    related_comment_id={props.commentId}
+                    related_post_id={props.postId}
+                    related_project_card_id={props.projectId}
+                    related_user_id={props.authorId}
+                />}
+            />
         </View>
     )
 }

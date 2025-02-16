@@ -31,6 +31,7 @@ import deletePost from "@/libs/apis/Post/deletePost";
 import * as Clipboard from "expo-clipboard";
 import {createLinkToPost} from "@/shared/utils";
 import PostImages from "@/components/post/PostImages";
+import ReportCreateForm from "@/components/forms/ReportCreateForm";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -318,6 +319,7 @@ export default function PostView() {
                             {threadData.map((threadData, index) =>
                                 <CommentThread
                                     key={index}
+                                    projectId={projectData?.id ?? 0}
                                     thread={threadData}
                                     onReply={handleInputFocus}
                                     onEdit={handleCommentEdit}
@@ -359,8 +361,16 @@ export default function PostView() {
                         visible={isContextOpen}
                         onClose={setIsContextOpen.bind(null, false)}
                         body={isMyPost
-                            ? <MyOptions onDelete={handlePostDelete} onEdit={handlePostEdit} postId={postData.id}/>
-                            : <Options postId={postData.id}/>
+                            ? <MyOptions
+                                onDelete={handlePostDelete}
+                                onEdit={handlePostEdit}
+                                postId={postData.id}
+                            />
+                            : <Options
+                                postId={postData.id}
+                                projectId={projectData?.id ?? 0}
+                                userId={authorData?.id ?? 0}
+                            />
                         }
                         heightPercentage={0.2}
                     />
@@ -435,9 +445,13 @@ function MyOptions(props: MyOptionsProps) {
 
 interface OptionsProps {
     postId: number;
+    projectId: number;
+    userId: number;
 }
 
 function Options(props: OptionsProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const handleCopyLink = async () => {
         try {
             await Clipboard.setStringAsync(
@@ -447,10 +461,6 @@ function Options(props: OptionsProps) {
         } catch (error) {
             alert("링크를 복사하는 동안 오류가 발생했습니다.");
         }
-    }
-
-    const handleReport = () => {
-
     }
 
     return (
@@ -467,12 +477,23 @@ function Options(props: OptionsProps) {
             <View style={styles.optionButtonWrapper}>
                 <TouchableOpacity
                     style={[styles.optionButton, {borderColor: theme.colors.message2}]}
-                    onPress={handleReport}
+                    onPress={setIsModalOpen.bind(null, true)}
                 >
                     <AntDesign name="warning" size={24} color={theme.colors.message2}/>
                 </TouchableOpacity>
                 <Text style={{color: theme.colors.message2}}>신고</Text>
             </View>
+            <BottomModal
+                heightPercentage={0.8}
+                visible={isModalOpen}
+                onClose={setIsModalOpen.bind(null, false)}
+                body={<ReportCreateForm
+                    onSubmit={setIsModalOpen.bind(null, false)}
+                    related_post_id={props.postId}
+                    related_project_card_id={props.projectId}
+                    related_user_id={props.userId}
+                />}
+            />
         </View>
     )
 }
