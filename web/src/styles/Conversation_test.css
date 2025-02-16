@@ -1,0 +1,188 @@
+/* User1 Message Style */
+.conversation-message-user1 {
+  background-color: #d1e7ff; /* Light blue */
+  color: #000;
+  align-self: flex-end;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 5px 0;
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* User2 Message Style */
+.conversation-message-user2 {
+  background-color: #f0f0f0; /* Light gray */
+  color: #000;
+  align-self: flex-start;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 5px 0;
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* System Message Style */
+.conversation-message-system {
+  background-color: #ffc0cb; /* Pink background for system messages */
+  color: black;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  max-width: 60%;
+  align-self: center;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Message Timestamp Style */
+.message-timestamp {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
+  text-align: right;
+}
+
+/* Image Message Style */
+.message-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 5px;
+  margin-top: 5px;
+  object-fit: cover;
+}
+
+/* Conversation Container */
+.conversation-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Conversation List */
+.conversation-list {
+  width: 30%;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+}
+
+.conversation-list h2 {
+  margin-bottom: 20px;
+}
+
+/* Conversation Item */
+.conversation-item {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+/* Active Conversation */
+.conversation-item-active {
+  background-color: #d0f0ff; /* Light blue */
+  font-weight: bold;
+  color: #000;
+  border-left: 4px solid #007bff; /* Highlight active conversation */
+}
+
+/* Unread Conversation */
+.conversation-item-unread {
+  background-color: #ffefc1; /* Light yellow */
+  font-weight: bold;
+  color: #000;
+}
+
+/* Read Conversation */
+.conversation-item-read {
+  background-color: #e0e0e0; /* Light gray */
+  font-weight: normal;
+  color: #666;
+}
+
+/* Last Message Style */
+.conversation-last-message {
+  font-size: 0.9em;
+  color: gray;
+}
+
+/* Delete Button Style */
+.conversation-delete-button {
+  background-color: #ff4d4d;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.conversation-delete-button:hover {
+  background-color: #ff1a1a;
+}
+
+/* Message Input Section */
+.conversation-message-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.conversation-message-input input[type="text"] {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.conversation-message-input input[type="file"] {
+  padding: 5px;
+}
+
+.conversation-message-input button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.conversation-message-input button:hover {
+  background-color: #0056b3;
+}
+
+/* Message List */
+.conversation-message-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+/* Delete Message Button */
+.conversation-delete-message {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.conversation-delete-message:hover {
+  background-color: #ff1a1a;
+}
+
+/* Unread Indicator */
+.unread-indicator {
+  color: red;
+  font-weight: bold;
+  margin-left: 10px;
+}

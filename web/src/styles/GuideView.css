@@ -1,0 +1,9 @@
+.guide-view-container a {
+    color: var(--00, #121212);
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration: none;
+}

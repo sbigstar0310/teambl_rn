@@ -1,0 +1,100 @@
+.userInfoToggle-container {
+    width: 100%;
+    padding: 20px 0px;
+    border-bottom: 0.7px solid var(--04, #D9D9D9);
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+
+}
+
+.userInfoTogge-profile-img-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin-right: 12px;
+}
+
+.userInfoTogge-profile-img-container img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+}
+
+.userInfoTogge-profile-info-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.userInfoToggle-info-line-container {
+    width: 100%;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+/* Typography */
+.userInfoToggle-name {
+    color: var(--00, #121212);
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.userInfoToggle-chon {
+    color: var(--01, #595959);
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.userInfoToggle-school {
+    color: var(--00, #121212);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.userInfoToggle-vertical {
+    width: 18px;
+    padding-top: 1px;
+    color: var(--00, #121212);
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.userInfoToggle-keyword {
+    color: var(--01, #595959);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.userInfoToggle-slash {
+    width: 13px;
+    color: var(--01, #595959);
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}

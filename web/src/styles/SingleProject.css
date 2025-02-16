@@ -1,0 +1,27 @@
+.SingleProject-backward-btn-container {
+    width: 100%;
+    margin: 0;
+    padding: 20px 0 10px 20px;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: white;
+}
+
+.SingleProject-backbutton {
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 20px;
+    background-color: transparent;
+}
+
+.SingleProject-backbutton img {
+    width: 20px;
+    height: 16px;
+}
+
+.SingleProject-backbutton:hover {
+    cursor: pointer;
+}

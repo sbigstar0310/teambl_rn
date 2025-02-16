@@ -1,0 +1,424 @@
+/*규원's 뉴 홈페이지*/
+/*규원's 뉴 홈페이지*/
+/*규원's 뉴 홈페이지*/
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #ffffff;
+}
+
+.home-container {
+  width: 100%;
+  /* max-width: 300px; */
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+
+.home-incontainer section {
+  font-family: 'Pretendard';
+  font-style: normal;
+  padding: 0px 0px 0px 10px;
+  border-bottom: 6px solid #D9D9D9;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 60px;
+  margin-left: 10px;
+}
+
+.home-search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  /* 중앙에서 왼쪽으로 변경 */
+  width: 80px;
+  /* 기존 75px에서 100px로 변경 */
+  margin-right: 0;
+  /* 오른쪽 여백을 없앰 */
+}
+
+.home-conversations-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.home-gosearch-icon {
+  width: 20px;
+  /* 기존 60px에서 80px로 변경 */
+  height: 20px;
+  /* 기존 22px에서 30px로 변경 */
+  /* margin-right: 10px; */
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+}
+
+.home-teambl-icon {
+  width: 94px;
+  height: 39px;
+}
+
+.home-search-noti-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0px 20px;
+}
+
+.home-noti-container {
+  padding: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-noti-icon {
+  width: 18px;
+  height: 20px;
+  /* margin-right: 10px; */
+}
+
+.home-noti-badge {
+  position: absolute;
+  border-radius: 8px;
+  background: var(--Message2, #B80000);
+  color: #FFF;
+  text-align: center;
+  font-family: Pretendard;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  padding: 2px;
+  min-width: 15px;
+  min-height: 15px;
+  /* position */
+  top: -3px;
+  left: 10px;
+}
+
+.home-profile-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  /* margin-right: 10px; */
+  border: 1px solid var(--Point, #2546F3);
+}
+
+.home-navbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.home-nav-item {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  padding: 10px 0;
+}
+
+.home-nav-item.home-active {
+  color: #0923A9;
+  border-bottom: 2px solid #0923A9;
+}
+
+.home-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.home-section-header h2 {
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.home-sub-header {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  white-space: pre-wrap;
+}
+
+.home-sub-header-text {
+  font-size: 12px;
+  color: #595959;
+}
+
+.home-view-all,
+.home-sub-header-num {
+  font-size: 12px;
+  color: #2546f3;
+}
+
+.home-view-all {
+  margin-right: 20px;
+}
+
+.home-friends-list {
+  display: flex;
+  overflow-x: scroll;
+  padding: 10px 0;
+}
+
+.home-friends-list::-webkit-scrollbar {
+  display: none;
+}
+
+.home-friend-card {
+  background-image: url('../assets/recofriIcon.svg');
+  background-size: cover;
+  border-radius: 8px;
+  padding: 10px;
+  margin-right: 10px;
+  min-width: 120px;
+  height: 177px;
+  text-align: center;
+  /* width: 140px; */
+}
+
+.home-profile-pic {
+  width: 61px;
+  height: 61px;
+  border-radius: 50%;
+  border: 1px solid var(--Point, white);
+}
+
+.home-friend-info p {
+  margin: 5px 0;
+  font-size: 12px;
+  color: black;
+  word-break: break-all;
+}
+
+.home-friend-info p:first-child {
+  margin: 5px 0;
+  font-size: 13px;
+  font-weight: bold;
+  color: black;
+  word-break: break-all;
+}
+
+/* 대용 추가 */
+.home-same-tags-container {
+  display: flex;
+  /* Flexbox를 사용하여 자식 요소들을 수평으로 정렬 */
+  flex-wrap: wrap;
+  /* 줄 바꿈이 가능하도록 설정 */
+  gap: 8px;
+  /* 요소 간의 간격을 설정 */
+}
+
+.home-friend-of {
+  background-color: white;
+  border-radius: 15px;
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+.home-same-tag {
+  background-color: white;
+  border-radius: 15px;
+  padding: 4px 8px;
+  font-size: 10px;
+  display: flex;
+  /* Flexbox를 사용하여 내부 텍스트 정렬 */
+  align-items: center;
+  /* 수직 중앙 정렬 */
+  white-space: nowrap;
+  /* 텍스트 줄 바꿈 방지 */
+}
+
+.home-friend-of span,
+.home-same-tag span {
+  font-size: 10px;
+  color: black;
+}
+
+.home-same-and-befri {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0px;
+  height: 35px;
+}
+
+.home-befri-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.home-bottom-sheet-overlay {
+  font-family: 'Pretendard';
+  font-style: normal;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 999;
+}
+
+.home-bottom-sheet {
+  background-color: white;
+  width: 100%;
+  max-width: 300px;
+  border-radius: 15px 15px 0 0;
+  padding: 20px;
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.home-bottom-sheet h3 {
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.home-bottom-sheet-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.home-bottom-sheet-content::-webkit-scrollbar {
+  display: none;
+}
+
+.home-close-icon {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.home-bottom-sheet-content .home-friend-card {
+  width: 42%;
+  margin: 0px 0px 10px 0px;
+}
+
+/*규원's 뉴 홈페이지*/
+/*규원's 뉴 홈페이지*/
+/*규원's 뉴 홈페이지*/
+
+
+
+/* GPT로 만든 임시 css 파일 */
+
+.home-container h1 {
+  color: #333;
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+/* Button styling */
+.home-container .button1,
+.home-container .button2,
+.home-container .button3,
+.home-container .button4,
+.home-container .button5,
+.home-container .button6 {
+  color: white;
+  /* White text */
+  border: none;
+  /* Remove border */
+  border-radius: 5px;
+  /* Rounded corners */
+  padding: 10px 20px;
+  /* Padding */
+  font-size: 16px;
+  /* Font size */
+  cursor: pointer;
+  /* Pointer cursor on hover */
+  margin: 10px;
+  /* Spacing between buttons */
+  transition: background-color 0.3s;
+  /* Smooth transition for background color */
+  width: 8em;
+  /* Width adjusted to be consistent */
+  font-weight: bold;
+  /* 글씨 굵게 */
+}
+
+/* Individual button colors */
+.home-container .button1 {
+  background-color: #007bff;
+  /* Blue background */
+}
+
+.home-container .button2 {
+  background-color: #1ee100;
+  /* Green background */
+}
+
+.home-container .button3 {
+  background-color: #ff7700;
+  /* Orange background */
+}
+
+.home-container .button4 {
+  background-color: yellow;
+  /* Yellow background */
+  color: black;
+  /* Black text for better contrast */
+}
+
+.home-container .button5 {
+  background-color: #ff6347;
+  /* Tomato background */
+}
+
+.home-container .button6 {
+  background-color: #8a2be2;
+  /* Purple background */
+}
+
+/* Hover effects */
+.home-container .button1:hover {
+  background-color: #0056b3;
+  /* Darker blue on hover */
+}
+
+.home-container .button2:hover {
+  background-color: #3fac00;
+  /* Darker green on hover */
+}
+
+.home-container .button3:hover {
+  background-color: #c35b00;
+  /* Darker orange on hover */
+}
+
+.home-container .button4:hover {
+  background-color: hsl(60, 100%, 40%);
+  /* Darker yellow on hover */
+}
+
+.home-container .button5:hover {
+  background-color: #e5533b;
+  /* Darker tomato on hover */
+}
+
+.home-container .button6:hover {
+  background-color: #551a8b;
+  /* Darker purple on hover */
+}

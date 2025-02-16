@@ -1,0 +1,133 @@
+.peopleSelectPopUp-overlay-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(18, 18, 18, 0.8); /* #121212 80% 투명 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* 팝업을 하단에 배치 */
+    z-index: 1000;
+}
+
+.peopleSelectPopUp-overlay {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    height: 80%;
+    background: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -3.85px 7.69px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 0px 32px 21px 32px;
+    z-index: 100;
+}
+
+.peopleSelectPopUp-top {
+    width: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.peopleSelectPopUp-title-container {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.peopleSelectPopUp-title-lg {
+    color: #000;
+    font-family: Pretendard;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.peopleSelectPopUp-search-container {
+    display: flex;
+    align-items: center;
+    background-color: #f6f6f6;
+    border-radius: 5px;
+    padding: 0px 12px; /* 내부 여백 설정 */
+    margin: 0px; /* 좌우 여백 설정 */
+    height: 40px;
+}
+
+.peopleSelectPopUp-search-icon {
+    margin-right: 8px; /* 아이콘과 입력 필드 사이의 간격 조정 */
+    width: 15px; /* 아이콘 너비 설정 */
+    height: 15px; /* 아이콘 높이 설정 */
+}
+
+.peopleSelectPopUp-search-input {
+    /* flex: 1; */
+    width: 100%;
+    font-size: 16px;
+    border: none;
+    border-radius: 3.85px;
+    background-color: #f6f6f6;
+    outline: none;
+    padding: 5px;
+}
+
+.peopleSelectPopUp-search-input::placeholder {
+    color: #a8a8a8;
+    font-size: 16px;
+    opacity: 1;
+}
+
+.peopleSelectPopUp-body {
+    flex: 1;
+    padding-bottom: 10px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.peopleSelectPopUp-loader-container {
+    width: 100%;
+    padding-top: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.peopleSelectPopUp-selected {
+    background: #2546F3;
+    border-color: #2546F3;
+    color: #fff;
+}
+
+.peopleSelectPopUp-footer-btn {
+    margin-top: auto;
+    width: 100%;
+    height: 40px;
+    background: #0923A9;
+    color: #fff;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+}
+
+.peopleSelectPopUp-btn-disabled {
+    background: #A8A8A8;
+}
+
+.peopleSelectPopUp-loader {
+    width: 50px;
+    aspect-ratio: 1;
+    --_c:no-repeat radial-gradient(farthest-side,#2546F3 92%,#0000);
+    background: 
+      var(--_c) top,
+      var(--_c) left,
+      var(--_c) right,
+      var(--_c) bottom;
+    background-size: 12px 12px;
+    animation: l7 1s infinite;
+}
+@keyframes l7 {to{transform: rotate(.5turn)}}

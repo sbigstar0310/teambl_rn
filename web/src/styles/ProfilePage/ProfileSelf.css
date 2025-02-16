@@ -1,0 +1,349 @@
+.profile {
+  /* border: 1px solid black; */
+  width: 100%;
+  margin: 0;
+  /* min-width: 300px; */
+  display: flex;
+  flex-direction: column;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.profile-backbutton {
+  border: none;
+  margin: 0px;
+  padding: 0px;
+  background-color: transparent;
+  width: 20px;
+}
+
+.profile-backbutton:hover {
+  cursor: pointer;
+}
+
+.profile-backbutton img {
+  width: 20px;
+  height: 16px;
+}
+
+.profile h4 {
+  margin: 20px 0px 16px;
+}
+
+.profile-card {
+  width: 300px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+}
+
+.profile-imageContainer {
+  width: 90px;
+  height: 120px;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.profile-imageContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 7px;
+}
+
+.profile-name,
+.profile-friend {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+button.profile-editBtn {
+  padding: 0px;
+  margin-left: 5px;
+  background: transparent;
+  border: none;
+  display: flex;
+}
+button.profile-editBtn:hover {
+  cursor: pointer;
+}
+button.profile-editBtn img {
+  width: 20px;
+  height: 20px;
+}
+
+.profile-info h2 {
+  margin: 0;
+  font-size: 16px;
+  color: black;
+  display: inline-block;
+}
+
+.profile-row1 {
+  display: flex;
+  gap: 8px;
+  font-size: 13.714px;
+  margin-top: 12px;
+}
+
+.profile-row2 {
+  display: flex;
+  gap: 8px;
+  font-size: 13.714px;
+  margin-top: 8px;
+}
+
+.profile-row3 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13.714px;
+  margin-top: 12px;
+}
+
+.profile-row1 p,
+.profile-row2 p,
+.profile-row3 p {
+  margin: 0px;
+}
+
+span.profile-oneDegree {
+  color: #0923a9;
+}
+
+.profile-friend img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.profile-tags {
+  margin-top: 32px;
+}
+
+.profile-tags-title {
+  display: flex; /* 플렉스 박스로 변환 */
+  align-items: center; /* 자식 요소를 수직 중앙 정렬 */
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+label.profile-tags-definition {
+  display: inline-block; /* 필요 시 유지 */
+  font-size: 10.5px;
+  margin: 0px 7px;
+  color: hsl(0, 0%, 50%);
+}
+
+
+.profile-tag-container {
+  background-color: #f5f5f5;
+  width: 100%;
+  border-radius: 5px;
+  padding: 6px 8px;
+  box-sizing: border-box; /* 패딩이 포함된 전체 너비 계산 */
+}
+
+.profile-tags-list {
+  display: flex; /* 키워드를 가로로 정렬 */
+  flex-wrap: wrap; /* 줄 바꿈을 허용하여 박스들이 다음 줄로 내려가게 함 */
+  gap: 8px; /* 키워드 박스들 사이의 간격 설정 */
+}
+
+span.profile-tag {
+  background-color: #ffffff;
+  color: #121212;
+  padding: 4px 8px; /* 박스 내부 패딩 */
+  border-radius: 5px; /* 모서리를 둥글게 */
+  font-size: 13.714px; /* 텍스트 크기 */
+  display: flex; /* 내용물이 수평으로 중앙 정렬되도록 함 */
+  align-items: center; /* 내용물이 수직으로 중앙 정렬되도록 함 */
+}
+
+.profile-deleteBtn {
+  background-color: transparent;
+  color: #a8a8a8;
+  border: none;
+  cursor: pointer;
+  font-size: 17px;
+  padding-right: 0px;
+}
+
+span.profile-addTag {
+  background-color: #0923A9;
+  color: #FFFFFF;
+  padding: 4px 8px; /* 박스 내부 패딩 */
+  border-radius: 15px; /* 모서리를 둥글게 */
+  font-size: 13.714px; /* 텍스트 크기 */
+  display: flex; /* 내용물이 수평으로 중앙 정렬되도록 함 */
+  align-items: center; /* 내용물이 수직으로 중앙 정렬되도록 함 */
+}
+
+.profile-tagInput {
+  display: flex;
+  align-items: center;
+}
+
+.profile-tagInput input {
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+/* .profile-tagInput button {
+  margin: 5px;
+  padding: 5px;
+  border: none;
+  border-radius: 3px;
+  background-color: #3b5998;
+  color: white;
+  cursor: pointer;
+}
+
+.profile-tagInput button:last-child {
+  background-color: #f44336;
+} */
+
+button.profile-submitBtn {
+  background-color: hsla(240, 100%, 35%);
+  height: 2rem;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  line-height: 0.8rem;
+  margin-top: 20px;
+  padding: 10px;
+  flex-grow: 1;
+}
+button.profile-submitBtn:disabled {
+  background-color: hsla(0, 0%, 45%, 0.76);
+  height: 2rem;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  line-height: 0.8rem;
+  margin-top: 20px;
+  padding: 10px;
+  flex-grow: 1;
+}
+
+button.profile-submitBtn:hover {
+  cursor: pointer;
+}
+button.profile-submitBtn:disabled:hover {
+  cursor: default;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(18, 18, 18, 0.80); /* 배경을 회색으로 어둡게 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 팝업이 항상 위에 있도록 설정 */
+}
+
+.popup-content {
+  background-color: #FFF;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+  width: 300px;
+  height: 100px;
+  max-width: 80%; /* 작은 화면에서도 잘 보이도록 */
+}
+
+.popup-content p {
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-weight: 400;
+  font-family: Pretendard;
+}
+
+.popup-content button {
+  padding: 10px 20px;
+  background-color: #FFF; /* 버튼의 배경색 */
+  color: #121212;
+  border: none;
+  cursor: pointer;
+  font-family: Pretendard;
+  font-weight: 700;
+  text-align: center;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.profile-input {
+  width: 100%; /* 입력 필드가 부모 컨테이너의 전체 너비를 차지 */
+  padding: 10px; /* 내부 패딩 */
+  border: none;
+  font-family: Pretendard;
+  font-size: 13px; /* 폰트 크기 */
+  box-sizing: border-box; /* 패딩과 테두리를 포함한 전체 너비 계산 */
+  background: transparent;
+  color: #121212; /* 텍스트 색상 */
+  margin: 0;
+}
+.profile-input::placeholder {
+  color: #A8A8A8;
+}
+.profile-input:focus {
+  outline: none; /* 포커스 시 기본 브라우저 outline 제거 */
+  border: none; /* 포커스 시 테두리 없음 */
+  background: transparent; /* 포커스 시 배경색 유지 */
+  color: #121212; /* 텍스트 색상 유지 */
+}
+
+.profile-addKeywordBtn {
+  width: 60px;
+  background-color: hsla(240, 100%, 35%);
+  color: white; /* 흰색 글자 */
+  padding: 5px; /* 안쪽 여백 */
+  border: none; /* 테두리 제거 */
+  border-radius: 7px; /* 둥근 모서리 */
+  cursor: pointer; /* 클릭 시 커서 변경 */
+  font-size: 12px;
+  margin-right: 5px; /* 버튼 간 간격 */
+}
+
+.profile-addKeywordBtn:hover {
+  background-color: #45a049; /* 마우스 오버 시 색 변경 */
+}
+
+.profile-cancelKeywordBtn {
+  width: 60px;
+  background-color: #f44336; /* 빨간색 배경 */
+  color: white;
+  padding: 5px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.profile-cancelKeywordBtn:hover {
+  background-color: #d32f2f; /* 마우스 오버 시 색 변경 */
+}

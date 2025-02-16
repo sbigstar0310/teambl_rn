@@ -1,0 +1,40 @@
+/* Applies tailwindcss standardized styles when enabled */
+/*@tailwind base;*/
+.btn {
+    /* To make buttons optionally appear as tailwind buttons */
+    -webkit-appearance: button;
+    background-color: transparent;
+    background-image: none;
+    text-transform: none;
+    border-width: 0;
+}
+.no-margin {
+    margin: 0;
+}
+.no-border {
+    border: none;
+}
+
+/* Tiny layer containing only 'container' class */
+/*@tailwind components;*/
+@tailwind utilities; /* Contains almost all the utility classes commonly used */
+
+:root {
+    --default: #ffffff;
+    --contrast: #121212;
+    --primary: #2546f3;
+    --primary-bg: #eef4ff;
+    --secondary: #595959;
+    --secondary-bg: #f5f5f5;
+}
+
+/*@media (prefers-color-scheme: dark) {*/
+/*    :root {*/
+/*        --default: #000000;*/
+/*        --contrast: #ffffff;*/
+/*        --primary: #2546f3;*/
+/*        --primary-bg: #313a49;*/
+/*        --secondary: #8a8d91;*/
+/*        --secondary-bg: #262626;*/
+/*    }*/
+/*}*/

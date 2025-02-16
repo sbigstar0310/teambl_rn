@@ -1,0 +1,127 @@
+.projectView-content-container {
+    width: 100%;
+    padding: 8px 20px 20px 20px;
+    background-color: #fff;
+    margin: 0px;
+    border: none;
+    box-sizing: border-box;
+}
+
+
+.projectView-content-title-container {
+    width: 100%;
+    text-align: left;
+}
+
+.projectView-content-title {
+    color: var(--00, #121212);
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.projectView-content-keyword-container {
+    width: 100%;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.projectView-content-keyword {
+    display: inline-flex;
+    height: 17px;
+    padding: 2px 6px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--Point, #2546F3);
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    border-radius: 24px;
+    background: var(--Background2, #EEF4FF);
+}
+
+.projectView-content-text-container {
+    width: 100%;
+    padding: 0px;
+    margin-top: 16px;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    position: relative;
+}
+
+.projectView-content-text {
+    color: var(--00, #121212);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.content-last-line {
+    position: relative;
+}
+
+.projectView-content-expand-button {
+    padding: 10px 16px;
+    outline: none;
+    border: none;
+    background: radial-gradient(50% 50% at 50% 50%, #FFF 63.5%, rgba(255, 255, 255, 0.00) 100%);
+    position: absolute;
+    color: var(--01, #595959);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    z-index: 10;
+    right: -16px;
+    bottom: -10px;
+}
+
+.projectView-content-contact-container {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0px 4px;
+    margin-top: 19px;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 12px;
+}
+
+.projectView-content-contact-title {
+    color: var(--Labels-Primary, #000);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.projectView-content-contact-text {
+    color: var(--Labels-Primary, #000);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+
+

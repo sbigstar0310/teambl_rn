@@ -1,0 +1,61 @@
+.projectView-comment-input-modal-overlay {
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(18, 18, 18, 0.80);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.projectView-comment-input-modal-content {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    background-color: white;
+    border-top: 1px solid #ccc;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.projectView-comment-input-modal-input {
+    height: 51px;
+    flex-grow: 1;
+    min-width: 0;
+    outline: none;
+    border: none;
+    color: var(--00, #121212);
+    /* Body2 */
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    resize: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.projectView-comment-input-modal-disabled {
+    background-color: #ebebeb;
+}
+
+.projectView-comment-input-modal-button {
+    background: none;
+    color: var(--Point, #2546F3);
+    text-align: right;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    border: none;
+    outline: none;
+}

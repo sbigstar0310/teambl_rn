@@ -1,0 +1,73 @@
+.projectView-image-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.projectView-image-index-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    font-size: 14px;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+}
+
+.projectView-image-slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    transition: height 0.3s ease;
+}
+
+.projectView-image-item-container {
+    min-width: 100%;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.projectView-image-item {
+    max-width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 
+.projectView-image-slider {
+    display: inline-flex;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    height: auto;
+}
+
+.projectView-image-item-container {
+    min-width: 100%;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    scroll-snap-align: start;
+    overflow: hidden;
+}
+
+.projectView-image-item {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+} */
+
+.projectView-image-hidden {
+   display: none;
+}

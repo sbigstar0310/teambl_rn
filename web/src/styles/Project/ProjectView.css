@@ -1,0 +1,7 @@
+.projectView-main-container {
+    width: 100%;
+    padding: 0;
+    background: var(--05, #F5F5F5);
+    box-sizing: border-box;
+    border-bottom: 6px solid #D9D9D9;
+}

@@ -1,0 +1,40 @@
+.projectView-comment-input-container {
+    width: 100%;
+    background-color: #F5F5F5;
+    padding: 8px 20px;
+    display: inline-flex;
+    flex-direction: row;
+    box-sizing: border-box;
+}
+
+.projectView-comment-profile-image {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    border: 1px solid var(--Point, #2546F3);
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.profileView-comment-hidden {
+    display: none;
+}
+
+.profileView-comment-input {
+    outline: none;
+    border: none;
+    flex-grow: 1;
+    min-width: 0;
+    border-radius: 22px;
+    background: var(--06, #FFF);
+    padding: 8px 12px 7px 12px;
+}
+
+.profileView-comment-input::placeholder {
+    color: var(--01, #595959);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}

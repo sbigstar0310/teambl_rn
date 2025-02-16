@@ -1,0 +1,10 @@
+.projectView-replyItem-container {
+    width: 100%;
+    background-color: #fff;
+    padding: 12px 20px 8px 56px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+}

@@ -1,0 +1,175 @@
+.projectView-ProfileMenu-container {
+    width: 100%;
+    box-sizing: border-box;
+    height: auto;
+    background-color: white;
+    padding: 12px 20px 8px 20px;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    margin: 0px;
+    border: none;
+}
+
+.projectView-ProfileMenu-image {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--Point, #2546F3);
+}
+
+.projectView-ProfileMenu-text-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
+    margin-left: 8px;
+}
+
+.projectView-ProfileMenu-name-and-button-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.projectView-ProfileMenu-school-container {
+    width: 100%;
+    /* display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start; */
+}
+
+.projectView-ProfileMenu-name {
+    color: var(--Labels-Primary, #000);
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.projectView-ProfileMenu-button {
+    border: none;
+    background: none;
+    outline: none;
+    padding: 0px;
+    margin-left: auto;
+    position: absolute;
+    top: 12px;
+    right: 20px;
+}
+
+.projectView-ProfileMenu-school {
+    color: var(--00, #121212);
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.projectView-ProfileMenu-relation {
+    color: var(--00, #595959);
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    white-space: pre-wrap;
+}
+
+.pf-img-hidden {
+    display: none;
+}
+
+
+
+/** modals */
+.projectView-ProfileMenu-pop-up-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(18, 18, 18, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 1000;
+}
+
+.projectView-ProfileMenu-content-area {
+    background: #FFFFFF;
+    width: 100%;
+    border-radius: 20px 20px 0px 0px;
+    padding: 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.projectView-ProfileMenu-handle {
+    width: 45px;
+    height: 3px;
+    background: #D9D9D9;
+    border-radius: 2px;
+    margin: 0 auto 25px auto;
+}
+
+.projectView-ProfileMenu-button-container {
+    width: 100%;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.projectView-ProfileMenu-item-button {
+    padding: 0px;
+    border: none;
+    background: none;
+    outline: none;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.projectView-ProfileMenu-button-icon-container {
+    display: inline-block;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+}
+
+.projectView-ProfileMenu-button-icon {
+    width: 46px;
+    height: 46px;
+}
+
+.projectView-ProfileMenu-button-text {
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.projectView-ProfileMenu-black {
+    color: var(--Labels-Primary, #000);
+}
+
+.projectView-ProfileMenu-red {
+    color: var(--Message2, #B80000);
+}
+
+.projectView-ProfileMenu-mr-72 {
+    margin-right: 72px;
+}
+
+.projectView-ProfileMenu-mr-106 {
+    margin-right: 106px;
+}

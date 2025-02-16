@@ -1,0 +1,67 @@
+.LikedProject-body {
+    margin: 0;
+    font-family: "Pretendard Variable", Pretendard, -apple-system,
+      BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI",
+      "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    font-weight: 400;
+    background-color: #ffffff;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.LikedProject-backward-btn-container {
+    width: 100%;
+    margin: 0;
+    padding-top: 20px;
+    padding-left: 20px;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: white;
+}
+
+.LikedProject-backbutton {
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 20px;
+    background-color: transparent;
+}
+
+.LikedProject-backbutton img {
+    width: 20px;
+    height: 16px;
+}
+
+.LikedProject-backbutton:hover {
+    cursor: pointer;
+}
+
+.LikedProject-title-container {
+    padding-left: 20px;
+    width: 100%;
+    text-align: left;
+    margin-top: 20px; /* for layout */
+    margin-bottom: 20px;
+    color: #121212;
+    font-family: Pretendard;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.38px;
+}
+
+.LikedProject-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: auto;
+}
+
+.LikedProject-nothing {
+  padding-left: 20px;
+  font-weight: 400;
+  font-size: 16px;
+  color: #121212;
+}

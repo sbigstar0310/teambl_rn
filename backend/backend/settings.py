@@ -17,16 +17,19 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(os.path.join(BASE_DIR, "..", "frontend", ".env"))
+print("BASE_DIR", BASE_DIR)
+load_dotenv(os.path.join(BASE_DIR, ".", ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-jd9qaa+@9qbnje0^e2agmrdouf#k$%4s889v0b8k0^om-kc+bo"
+SECRET_KEY = os.getenv("SECRET_KEY", "DEFAULT_SECRET_KEY")
+print("SECRET_KEY", SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "TRUE").upper() == "TRUE"
+print("DEBUG", DEBUG)
 
 # 초대 링크 생성 등 api 요청 시 참조하는 teambl url
 TEAMBL_URL = os.getenv("TEAMBL_URL", "https://teambl.net/")
@@ -103,12 +106,31 @@ ASGI_APPLICATION = "backend.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+USE_DEV_DB = os.getenv("USE_DEV_DB", "TRUE").upper() == "TRUE"
+print("USE_DEV_DB", USE_DEV_DB)
+# DATABASES 설정
+if USE_DEV_DB:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": os.getenv("DB_ENGINE"),
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT", "3306"),
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                "charset": "utf8mb4",
+            },
+        }
+    }
 
 
 # Password validation
