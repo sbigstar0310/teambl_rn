@@ -7,6 +7,7 @@ import {
     Touchable,
     TouchableOpacity,
     View,
+    Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "@/store/authStore";
@@ -39,9 +40,9 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
         }
         onClose();
         router.push({
-            pathname: "/oneChon",
+            pathname: "/myfriends",
             params: {
-                target_user_id_string: userId,
+                activeTab: "내게 신청한",
             },
         });
     };
@@ -67,6 +68,27 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
         router.push({
             pathname: "/subscribedProjects",
         });
+    };
+
+    const handleSetting = () => {
+        if (!userId) {
+            return;
+        }
+        onClose();
+        router.push({
+            pathname: "/settings",
+        });
+    };
+    
+    const SERVICE_LINK = "https://grateful-steel-1e5.notion.site/13e1858400b7805db9fef67de9e60b95";
+
+    const openLink = async (url: string) => {
+        const supported = await Linking.canOpenURL(url);
+        if (supported) {
+            await Linking.openURL(url);
+        } else {
+            console.error(`Unable to open link: ${url}`);
+        }
     };
 
     const getUserInfo = async () => {
@@ -155,9 +177,7 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.settingItem}
-                            onPress={() => {
-                                console.log("Do something");
-                            }}
+                            onPress={() => openLink(SERVICE_LINK)}
                         >
                             <Text style={styles.settingTitleText}>
                                 {"팀블 서비스 안내"}
@@ -165,9 +185,7 @@ const MySettingSideModal: React.FC<MySettingSideModalProps> = ({
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.settingItem}
-                            onPress={() => {
-                                console.log("Do something");
-                            }}
+                            onPress={handleSetting}
                         >
                             <Text style={styles.settingTitleText}>
                                 {"설정"}

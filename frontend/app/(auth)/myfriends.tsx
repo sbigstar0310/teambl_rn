@@ -8,6 +8,7 @@ import {
     ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLocalSearchParams } from "expo-router";
 import MyFriendsHeader from "@/components/friends/MyFriendsHeader";
 import MyFriendsTabs from "@/components/friends/MyFriendsTabs";
 import FriendsCard from "@/components/friends/FriendsCard";
@@ -26,8 +27,9 @@ type FriendExtension = {
 };
 
 export default function MyFriendsScreen() {
+    const params = useLocalSearchParams();
     const [activeTab, setActiveTab] = useState<"나의 1촌" | "내게 신청한">(
-        "나의 1촌"
+        (params.activeTab as "나의 1촌" | "내게 신청한") || "나의 1촌"
     );
     const [loading, setLoading] = useState(false); // 로딩 상태 추가
 
