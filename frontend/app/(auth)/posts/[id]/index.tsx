@@ -36,6 +36,7 @@ export default function PostView() {
     const {id} = useLocalSearchParams();
     const [me, setMe] = useState<api.User>();
     const [postData, setPostData] = useState<api.Post>();
+    const [taggedUsers, setTaggedUsers] = useState<api.User[]>([]);
     const [projectData, setProjectData] = useState<api.ProjectCard>();
     const [authorData, setAuthorData] = useState<api.User>();
     const [commentsData, setCommentsData] = useState<api.Comment[]>([]);
@@ -63,9 +64,10 @@ export default function PostView() {
     }, [id]);
     useEffect(() => {
         if (!postData) return;
-        fetchProjectCard(postData.project_card);
-        fetchUser(postData.user);
+        fetchProjectCard((postData.project_card as any) as number);
+        fetchUser((postData.user as any) as number);
         fetchComments(postData.id);
+        fetchTaggedUsers((postData.tagged_users as any) as number[]);
     }, [postData]);
     useEffect(() => {
         const threads: Thread[] = commentsData
@@ -140,6 +142,15 @@ export default function PostView() {
             console.error("Failed to fetch comments:", error);
         } finally {
             setLoading(false);
+        }
+    }
+    const fetchTaggedUsers = async (userIds: number[]) => {
+        try {
+            const usersData = await Promise.all(
+                userIds.map(id => getUserInfo(id)));
+            setTaggedUsers(usersData);
+        } catch (error) {
+            console.error("Failed to fetch tagged users:", error);
         }
     }
 
@@ -264,7 +275,7 @@ export default function PostView() {
                             <ProjectDetailsInPost
                                 project={projectData}
                                 post={postData}
-                                // onSubscribe={handleSubscribe}
+                                taggedUsers={taggedUsers}
                                 onSubscribe={() => handleSubscribe(projectData?.id ?? 0)}
                                 isSubscribed={isSubscribed}
                             />
@@ -273,7 +284,7 @@ export default function PostView() {
                         <View style={[styles.postContent, sharedStyles.horizontalPadding]}>
                             <PostContent
                                 content={postData.content}
-                                taggedUsers={postData.tagged_users}
+                                taggedUsers={taggedUsers}
                             />
                             {/* Date */}
                             <Text

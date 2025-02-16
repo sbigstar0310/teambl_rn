@@ -7,6 +7,7 @@ import {Fragment} from "react";
 interface ProjectDetailsInPostProps {
     project: api.ProjectCard,
     post: api.Post,
+    taggedUsers: api.User[],
     onSubscribe: () => void,
     isSubscribed: boolean
 }
@@ -20,7 +21,7 @@ export default function ProjectDetailsInPost(props: ProjectDetailsInPostProps) {
                 {/* Project title */}
                 <Text>{props.project.title}</Text>
                 {/* Tagged user profiles */}
-                <TaggedUserAvatars taggedUsers={props.post.tagged_users}/>
+                <TaggedUserAvatars taggedUsers={props.taggedUsers}/>
             </View>
             {/* Subscribe button */}
             <TouchableOpacity

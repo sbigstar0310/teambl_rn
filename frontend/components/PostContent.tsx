@@ -64,7 +64,7 @@ export default function PostContent(props: PostContentProps) {
     }, [props.content, mentionEntities]);
 
     const goToProfile = (userId: number) => {
-        router.push(`/profile/${userId}`);
+        router.push(`/profiles/${userId}`);
     }
 
     return (

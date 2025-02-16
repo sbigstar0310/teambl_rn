@@ -89,9 +89,9 @@ export default function PostCreateForm(props: PostCreateFormProps) {
         // Insert mention
         const text = selectedUser.profile.user_name;
         const updatedContent = data.content.slice(0, mentionOffset) + text + data.content.slice(mentionOffset + mentionLength);
-        const updatedTaggedUsers = data.tagged_users.indexOf(selectedUser) === -1
-            ? [...data.tagged_users, selectedUser]
-            : data.tagged_users;
+        const updatedTaggedUsers = data.tagged_users.some(u => u.id === selectedUser.id)
+            ? data.tagged_users
+            : [...data.tagged_users, selectedUser];
         setIsMentioning(false);
         setSearchResults([]);
         setData({...data, content: updatedContent, tagged_users: updatedTaggedUsers});

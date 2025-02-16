@@ -25,7 +25,7 @@ const toggleLikePost = async (
         // 새로 업데이트할 liked_users 필드
         const newLikedUsers = isLiked
             ? likedUserIds.filter(id => id !== myId) // Remove like
-            : [...likedUserIds] // Add like as an object
+            : [...likedUserIds, myId] // Add like as an object
 
         // 좋아요 토글 요청
         const response = await api.patch<Response>(`post/${postId}/update/`, {
