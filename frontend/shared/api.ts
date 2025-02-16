@@ -28,7 +28,9 @@ api.interceptors.request.use(
         if (!config.headers) {
             config.headers = new AxiosHeaders();
         }
-        config.headers.set("Content-Type", "application/json");
+        if (!config.headers.get("Content-Type")) {
+            config.headers.set("Content-Type", "application/json");
+        }
 
         // 요청 시작 시간 기록
         (config as any).metadata = { startTime: new Date().getTime() };
