@@ -1,11 +1,17 @@
 import theme from "@/shared/styles/theme";
 import {Stack} from "expo-router";
 import {StatusBar} from "expo-status-bar";
-import {Fragment} from 'react';
+import {Fragment, useEffect} from 'react';
 import {StyleSheet} from "react-native";
 import { useFonts } from "expo-font";
+import * as NavigationBar from "expo-navigation-bar";
 
 export default function RootLayout() {
+    // 하단 바 배경 색상 설정
+    useEffect(() => {
+        NavigationBar.setBackgroundColorAsync("#ffffff");
+        NavigationBar.setButtonStyleAsync("dark");
+    }, []);
     // 폰트 로드
     const [fontsLoaded] = useFonts({
         Pretendard: require("../assets/fonts/PretendardVariable.ttf"),
@@ -18,7 +24,7 @@ export default function RootLayout() {
     return <Fragment>
         {/* Main Stack navigation router */}
         <Stack screenOptions={{headerShown: false}}/>
-        <StatusBar style="light" translucent={false} backgroundColor="black"/>
+        <StatusBar style="auto" translucent={false} backgroundColor="#ffffff"/>
     </Fragment>;
 }
 
