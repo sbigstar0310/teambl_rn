@@ -9,19 +9,22 @@ interface ProjectDetailsInPostProps {
     post: api.Post,
     taggedUsers: api.User[],
     onSubscribe: () => void,
-    isSubscribed: boolean
+    isSubscribed: boolean,
+    isOnHeader?: boolean
 }
 
 export default function ProjectDetailsInPost(props: ProjectDetailsInPostProps) {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {paddingHorizontal: props.isOnHeader === true ? 0 : 16}]}>
             {/* Vertical line */}
-            <View style={styles.verticalLine}/>
+            {props.isOnHeader !== true && <View style={styles.verticalLine}/>}
             <View style={styles.detailsContainer}>
                 {/* Project title */}
                 <Text>{props.project.title}</Text>
                 {/* Tagged user profiles */}
-                <TaggedUserAvatars taggedUsers={props.taggedUsers}/>
+                {props.isOnHeader !== true &&
+                    <TaggedUserAvatars taggedUsers={props.taggedUsers}/>
+                }
             </View>
             {/* Subscribe button */}
             <TouchableOpacity
@@ -45,8 +48,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 10,
-        paddingHorizontal: 16
+        gap: 10
     },
     detailsContainer: {
         flexGrow: 1,
@@ -72,7 +74,6 @@ const styles = StyleSheet.create({
     buttonText: {
         color: theme.colors.black,
         fontWeight: 600,
-        fontSize: 12,
-
+        fontSize: 12
     }
 })

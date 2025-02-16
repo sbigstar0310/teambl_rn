@@ -1,5 +1,16 @@
 import {router, useLocalSearchParams} from "expo-router";
-import {Modal, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {
+    Modal,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from "react-native";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {sharedStyles} from "@/app/_layout";
 import React, {Fragment, useEffect, useMemo, useRef, useState} from "react";
@@ -49,11 +60,12 @@ export default function PostView() {
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [commentText, setCommentText] = useState("")
     const [loading, setLoading] = useState(true);
+    const [isHeaderShown, setIsHeaderShown] = useState(false);
     const containerRef = useRef<ScrollView | null>(null)
     const isMyPost = useMemo(() => {
         if (!me || !authorData) return false;
         return me.id === authorData.id;
-    }, [me, authorData])
+    }, [me, authorData]);
 
     useEffect(() => {
         fetchCurrentUser();
@@ -252,11 +264,30 @@ export default function PostView() {
         setIsInputFocused(false);
         setCommentText("");
     }
+    const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+        // Adjust dynamic header visibility based on scroll position
+        const scrollY = e.nativeEvent.contentOffset.y;
+        const headerHeight = 50;
+        const headerShown = scrollY > headerHeight;
+        if (headerShown !== isHeaderShown) {
+            setIsHeaderShown(headerShown);
+        }
+    }
 
     return (
         <SafeAreaView style={sharedStyles.container} edges={["top"]}>
             <LoadingOverlay isLoading={loading}/>
-            <ScreenHeader/>
+            <ScreenHeader
+                actionButton={() => isHeaderShown && projectData && postData &&
+                    <ProjectDetailsInPost
+                        project={projectData}
+                        post={postData}
+                        taggedUsers={taggedUsers}
+                        onSubscribe={() => handleSubscribe(projectData?.id ?? 0)}
+                        isSubscribed={isSubscribed}
+                        isOnHeader={true}
+                    />}
+            />
             {postData &&
                 <Fragment>
                     <ScrollView
@@ -270,6 +301,7 @@ export default function PostView() {
                                 fetchComments(postData.id);
                             }}
                         />}
+                        onScroll={handleScroll}
                     >
                         {/* Project details */}
                         {projectData &&
