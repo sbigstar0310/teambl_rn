@@ -45,7 +45,7 @@ class CommentCreateView(generics.CreateAPIView):
                 message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물에 새로운 댓글을 작성했습니다.",
                 notification_type="comment_create",
                 related_user_id=post.user.id,
-                related_project_id=post.post_id,
+                related_project_card_id=post.post_id,
             )
 
         # 부모 댓글 작성자가 본인이 아닌 경우에만 Notification 생성
@@ -55,7 +55,7 @@ class CommentCreateView(generics.CreateAPIView):
                 message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물의 당신의 댓글에 답글을 남겼습니다.",
                 notification_type="comment_child_create",
                 related_user_id=parent_comment.user.id,
-                related_project_id=post.post_id,
+                related_project_card_id=post.post_id,
             )
 
 

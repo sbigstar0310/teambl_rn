@@ -166,3 +166,50 @@ def decrypt_id_short(encrypted_id):
     if len(decoded) == 0:
         raise ValueError("Invalid ID")
     return decoded[0]
+
+
+# BFS를 통해 start_user와 target_user의 모든 중간 경로 배열을 반환합니다.
+# 만약 경로가 4촌 이상인 경우 빈 리스트를 반환합니다.
+# 예시, 성대규와 권대용의 모든 경로 배열이 다음과 같을 때,
+# 성대규 -> 카리나 -> 권대용, 성대규 -> 아이유 -> 권대용인 경우.
+# 반환값, [[카리나], [아이유]]
+def find_paths_to_target_user(start_user, target_user):
+    # 모든 친구 관계를 가져옴 (accepted 상태만)
+    friend_data = Friend.objects.filter(status="accepted").values(
+        "from_user_id", "to_user_id"
+    )
+
+    # 친구 관계 맵 생성 (양방향 관계 포함)
+    friend_map = defaultdict(set)
+    for relation in friend_data:
+        friend_map[relation["from_user_id"]].add(relation["to_user_id"])
+        friend_map[relation["to_user_id"]].add(relation["from_user_id"])  # 양방향 저장
+
+    # 결과 경로를 저장할 리스트
+    result_paths = []
+
+    # Min path length
+    min_path_length = 5
+
+    # BFS를 위한 큐 초기화 (시작 사용자, 경로 히스토리 배열)
+    queue = deque([(start_user.id, [start_user.id])])
+
+    while queue:
+        last_path_user, path_history = queue.popleft()
+
+        # 4촌 이상의 관계라면 중단
+        if len(path_history) > 4 or len(path_history) > min_path_length:
+            return result_paths
+
+        # 타겟 유저에 도달한 경우
+        if last_path_user == target_user.id:
+            min_path_length = len(path_history)
+            result_paths.append(path_history[1:-1])  # 시작 및 타겟 유저 제외
+            continue
+
+        # 친구 목록 가져오기
+        for friend in friend_map[last_path_user]:
+            if friend not in path_history:  # 중복 경로 방지
+                queue.append((friend, path_history + [friend]))
+
+    return result_paths

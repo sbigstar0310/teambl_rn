@@ -77,7 +77,7 @@ declare module api {
         is_read: boolean;
         notification_type: string;
         related_user_id?: number;
-        related_project_id?: number;
+        related_project_card_id?: number;
     };
 
     type ProjectCard = {
@@ -137,18 +137,18 @@ declare module api {
 
     type Report = {
         id: number;
-        user: User;  // 신고한 사용자 ID
-        content: string;  // 신고 내용
-        created_at: Date;  // 신고 생성 시간
-        related_project_card_id?: number | null;  // 프로젝트 카드 신고 (선택)
-        related_post_id?: number | null;  // 게시글 신고 (선택)
-        related_comment_id?: number | null;  // 댓글 신고 (선택)
-        related_user_id?: number | null;  // 사용자 신고 (선택)
+        user: User; // 신고한 사용자 ID
+        content: string; // 신고 내용
+        created_at: Date; // 신고 생성 시간
+        related_project_card_id?: number | null; // 프로젝트 카드 신고 (선택)
+        related_post_id?: number | null; // 게시글 신고 (선택)
+        related_comment_id?: number | null; // 댓글 신고 (선택)
+        related_user_id?: number | null; // 사용자 신고 (선택)
     };
 
     type PostImage = {
         id: number;
         image: string;
         created_at: Date;
-    }
+    };
 }

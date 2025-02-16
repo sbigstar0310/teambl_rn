@@ -10,10 +10,13 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 
 // const BASE_URL = Constants.expoConfig?.extra?.API_URL || "https://default-api-url.com";
 // const BASE_URL = "https://teambl.net/api/"; // for production
-const BASE_URL = "https://teambl-distribution-qm4c.onrender.com/api/"; // for development ( or QA)
-// const BASE_URL = "http://localhost:8000/api/"; // for ios simulator (local test)
+// const BASE_URL = "https://teambl-distribution-qm4c.onrender.com/api/"; // for development ( or QA)
+const BASE_URL = "http://localhost:8000/api/"; // for ios simulator (local test)
 // const BASE_URL = "http://10.0.2.2:8000/api/"; // for android emulator (local test)
 // const BASE_URL = "http://192.168.97.85:8000/api/";
+
+// API 응답 시간 Threshold (ms)
+const RESPONSE_TIME_THRESHOLD = 2000;
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -26,6 +29,10 @@ api.interceptors.request.use(
             config.headers = new AxiosHeaders();
         }
         config.headers.set("Content-Type", "application/json");
+
+        // 요청 시작 시간 기록
+        (config as any).metadata = { startTime: new Date().getTime() };
+
         return config;
     },
     (error) => Promise.reject(error)
@@ -51,6 +58,23 @@ api.interceptors.request.use(
     },
     (error: AxiosError) => Promise.reject(error)
 );
+
+// 응답 지연 시간 계산 및 로깅
+api.interceptors.response.use((response: AxiosResponse) => {
+    const startTime = (response.config as any).metadata?.startTime;
+    if (startTime) {
+        const duration = new Date().getTime() - startTime;
+        const threshold = RESPONSE_TIME_THRESHOLD;
+
+        if (duration > threshold) {
+            const fullUrl = `${response.config.baseURL}${response.config.url}`;
+
+            console.warn(`⚠️ API 응답 지연 감지: ${fullUrl} (${duration}ms)`);
+        }
+    }
+
+    return response;
+});
 
 // 응답 인터셉터 (401 처리 및 토큰 갱신)
 api.interceptors.response.use(

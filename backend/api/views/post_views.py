@@ -45,6 +45,7 @@ class PostCreateView(generics.CreateAPIView):
 #         else:
 #             return Post.objects.all().order_by("-created_at")
 
+
 # 모든 게시물을 조회하는 API (ListAPIView)
 class PostListView(generics.ListAPIView):
     serializer_class = PostSerializer
@@ -60,9 +61,13 @@ class PostByProjectView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        project_card_id = self.kwargs.get("project_card_id")  # URL에서 project_card_id 가져오기
-        return Post.objects.filter(project_card__id=project_card_id).order_by("-created_at")
-    
+        project_card_id = self.kwargs.get(
+            "project_card_id"
+        )  # URL에서 project_card_id 가져오기
+        return Post.objects.filter(project_card__id=project_card_id).order_by(
+            "-created_at"
+        )
+
 
 # 특정 Post ID로 게시물 하나만 조회하는 API (RetrieveAPIView)
 class PostRetrieveView(generics.RetrieveAPIView):
@@ -115,7 +120,7 @@ class PostLikeToggleView(generics.GenericAPIView):
             post.liked_users.add(user)
             post.like_count += 1
             message = "Post liked"
-            
+
             # 게시물 생성자에게 좋아요 알림 생성
             if post.user != user:
                 notification_exists = Notification.objects.filter(
@@ -195,7 +200,7 @@ class ProjectListCreate(generics.ListCreateAPIView):
                         user=user,
                         message=f"{self.request.user.profile.user_name}님이 당신을 {project.title} 게시물에 태그했습니다.",
                         notification_type="project_tag",
-                        related_project_id=project.project_id,
+                        related_project_card_id=project.project_id,
                     ).exists()
 
                     if not notification_exists:
@@ -204,7 +209,7 @@ class ProjectListCreate(generics.ListCreateAPIView):
                             user=user,
                             message=f"{self.request.user.profile.user_name}님이 당신을 {project.title} 게시물에 태그했습니다.",
                             notification_type="project_tag",
-                            related_project_id=project.project_id,
+                            related_project_card_id=project.project_id,
                         )
                 except CustomUser.DoesNotExist:
                     continue
@@ -243,7 +248,7 @@ class ProjectListCreate(generics.ListCreateAPIView):
                     user=profile_user,
                     message=notification_message,
                     notification_type="project_profile_keyword",
-                    related_project_id=project.project_id,
+                    related_project_card_id=project.project_id,
                 ).exists()
 
                 # 중복 알림이 없을 때만 생성
@@ -252,7 +257,7 @@ class ProjectListCreate(generics.ListCreateAPIView):
                         user=profile_user,
                         message=notification_message,
                         notification_type="project_profile_keyword",
-                        related_project_id=project.project_id,
+                        related_project_card_id=project.project_id,
                     )
 
         else:
@@ -439,7 +444,7 @@ class ProjectUpdateView(generics.UpdateAPIView):
                     notification_exists = Notification.objects.filter(
                         user=user,
                         notification_type="project_tag",
-                        related_project_id=project.project_id,
+                        related_project_card_id=project.project_id,
                     ).exists()
 
                     if not notification_exists:
@@ -448,7 +453,7 @@ class ProjectUpdateView(generics.UpdateAPIView):
                             user=user,
                             message=f"{self.request.user.profile.user_name}님이 당신을 {project.title} 게시물에 태그했습니다.",
                             notification_type="project_tag",
-                            related_project_id=project.project_id,
+                            related_project_card_id=project.project_id,
                         )
                 except CustomUser.DoesNotExist:
                     print("doesn't exist")
@@ -475,7 +480,7 @@ class ProjectUpdateView(generics.UpdateAPIView):
                 user=profile_user,
                 message=notification_message,
                 notification_type="project_profile_keyword",
-                related_project_id=project.project_id,
+                related_project_card_id=project.project_id,
             ).exists()
 
             # 중복 알림이 없을 때만 생성
@@ -484,7 +489,7 @@ class ProjectUpdateView(generics.UpdateAPIView):
                     user=profile_user,
                     message=notification_message,
                     notification_type="project_profile_keyword",
-                    related_project_id=project.project_id,
+                    related_project_card_id=project.project_id,
                 )
 
         project.save()
