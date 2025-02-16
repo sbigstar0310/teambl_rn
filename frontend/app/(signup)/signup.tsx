@@ -22,6 +22,7 @@ const SignUpScreen = () => {
     const [passwordRe, setPasswordRe] = useState("");
     const [codeIsVerified, setCodeIsVerified] = useState(false);
     const [passwordIsVerified, setPasswordIsVerified] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);  // 인증코드 확인 상태 추가
 
     useEffect(() => {
         verifyPassword();
@@ -49,6 +50,7 @@ const SignUpScreen = () => {
         } else {
             setCodeIsVerified(false);
         }
+        setShowConfirmation(true);  // 인증코드 확인 후 확인 메시지 보이도록 설정
     };
 
     const verifyPassword = () => {
@@ -68,6 +70,9 @@ const SignUpScreen = () => {
             params: { email: email, password: password },
         });
     };
+
+    // 이메일이 @kaist.ac.kr 포함되는지 체크
+    const isKaistEmail = email.includes("@kaist.ac.kr");
 
     return (
         <View style={sharedStyles.container}>
@@ -89,7 +94,7 @@ const SignUpScreen = () => {
                     <PrimeButton
                         text="인증코드 받기"
                         onClickCallback={sendCode}
-                        isActive={email.length > 0 && !codeIsVerified}
+                        isActive={isKaistEmail && !codeIsVerified}
                         isLoading={false}
                         styleOv={styles.smallButton}
                     ></PrimeButton>
@@ -119,11 +124,7 @@ const SignUpScreen = () => {
                 {/* 인증코드 확인 */}
                 <ConfirmText
                     isVerified={codeIsVerified}
-                    isActive={
-                        email.length > 0 &&
-                        code.length > 0 &&
-                        userCode.length > 0
-                    }
+                    isActive={showConfirmation}
                     successText="인증코드가 일치합니다"
                     errorText="인증코드가 일치하지 않습니다."
                 />
@@ -223,11 +224,6 @@ const styles = StyleSheet.create({
         color: "#FFFFFF",
         fontSize: 16,
         fontWeight: "600",
-    },
-    confirmText: {
-        fontSize: 12,
-        marginTop: 4,
-        marginBottom: 16,
     },
     successText: {
         color: "#42A513", // 성공 색상
