@@ -68,7 +68,7 @@ const NewProfileHeader = (props: any) => {
 
             // Fetch choneDegree
             const choneDegree = isMyProfile
-                ? 1
+                ? 0
                 : await getUserDistance(userId).then((res) => {
                       return res.distance;
                   });
