@@ -67,12 +67,21 @@ const NewProfileHeader = (props: any) => {
             }
 
             // Fetch choneDegree
-            const choneDegree = await getUserDistance(userId).then((res) => {
-                return res.distance;
-            });
+            const choneDegree = isMyProfile
+                ? 1
+                : await getUserDistance(userId).then((res) => {
+                      return res.distance;
+                  });
 
             // Fetch chonInfoFromMe
-            const pathInfo = await getUserPath(userId);
+            const pathInfo = isMyProfile
+                ? {
+                      paths_name: [],
+                      paths_id: [],
+                      current_user_id: myId,
+                      target_user_id: userId,
+                  }
+                : await getUserPath(userId);
 
             // Check isOneChonRequested
             const isOneChonRequested = await isFriendRequested({
@@ -182,7 +191,7 @@ const NewProfileHeader = (props: any) => {
 
     const openUserChat = async () => {
         router.push(`/conversations/with/${userId}`);
-    }
+    };
 
     useEffect(() => {
         fetchUserInfo();
