@@ -298,21 +298,24 @@ class ChangePasswordView(generics.UpdateAPIView):
     authentication_classes = []  # 인증 비활성화
 
     def get_object(self):
-        # ✅ Authorization 헤더에서 JWT 토큰 직접 추출
+        # (로그인 상태) Authorization 헤더에서 JWT 토큰 직접 추출
         auth_header = self.request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
             jwt_auth = JWTAuthentication()
             validated_token = jwt_auth.get_validated_token(token)
             user = jwt_auth.get_user(validated_token)
-            print("Authenticated user via JWT:", user)
             return user
 
-        # ✅ 인증된 사용자가 없을 경우, email로 사용자 찾기
+        # (로그아웃 상태) 인증된 사용자가 없을 경우, email로 사용자 찾기
         email = self.request.data.get("email")
-        print("Provided email:", email)
         if email:
             return get_object_or_404(CustomUser, email=email)
+
+        # (테스트 코드) self.request.user에서 유저 가져오기
+        if self.request.user:
+            return self.request.user
+
         return None
 
     def update(self, request, *args, **kwargs):
