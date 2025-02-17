@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import "../../styles/Toast/Toast.css";
 
 let showToast = null;
@@ -18,12 +18,15 @@ function BottomToastContainer() {
     }, []);
 
     return (
-        toast &&
-        <div
-            className={`bot-toast-container${isVisible ? ' bot-toast-show' : ' bot-toast-hide'}`}
-        >
-            {toast}
-        </div>
+        toast && (
+            <div
+                className={`bot-toast-container${
+                    isVisible ? " bot-toast-show" : " bot-toast-hide"
+                }`}
+            >
+                {toast}
+            </div>
+        )
     );
 }
 export function toastBottomText(message) {
@@ -33,7 +36,9 @@ export function toastBottomText(message) {
 }
 
 export function initBottomToast() {
-    const toastRoot = document.createElement('div');
+    const toastRoot = document.createElement("div");
     document.body.appendChild(toastRoot);
-    ReactDOM.render(<BottomToastContainer />, toastRoot);
+    // ReactDOM.render(<BottomToastContainer />, toastRoot);
+    const root = createRoot(toastRoot); // React 18 방식으로 변경
+    root.render(<BottomToastContainer />);
 }
