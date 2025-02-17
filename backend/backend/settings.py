@@ -175,8 +175,26 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # 웹 프론트엔드 (React 개발 서버)
+    "http://192.168.0.100:5173",  # 로컬 네트워크 React 프론트 (필요시 추가)
+    "https://teambl.net",  # 배포된 React 웹 프론트
+    "exp://192.168.0.100:19000",  # Expo 개발 서버
+    "http://localhost:19006",  # Expo 웹 환경에서 실행할 경우
+]
+
+CORS_ALLOW_CREDENTIALS = True  # 인증 정보 포함 허용
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",  # Preflight 요청 허용
+]
+
+CORS_ALLOW_HEADERS = ["Authorization", "Content-Type", "X-CSRFToken"]
 
 
 # 이메일 서버

@@ -1171,8 +1171,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class ProjectCardSerializer(serializers.ModelSerializer):
-    # keywords = serializers.SerializerMethodField()  # 프로젝트 카드의 키워드들
-    keywords = serializers.ListField(child=serializers.CharField(), required=True)
+    keywords = serializers.SerializerMethodField()  # 프로젝트 카드의 키워드들
+    # keywords = serializers.ListField(child=serializers.CharField(), required=True)
     creator = CustomUserSerializer(read_only=True)  # 프로젝트 카드 생성자
     accepted_users = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CustomUser.objects.all(), required=False
