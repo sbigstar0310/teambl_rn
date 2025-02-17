@@ -41,7 +41,15 @@ class ProjectCardCreateViewTestCase(TestCase):
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(ProjectCard.objects.count(), 1)
-        self.assertEqual(ProjectCard.objects.get().title, "Test Project Card")
+        self.assertEqual(ProjectCard.objects.get().title, data.get("title"))
+        self.assertEqual(
+            list(
+                ProjectCard.objects.get()
+                .keywords.all()
+                .values_list("keyword", flat=True)
+            ),
+            data.get("keywords"),
+        )
 
 
 class ProjectCardListViewTestCase(TestCase):

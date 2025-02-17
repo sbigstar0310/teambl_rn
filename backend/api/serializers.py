@@ -1210,7 +1210,7 @@ class ProjectCardSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Keywords, accepted_users, bookmarked_users는 별도로 처리
-        keywords_data = validated_data.pop("keywords", [])
+        keywords_data = self.initial_data.get("keywords", [])
         accepted_users_data = validated_data.pop("accepted_users", [])
         bookmarked_users_data = validated_data.pop("bookmarked_users", [])
         print("Keywords data:", keywords_data)

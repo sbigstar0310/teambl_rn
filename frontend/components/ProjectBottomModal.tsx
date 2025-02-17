@@ -1,12 +1,13 @@
-import React from 'react';
-import BottomModal from './BottomModal';
-import { StyleSheet, Text, View } from 'react-native';
-import CircularIconButton from './CircularIconButton';
-import InlineIconButton from './InlineIconButton';
-import theme from '@/shared/styles/theme';
-import { router } from 'expo-router';
+import React from "react";
+import BottomModal from "./BottomModal";
+import { StyleSheet, Text, View } from "react-native";
+import CircularIconButton from "./CircularIconButton";
+import InlineIconButton from "./InlineIconButton";
+import theme from "@/shared/styles/theme";
+import { router } from "expo-router";
 
-import createProjectLink from '@/libs/apis/ProjectCard/createProjectLink';
+import createProjectLink from "@/libs/apis/ProjectCard/createProjectLink";
+import leaveProjectCard from "@/libs/apis/ProjectCard/leaveProjectCard";
 
 interface ProjectBottomModalProps {
     isVisible: boolean;
@@ -17,17 +18,13 @@ interface ProjectBottomModalProps {
 }
 
 const ProjectBottomModal = (props: ProjectBottomModalProps) => {
-    const {
-        isVisible,
-        onClose,
-        isMyProject,
-        projectId,
-        projectTitle
-    } = props;
+    const { isVisible, onClose, isMyProject, projectId, projectTitle } = props;
 
-    const handleLinkCopy = async () => {  
+    const handleLinkCopy = async () => {
         try {
-            const response = await createProjectLink({ project_card_id: projectId });
+            const response = await createProjectLink({
+                project_card_id: projectId,
+            });
             const projectLink = response.unique_id;
 
             // projectLink는 프로젝트의 고유한 코드. 이를 이용해서 전체 링크를 만들어야 함.
@@ -40,7 +37,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         }
     };
 
-    const handleEdit = async () => {  
+    const handleEdit = async () => {
         if (!isMyProject) {
             alert("이 프로젝트를 수정할 권한이 없습니다.");
             return;
@@ -49,38 +46,41 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         router.push(`project/${projectId}/edit`);
     };
 
-    const handleDelete = () => {
-        // TODO : Delete project
-    }
+    const handleDelete = async () => {
+        // TODO: 정책상 handleDelete 보다는 handleLeaveProject가 더 적절함.
+        try {
+            await leaveProjectCard(projectId);
+        } catch (error) {
+            console.error("프로젝트 탈퇴 실패:", error);
+            alert("프로젝트 탈퇴 중 오류가 발생했습니다.");
+        } finally {
+            props.onClose(); // 모달 닫기
+        }
+    };
 
     const handleInviteLinkCopy = () => {
         // TODO : Copy invite link
-    }
+    };
 
     const handleQRCodeShare = () => {
         // TODO : Share QR code
-    }
+    };
 
-    const handleNewPostInProject =  () => {
+    const handleNewPostInProject = () => {
         props.onClose();
         router.push({
             pathname: `/project/${projectId}/new_post`,
-            params: { project_title: projectTitle }
-        })
-    }
-    
+            params: { project_title: projectTitle },
+        });
+    };
 
     const MyProject = () => {
         return (
-            <View
-                style={styles.myContainer}
-            >
+            <View style={styles.myContainer}>
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>{"프로젝트에 팀원 초대"}</Text>
                 </View>
-                <View
-                    style={styles.otherContainer}
-                >
+                <View style={styles.otherContainer}>
                     <CircularIconButton
                         type="INVITELINK"
                         onPress={handleInviteLinkCopy}
@@ -90,9 +90,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
                         onPress={handleQRCodeShare}
                     />
                 </View>
-                <View
-                    style={styles.buttonContainer}
-                >
+                <View style={styles.buttonContainer}>
                     <InlineIconButton
                         type="NEWPOST"
                         onPress={handleNewPostInProject}
@@ -101,10 +99,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
                         type="COPYLINK"
                         onPress={handleLinkCopy}
                     />
-                    <InlineIconButton
-                        type="EDITPROJECT"
-                        onPress={handleEdit}
-                    />
+                    <InlineIconButton type="EDITPROJECT" onPress={handleEdit} />
                     <InlineIconButton
                         type="DELETEPROJECT"
                         onPress={handleDelete}
@@ -116,17 +111,9 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
 
     const OthersProject = () => {
         return (
-            <View
-                style={styles.otherContainer}
-            >
-                <CircularIconButton
-                    type="COPYLINK"
-                    onPress={handleLinkCopy}
-                />
-                <CircularIconButton
-                    type="DELETE"
-                    onPress={handleDelete}
-                />
+            <View style={styles.otherContainer}>
+                <CircularIconButton type="COPYLINK" onPress={handleLinkCopy} />
+                <CircularIconButton type="DELETE" onPress={handleDelete} />
             </View>
         );
     };
@@ -143,36 +130,36 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
 };
 
 const styles = StyleSheet.create({
-    otherContainer : {
+    otherContainer: {
         width: "100%",
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-around",
-        alignItems: "center"
+        alignItems: "center",
     },
-    myContainer : {
+    myContainer: {
         flex: 1,
         width: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-start",
         alignItems: "center",
-        padding: 10
+        padding: 10,
     },
-    titleContainer : {
+    titleContainer: {
         width: "100%",
         display: "flex",
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: "center",
-        marginBottom: 16
+        marginBottom: 16,
     },
-    title : {
+    title: {
         fontSize: theme.fontSizes.body1,
         fontWeight: 600,
-        color: theme.colors.black
+        color: theme.colors.black,
     },
-    buttonContainer : {
+    buttonContainer: {
         width: "100%",
         display: "flex",
         flexDirection: "column",
@@ -181,8 +168,8 @@ const styles = StyleSheet.create({
         marginTop: 20,
         padding: 0,
         borderTopWidth: 1,
-        borderTopColor: theme.colors.achromatic04
-    }
+        borderTopColor: theme.colors.achromatic04,
+    },
 });
 
 export default ProjectBottomModal;

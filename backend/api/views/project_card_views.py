@@ -3,11 +3,18 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from ..models import Friend, ProjectCard, ProjectCardInvitation, CustomUser, Notification
+from ..models import (
+    Friend,
+    ProjectCard,
+    ProjectCardInvitation,
+    CustomUser,
+    Notification,
+)
 from ..serializers import ProjectCardSerializer, ProjectCardInvitationSerializer
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
 import uuid
+
 
 ## 프로젝트 카드 (ProjectCard) 관련 API 뷰
 # 프로젝트 카드 리스트 뷰 (전체 최신순 정렬)
@@ -57,17 +64,12 @@ class ProjectCardCreateView(generics.CreateAPIView):
     serializer_class = ProjectCardSerializer
 
     def perform_create(self, serializer):
+        print("request data", self.request.data)
         project_card = serializer.save(creator=self.request.user)
         project_card.accepted_users.add(self.request.user)
         project_card.save()
 
-        return Response(
-            {
-                "message": "Project card created successfully.",
-                "project_card_id": project_card.id,
-            },
-            status=status.HTTP_201_CREATED,
-        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ProjectCardUpdateView(generics.UpdateAPIView):
@@ -85,7 +87,7 @@ class ProjectCardUpdateView(generics.UpdateAPIView):
             )  # ❗ Response가 아니라 예외 발생
 
         serializer.save()
-        
+
         # 프로젝트 카드 수정 알림 생성
         request_user = self.request.user
         accept_users = project_card.accepted_users.all()
@@ -112,7 +114,7 @@ class ProjectCardUpdateView(generics.UpdateAPIView):
                     notification_type="project_card_update",
                     related_project_card_id=project_card.id,
                 )
-        
+
         # 북마크(저장)한 회원에게 수정 알림 생성
         for user in bookmark_users:
             # 중복 알림 방지
@@ -155,7 +157,7 @@ class ProjectCardBookmarkToggleView(generics.UpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# 프로젝트 카드에서 탈퇴하는 뷰
+# 프로젝트 카드에서 나가는 뷰
 class ProjectCardLeaveView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardSerializer
@@ -172,7 +174,16 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
         if user not in project_card.accepted_users.all():
             raise ValidationError("프로젝트 카드에 참여 중이 아닙니다.")
 
-        # 2. 관리자인 경우 처리
+        # 2. 프로젝트 카드 초대 이력 삭제
+        projectCardInvitation = ProjectCardInvitation.objects.filter(
+            project_card=project_card, invitee=user
+        ).exists()
+        if projectCardInvitation:
+            ProjectCardInvitation.objects.filter(
+                project_card=project_card, invitee=user
+            ).delete()
+
+        # 3. 관리자인 경우 처리
         if project_card.creator == user:
             if accepted_users.count() > 1:
                 new_creator = accepted_users.exclude(
@@ -185,11 +196,6 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
         else:
             # 관리자가 아닌 경우 탈퇴 처리
             project_card.accepted_users.remove(user)
-
-        # 3. 프로젝트 카드 초대 이력 삭제
-        ProjectCardInvitation.objects.filter(
-            project_card=project_card, invitee=user
-        ).delete()
 
         # 변경 사항 저장
         project_card.save()
@@ -223,7 +229,7 @@ class ProjectCardInvitationCreateView(generics.CreateAPIView):
 
     # def perform_create(self, serializer):
     #     return super().perform_create(serializer)
-    
+
     def perform_create(self, serializer):
         invitation = serializer.save()
 
@@ -262,7 +268,7 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
         # 초대 수락 처리
         if serializer.validated_data.get("status") == "accepted":
             invitation.project_card.accepted_users.add(invitation.invitee)
-            
+
             # 프로젝트 카드 생성자에게 수락 알림 생성
             notification_exists = Notification.objects.filter(
                 user=invitation.inviter,  # 초대한 사람에게 알림
@@ -280,13 +286,13 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
                     related_user_id=invitation.invitee.id,
                     related_project_card_id=invitation.project_card.id,
                 )
-            
+
             return Response(
                 {"message": "프로젝트 카드 초대를 수락했습니다."},
                 status=status.HTTP_200_OK,
             )
         elif serializer.validated_data.get("status") == "rejected":
-            
+
             # 프로젝트 카드 생성자에게 거절 알림 생성
             notification_exists = Notification.objects.filter(
                 user=invitation.inviter,  # 초대한 사람에게 알림
@@ -304,7 +310,7 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
                     related_user_id=invitation.invitee.id,
                     related_project_card_id=invitation.project_card.id,
                 )
-            
+
             return Response(
                 {"message": "프로젝트 카드 초대를 거절했습니다."},
                 status=status.HTTP_200_OK,
@@ -318,7 +324,6 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
         serializer.save()
 
 
-
 class ProjectCardLinkView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -330,9 +335,9 @@ class ProjectCardLinkView(generics.GenericAPIView):
         project_card = get_object_or_404(ProjectCard, id=project_card_id)
 
         # UUID4를 사용하여 고유 ID 생성
-        unique_id = str(uuid.uuid4())[:10] # 앞자리만 사용
+        unique_id = str(uuid.uuid4())[:10]  # 앞자리만 사용
 
         return Response(
             {"project_card_id": project_card.id, "unique_id": unique_id},
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )

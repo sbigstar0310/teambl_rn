@@ -10,7 +10,7 @@ type Response = api.ProjectCard;
 // ** 프로젝트 카드 삭제가 아님 **
 const leaveProjectCard = async (project_card_id: number): Promise<Response> => {
     try {
-        const response = await api.post<Response>(
+        const response = await api.patch<Response>(
             `project-card/${project_card_id}/leave/`
         );
         return response.data;
