@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../../styles/Toast/Toast.css";
+import { createRoot } from "react-dom/client";
 
 let showToast = null;
 
