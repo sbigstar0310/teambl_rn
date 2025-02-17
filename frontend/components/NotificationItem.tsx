@@ -106,8 +106,13 @@ const NotificationItem: FC<Props> = ({
         markAsRead(item.is_read, item.id);
 
         // 특정 화면으로 이동 (예: 알림의 링크를 열기)
-        if (item.notification_type === "message") {
-            router.push("/settings");
+        if (item.notification_type === "friend_request") {
+            router.push({
+                pathname: "/myfriends",
+                params: {
+                    activeTab: "내게 신청한",
+                },
+            });
         } else if (item.notification_type === "project") {
             router.push("/settings");
         } else {
