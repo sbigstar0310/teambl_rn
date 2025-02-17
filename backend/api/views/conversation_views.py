@@ -347,6 +347,7 @@ class CreateMessageView(generics.CreateAPIView):
                 message=f"{user.profile.user_name}님이 당신에게 메시지를 보냈습니다: {message.message}",
                 notification_type="new_message",
                 related_user_id=user.id,
+                related_conversation_id=conversation_id,
             )
 
 

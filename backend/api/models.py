@@ -674,12 +674,14 @@ class Friend(models.Model):
 class Notification(models.Model):
     NOTIFICATION_TYPE_CHOICES = [
         # 초대한 사람이 가입, 초대링크 만료
-        ("invitation_register", "Invitation Register"),  # done
-        ("invitation_expired", "Invitation Expired"),  # done
+        ("invitation_register", "Invitation Register"),
+        ("invitation_expired", "Invitation Expired"),
+        
         # 일촌 신청 수락, 거절, 요청
-        ("friend_accept", "Friend Accept"),  # done
-        ("friend_reject", "Friend Reject"),  # done
-        ("friend_request", "Friend Request"),  # done
+        ("friend_accept", "Friend Accept"),
+        ("friend_reject", "Friend Reject"),
+        ("friend_request", "Friend Request"),
+        
         # Project Card 초대, 수락, 거절, 수정, 매칭 추천
         ("project_card_invite", "ProjectCard Invite"),
         ("project_card_accept", "ProjectCard Accept"),
@@ -687,10 +689,10 @@ class Notification(models.Model):
         ("project_card_update", "ProjectCard Update"),
         ("project_card_recommend", "ProjectCard Recommend"),
         # Post 추가(팀원), 수정(팀원), 추가(저장), 수정(저장), 좋아요(생성자)
-        ("post_create_team", "Post Create Team"),  # postserializer, done
-        ("post_update_team", "Post Update Team"),  # postserializer, done
-        ("post_create_save", "Post Create Save"),  # postserializer, done
-        ("post_update_save", "Post Update Save"),  # postserializer, done
+        ("post_create_team", "Post Create Team"),
+        ("post_update_team", "Post Update Team"), 
+        ("post_create_save", "Post Create Save"), 
+        ("post_update_save", "Post Update Save"), 
         ("post_like", "Post Like"),
         # Comment 추가(생성자), 대댓글 추가(댓글작성자), 수정(생성자), 대댓글 수정(댓글작성자)
         ("comment_create", "Comment Create"),
@@ -713,6 +715,7 @@ class Notification(models.Model):
     related_user_id = models.IntegerField(null=True, blank=True)
     related_post_id = models.IntegerField(null=True, blank=True)
     related_project_card_id = models.IntegerField(null=True, blank=True)
+    related_conversation_id = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"Notification for {self.user.email} - {self.message}"

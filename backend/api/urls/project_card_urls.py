@@ -49,12 +49,12 @@ urlpatterns = [
 # Project Card Invitation
 urlpatterns += [
     path(
-        "project-cards/invitation/create/",
+        "invitation/create/",
         views.ProjectCardInvitationCreateView.as_view(),
         name="project-card-invitation-create",
     ),
     path(
-        "project-cards/invitation/<int:pk>/response/",
+        "invitation/<int:pk>/response/",
         views.ProjectCardInvitationResponseView.as_view(),
         name="project-card-invitation-response",
     ),

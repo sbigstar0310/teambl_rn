@@ -1171,7 +1171,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class ProjectCardSerializer(serializers.ModelSerializer):
-    keywords = serializers.SerializerMethodField()  # 프로젝트 카드의 키워드들
+    # keywords = serializers.SerializerMethodField()  # 프로젝트 카드의 키워드들
+    keywords = serializers.ListField(child=serializers.CharField(), required=True)
     creator = CustomUserSerializer(read_only=True)  # 프로젝트 카드 생성자
     accepted_users = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CustomUser.objects.all(), required=False
@@ -1284,24 +1285,6 @@ class ProjectCardSerializer(serializers.ModelSerializer):
         # 기타 필드 업데이트
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-
-        # # Project Card가 수정되었으므로 팀원, 저장한 인원 모두에게 알림 (View에서 구현)
-        # request_user = self.context["request"].user
-        # for user in instance.project_card.accepted_users.all() + instance.project_card.bookmarked_users.all():
-        #     notification_exists = Notification.objects.filter(
-        #         user=user,
-        #         message=f"{request_user.profile.user_name}님이 {instance.project_card.title} 카드를 수정했습니다.",
-        #         notification_type="project_card_update",
-        #         related_project_card_id=instance.project_card.id,
-        #     ).exists()
-
-        #     if not notification_exists:
-        #         Notification.objects.create(
-        #             user=user,
-        #             message=f"{request_user.profile.user_name}님이 {instance.project_card.title} 카드를 수정했습니다.",
-        #             notification_type="project_card_update",
-        #             related_project_card_id=instance.project_card.id,
-        #         )
 
         instance.save()
         return instance

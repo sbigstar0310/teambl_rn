@@ -6,6 +6,7 @@ type Response = api.Notification[];
 
 const fetchNotifications = async (): Promise<Response> => {
     const response = await api.get<Response>("notification/list/");
+    console.log("RESPONSE:", response);
     return response.data;
 };
 

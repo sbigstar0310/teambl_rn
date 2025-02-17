@@ -105,18 +105,71 @@ const NotificationItem: FC<Props> = ({
         // 읽음 처리
         markAsRead(item.is_read, item.id);
 
-        // 특정 화면으로 이동 (예: 알림의 링크를 열기)
-        if (item.notification_type === "friend_request") {
-            router.push({
-                pathname: "/myfriends",
-                params: {
-                    activeTab: "내게 신청한",
-                },
-            });
-        } else if (item.notification_type === "project") {
-            router.push("/settings");
-        } else {
-            console.log("Unhandled notification type:", item.notification_type);
+        switch (item.notification_type) {
+            case "invitation_register":
+            case "friend_accept":
+                if (item.related_user_id) {
+                    router.push(`/profiles/${item.related_user_id}/project`);
+                } else {
+                    console.warn("related_user_id is missing, redirecting to home");
+                    router.push("/");
+                }
+                break;
+            case "invitation_expired":
+                router.push(`/invite`);
+                break;
+            case "friend_reject":
+            case "project_card_reject":
+                break;
+            case "friend_request":
+                // router.push("/myfriends");
+                router.push({
+                    pathname: "/myfriends",
+                    params: {
+                        activeTab: "내게 신청한",
+                    },
+                });
+                break;
+            case "project_card_invite":
+            case "project_card_accept":
+            case "project_card_update":
+                router.push("/myprofile/project");
+                break;
+            case "project_card_recommend":
+                if (item.related_project_card_id) {
+                    router.push(`/project/${item.related_project_card_id}`);
+                } else {
+                    console.warn("related_project_card_id is missing, redirecting to home");
+                    router.push("/");
+                }
+                break;
+            case "post_create_team":
+            case "post_update_team":
+            case "post_create_save":
+            case "post_update_save":
+            case "post_like":
+            case "comment_create":
+            case "comment_child_create":
+            case "comment_update":
+            case "comment_child_update":
+                if (item.related_post_id) {
+                    router.push(`/posts/${item.related_post_id}`);
+                } else {
+                    console.warn("related_post_id is missing, redirecting to home");
+                    router.push("/");
+                }
+                break;
+            case "new_message":
+                if (item.related_conversation_id) {
+                    router.push(`/conversations/${item.related_conversation_id}`);
+                } else {
+                    console.warn("related_conversation_id is missing, redirecting to home");
+                    router.push("/");
+                }
+                break;
+            default:
+                router.push("/");
+                break;
         }
     };
 

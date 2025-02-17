@@ -23,7 +23,9 @@ export default function RootLayout() {
     }
     return <Fragment>
         {/* Main Stack navigation router */}
-        <Stack screenOptions={{headerShown: false}}/>
+        <Stack screenOptions={{headerShown: false}}>
+            {/* <Stack.Screen name="home" options={{ title: "Home" }} /> */}
+        </Stack>
         <StatusBar style="auto" translucent={false} backgroundColor="#ffffff"/>
     </Fragment>;
 }

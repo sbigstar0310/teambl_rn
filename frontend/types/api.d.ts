@@ -77,7 +77,9 @@ declare module api {
         is_read: boolean;
         notification_type: string;
         related_user_id?: number;
+        related_post_id?: number;
         related_project_card_id?: number;
+        related_conversation_id?: number;
     };
 
     type ProjectCard = {
@@ -106,6 +108,15 @@ declare module api {
         images: PostImage[];
         comments: Comment[];
     };
+
+    type ProjectCardInvitation = {
+        id: number;
+        project_card: ProjectCard | null; // project_card는 nullable
+        inviter: User; // 초대 한 사람
+        invitee: User; // 초대 받은 사람
+        created_at: Date; // 초대 생성 시각
+        status: "pending" | "accepted" | "rejected"; // 초대 상태
+    };    
 
     type Friend = {
         id: number;

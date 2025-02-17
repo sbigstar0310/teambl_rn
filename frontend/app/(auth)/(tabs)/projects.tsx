@@ -41,6 +41,8 @@ export default function ProjectsScreen() {
                 }
             );
 
+            console.log("KEYWORDS:", data.keywords);
+
             // Project Card Create API
             await createProjectCard({
                 title: data.title,
