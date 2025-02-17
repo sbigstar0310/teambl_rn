@@ -4,7 +4,14 @@ from rest_framework import status
 from django.urls import reverse
 from django.core import mail
 from .utils import create_post_with_images, create_user_with_profile
-from ..models import CustomUser, Friend, Post, PostImage, ProjectCard
+from ..models import (
+    CustomUser,
+    Friend,
+    Post,
+    PostImage,
+    ProjectCard,
+    ProjectCardInvitation,
+)
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -50,6 +57,10 @@ class ProjectCardCreateViewTestCase(TestCase):
             ),
             data.get("keywords"),
         )
+        self.assertEqual(ProjectCardInvitation.objects.count(), 1)
+        self.assertEqual(ProjectCardInvitation.objects.get().inviter, self.testuser01)
+        self.assertEqual(ProjectCardInvitation.objects.get().invitee, self.testuser02)
+        self.assertEqual(ProjectCardInvitation.objects.get().status, "pending")
 
 
 class ProjectCardListViewTestCase(TestCase):

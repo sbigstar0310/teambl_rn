@@ -1226,30 +1226,57 @@ class ProjectCardSerializer(serializers.ModelSerializer):
             project_card.keywords.add(keyword_obj)
 
         # Accepted Users 처리
-        for accepted_user in accepted_users_data:
-            project_card.accepted_users.add(accepted_user)
+        # 새로 추가된 유저의 경우 ProjectCardInvitation 생성
+        old_accepted_users = project_card.accepted_users.all()
+        new_accepted_users = list(set(accepted_users_data) - set(old_accepted_users))
+        for new_user in new_accepted_users:
+            ProjectCardInvitation.objects.create(
+                project_card=project_card,
+                inviter=project_card.creator,
+                invitee=new_user,
+            )
 
         return project_card
 
     def update(self, instance, validated_data):
+        # Keywords, accepted_users, bookmarked_users는 별도로 처리
+        keywords_data = self.initial_data.get("keywords", [])
+        accepted_users_data = validated_data.pop("accepted_users", [])
+        bookmarked_users_data = validated_data.pop("bookmarked_users", [])
+        print("Keywords data:", keywords_data)
+        print("Accepted users data:", accepted_users_data)
+        print("Bookmarked users data:", bookmarked_users_data)
+
         # Keywords 처리
-        if "keywords" in validated_data:
-            keywords_data = validated_data.pop("keywords")
+        if keywords_data:
             instance.keywords.clear()  # 기존 키워드 제거
             for keyword in keywords_data:
-                keyword_obj, _ = Keyword.objects.get_or_create(name=keyword)
+                keyword_obj, _ = Keyword.objects.get_or_create(keyword=keyword)
                 instance.keywords.add(keyword_obj)
 
         # Accepted Users 처리
-        if "accepted_users" in validated_data:
-            accepted_users_data = validated_data.pop("accepted_users")
-            instance.accepted_users.clear()  # 기존 유저 제거
-            for accepted_user in accepted_users_data:
-                instance.accepted_users.add(accepted_user)
+        if accepted_users_data:
+            old_accepted_users = instance.accepted_users.all()  # 기존 accepted_users
+            new_added_accepted_users = list(
+                set(accepted_users_data) - set(old_accepted_users)
+            )  # 새로 추가된 유저
+            new_deleted_accepted_users = list(
+                set(old_accepted_users) - set(accepted_users_data)
+            )  # 새로 삭제된 유저
+
+            # 새로 추가된 유저의 경우 ProjectCardInvitation 생성
+            for new_user in new_added_accepted_users:
+                ProjectCardInvitation.objects.create(
+                    project_card=instance,
+                    inviter=instance.creator,
+                    invitee=new_user,
+                )
+
+            # 삭제된 유저의 경우 기존 accepted_users에서 제외하기
+            instance.accepted_users.remove(*new_deleted_accepted_users)
 
         # Bookmark Users 처리
-        if "bookmarked_users" in validated_data:
-            bookmarked_users_data = validated_data.pop("bookmarked_users")
+        if bookmarked_users_data:
             instance.bookmarked_users.clear()
             for bookmarked_user in bookmarked_users_data:
                 instance.bookmarked_users.add(bookmarked_user)
