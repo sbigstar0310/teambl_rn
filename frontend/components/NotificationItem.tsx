@@ -123,12 +123,7 @@ const NotificationItem: FC<Props> = ({
                 break;
             case "friend_request":
                 // router.push("/myfriends");
-                router.push({
-                    pathname: "/myfriends",
-                    params: {
-                        activeTab: "내게 신청한",
-                    },
-                });
+                router.push(`/myfriends?activeTab=내게 신청한`);
                 break;
             case "project_card_invite":
             case "project_card_accept":
