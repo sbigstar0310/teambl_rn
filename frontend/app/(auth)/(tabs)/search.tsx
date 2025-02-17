@@ -116,6 +116,10 @@ export default function SearchScreen() {
         try {
             const response = await searchUser({ q: query, degree: [] });
             setSearchData(response.results);
+            const searchedProjectCards = await searchProjectCard({ q: query });
+            setResultProject(searchedProjectCards.results);
+            const searchedPosts = await searchPost({ q: query });
+            setResultPosts(searchedPosts.results);
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
         } finally {
@@ -146,47 +150,15 @@ export default function SearchScreen() {
         setSearchHistory((prevHistory) => [...prevHistory, query]);
     };
 
-    const searchProject = async (query: string) => {
-        setLoading(true);
-        try {
-            const searchedProjectCards = await searchProjectCard({ q: query });
-            console.log("searchedProjectCards", searchedProjectCards);
-            setResultProject(searchedProjectCards.results);
-        } catch (error) {
-            console.error("Failed to search project:", error);
-            setResultProject([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const searchPosts = async (query: string) => {
-        setLoading(true);
-        try {
-            const searchedPosts = await searchPost({ q: query });
-            setResultPosts(searchedPosts.results);
-        } catch (error) {
-            console.error("Failed to search posts:", error);
-            setResultPosts([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    /** just for dev */
-    useEffect(() => {
-        searchProject("");
-        searchPosts("");
-    }, []);
-
     const ProjectListView = () => {
         return (
             <ScrollView contentContainerStyle={styles.projectContainer}>
                 {!resultProject ||
                     (resultProject.length === 0 && (
-                        <Text style={styles.resultCount}>
-                            {"검색된 프로젝트가 없습니다."}
-                        </Text>
+                        <NoSearchResult
+                            title="검색 결과가 없습니다."
+                            message="필터를 조정하거나 새로운 검색어를 입력해보세요."
+                        />
                     ))}
                 {resultProject &&
                     resultProject.length > 0 &&
@@ -219,9 +191,10 @@ export default function SearchScreen() {
             >
                 {!resultPosts ||
                     (resultPosts.length === 0 && (
-                        <Text style={styles.resultCount}>
-                            {"검색된 게시물이 없습니다."}
-                        </Text>
+                        <NoSearchResult
+                            title="검색 결과가 없습니다."
+                            message="필터를 조정하거나 새로운 검색어를 입력해보세요."
+                        />
                     ))}
                 {resultPosts &&
                     resultPosts.length > 0 &&
