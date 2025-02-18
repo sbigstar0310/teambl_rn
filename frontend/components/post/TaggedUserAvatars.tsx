@@ -4,6 +4,7 @@ import theme from "@/shared/styles/theme";
 import {Fragment, useState} from "react";
 import UserListScreen from "@/components/user/UserList";
 import BottomModal from "@/components/BottomModal";
+import {router} from "expo-router";
 
 interface TaggedUserAvatarsProps {
     taggedUsers: api.User[];
@@ -15,6 +16,11 @@ export default function TaggedUserAvatars(props: TaggedUserAvatarsProps) {
     const remainingUsersNum = Math.max(0, props.taggedUsers.length - 2);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleUserSelect = (userId: number) => {
+        router.push(`/profiles/${userId}`);
+        setIsModalOpen(false);
+    }
 
     return (
         <Fragment>
@@ -46,6 +52,7 @@ export default function TaggedUserAvatars(props: TaggedUserAvatarsProps) {
                         title="태그된 사용자"
                         userList={props.taggedUsers.map(user => ({user, relation_degree: 1}))}
                         hideBackButton={true}
+                        onSelect={handleUserSelect}
                     />
                 }
                 heightPercentage={0.8}

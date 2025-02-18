@@ -5,8 +5,7 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator,
-    Modal,
+    ActivityIndicator
 } from "react-native";
 import { router } from "expo-router";
 import DefaultProfile from "@/assets/DefaultProfile.svg";
@@ -25,14 +24,16 @@ type FriendsCardData = {
     relation_degree?: number;
     user: api.User;
     status: RelationStatus | string;
+    onPress?: () => void;
 };
 
 export default function FriendsCard({
-    id,
-    relation_degree,
-    user,
-    status,
-}: FriendsCardData) {
+                                        id,
+                                        relation_degree,
+                                        user,
+                                        status,
+                                        onPress
+                                    }: FriendsCardData) {
     const profile = user.profile;
     const [isLoading, setIsLoading] = useState(false);
     const myid = useAuthStore((state) => state.user)?.id; // ✅ Get myid from Zustand
@@ -49,9 +50,17 @@ export default function FriendsCard({
         }
     };
 
+    const handlePress = () => {
+        if (onPress) {
+            onPress();
+        } else {
+            router.push(`/profiles/${user.id}`);
+        }
+    }
+
     return (
-        <TouchableOpacity 
-            onPress={() => router.push(`/profiles/${user.id}`)}
+        <TouchableOpacity
+            onPress={handlePress}
             disabled={isLoading}
         >
             <View style={[styles.cardContainer]}>

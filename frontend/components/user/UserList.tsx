@@ -14,6 +14,7 @@ interface UserListProps {
     title: string;
     userList: UserListItem[];
     hideBackButton?: boolean;
+    onSelect?: (userId: number) => void;
 }
 
 export default function UserListScreen(props: UserListProps) {
@@ -21,6 +22,14 @@ export default function UserListScreen(props: UserListProps) {
         () => props.hideBackButton === true,
         [props.hideBackButton]
     );
+
+    const handleSelect = (userId: number) => {
+        if (props.onSelect) {
+            props.onSelect(userId);
+        } else {
+            router.push(`/profiles/${userId}`);
+        }
+    }
 
     return (
         <SafeAreaView
@@ -50,6 +59,7 @@ export default function UserListScreen(props: UserListProps) {
                             relation_degree={item.relation_degree}
                             user={item.user}
                             status=""
+                            onPress={handleSelect.bind(null, item.user.id)}
                         />
                     ))}
                 </ScrollView>
