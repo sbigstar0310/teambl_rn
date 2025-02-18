@@ -23,7 +23,7 @@ const FriendItem = ({ activeTab, chon, currentUser, getChons }) => {
   // 현재 유저와 타겟 유저의 촌수를 가져오는 메소드
   const getRelationshipDegree = async (targetUserId) => {
     try {
-      const response = await api.get(`/api/get-user-distance/${targetUserId}/`);
+      const response = await api.get(`/api/others/get-user-distance/${targetUserId}/`);
       const degree = response.data.distance;
       setRelationshipDegree(degree);
       console.log(degree);

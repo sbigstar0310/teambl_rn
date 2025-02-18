@@ -28,7 +28,7 @@ function Friend() {
   // 현재 로그인 유저를 가져오는 함수
   const getCurrentUser = () => {
     api
-      .get("/api/current-user/")
+      .get("/api/user/current/")
       .then((res) => res.data)
       .then((data) => {
         setCurrentUser(data);
@@ -38,8 +38,10 @@ function Friend() {
 
   // 유저의 1촌 리스트를 가져오는 함수
   const getChons = () => {
+    const ofUserId = currentUser?.id;
+    if (!ofUserId) return;
     api
-      .get("/api/friends/")
+      .get(`/api/friend/${ofUserId}/list/`)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
@@ -114,7 +116,7 @@ function Friend() {
   // 프로필 이미지 가져오기
   const fetchProfileImage = async () => {
     try {
-      const response = await api.get(`/api/profile/${userId}/`);
+      const response = await api.get(`/api/profile/${userId}/get/`);
       setProfileImage(response.data.image); // Assuming the image field is 'image'
     } catch (error) {
       console.error("Failed to fetch profile image:", error);

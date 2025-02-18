@@ -31,7 +31,11 @@ function Project() {
   useEffect(() => {
     getCurrentUser();
     getProjects();
-    fetchFriends();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    fetchFriends(currentUser.id);
   }, []);
 
   const toggleComments = () => {
@@ -95,9 +99,9 @@ function Project() {
     setIsModalOpen(false);
   };
 
-  const fetchFriends = () => {
+  const fetchFriends = (ofUserId) => {
     api
-      .get("/api/friends/one-degree/")
+      .get(`/api/friend/${ofUserId}/one-degree`)
       .then((res) => setAllFriends(res.data.results))
       .catch((err) => alert("Failed to fetch friends list."));
   };
@@ -109,7 +113,7 @@ function Project() {
   // 현재 로그인한 사용자 정보 가져오기
   const getCurrentUser = () => {
     api
-      .get("/api/current-user/") // 'current-user' 엔드포인트 호출
+      .get("/api/user/current/") // 'current-user' 엔드포인트 호출
       .then((res) => {
         // console.log(res.data);  // 사용자 정보 콘솔에 출력
         setCurrentUser(res.data); // 사용자 정보 상태에 저장
@@ -120,7 +124,7 @@ function Project() {
   // 프로젝트 정보 가져오기
   const getProjects = () => {
     api
-      .get("/api/projects/every/")
+      .get("/api/project-card/list/")
       .then((res) => res.data)
       .then((data) => {
         setProjects(data);

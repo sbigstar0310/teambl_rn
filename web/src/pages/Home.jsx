@@ -41,7 +41,7 @@ function Home() {
   // 프로필 이미지 가져오기
   const fetchProfileImage = async () => {
     try {
-      const response = await api.get(`/api/profile/${userId}/`);
+      const response = await api.get(`/api/profile/${userId}/get/`);
       setProfileImage(response.data.image); // Assuming the image field is 'image'
       const numOfKeywords = response.data.keywords.length;
       const numOfSkills = response.data.skills.length;

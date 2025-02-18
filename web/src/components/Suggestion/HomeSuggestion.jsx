@@ -28,7 +28,7 @@ const HomeSuggestion = () => {
 
     /** data fetch */
     const fetchData = async () => {
-        const res = await api.get("/api/new-user-suggestions/");
+        const res = await api.get("/api/others/new-user-suggestions/");
 
         /** second degree */
         let tempSecondDegreeNum = res.data.secondDegree.length;

@@ -6,7 +6,7 @@ import api from "../../api.js";
  */
 async function getMe() {
     try {
-        const response = await api.get("/api/current-user/");
+        const response = await api.get("/api/user/current/");
         return response.data;
     } catch (error) {
         console.error("Failed to fetch current user", error);

@@ -25,7 +25,7 @@ const SideMenu = ({ isOpen, setIsOpen, profileImage, userId }) => {
     /** get user name */
     const fetchUserName = async () => {
         try {
-            const res = await api.get("/api/current-user/");
+            const res = await api.get("/api/user/current/");
             setUserName(res.data.profile['user_name']);
         } catch(e) {
             console.log(e);

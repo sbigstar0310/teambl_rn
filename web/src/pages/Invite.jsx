@@ -27,10 +27,10 @@ function Invite() {
   const fetchLinks = async () => {
     try {
       // 먼저 유저 정보를 가져와서 is_staff 값을 확인
-      const userResponse = await api.get("/api/current-user/");
+      const userResponse = await api.get("/api/user/current/");
       const isStaff = userResponse.data.is_staff;
 
-      const response = await api.get("/api/invitation-links/");
+      const response = await api.get("/api/invitation-link/list/");
       const sortedLinks = response.data.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
@@ -76,7 +76,7 @@ function Invite() {
     }
 
     try {
-      const response = await api.post("/api/create-invitation-link/", {
+      const response = await api.post("/api/invitation-link/create/", {
         name,
       });
       const newLink = {
@@ -129,7 +129,7 @@ function Invite() {
 
   const confirmRevokeInvite = async () => {
     try {
-      await api.delete(`/api/delete-invitation-link/${linkToRemove.id}/`); // linkToRemove.id 사용
+      await api.delete(`/api/invitation-link/${linkToRemove?.id}/delete/`); // linkToRemove.id 사용
       fetchLinks();
       setShowRevokeModal(false);
       setLinkToRemove(null);
@@ -194,7 +194,7 @@ function Invite() {
   // 프로필 이미지 가져오기
   const fetchProfileImage = async () => {
     try {
-      const response = await api.get(`/api/profile/${userId}/`);
+      const response = await api.get(`/api/profile/${userId}/get/`);
       setProfileImage(response.data.image); // Assuming the image field is 'image'
     } catch (error) {
       console.error("Failed to fetch profile image:", error);
