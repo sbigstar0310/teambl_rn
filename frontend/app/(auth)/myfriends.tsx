@@ -86,8 +86,9 @@ export default function MyFriendsScreen() {
                     friend.status === "accepted" ||
                     (friend.status === "pending" &&
                         friend.from_user.id === current_user_id)
-            );
-
+            )
+            .sort((a, b) => (a.status === "pending" && b.status !== "pending" ? -1 : 1));
+            
             // "내게 신청한" 친구 (status가 "pending"이면서 상대가 보낸 요청)
             const myRequestedFriends = processedFriends.filter(
                 (friend) =>
