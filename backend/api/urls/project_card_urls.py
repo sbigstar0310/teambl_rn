@@ -25,6 +25,11 @@ urlpatterns = [
         name="project-card-create",
     ),
     path(
+        "<int:pk>/retrieve/",
+        views.ProjectCardRetrieveView.as_view(),
+        name="project-card-retrieve",
+    ),
+    path(
         "<int:pk>/update/",
         views.ProjectCardUpdateView.as_view(),
         name="project-card-update",
@@ -58,9 +63,5 @@ urlpatterns += [
         views.ProjectCardInvitationResponseView.as_view(),
         name="project-card-invitation-response",
     ),
-    path(
-        'link/', 
-        views.ProjectCardLinkView.as_view(), 
-        name='project-card-link'
-    ),
+    path("link/", views.ProjectCardLinkView.as_view(), name="project-card-link"),
 ]

@@ -64,12 +64,19 @@ class ProjectCardCreateView(generics.CreateAPIView):
     serializer_class = ProjectCardSerializer
 
     def perform_create(self, serializer):
-        print("request data", self.request.data)
         project_card = serializer.save(creator=self.request.user)
         project_card.accepted_users.add(self.request.user)
         project_card.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ProjectCardRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+
+    def get_queryset(self):
+        return ProjectCard.objects.all()
 
 
 class ProjectCardUpdateView(generics.UpdateAPIView):

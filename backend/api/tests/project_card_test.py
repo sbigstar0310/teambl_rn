@@ -63,6 +63,49 @@ class ProjectCardCreateViewTestCase(TestCase):
         self.assertEqual(ProjectCardInvitation.objects.get().status, "pending")
 
 
+class ProjectCardRetrieveViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Create a test user
+        self.testuser01 = create_user_with_profile(
+            email="test@email.com", password="test", user_name="testuser1"
+        )
+        self.testuser02 = create_user_with_profile(
+            email="testuser02@email.com", password="test", user_name="testuser2"
+        )
+
+        # Create Project Cards
+        self.project_card1 = ProjectCard.objects.create(
+            title="Test Project Card 1",
+            creator=self.testuser01,
+            description="This is a test project card 1.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+        self.project_card2 = ProjectCard.objects.create(
+            title="Test Project Card 2",
+            creator=self.testuser02,
+            description="This is a test project card 2.",
+            start_date="2022-12-31",
+            end_date="2023-01-01",
+        )
+
+        # Authenticate the user
+        self.client.force_authenticate(user=self.testuser01)
+
+    def test_retrieve_project_card(self):
+        """
+        Ensure we can get a specific project card object.
+        """
+        url = reverse(
+            "project-card-retrieve", args=[self.project_card1.pk]
+        )  # Dynamic URL mapping
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("id"), self.project_card1.id)
+
+
 class ProjectCardListViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
