@@ -5,9 +5,7 @@ import PostInProjectPreview from "@/components/PostInProjectPreview";
 import {useAuthStore} from "@/store/authStore";
 import theme from "@/shared/styles/theme";
 import ProjectPreview from "@/components/ProjectPreview";
-import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 import searchProjectCard from "@/libs/apis/Search/searchProjectCard";
-import NoSearchResult from "@/components/common/NoSearchResult";
 
 export default function HomeScreen() {
     const [projects, setProjects] = useState<api.ProjectCard[]>([]);
@@ -21,7 +19,6 @@ export default function HomeScreen() {
     const fetchHomeProjects = async () => {
         try {
             const searchedProjectCards = await searchProjectCard({ q: "" });
-            const fetchedProjects = await fetchMyProjectCard();
             setProjects(searchedProjectCards.results);
         } catch (error) {
             console.error("Failed to fetch posts:", error);
@@ -44,7 +41,6 @@ export default function HomeScreen() {
             <ScrollView
                 contentContainerStyle={[{
                     paddingVertical: 8,
-                    display: "flex",
                     gap: 8
                 },
                 ]}
