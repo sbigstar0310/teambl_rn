@@ -26,7 +26,6 @@ import fetchPostById from "@/libs/apis/Post/fetchPostById";
 import toggleLikePost from "@/libs/apis/Post/toggleLikePost";
 import toggleBookmarkProjectCard from "@/libs/apis/ProjectCard/toggleBookmarkProjectCard";
 import createComment from "@/libs/apis/Comment/CommentCreate";
-import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
 import fetchComment from "@/libs/apis/Comment/fetchComment";
 import {SafeAreaView} from "react-native-safe-area-context";
@@ -43,6 +42,7 @@ import * as Clipboard from "expo-clipboard";
 import {createLinkToPost} from "@/shared/utils";
 import PostImages from "@/components/post/PostImages";
 import ReportCreateForm from "@/components/forms/ReportCreateForm";
+import retrieveProjectCard from "@/libs/apis/ProjectCard/retrieveProjectCard";
 
 export default function PostView() {
     const {id} = useLocalSearchParams();
@@ -121,13 +121,7 @@ export default function PostView() {
     const fetchProjectCard = async (projectId: number) => {
         try {
             setLoading(true);
-            // TODO: use specific api route to get single project card data by id
-            const projectCardsData = await fetchMyProjectCard();
-            const projectCardData = projectCardsData.find(p => p.id === projectId);
-            if (!projectCardData) {
-                console.error("Project card not found");
-                return;
-            }
+            const projectCardData = await retrieveProjectCard(projectId);
             setProjectData(projectCardData);
         } catch (error) {
             console.error("Failed to fetch project card:", error);

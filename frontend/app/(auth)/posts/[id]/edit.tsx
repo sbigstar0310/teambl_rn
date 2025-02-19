@@ -8,6 +8,7 @@ import {PostButton} from "@/components/forms/ProjectCreateForm";
 import Popup from "@/components/Popup";
 import fetchPostById from "@/libs/apis/Post/fetchPostById";
 import updatePost from "@/libs/apis/Post/updatePost";
+import getUserInfo from "@/libs/apis/User/getUserInfo";
 
 export default function EditPost() {
     const {id, project_title = ""} = useLocalSearchParams();
@@ -28,13 +29,23 @@ export default function EditPost() {
     const fetchPost = async () => {
         try {
             const postData = await fetchPostById(parseInt(id as string));
+            const taggedUsers = await fetchTaggedUsers((postData.tagged_users as any) as number[]);
+            if (!postData || !taggedUsers) throw new Error();
             setData({
                 content: postData.content,
-                tagged_users: postData.tagged_users,
+                tagged_users: taggedUsers,
                 images: []
             });
         } catch (error) {
             console.error('Failed to fetch post data', error);
+        }
+    }
+    const fetchTaggedUsers = async (userIds: number[]) => {
+        try {
+            return await Promise.all(
+                userIds.map(id => getUserInfo(id)));
+        } catch (error) {
+            console.error("Failed to fetch tagged users:", error);
         }
     }
 
@@ -44,7 +55,7 @@ export default function EditPost() {
             setIsLoading(true);
             await updatePost(parseInt(id as string), {
                 content: data.content,
-                tagged_users: data.tagged_users.map((user) => user.id),
+                tagged_users: data.tagged_users.filter(item => !!item).map((user) => user.id),
                 images: data.images
             });
 

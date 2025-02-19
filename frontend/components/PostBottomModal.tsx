@@ -1,16 +1,37 @@
 import React from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import {Alert, StyleSheet, View} from "react-native";
 import BottomModal from "./BottomModal";
 import CircularIconButton from "./CircularIconButton";
 import deletePost from "@/libs/apis/Post/deletePost";
 import createReport from "@/libs/apis/createReport";
+import * as Clipboard from "expo-clipboard";
+import {createLinkToPost} from "@/shared/utils";
+import {router} from "expo-router";
+import retrieveProjectCard from "@/libs/apis/ProjectCard/retrieveProjectCard";
 
-const PostBottomModal = (props: any) => {
-    const { visible, onClose, isMyPost, postId } = props;
+interface PostBottomModalProps {
+    visible: boolean;
+    onClose: () => void;
+    isMyPost: boolean;
+    postId: number;
+    projectId: number;
+    onDelete?: () => void;
+}
 
-    const handleLinkCopy = () => {
-        // TODO : Copy project link
-    };
+const PostBottomModal = (props: PostBottomModalProps) => {
+    const {visible, onClose, isMyPost, postId, projectId, onDelete} = props;
+
+    const handleLinkCopy = async () => {
+        try {
+            await Clipboard.setStringAsync(
+                createLinkToPost(props.postId)
+            );
+            onClose();
+            alert("프로젝트 링크가 클립보드에 복사되었습니다!");
+        } catch (error) {
+            alert("링크를 복사하는 동안 오류가 발생했습니다.");
+        }
+    }
 
     const handleReport = async () => {
         try {
@@ -25,30 +46,41 @@ const PostBottomModal = (props: any) => {
     };
 
     const handleDelete = async () => {
-        // TODO : 게시글 삭제 후 홈화면이 다시 그려져야 함.
         try {
             await deletePost(postId);
+            onDelete?.();
         } catch (error) {
             console.error("Failed to delete post with ID ${postId}:", error);
         }
     };
 
-    const handleEdit = () => {
-        // TODO : Edit project
+    const handleEdit = async () => {
+        try {
+            const result = await retrieveProjectCard(projectId);
+            router.push({
+                pathname: `/posts/${postId}/edit`,
+                params: {
+                    project_title: result.title
+                }
+            });
+            onClose();
+        } catch (error) {
+            console.error("Failed to edit post with ID ${postId}:", error);
+        }
     };
 
     const Body = () => {
         return (
             <View style={styles.container}>
-                <CircularIconButton type="COPYLINK" onPress={handleLinkCopy} />
+                <CircularIconButton type="COPYLINK" onPress={handleLinkCopy}/>
                 {isMyPost && (
-                    <CircularIconButton type="EDIT" onPress={handleEdit} />
+                    <CircularIconButton type="EDIT" onPress={handleEdit}/>
                 )}
                 {isMyPost && (
-                    <CircularIconButton type="DELETE" onPress={handleDelete} />
+                    <CircularIconButton type="DELETE" onPress={handleDelete}/>
                 )}
                 {!isMyPost && (
-                    <CircularIconButton type="REPORT" onPress={handleReport} />
+                    <CircularIconButton type="REPORT" onPress={handleReport}/>
                 )}
             </View>
         );
@@ -58,7 +90,7 @@ const PostBottomModal = (props: any) => {
         <BottomModal
             visible={visible}
             onClose={onClose}
-            body={<Body />}
+            body={<Body/>}
             heightPercentage={0.2}
         />
     );

@@ -38,13 +38,6 @@ const LoadingContainer = styled.View`
 const SubscribedProjects = () => {
     const myId = useAuthStore.getState().user?.id || -99;
 
-    if (myId === -99) {
-        return (
-            <View>
-                <Text>{"사용자 정보 수신에 실패했습니다."}</Text>
-            </View>
-        );
-    }
     const [loading, setLoading] = useState(true);
     const [projects, setProjects] = useState<api.ProjectCard[]>([]);
 
@@ -64,6 +57,14 @@ const SubscribedProjects = () => {
     useEffect(() => {
         fetchSubscribedProjects();
     }, []);
+
+    if (myId === -99) {
+        return (
+            <View>
+                <Text>{"사용자 정보 수신에 실패했습니다."}</Text>
+            </View>
+        );
+    }
 
     return (
         <SafeAreaView
@@ -117,6 +118,7 @@ const SubscribedProjects = () => {
                                                         key={post.id}
                                                         postInfo={post}
                                                         myId={myId}
+                                                        onPostDelete={fetchSubscribedProjects}
                                                     />
                                                 );
                                             }

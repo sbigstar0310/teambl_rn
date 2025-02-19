@@ -1,29 +1,21 @@
-import React, { useEffect, useState } from "react";
-import {
-    FlatList,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, {useEffect, useState} from "react";
+import {FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
 import UserFilterTabs from "@/components/search/UserFilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 import searchUser from "@/libs/apis/Search/searchUser";
-import { router } from "expo-router";
+import {router} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { USER_ID } from "@/shared/constants";
+import {USER_ID} from "@/shared/constants";
 import NoSearchResult from "@/components/common/NoSearchResult";
 import ProjFilterTabs from "@/components/search/ProjFilterTabs";
 import LoadingOverlay from "@/components/common/LoadingOverlay";
-import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
-import { mockPost1, mockPost2 } from "@/shared/mock-data";
+import {mockPost1, mockPost2} from "@/shared/mock-data";
 import ProjectPreview from "@/components/ProjectPreview";
-import { useAuthStore } from "@/store/authStore";
+import {useAuthStore} from "@/store/authStore";
 import theme from "@/shared/styles/theme";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
 import searchProjectCard from "@/libs/apis/Search/searchProjectCard";
@@ -114,11 +106,11 @@ export default function SearchScreen() {
     const fetchSearchResults = async (query: string) => {
         setLoading(true); // 로딩 시작
         try {
-            const response = await searchUser({ q: query, degree: [] });
+            const response = await searchUser({q: query, degree: []});
             setSearchData(response.results);
-            const searchedProjectCards = await searchProjectCard({ q: query });
+            const searchedProjectCards = await searchProjectCard({q: query});
             setResultProject(searchedProjectCards.results);
-            const searchedPosts = await searchPost({ q: query });
+            const searchedPosts = await searchPost({q: query});
             setResultPosts(searchedPosts.results);
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
@@ -191,6 +183,7 @@ export default function SearchScreen() {
                                                         key={index}
                                                         postInfo={post}
                                                         myId={myId}
+                                                        onPostDelete={() => fetchSearchResults(searchQuery)}
                                                     />
                                                 );
                                             })
@@ -226,7 +219,7 @@ export default function SearchScreen() {
                                 backgroundColor: theme.colors.white,
                             }}
                         >
-                            <ProjectPreview projectInfo={project} myId={myId} />
+                            <ProjectPreview projectInfo={project} myId={myId}/>
                         </View>
                     ))}
             </ScrollView>
@@ -260,7 +253,8 @@ export default function SearchScreen() {
                                 width: "100%",
                             }}
                         >
-                            <PostInProjectPreview postInfo={post} myId={myId} />
+                            <PostInProjectPreview postInfo={post} myId={myId}
+                                                  onPostDelete={() => fetchSearchResults(searchQuery)}/>
                         </View>
                     ))}
             </ScrollView>
@@ -269,11 +263,11 @@ export default function SearchScreen() {
 
     return (
         <SafeAreaView
-            style={{ flex: 1, backgroundColor: "#fff" }}
+            style={{flex: 1, backgroundColor: "#fff"}}
             edges={["top"]}
         >
             {/* 로딩 모달 */}
-            <LoadingOverlay isLoading={loading} />
+            <LoadingOverlay isLoading={loading}/>
 
             {/* 상단 헤더 */}
             <SearchHeader
@@ -293,7 +287,7 @@ export default function SearchScreen() {
             {/* 탭 내용 */}
             <View style={[styles.contentContainer]}>
                 {activeTab === "사람" && (
-                    <View style={{ flex: 1, padding: 20 }}>
+                    <View style={{flex: 1, padding: 20}}>
                         {/* 필터 */}
                         <UserFilterTabs
                             activeFilter={activeUserFilter}
@@ -314,7 +308,7 @@ export default function SearchScreen() {
                             <FlatList
                                 data={filteredResults}
                                 keyExtractor={(item) => String(item.user.id)}
-                                renderItem={({ item }) => (
+                                renderItem={({item}) => (
                                     <UserCard {...item} />
                                 )}
                             />
@@ -322,7 +316,7 @@ export default function SearchScreen() {
                     </View>
                 )}
                 {activeTab === "프로젝트 + 게시물" && (
-                    <View style={{ flex: 1 }}>
+                    <View style={{flex: 1}}>
                         {/* 필터 */}
                         <View
                             style={{
@@ -339,9 +333,9 @@ export default function SearchScreen() {
                             <ProjPostListView/>
                         )}
                         {`${activeProjFilter}` === `${1}` && (
-                            <ProjectListView />
+                            <ProjectListView/>
                         )}
-                        {`${activeProjFilter}` === `${2}` && <PostListView />}
+                        {`${activeProjFilter}` === `${2}` && <PostListView/>}
                     </View>
                 )}
             </View>
@@ -360,7 +354,7 @@ export default function SearchScreen() {
                     });
                 }}
             >
-                <SurfingIcon />
+                <SurfingIcon/>
             </TouchableOpacity>
         </SafeAreaView>
     );
@@ -386,7 +380,7 @@ const styles = StyleSheet.create({
         right: 20,
         justifyContent: "center",
         alignItems: "center",
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.25,
         shadowRadius: 4,
     },

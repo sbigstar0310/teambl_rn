@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, Animated, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import PrimeButton from "@/components/PrimeButton";
-import { router } from "expo-router";
 import fetchMyProjectCardAPI from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 import { useScroll } from "@/components/provider/ScrollContext";
 import theme from "@/shared/styles/theme";
@@ -18,18 +16,7 @@ import PostInProjectPreview from "@/components/PostInProjectPreview";
 const { width, height } = Dimensions.get("window");
 
 const MyProfileProjectView = () => {
-
     const myId = useAuthStore.getState().user?.id || -99;
-
-    if (myId === -99) {
-        return (
-            <View>
-                <Text>
-                    Error in getting user id
-                </Text>
-            </View>
-        );
-    }
 
     const [projectCards, setProjectCards] = useState<api.ProjectCard[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -128,9 +115,10 @@ const MyProfileProjectView = () => {
                                 item.posts.map((post: any, index: number) => {
                                     return (
                                         <PostInProjectPreview
-                                            key={post.id}
+                                            key={index}
                                             postInfo={post}
                                             myId={myId}
+                                            onPostDelete={fetchMyProjectCard}
                                         />
                                     );
                                 })
@@ -141,6 +129,16 @@ const MyProfileProjectView = () => {
             </ScrollView>
         )
     };
+
+    if (myId === -99) {
+        return (
+            <View>
+                <Text>
+                    Error in getting user id
+                </Text>
+            </View>
+        );
+    }
 
     if (projectCards.length === 0) {
             return (

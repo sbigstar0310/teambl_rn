@@ -18,7 +18,7 @@ export default function HomeScreen() {
 
     const fetchHomeProjects = async () => {
         try {
-            const searchedProjectCards = await searchProjectCard({ q: "" });
+            const searchedProjectCards = await searchProjectCard({q: ""});
             setProjects(searchedProjectCards.results);
         } catch (error) {
             console.error("Failed to fetch posts:", error);
@@ -145,6 +145,7 @@ export default function HomeScreen() {
                                                         key={index}
                                                         postInfo={post}
                                                         myId={myId}
+                                                        onPostDelete={fetchHomeProjects}
                                                     />
                                                 );
                                             })

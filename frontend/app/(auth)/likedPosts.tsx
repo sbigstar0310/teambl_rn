@@ -83,6 +83,7 @@ const likedPosts = () => {
                             key={index}
                             postInfo={post}
                             myId={target_user_id}
+                            onPostDelete={fetchLikedPostsList}
                         />
                     ))}
                 </ScrollView>

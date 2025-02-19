@@ -13,6 +13,7 @@ import fetchComment from "@/libs/apis/Comment/fetchComment";
 interface PostInProjectPreviewProps {
     postInfo: api.Post;
     myId: number;
+    onPostDelete?: () => void;
 }
 
 const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
@@ -146,6 +147,8 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
                 onClose={() => setIsOptionVisible(false)}
                 isMyPost={`${postInfo?.user}` === `${myId}`}
                 postId={postInfo?.id}
+                projectId={(postInfo?.project_card as any) as number}
+                onDelete={props.onPostDelete}
             />
         </View>
     );
