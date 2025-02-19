@@ -150,6 +150,61 @@ export default function SearchScreen() {
         setSearchHistory((prevHistory) => [...prevHistory, query]);
     };
 
+    const ProjPostListView = () => {
+        return (
+            <ScrollView
+                contentContainerStyle={{
+                    gap: 8,
+                    backgroundColor: theme.colors.achromatic05,
+                }}
+            >
+                {!resultProject ||
+                    (resultProject.length === 0 && (
+                        <NoSearchResult
+                            title="검색 결과가 없습니다."
+                            message="필터를 조정하거나 새로운 검색어를 입력해보세요."
+                        />
+                    ))}
+                {resultProject &&
+                    resultProject.length > 0 &&
+                    resultProject.map((project: api.ProjectCard, index: number) => {
+                        return (
+                            <View
+                                key={index}
+                                style={styles.projPostContainer}
+                            >
+                                {/** project preview call */}
+                                <ProjectPreview
+                                    projectInfo={project}
+                                    myId={myId}
+                                />
+                                {/** post preview call */}
+                                {
+                                    project.posts.length > 0 &&
+                                    <View
+                                        style={styles.postViewContainer}
+                                    >
+                                        {
+                                            project.posts.map((post: any, index: number) => {
+                                                return (
+                                                    <PostInProjectPreview
+                                                        key={index}
+                                                        postInfo={post}
+                                                        myId={myId}
+                                                    />
+                                                );
+                                            })
+                                        }
+                                    </View>
+                                }
+                            </View>
+                        );
+                    })
+                }
+            </ScrollView>
+        );
+    };
+
     const ProjectListView = () => {
         return (
             <ScrollView contentContainerStyle={styles.projectContainer}>
@@ -281,9 +336,7 @@ export default function SearchScreen() {
                             />
                         </View>
                         {activeProjFilter === null && (
-                            <Text style={styles.resultCount}>
-                                {"검색 타입을 선택해주세요."}
-                            </Text>
+                            <ProjPostListView/>
                         )}
                         {`${activeProjFilter}` === `${1}` && (
                             <ProjectListView />
@@ -345,7 +398,28 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         justifyContent: "flex-start",
         alignItems: "center",
-        gap: 10,
+        gap: 8,
         backgroundColor: theme.colors.achromatic05,
     },
+    projPostContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 10,
+        backgroundColor: theme.colors.white,
+        paddingVertical: 20
+    },
+    postViewContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+        paddingVertical: 0,
+        backgroundColor: theme.colors.white,
+        gap: 15
+    }
 });
