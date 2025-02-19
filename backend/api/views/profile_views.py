@@ -37,10 +37,6 @@ class ProfileUpdateView(generics.UpdateAPIView):
         return Profile.objects.get(user=self.request.user)
 
     def put(self, request, *args, **kwargs):
-        print("📝 Request Content-Type:", request.content_type)  # Debugging
-        # print("📄 Raw POST Data:", request.POST)  # Debugging
-        print("📂 Uploaded Files:", request.FILES)  # Debugging
-
         return super().put(request, *args, **kwargs)
 
 

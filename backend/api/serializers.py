@@ -356,16 +356,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        print("💡 Raw request data BEFORE validation: ", self.initial_data)  # Debugging
-        print("✅ Validated data AFTER validation: ", validated_data)  # Debugging
-
-        # Check if image exists
-        # if "image" in validated_data:
-        # print("📷 Image received:", validated_data["image"])
-        # else:
-        # print("⚠️ No image in validated_data!")
-        print("validated_data: ", validated_data)
-
         # 이미지 추출 (new_image, old_image )
         new_image = validated_data.get("image", None)
         old_image = instance.image
@@ -379,24 +369,26 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         # 키워드 추출
         keywords_data = validated_data.pop("keywords", None)
 
-        print("validated_data: ", validated_data)
         # Update basic fields only if they are provided in the validated_data
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # 기존 이미지 삭제 (새 이미지가 업로드된 경우)
-        if new_image and old_image and old_image != new_image:
-            if os.path.isfile(old_image.path):
-                os.remove(old_image.path)
+        # (1) 유저가 `image` 필드를 보내지 않으면, 기존 이미지 유지
+        if "image" not in validated_data:
+            pass  # 기존 이미지 유지
 
-        # 기존 이미지 삭제 (유저가 이미지 삭제를 선택)
-        if new_image == "":
-            # 이미지 필드 초기화
-            if old_image and os.path.isfile(old_image.path):
-                os.remove(old_image.path)  # 기존 이미지 파일 삭제
-            instance.image = None  # 모델의 이미지 필드 값 초기화
-            instance.save()  # 변경사항 저장
+        # (2) 유저가 `image: null`을 보냈다면 기존 이미지 삭제
+        elif new_image is None:
+            if old_image:
+                old_image.delete(save=False)  # ✅ S3에서도 이미지 삭제
+            instance.image = None
+
+        # (3) 새 이미지가 업로드되면 기존 이미지 삭제 후 새 이미지 저장
+        elif new_image and old_image and old_image != new_image:
+            if old_image:
+                old_image.delete(save=False)  # ✅ 기존 이미지 삭제
+            instance.image = new_image  # 새 이미지 저장
 
         # Update keywords
         if keywords_data is not None:

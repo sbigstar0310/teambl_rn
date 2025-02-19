@@ -205,12 +205,28 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "info@teambl.net"
 EMAIL_HOST_PASSWORD = "neaf ykxc tvfd xfmc"
 
-# 프로필 이미지를 위한 Media
-# MEDIA_URL은 미디어 파일에 접근할 URL 경로를 지정합니다.
-MEDIA_URL = "/media/"
+# Default File Storage
+STORAGES = {
+    "default": {  # ✅ 미디어 파일 (S3 사용)
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {},
+    },
+    "staticfiles": {  # ✅ staticfiles을 사용하지 않아도 기본값 설정 필요
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "OPTIONS": {},
+    },
+}
 
-# MEDIA_ROOT는 실제 파일이 저장될 서버의 디렉토리 경로를 지정합니다.
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+# AWS S3 설정
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")  # AWS S3 버킷 이름
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")  # 서울 리전
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+
+# 미디어 파일 URL 설정
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 
 # Increase the maximum allowed request size (in bytes)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB

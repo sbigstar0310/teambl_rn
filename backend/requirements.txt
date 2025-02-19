@@ -15,3 +15,5 @@ hashids
 channels
 mysqlclient
 mysql
+boto3
+django-storages

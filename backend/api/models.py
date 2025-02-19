@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import (
@@ -183,8 +184,21 @@ class Post(models.Model):
 # New 게시물 이미지 모델
 class PostImage(models.Model):
     post = models.ForeignKey("Post", on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="post_images/")
+    image = models.ImageField(upload_to=None)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def post_image_upload_path(instance, filename):
+        """게시글 이미지 경로 지정 (post_images/{post_id}/{uuid}.jpg)"""
+        ext = filename.split(".")[-1]  # 파일 확장자 추출
+        filename = f"{uuid.uuid4()}.{ext}"  # UUID 기반의 고유 파일명 생성
+        return f"post_images/{instance.id}/{filename}"
+
+    def save(self, *args, **kwargs):
+        """저장하기 전에 upload_to 경로를 동적으로 지정"""
+        if not self.image.field.upload_to:
+            self.image.field.upload_to = self.post_image_upload_path
+        super().save(*args, **kwargs)  # 원래 저장 로직 실행
 
     def __str__(self):
         return f"Image for {self.post.id}"
@@ -366,9 +380,20 @@ class Profile(models.Model):
     keywords = models.ManyToManyField(Keyword, blank=True)  # 키워드
     one_degree_count = models.IntegerField(default=0)  # 1촌 수
     introduction = models.TextField(default="", blank=True, max_length=1000)  # 소개
-    image = models.ImageField(
-        upload_to="profile_images/", blank=True, null=True
-    )  # 프로필 이미지
+    image = models.ImageField(upload_to=None, blank=True, null=True)  # 프로필 이미지
+
+    @staticmethod
+    def profile_image_upload_path(instance, filename):
+        """프로필 이미지 경로 지정 (profile_images/{profile_id}/{uuid}.jpg)"""
+        ext = filename.split(".")[-1]  # 파일 확장자 추출
+        filename = f"{uuid.uuid4()}.{ext}"  # UUID 기반의 고유 파일명 생성
+        return f"profile_images/{instance.user.id}/{filename}"
+
+    def save(self, *args, **kwargs):
+        """저장하기 전에 upload_to 경로를 동적으로 지정"""
+        if not self.image.field.upload_to:
+            self.image.field.upload_to = self.profile_image_upload_path
+        super().save(*args, **kwargs)  # 원래 저장 로직 실행
 
     def __str__(self):
         return self.user_name
@@ -606,12 +631,25 @@ class Message(models.Model):
         blank=True,
     )
     message = models.TextField(blank=True)
-    image = models.ImageField(upload_to="message_images/", null=True, blank=True)
+    image = models.ImageField(upload_to=None, null=True, blank=True)
     is_read = models.BooleanField(default=False)
     is_system = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     visible_for_user1 = models.BooleanField(default=True)
     visible_for_user2 = models.BooleanField(default=True)
+
+    @staticmethod
+    def message_image_upload_path(instance, filename):
+        """메시지 이미지 경로 지정 (profile_images/{profile_id}/{uuid}.jpg)"""
+        ext = filename.split(".")[-1]  # 파일 확장자 추출
+        filename = f"{uuid.uuid4()}.{ext}"  # UUID 기반의 고유 파일명 생성
+        return f"message_images/{instance.id}/{filename}"
+
+    def save(self, *args, **kwargs):
+        """저장하기 전에 upload_to 경로를 동적으로 지정"""
+        if not self.image.field.upload_to:
+            self.image.field.upload_to = self.message_image_upload_path
+        super().save(*args, **kwargs)  # 원래 저장 로직 실행
 
     def __str__(self):
         return f"Message from {self.sender or '탈퇴한 사용자'} in {self.conversation}"
@@ -676,12 +714,10 @@ class Notification(models.Model):
         # 초대한 사람이 가입, 초대링크 만료
         ("invitation_register", "Invitation Register"),
         ("invitation_expired", "Invitation Expired"),
-        
         # 일촌 신청 수락, 거절, 요청
         ("friend_accept", "Friend Accept"),
         ("friend_reject", "Friend Reject"),
         ("friend_request", "Friend Request"),
-        
         # Project Card 초대, 수락, 거절, 수정, 매칭 추천
         ("project_card_invite", "ProjectCard Invite"),
         ("project_card_accept", "ProjectCard Accept"),
@@ -690,9 +726,9 @@ class Notification(models.Model):
         ("project_card_recommend", "ProjectCard Recommend"),
         # Post 추가(팀원), 수정(팀원), 추가(저장), 수정(저장), 좋아요(생성자)
         ("post_create_team", "Post Create Team"),
-        ("post_update_team", "Post Update Team"), 
-        ("post_create_save", "Post Create Save"), 
-        ("post_update_save", "Post Update Save"), 
+        ("post_update_team", "Post Update Team"),
+        ("post_create_save", "Post Create Save"),
+        ("post_update_save", "Post Update Save"),
         ("post_like", "Post Like"),
         # Comment 추가(생성자), 대댓글 추가(댓글작성자), 수정(생성자), 대댓글 수정(댓글작성자)
         ("comment_create", "Comment Create"),
