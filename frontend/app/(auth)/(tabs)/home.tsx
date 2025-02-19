@@ -6,6 +6,8 @@ import {useAuthStore} from "@/store/authStore";
 import theme from "@/shared/styles/theme";
 import ProjectPreview from "@/components/ProjectPreview";
 import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
+import searchProjectCard from "@/libs/apis/Search/searchProjectCard";
+import NoSearchResult from "@/components/common/NoSearchResult";
 
 export default function HomeScreen() {
     const [projects, setProjects] = useState<api.ProjectCard[]>([]);
@@ -18,8 +20,9 @@ export default function HomeScreen() {
 
     const fetchHomeProjects = async () => {
         try {
+            const searchedProjectCards = await searchProjectCard({ q: "" });
             const fetchedProjects = await fetchMyProjectCard();
-            setProjects(fetchedProjects);
+            setProjects(searchedProjectCards.results);
         } catch (error) {
             console.error("Failed to fetch posts:", error);
             setProjects([]);
@@ -40,12 +43,8 @@ export default function HomeScreen() {
             <Header/>
             <ScrollView
                 contentContainerStyle={[{
-                    flexGrow: 1,
                     paddingVertical: 8,
                     display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "flex-start",
-                    alignItems: "center",
                     gap: 8
                 },
                 ]}
@@ -124,13 +123,6 @@ export default function HomeScreen() {
                         />
                     )}
                 /> */}
-
-                {
-                    (projects.length === 0) &&
-                    <Text>
-                        {"프로젝트가 없습니다."}
-                    </Text>
-                }
                 {
                     (projects.length > 0) &&
                     projects.map((project: api.ProjectCard, index: number) => {
