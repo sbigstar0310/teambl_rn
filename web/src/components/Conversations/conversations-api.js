@@ -20,7 +20,7 @@ async function getMe() {
  */
 async function searchUsers(query) {
     try {
-        const response = await api.get(`/api/search-users/`, {
+        const response = await api.get(`/api/search/name/`, {
             params: {user_name: query}
         });
         if (response.data?.profiles) {
@@ -53,7 +53,7 @@ async function searchUsers(query) {
  */
 async function createConversation(otherUserId) {
     try {
-        const response = await api.post(`/api/conversations/create/`, {user_2: otherUserId});
+        const response = await api.post(`/api/conversation/conversations/create/`, {user_2: otherUserId});
         return response.data;
     } catch (error) {
         console.error("Failed to create a new chat", error);
@@ -66,7 +66,7 @@ async function createConversation(otherUserId) {
  */
 async function getConversations() {
     try {
-        const response = await api.get("/api/conversations/");
+        const response = await api.get("/api/conversation/conversations/");
         return response.data;
     } catch (error) {
         console.error("Failed to fetch list of conversations", error);
@@ -80,7 +80,7 @@ async function getConversations() {
  */
 async function deleteConversation(conversationId) {
     try {
-        await api.delete(`/api/conversations/${conversationId}/delete/`);
+        await api.delete(`/api/conversation/conversations/${conversationId}/delete/`);
     } catch (error) {
         console.error("Failed to delete a conversation", error);
     }
@@ -93,7 +93,7 @@ async function deleteConversation(conversationId) {
  */
 async function getMessages(conversationId) {
     try {
-        const response = await api.get(`/api/conversations/${conversationId}/messages/`);
+        const response = await api.get(`/api/conversation/conversations/${conversationId}/messages/`);
         const systemMessages = response.data.system_messages ?? [];
         const user1Messages = response.data.user1_messages ?? [];
         const user2Messages = response.data.user2_messages ?? [];
@@ -110,7 +110,7 @@ async function getMessages(conversationId) {
  */
 async function getLatestMessage(conversationId) {
     try {
-        const response = await api.get(`/api/conversations/${conversationId}/last-message/`);
+        const response = await api.get(`/api/conversation/conversations/${conversationId}/last-message/`);
         return response.data?.last_message;
     } catch (error) {
         console.error("Failed to fetch latest message", error);
@@ -133,7 +133,7 @@ async function createMessage(conversationId, {message, image}) {
         if (image) {
             formData.append("image", image);
         }
-        const response = await api.post(`/api/messages/${conversationId}/create/`, formData, {
+        const response = await api.post(`/api/conversation/messages/${conversationId}/create/`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }
@@ -151,7 +151,7 @@ async function createMessage(conversationId, {message, image}) {
  */
 async function deleteMessage(messageId) {
     try {
-        await api.patch(`/api/messages/${messageId}/delete/`);
+        await api.patch(`/api/conversation/messages/${messageId}/delete/`);
     } catch (error) {
         console.error("Failed to delete a message", error);
     }
@@ -164,7 +164,7 @@ async function deleteMessage(messageId) {
  */
 async function markAsRead(conversationId) {
     try {
-        await api.patch(`/api/conversations/${conversationId}/read/`);
+        await api.patch(`/api/conversation/conversations/${conversationId}/read/`);
     } catch (error) {
         console.error("Failed to mark messages as read", error);
     }

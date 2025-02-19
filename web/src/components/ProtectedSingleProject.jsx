@@ -1,5 +1,5 @@
 import api from "../api"
-import { useState, useEffect } from "react" 
+import {useEffect, useState} from "react"
 import SingleProject from "../pages/SingleProject/SingleProject"
 import SingleProjectLogout from "../pages/SingleProject/SingleProjectLogout"
 
@@ -10,9 +10,9 @@ function ProtectedSingleProject() {
     useEffect(() => {
         const checkLogin = async () => {
             try {
-                const response = await api.get('/api/check-user-login/');
+                const response = await api.get('/api/user/current/');
                 const data = await response.data;
-                setIsLogin(data.detail);
+                setIsLogin(!!data?.id);
             } catch (error) {
                 setIsLogin(false);
             } finally {
@@ -23,7 +23,7 @@ function ProtectedSingleProject() {
     }, []);
   
     if (loading) {
-      return <div>Loading...</div>;
+        return <div>Loading...</div>;
     }
 
     return isLogin ? <SingleProject/> : <SingleProjectLogout/>;

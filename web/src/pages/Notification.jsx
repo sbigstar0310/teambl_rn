@@ -21,7 +21,7 @@ const Notification = ({ updateUnreadCount }) => {
   // 현재 로그인한 유저 정보 불러오기
   const fetchCurrentUser = async () => {
     try {
-      const response = await api.get("/api/current-user/");
+      const response = await api.get("/api/user/current/");
       setCurrentUser(response.data);
     } catch (error) {
       console.error("Failed to fetch current user", error);
@@ -31,7 +31,7 @@ const Notification = ({ updateUnreadCount }) => {
   // 알림 목록 불러오기
   const fetchNotifications = async () => {
     try {
-      const response = await api.get("/api/notifications/");
+      const response = await api.get("/api/notification/list/");
       setNotifications(response.data);
     } catch (error) {
       console.error("Failed to fetch notifications", error);
@@ -46,7 +46,7 @@ const Notification = ({ updateUnreadCount }) => {
         : { message: editMessage };
 
       const response = await api.patch(
-        `/api/notifications/update/${id}/`,
+        `/api/notification/${id}/update/`,
         newData
       );
 
@@ -81,7 +81,7 @@ const Notification = ({ updateUnreadCount }) => {
   // 알림 삭제하기
   const deleteNotification = async (id) => {
     try {
-      await api.delete(`/api/notifications/delete/${id}/`);
+      await api.delete(`/api/notification/${id}/delete/`);
       setNotifications(
         notifications.filter((notification) => notification.id !== id)
       );

@@ -152,7 +152,7 @@ const ProfileSelf2 = () => {
     // };
     const fetchUserInformation = async () => {
         try {
-            const res = await api.get("/api/current-user/");
+            const res = await api.get("/api/user/current/");
             let newProfile = res.data.profile || {};
     
             // 초기값 설정

@@ -99,10 +99,10 @@ const AddProject = () => {
         try {
             /** get my information */
             let tempMyId = -999;
-            const myRes = await api.get('/api/current-user/');
+            const myRes = await api.get('/api/user/current/');
             tempMyId = myRes.data.id;
             await setMyId(tempMyId);
-            const res = await api.get('/api/friends/one-degree/');
+            const res = await api.get(`/api/friend/${tempMyId}/one-degree/`);
             /** delete me */
             let filteredList = res.data.filter(item => {
                 return (item.id !== tempMyId);
@@ -146,22 +146,22 @@ const AddProject = () => {
             formData.append("content", requestBody["content"]);
             
             contactList.forEach((contactInfo) => {
-                formData.append("contacts[]", contactInfo);
+                formData.append("contacts", contactInfo);
             });
 
             tagList.forEach((tag) => {
-                formData.append("keywords[]", tag);
+                formData.append("keywords", tag);
             });
 
             selectedFriendList.forEach((friendInfo) => {
-                formData.append("tagged_users[]", friendInfo['id']);
+                formData.append("tagged_users", friendInfo['id']);
             });
 
             imageList.forEach((image) => {
                 formData.append("images", image);
             });
 
-            await api.post('/api/projects/', formData, {
+            await api.post('/api/project-card/create/', formData, {
                 headers : {
                     "Content-Type" : "multipart/form-data"
                 }

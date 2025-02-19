@@ -1,11 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import api from '../api';
 import "../styles/PeopleTagPopUp.css";
 import topBarIcon from "../assets/popUpTopBar.svg";
 import majorEdit from "../assets/Profile/majorEdit.svg";
 import UserInfoToggleItem from './UserInfoToggleItem';
 
-const PeopleTagPopUp = ({ isPopUpOpen, setIsPopUpOpen, selectedPeopleList, setSelectedPeopleList, maxSelectNum, myId, filterFunc, confirmCallback }) => {
+const PeopleTagPopUp = ({
+                            isPopUpOpen,
+                            setIsPopUpOpen,
+                            selectedPeopleList,
+                            setSelectedPeopleList,
+                            maxSelectNum,
+                            myId,
+                            filterFunc,
+                            confirmCallback
+                        }) => {
 
     const [isDataLoading, setIsDataLoading] = useState(false);
     const [peopleList, setPeopleList] = useState([]);
@@ -16,47 +25,20 @@ const PeopleTagPopUp = ({ isPopUpOpen, setIsPopUpOpen, selectedPeopleList, setSe
     /** search people list */
     const searchPeopleList = async (currentSelectedList) => {
         await setIsDataLoading(true);
-        try {            
-            const response = await api.get(`/api/search-users/`, {
-                params: {
-                    user_name: searchKeyword
-                }
+        try {
+            const response = await api.post(`/api/search/name/`, {
+                user_name: searchKeyword
             });
-            let newPeopleList = response.data.profiles;
-            let newIdList = response.data['user_id_list'];
-            let newChonList = response.data['one_degree_distacne_list'];
-            /** merge ids */
-            newIdList.forEach((id, index) => {
-                newPeopleList[index]['id'] = id;
-            });
-            /** merge chon number */
-            newChonList.forEach((dist, index) => {
-                newPeopleList[index]['one_degree_distance'] = dist;
-            });
-            /** filter out me */
-            let peopleListWithoutMe = newPeopleList.filter(peopleInfo => {
-                return (peopleInfo.id != myId);
-            });
-            /** filter out already selected */
-            let newList = [];
-            for (let j=0 ; j<peopleListWithoutMe.length ; j++) {
-                let isFound = false;
-                for (let i=0; i<currentSelectedList.length ; i++) {
-                    if (currentSelectedList[i].id == peopleListWithoutMe[j].id) {
-                        isFound = true;
-                    }
-                }
-                if (!isFound) {
-                    if (filterFunc != null) {
-                        if (filterFunc(peopleListWithoutMe[j])) {
-                            newList.push({...peopleListWithoutMe[j]});
-                        }
-                    } else {
-                        newList.push({...peopleListWithoutMe[j]});
-                    }
-                }
-            }
-            await setPeopleList(newList);
+            const result = response.data ?? [];
+            const peopleList = result
+                .filter(({id}) => id !== myId && !currentSelectedList.some(({id: selectedId}) => selectedId === id))
+                .map(({is_new_user, relation_degree, user}) => ({
+                    id: user.id,
+                    one_degree_distance: relation_degree,
+                    is_new_user,
+                    ...user.profile
+                }))
+            await setPeopleList(peopleList);
         } catch (e) {
             console.log(e);
             await setPeopleList([]);
@@ -119,8 +101,12 @@ const PeopleTagPopUp = ({ isPopUpOpen, setIsPopUpOpen, selectedPeopleList, setSe
     const isArraySame = (arr1, arr2) => {
         if (arr1.length !== arr2.length) return false;
 
-        let serializedArr1 = arr1.map(item => {return item.id});
-        let serializedArr2 = arr2.map(item => {return item.id});
+        let serializedArr1 = arr1.map(item => {
+            return item.id
+        });
+        let serializedArr2 = arr2.map(item => {
+            return item.id
+        });
 
         const sortedArr1 = [...serializedArr1].sort();
         const sortedArr2 = [...serializedArr2].sort();
@@ -156,7 +142,7 @@ const PeopleTagPopUp = ({ isPopUpOpen, setIsPopUpOpen, selectedPeopleList, setSe
                 <div className="peopleSelectPopUp-top">
                     <img
                         style={{
-                        margin: '16px 0px 16px 0px'
+                            margin: '16px 0px 16px 0px'
                         }}
                         src={topBarIcon}
                         alt="top useless bar"
@@ -189,8 +175,8 @@ const PeopleTagPopUp = ({ isPopUpOpen, setIsPopUpOpen, selectedPeopleList, setSe
                 <div
                     className="peopleSelectPopUp-body"
                     style={{
-                        marginTop : '16px'
-                    }}  
+                        marginTop: '16px'
+                    }}
                 >
                     {
                         currentSelectedPeopleList &&
@@ -225,9 +211,9 @@ const PeopleTagPopUp = ({ isPopUpOpen, setIsPopUpOpen, selectedPeopleList, setSe
                         "peopleSelectPopUp-footer-btn" +
                         (
                             isChanged ?
-                            ""
-                            :
-                            " peopleSelectPopUp-btn-disabled"
+                                ""
+                                :
+                                " peopleSelectPopUp-btn-disabled"
                         )
                     }
                     onClick={async () => {

@@ -37,7 +37,7 @@ function Certify() {
 
   const checkEmailExists = async () => {
     try {
-      const response = await api.post("/api/check-email/", { email });
+      const response = await api.post("/api/others/check-email/", { email });
       setEmailError(""); // 이메일 사용 가능
       return false;
     } catch (error) {
@@ -97,7 +97,7 @@ function Certify() {
     console.log(email);
 
     try {
-      await api.post("/api/send-code-email/", { email, code });
+      await api.post("/api/others/send-code-email/", { email, code });
       setCodeSent(true);
       //alert(`인증 코드가 이메일로 전송되었습니다. ${code}`);
       alert(`인증 코드가 이메일로 전송되었습니다.`);

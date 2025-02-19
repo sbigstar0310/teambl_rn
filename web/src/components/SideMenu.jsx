@@ -83,7 +83,7 @@ const SideMenu = ({ isOpen, setIsOpen, profileImage, userId }) => {
                         {/** button */}
                         <button className='side-menu-mypage-button'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14" fill="none">
-                                <path d="M0.999999 13L7 7L0.999998 0.999999" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M0.999999 13L7 7L0.999998 0.999999" stroke="#A8A8A8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </button>
                     </div>

@@ -247,10 +247,10 @@ function Project() {
     <div>
       {projects &&
         projects.length > 0 &&
-        projects.map((project) => (
+        projects.map((project, index) => (
           <ProjectView
             viewId={`proj-${project["project_id"]}`}
-            key={project["project_id"]}
+            key={index}
             projectId={project["project_id"]}
             updateProjectList={getProjects}
           />

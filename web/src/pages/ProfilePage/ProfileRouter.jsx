@@ -16,7 +16,7 @@ const ProfileRouter = () => {
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await api.get("/api/current-user/");
+      const response = await api.get("/api/user/current/");
       setCurrentUser(response.data);
       setIsProfileSelf(id === String(response.data.id));
       console.log("ProfileRouter.jsx", (id === String(response.data.id)));

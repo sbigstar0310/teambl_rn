@@ -48,7 +48,7 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post("/api/user/register/", {
+      const response = await api.post("/api/user/register-alone/", {
         email,
         password,
         profile: {

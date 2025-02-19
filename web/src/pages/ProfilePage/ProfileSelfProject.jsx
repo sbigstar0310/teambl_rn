@@ -41,7 +41,7 @@ const ProfileSelfProject = ({ userId }) => {
     await setIsLoading(true);
     await setIsError(false);
     try {
-      const res = await api.get("/api/projects/");
+      const res = await api.get("/api/project-card/list/current/");
       await setProjectList(res.data);
       if (callback) {
         await callback();
@@ -97,11 +97,11 @@ const ProfileSelfProject = ({ userId }) => {
       {/** project view */}
       {projectList.length > 0 && (
         <div className="profileSelfProject-content-container">
-          {projectList.map((projectInfo) => {
+          {projectList.map((projectInfo,index) => {
             return (
               <ProjectView
                 viewId={`proj-${projectInfo["project_id"]}`}
-                key={projectInfo["project_id"]}
+                key={index}
                 projectId={projectInfo["project_id"]}
                 updateProjectList={fetchProjectList}
               />
