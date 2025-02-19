@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.forms import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.conf import settings
 from .models import (
     CustomUser,
     Post,
@@ -923,7 +924,9 @@ class FriendCreateSerializer(serializers.ModelSerializer):
 
         # 🔹 `instance`가 `dict`일 수도 있기 때문에 안전하게 `hasattr()` 체크
         if hasattr(instance, "to_user") and instance.to_user:
-            representation["to_user"] = CustomUserSerializer(instance.to_user).data
+            representation["to_user"] = CustomUserSerializer(
+                instance.to_user, context=self.context
+            ).data
 
         return representation
 
