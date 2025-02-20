@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -6,7 +7,8 @@ from django.core import mail
 from .utils import (
     create_post_with_images,
     create_user_with_profile,
-    get_or_create_image_file,
+    delete_s3_file,
+    get_image_from_url,
 )
 from ..models import CustomUser, Friend, Keyword, Post, PostImage, ProjectCard, Skill
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -26,14 +28,6 @@ class ProfileUpdateViewTestCase(TestCase):
         self.client.force_authenticate(user=self.testuser01)
 
     def test_update_profile(self):
-        # 테스트용 이미지 파일 생성
-        test_image = get_or_create_image_file(
-            file_name="test_image.jpg",
-            file_content=b"file_content_here",
-            content_type="image/jpeg",
-            image_dir="profile_images",
-        )
-
         # Prepare valid post data
         data = {
             "user_name": "new name",
@@ -55,10 +49,6 @@ class ProfileUpdateViewTestCase(TestCase):
         # Assert the response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # check profile is updated
-        print(response.status_code)
-        print(response.data)
-
         # Check updated fields
         self.assertEqual(response.data["user_name"], data["user_name"])
         self.assertEqual(response.data["school"], data["school"])
@@ -68,6 +58,34 @@ class ProfileUpdateViewTestCase(TestCase):
         self.assertEqual(response.data["keywords"], data["keywords"])
         self.assertEqual(response.data["skills"], data["skills"])
         self.assertEqual(response.data["major1"], data["major1"])
+
+    def test_update_profile_with_image(self):
+        # 테스트용 이미지 파일 생성
+        test_image = get_image_from_url()
+        data = {
+            "image": test_image,
+        }
+
+        # Perform POST request with multipart/form-data
+        response = self.client.patch(self.url, data, format="multipart")
+        print(response.data)
+
+        # Assert the response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # 응답의 'image' 필드가 존재하는지 확인
+        image_url = response.data.get("image")
+        self.assertIsNotNone(image_url, "🔴 'image' 필드가 응답에 포함되지 않음")
+
+        # 응답의 image URL이 S3 도메인을 포함하는지 확인
+        self.assertIn(
+            "s3.amazonaws.com", image_url, "🔴 업로드된 이미지가 S3에 저장되지 않음"
+        )
+
+        # 테스트 이미지 삭제하기
+        self.testuser01.refresh_from_db()
+        s3_key = self.testuser01.profile.image.name
+        delete_s3_file(s3_key)  # ✅ S3에서 파일 삭제
 
 
 class RetrieveProfileViewTestCase(TestCase):

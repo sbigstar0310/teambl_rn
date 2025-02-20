@@ -3,7 +3,12 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
 from django.core import mail
-from .utils import create_post_with_images, create_user_with_profile
+from .utils import (
+    create_post_with_images,
+    create_user_with_profile,
+    get_image_from_url,
+    delete_s3_file,
+)
 from ..models import CustomUser, Post, PostImage, ProjectCard
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -31,9 +36,7 @@ class PostCreateViewTestCase(TestCase):
         self.client.force_authenticate(user=self.testuser01)
 
         # Create test image file
-        self.test_image = SimpleUploadedFile(
-            name="test_image.jpg", content=b"file_content", content_type="image/jpeg"
-        )
+        self.test_image = get_image_from_url()
 
     def test_create_post_with_images(self):
         # Prepare valid post data
@@ -61,6 +64,12 @@ class PostCreateViewTestCase(TestCase):
         # Verify database
         post = Post.objects.get(id=response.data.get("id"))
         self.assertEqual(post.images.count(), 2)
+
+        # Delete the test image files
+        post_images = PostImage.objects.filter(post=post)
+        for image in post_images:
+            s3_key = image.image.name
+            delete_s3_file(s3_key)
 
     def test_create_post_without_images(self):
         # Valid post data without images
@@ -110,6 +119,23 @@ class PostListViewTestCase(TestCase):
 
         # URL for the PostListView
         self.url = reverse("post-list")
+
+    def tearDown(self):
+        # Delete the test image files
+        for post in [self.post1, self.post2]:
+            post_images = PostImage.objects.filter(post=post)
+            for image in post_images:
+                s3_key = image.image.name
+                delete_s3_file(s3_key)
+
+    def tearDown(self):
+        """✅ 테스트 종료 후 S3에서 업로드된 테스트 이미지 삭제"""
+
+        for post in [self.post1, self.post2]:
+            post_images = PostImage.objects.filter(post=post)
+            for image in post_images:
+                s3_key = image.image.name
+                delete_s3_file(s3_key)
 
     def test_list_posts(self):
         """Test listing all posts"""
@@ -170,6 +196,16 @@ class PostLikedListViewTestCase(TestCase):
 
         # URL for the PostListView
         self.url = reverse("post-liked-list")
+
+    def tearDown(self):
+        """✅ 테스트 종료 후 S3에서 업로드된 테스트 이미지 삭제"""
+
+        for post in [self.post1, self.post2, self.post3]:
+            post_images = PostImage.objects.filter(post=post)
+            for image in post_images:
+                s3_key = image.image.name
+                print(f"Deleting S3 file: {s3_key}")
+                delete_s3_file(s3_key)
 
     def test_list_liked_posts(self):
         """Test listing all liked posts"""
