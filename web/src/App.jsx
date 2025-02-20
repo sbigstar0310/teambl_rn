@@ -76,7 +76,7 @@ function App() {
       <FloatingButton />
       <Routes>
         <Route path="/" element={<Start />} />
-        <Route
+        {/* <Route
           path="/home"
           element={
             <ProtectedRoute>
@@ -84,7 +84,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/login"
           element={
             <IsLoginGoHome>
