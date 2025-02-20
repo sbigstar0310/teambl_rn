@@ -144,12 +144,13 @@ export default function SearchScreen() {
 
     const ProjPostListView = () => {
         return (
-            <ScrollView
-                contentContainerStyle={{
-                    gap: 8,
-                    backgroundColor: theme.colors.achromatic05,
-                }}
-            >
+            <ScrollView contentContainerStyle={[
+                styles.projectContainer,
+                (!resultProject || resultProject.length === 0) && {
+                    backgroundColor: theme.colors.white,
+                    padding: 16,
+                },
+            ]}>
                 {!resultProject ||
                     (resultProject.length === 0 && (
                         <NoSearchResult
@@ -200,7 +201,13 @@ export default function SearchScreen() {
 
     const ProjectListView = () => {
         return (
-            <ScrollView contentContainerStyle={styles.projectContainer}>
+            <ScrollView contentContainerStyle={[
+                styles.projectContainer,
+                (!resultProject || resultProject.length === 0) && {
+                    backgroundColor: theme.colors.white,
+                    padding: 16,
+                },
+            ]}>
                 {!resultProject ||
                     (resultProject.length === 0 && (
                         <NoSearchResult
@@ -287,7 +294,7 @@ export default function SearchScreen() {
             {/* 탭 내용 */}
             <View style={[styles.contentContainer]}>
                 {activeTab === "사람" && (
-                    <View style={{flex: 1, padding: 20}}>
+                    <View style={{flex: 1, padding: 16, paddingBottom: 0}}>
                         {/* 필터 */}
                         <UserFilterTabs
                             activeFilter={activeUserFilter}
@@ -386,33 +393,16 @@ const styles = StyleSheet.create({
     },
     projectContainer: {
         flexGrow: 1,
-        paddingVertical: 16,
-        paddingTop: 0,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        alignItems: "center",
         gap: 8,
         backgroundColor: theme.colors.achromatic05,
     },
     projPostContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
         gap: 10,
         backgroundColor: theme.colors.white,
         paddingVertical: 20
     },
     postViewContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-        paddingVertical: 0,
+        paddingHorizontal: 16,
         backgroundColor: theme.colors.white,
         gap: 15
     }
