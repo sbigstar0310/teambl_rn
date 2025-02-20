@@ -901,20 +901,28 @@ class InvitationLinkSerializer(serializers.ModelSerializer):
 
 
 class FriendCreateSerializer(serializers.ModelSerializer):
-    from_user = CustomUserSerializer(read_only=True)
+    from_user = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(),
+        required=False,
+        default=serializers.CurrentUserDefault(),
+    )
     to_user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
     status = serializers.CharField(default="pending", required=False)
 
     class Meta:
         model = Friend
         fields = ["id", "from_user", "to_user", "status", "created_at"]
-        read_only_fields = ["id", "from_user", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
     def to_representation(self, instance):
         """✅ 응답 시 to_user를 CustomUserSerializer로 변환"""
         representation = super().to_representation(instance)
 
-        # 🔹 `instance`가 `dict`일 수도 있기 때문에 안전하게 `hasattr()` 체크
+        if hasattr(instance, "from_user") and instance.from_user:
+            representation["from_user"] = CustomUserSerializer(
+                instance.from_user, context=self.context
+            ).data
+
         if hasattr(instance, "to_user") and instance.to_user:
             representation["to_user"] = CustomUserSerializer(
                 instance.to_user, context=self.context

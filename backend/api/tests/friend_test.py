@@ -38,6 +38,15 @@ class FriendCreateViewTestCase(TestCase):
             "to_user": self.testuser02.id,
         }
         response = self.client.post(self.url, data=data, format="json")
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_friend_with_from_user(self):
+        data = {
+            "from_user": self.testuser01.id,
+            "to_user": self.testuser02.id,
+        }
+        response = self.client.post(self.url, data=data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
