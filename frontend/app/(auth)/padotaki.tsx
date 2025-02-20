@@ -149,6 +149,7 @@ const PadoTakiScreen = () => {
         projectCardList.map((projectCard) =>
             items.push(
                 <View
+                    key={projectCard.id}
                     style={{
                         width: "100%",
                         backgroundColor: theme.colors.white,
@@ -156,7 +157,6 @@ const PadoTakiScreen = () => {
                     }}
                 >
                     <ProjectPreview
-                        key={projectCard.id}
                         projectInfo={projectCard}
                         myId={current_user_id ? current_user_id : -99}
                     />
@@ -195,7 +195,7 @@ const PadoTakiScreen = () => {
 
             // For debugging
             // const projectCardList = await fetchMyProjectCard();
-            // setProjectCardList(projectCardList);
+            setProjectCardList(projectCardList);
 
             // fetch user(friend) list
             const oneDegreefriendList = await fetchOneDegreeFriends(

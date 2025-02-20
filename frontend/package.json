@@ -38,7 +38,8 @@
     "react-native-web": "~0.19.13",
     "styled-components": "^6.1.14",
     "zustand": "^5.0.3",
-    "expo-navigation-bar": "~4.0.8"
+    "expo-navigation-bar": "~4.0.8",
+    "expo-updates": "~0.26.19"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
