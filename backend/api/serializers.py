@@ -904,6 +904,7 @@ class FriendCreateSerializer(serializers.ModelSerializer):
     from_user = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
         required=False,
+        allow_null=True,
         default=serializers.CurrentUserDefault(),
     )
     to_user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())

@@ -42,7 +42,7 @@ class FriendCreateView(generics.CreateAPIView):
     pagination_class = None
 
     def perform_create(self, serializer):
-        from_user = serializer.validated_data.get("_user") or self.request.user
+        from_user = serializer.validated_data.get("from_user") or self.request.user
         to_user = serializer.validated_data.get("to_user")
 
         if not from_user:
