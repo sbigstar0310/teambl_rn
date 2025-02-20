@@ -36,9 +36,20 @@ class FriendCreateViewTestCase(TestCase):
     def test_create_friend(self):
         data = {
             "to_user": self.testuser02.id,
+            "status": "pending",
         }
         response = self.client.post(self.url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["status"], "pending")
+
+    def test_create_friend_with_accepted_status(self):
+        data = {
+            "to_user": self.testuser02.id,
+            "status": "accepted",
+        }
+        response = self.client.post(self.url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["status"], "accepted")
 
     def test_create_friend_from_user_is_none(self):
         data = {
@@ -47,6 +58,9 @@ class FriendCreateViewTestCase(TestCase):
         }
         response = self.client.post(self.url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["from_user"]["id"], self.testuser01.id)
+        self.assertEqual(response.data["to_user"]["id"], self.testuser02.id)
+        self.assertEqual(response.data["status"], "pending")
 
     def test_create_friend_with_from_user(self):
         data = {
