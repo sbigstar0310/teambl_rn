@@ -6,7 +6,6 @@ from django.core import mail
 from .utils import (
     create_post_with_images,
     create_user_with_profile,
-    get_or_create_image_file,
 )
 from ..models import CustomUser, Friend, Keyword, Post, PostImage, ProjectCard, Skill
 from django.core.files.uploadedfile import SimpleUploadedFile

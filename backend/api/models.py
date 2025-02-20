@@ -192,7 +192,7 @@ class PostImage(models.Model):
         """게시글 이미지 경로 지정 (post_images/{post_id}/{uuid}.jpg)"""
         ext = filename.split(".")[-1]  # 파일 확장자 추출
         filename = f"{uuid.uuid4()}.{ext}"  # UUID 기반의 고유 파일명 생성
-        return f"post_images/{instance.id}/{filename}"
+        return f"post_images/{instance.post.id}/{filename}"
 
     def save(self, *args, **kwargs):
         """저장하기 전에 upload_to 경로를 동적으로 지정"""
