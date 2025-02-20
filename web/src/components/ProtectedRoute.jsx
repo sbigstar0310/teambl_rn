@@ -50,7 +50,7 @@ function ProtectedRoute({children}) {
         return <div>Loading...</div>;
     }
 
-    return isAuthorized ? children : <Navigate to="/login" />; // 인증됐으면 정보 주고 안됐으면 로그인 페이지로 이동시키기
+    return isAuthorized ? children : <Navigate to="/" />; // 인증됐으면 정보 주고 안됐으면 로그인 페이지로 이동시키기
 }
 
 export default ProtectedRoute

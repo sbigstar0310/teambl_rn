@@ -1,57 +1,65 @@
 .start {
-  margin: 0 auto;
-  width: 300px;
-  min-width: 300px;
-  text-align: left;
+  margin:20px;
+  display: flex;
 }
 
 .start-container {
-  margin: 150px 13px 0px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.teambl-icon{
+  margin-bottom: 20px;
 }
 
 .start-span {
   color: #000;
   font-family: Pretendard;
-  font-size: 20px;
+  font-size: max(25px, 5vw);
   font-weight: 700;
-  line-height: 140%;
-  letter-spacing: -0.624px;
 }
 
 .start-label1 {
-  margin-top: 30px;
+  margin-top: 10px;
   display: inline-block;
-  font-size: 13px;
+  font-size: max(15px, 3vw);
   color: #121212;
   font-family: Pretendard;
   font-weight: 400;
-  letter-spacing: -0.304px;
 }
 
 .start-label2 {
   margin-top: 10px;
   display: inline-block;
-  font-size: 10.5px;
+  font-size: max(10px, 2vw);
   color: #595959;
   font-family: Pretendard;
   font-weight: 400;
-  letter-spacing: -0.266px;
-  line-height: 140%;
 }
 
 button.start-loginBtn{
   background-color: #0000b3;
-  height: 2rem;
+  height: 8vw;
   width: 100%;
   border: none;
   border-radius: 5px;
   color: white;
-  font-size: 0.75rem;
+  font-size: max(15px, 3vw);
   font-weight: bold;
-  line-height: 0.8rem;
-  margin-top: 280px;
+  margin-top: 25vh;
+  font-family: Pretendard;
   padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 button.start-loginBtn:hover{
   cursor: pointer;
 }

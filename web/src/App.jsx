@@ -84,14 +84,13 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/login"
           element={
             <IsLoginGoHome>
               <Login />
             </IsLoginGoHome>
           } />
-        {/** Register alone */}
         <Route
           path="/register-alone/certify"
           element={
@@ -114,13 +113,12 @@ function App() {
             <RegisterAloneWelcome />
           }
         />
-        {/** ---- */}
         <Route path="/logout" element={<Logout />} />
         <Route path="/password-reset" element={<ResetPassword />} />
         <Route
           path="/password-reset-confirm"
           element={<ResetPasswordConfirm />}
-        />
+        /> */}
         <Route
           path="/welcome"
           element={
@@ -153,7 +151,7 @@ function App() {
             </ProtectedRegisterRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/projects" exact
           element={
             <ProtectedRoute>
@@ -161,7 +159,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* NEW */}
         <Route
           path="/projects/add" exact
           element={
@@ -170,7 +167,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* 내가 좋아하는 게시물 */}
         <Route
           path="/projects/liked" exact
           element={
@@ -179,7 +175,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* 개별게시물 */}
         <Route path="/projects/:projectId" exact element={<ProtectedSingleProject />} />
         <Route
           path="/projects/:projectId/edit" exact
@@ -284,7 +279,7 @@ function App() {
               <ExperienceMember />
             </ProtectedRoute>
           }
-        />
+        /> */}
         {/** This path may depend on the url the backend server have generated. */}
         <Route
           path="/experience/welcome/:invitationCode"
@@ -312,7 +307,7 @@ function App() {
             <RegisterWelcome />
           }
         />
-        <Route
+        {/* <Route
           path="/editprofile"
           element={
             <ProtectedRoute>
@@ -343,7 +338,7 @@ function App() {
               <Conversations />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

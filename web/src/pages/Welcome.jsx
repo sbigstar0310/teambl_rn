@@ -57,7 +57,7 @@ const Welcome = () => {
     };
 
     function handleLogin() {
-        navigate("/login");
+        navigate("/");
     }
 
     if (loading) {
@@ -91,7 +91,7 @@ const Welcome = () => {
                             className="welcome-exitBtn"
                             onClick={handleLogin}
                         >
-                            팀블 로그인으로 가기
+                            팀블 메인으로 가기
                         </button>
                     </div>
                 </div>
@@ -113,7 +113,7 @@ const Welcome = () => {
                             className="welcome-exitBtn"
                             onClick={handleLogin}
                         >
-                            팀블 로그인으로 가기
+                            팀블 메인으로 가기
                         </button>
                     </div>
                 </div>
@@ -133,7 +133,7 @@ const Welcome = () => {
                             className="welcome-exitBtn"
                             onClick={handleLogin}
                         >
-                            팀블 로그인으로 가기
+                            팀블 메인으로 가기
                         </button>
                     </div>
                 </div>
