@@ -1,7 +1,7 @@
 import styled from "@emotion/native";
 import { FC, useState } from "react";
 import { Text, TouchableOpacity, View, ViewStyle } from "react-native";
-import DeleteIcon from "../assets/x-icon.svg";
+import DeleteIcon from '@/assets/delete-x-icon.svg';
 
 type Props = {
   major: string;
@@ -20,14 +20,12 @@ const Container = styled.Pressable`
 `;
 
 const MajorText = styled.Text`
-  font-family: "pretendard";
+  font-family: "PretendardRegular";
   font-size: 14px;
-  font-weight: 400;
-  letter-spacing: -0.38px;
 `;
 
 const XText = styled.Text`
-  font-family: "pretendard";
+  font-family: "PretendardRegular";
   color: #a8a8a8;
 `;
 
@@ -39,7 +37,7 @@ const MajorSelectedItem: FC<Props> = ({ major, onRemove }) => {
 
       {/* Delete Icon */}
       <TouchableOpacity onPress={() => onRemove(major)}>
-        <XText>X</XText>
+        <DeleteIcon/>
       </TouchableOpacity>
     </Container>
   );

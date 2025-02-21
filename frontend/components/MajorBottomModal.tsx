@@ -16,8 +16,6 @@ import { KAIST_DEPARTMENTS } from "@/shared/constants";
 type Props = {
     visible: boolean;
     onClose: () => void;
-    heightPercentage?: number;
-    style?: ViewStyle;
     handleMajorSelect: (major1: string, major2?: string) => void;
     selectedMajors: string[];
 };
@@ -46,7 +44,7 @@ const MajorSearchResult = styled.View`
     flex-direction: row;
     gap: 8px;
     flex-wrap: wrap;
-    height: 80px;
+    height: 130px;
     margin-vertical: 16px;
 `;
 
@@ -55,19 +53,15 @@ const MajorBottomModal: React.FC<Props> = ({
     visible,
     onClose,
     selectedMajors,
-    heightPercentage,
-    style,
 }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const majors = KAIST_DEPARTMENTS;
     const textInputRef = useRef<TextInput | null>(null);
 
     const body = (
-        <View style={[style]}>
+        <View style={{ flex: 1, gap: 12, }}>
             {/* Title and Description */}
-            <View style={{ marginBottom: 12 }}>
-                <Title>전공</Title>
-            </View>
+            <Title>전공</Title>
 
             {/* 검색창 */}
             <TouchableOpacity onPress={() => textInputRef.current?.focus()}>
@@ -83,28 +77,11 @@ const MajorBottomModal: React.FC<Props> = ({
             </TouchableOpacity>
 
             {/* 검색 결과 */}
-            <MajorSearchResult>
-                {
-                    selectedMajors&&
-                    selectedMajors.map((major) => {
-                        return (
-                            <MajorItem
-                                key={major}
-                                major={major}
-                                onPress={() => {
-                                    handleMajorSelect(major);
-                                }}
-                                isSelected={true}
-                            />
-                        );
-                    })
-                }
-                {
-                    majors
-                    .filter((major) => major.includes(searchQuery))
-                    .slice(0, 4)
-                    .map((major) => {
-                        if (!selectedMajors.includes(major)) {
+            <View style={{ flex: 1 }}>
+                <MajorSearchResult>
+                    {
+                        selectedMajors&&
+                        selectedMajors.map((major) => {
                             return (
                                 <MajorItem
                                     key={major}
@@ -112,13 +89,32 @@ const MajorBottomModal: React.FC<Props> = ({
                                     onPress={() => {
                                         handleMajorSelect(major);
                                     }}
-                                    isSelected={false}
+                                    isSelected={true}
                                 />
                             );
-                        }                        
-                    })
-                }
-            </MajorSearchResult>
+                        })
+                    }
+                    {
+                        majors
+                        .filter((major) => major.includes(searchQuery))
+                        .slice(0, 4)
+                        .map((major) => {
+                            if (!selectedMajors.includes(major)) {
+                                return (
+                                    <MajorItem
+                                        key={major}
+                                        major={major}
+                                        onPress={() => {
+                                            handleMajorSelect(major);
+                                        }}
+                                        isSelected={false}
+                                    />
+                                );
+                            }                        
+                        })
+                    }
+                </MajorSearchResult>
+            </View>
 
             {/* 선택 완료 버튼 */}
             <PrimeButton
@@ -141,7 +137,7 @@ const MajorBottomModal: React.FC<Props> = ({
             visible={visible}
             onClose={onClose}
             body={body}
-            heightPercentage={heightPercentage}
+            heightPercentage={0.8}
         />
     );
 };
