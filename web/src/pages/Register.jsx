@@ -27,6 +27,7 @@ function Register() {
   const [inviteCode, setInviteCode] = useState(null);
   const [nextBtnActive, setNextBtnActive] = useState(false);
   const [keywords, setkeywords] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // setEmail(userInfo.email);
   // setPassword(userInfo.password);
@@ -48,6 +49,7 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const response = await api.post("/api/user/register-alone/", {
         email,
         password,
@@ -62,6 +64,7 @@ function Register() {
         },
         code: inviteCode, // 초대 코드를 서버로 전달
       });
+      setIsLoading(false);
       const newUser = response.data;
       console.log("User registered successfully:", newUser);
 
@@ -72,6 +75,7 @@ function Register() {
         },
       });
     } catch (error) {
+      setIsLoading(false);
       alert("회원가입 실패");
       console.error("Registration error:", error);
       if (error.response) {
@@ -286,9 +290,9 @@ function Register() {
           <button
             type="submit"
             className="register-nextBtn"
-            disabled={!nextBtnActive}
+            disabled={!nextBtnActive || isLoading}
           >
-            완료
+            {isLoading ? "제출 중..." : "완료"}
           </button>
         </div>
       </form>
