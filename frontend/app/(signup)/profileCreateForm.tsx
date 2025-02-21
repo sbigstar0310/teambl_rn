@@ -62,12 +62,13 @@ export default function ProfileCreateFormScreen() {
     }, [profile]);
 
     const verifyProfile = () => {
-        const { user_name, school, current_academic_degree, major1, major2 } =
+        const { user_name, school, current_academic_degree, year, major1 } =
             profile;
         setIsProfileVerified(
             user_name.length > 0 &&
                 school.length > 0 &&
                 current_academic_degree.length > 0 &&
+                year > 0 &&
                 major1.length > 0
         );
     };
@@ -155,7 +156,7 @@ export default function ProfileCreateFormScreen() {
                 {/* Current Degree */}
                 <Text style={styles.semiTitle}>재학 과정</Text>
                 <TouchableOpacity
-                    onPress={() => toggleModal("degree")}
+                    onPress={() => toggleModal("degree")} // 안드로이드
                 >
                     <TextInput
                         style={styles.input}
@@ -163,6 +164,7 @@ export default function ProfileCreateFormScreen() {
                         placeholderTextColor="#A8A8A8"
                         value={profile.current_academic_degree}
                         editable={false} // Prevent user editing
+                        onPress={() => toggleModal("degree")} // IOS
                     />
                 </TouchableOpacity>
 
@@ -173,9 +175,13 @@ export default function ProfileCreateFormScreen() {
                     placeholder="입학년도 입력 (4자리)"
                     placeholderTextColor="#A8A8A8"
                     value={profile.year.toString()}
-                    onChangeText={(text) =>
-                        handleSelect("year", parseInt(text))
-                    }
+                    onChangeText={(text) =>{
+                        if (!text) {
+                            handleSelect("year", "");
+                        } else {
+                            handleSelect("year", parseInt(text));
+                        }
+                    }}
                     keyboardType="numeric"
                 ></TextInput>
 

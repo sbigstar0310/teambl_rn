@@ -16,30 +16,24 @@ const Container = styled(SafeAreaView)`
 
 const Name = styled.Text`
     color: #0923a9;
-    font-family: Pretendard;
+    font-family: PretendardSemiBold;
     font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -0.624px;
     text-align: left;
     border-width: 1px;
     width: 100%;
 `;
 const Title = styled.Text`
     color: #000000;
-    font-family: Pretendard;
+    font-family: PretendardSemiBold;
     font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -0.624px;
     text-align: left;
     width: 100%;
 `;
 
 const SemiTitle = styled.Text`
     color: #121212;
-    font-family: Pretendard;
+    font-family: PretendardRegular;
     font-size: 16px;
-    font-weight: 400;
-    letter-spacing: -0.304px;
     margin-top: 32px;
     text-align: left;
     width: 100%;
@@ -47,11 +41,9 @@ const SemiTitle = styled.Text`
 
 const BodyText = styled.Text`
     color: #595959;
-    font-family: Pretendard;
+    font-family: PretendardRegular;
     font-size: 14px;
     font-style: normal;
-    font-weight: 400;
-    letter-spacing: -0.266px;
     margin-top: 12px;
     text-align: left;
     width: 100%;
@@ -77,13 +69,7 @@ const SignUpCongradulateScreen = () => {
             <Title>가입을 축하합니다!</Title>
 
             {/* Semi Title */}
-            <SemiTitle>이제 팀블과 함께 최적의 팀원을 탐색해 보세요!</SemiTitle>
-
-            {/* Body Text */}
-            <BodyText>
-                프로필을 더 자세히 작성할수록 다른 회원들과 더 쉽게 연결될 수
-                있습니다. 이어서 프로필을 작성해 볼까요?
-            </BodyText>
+            <SemiTitle>이제 팀블과 함께 다양한 프로젝트를 탐색해 보세요!</SemiTitle>
 
             {/* Additional Profile */}
             <Text
@@ -106,41 +92,6 @@ const SignUpCongradulateScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    // Title 스타일
-    title: {
-        width: "100%",
-        height: 36,
-        textAlign: "left",
-        color: "#000000",
-        fontFamily: "Pretendard",
-        fontSize: 26,
-        fontWeight: "600",
-        letterSpacing: -0.38,
-    },
-    // Semi Title 스타일
-    semiTitle: {
-        width: "100%",
-        height: 22,
-        textAlign: "left",
-        color: "#121212",
-        fontFamily: "Pretendard",
-        fontSize: 16,
-        fontWeight: "400",
-        letterSpacing: -0.38,
-        marginTop: 32,
-    },
-    // Body 텍스트 스타일
-    bodyText: {
-        width: "100%",
-        height: 40,
-        textAlign: "left",
-        color: "#595959",
-        fontFamily: "Pretendard",
-        fontSize: 14,
-        fontWeight: "300",
-        letterSpacing: -0.38,
-        marginTop: 12,
-    },
     // Additional Profile Text
     addProfileText: {
         width: "100%",
@@ -152,10 +103,6 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         letterSpacing: -0.38,
         marginTop: 236,
-    },
-    // HorizontalPadding20
-    paddingHorizontal20: {
-        paddingHorizontal: 20,
     },
 });
 
