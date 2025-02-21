@@ -1,13 +1,17 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
+import { useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { sharedStyles } from "@/app/_layout";
 import PrimeButton from "@/components/PrimeButton";
 import Button from "@/components/Button";
 import styled from "@emotion/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "@/store/authStore";
 
 type Params = {
     user_name: string;
+    email: string;
+    password: string;
 };
 
 const Container = styled(SafeAreaView)`
@@ -39,24 +43,38 @@ const SemiTitle = styled.Text`
     width: 100%;
 `;
 
-const BodyText = styled.Text`
-    color: #595959;
-    font-family: PretendardRegular;
-    font-size: 14px;
-    font-style: normal;
-    margin-top: 12px;
-    text-align: left;
-    width: 100%;
+const LoadingIndicator = styled.ActivityIndicator`
+    width: 20px;
+    height: 20px;
 `;
 
 // 화면 컴포넌트
 const SignUpCongradulateScreen = () => {
-    const { user_name } = useLocalSearchParams<Params>();
+    const { user_name, email, password } = useLocalSearchParams<Params>();
+    const [isLoading, setIsLoading] = useState(false);
 
     // 홈 이동 콜백
     const goHome = async () => {
         router.push("/home");
     };
+
+    const handleLogin = async () => {
+        setIsLoading(true);
+        console.log("로그인 시도: ", email, password);
+
+        try {
+            // ✅ 로그인 성공 여부 확인 (true/false 반환)
+            const _ = await useAuthStore.getState().login(email, password);
+            console.log("✅ 로그인 성공!");
+            router.push("/home"); // ✅ 로그인 성공 시에만 이동
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+            router.push("/myprofile/info");
+        }
+    };
+
 
     return (
         <Container
@@ -74,9 +92,13 @@ const SignUpCongradulateScreen = () => {
             {/* Additional Profile */}
             <Text
                 style={styles.addProfileText}
-                onPress={() => router.push("/profileCreateForm")}
+                onPress={handleLogin}
             >
-                프로필 추가로 작성하기
+                {isLoading ? (
+                    <LoadingIndicator color="#000" />
+                ) : (
+                    "프로필 추가로 작성하기"
+                )}
             </Text>
 
             {/* Button */}

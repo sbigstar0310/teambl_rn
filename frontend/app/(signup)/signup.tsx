@@ -99,7 +99,7 @@ const SignUpScreen = () => {
                         readOnly={codeIsVerified}
                     />
                     <PrimeButton
-                        text={isSendCodeSucces ? "전송됨" : "인증코드 받기"}
+                        text={isSendCodeSucces ? "전송 완료" : "인증코드 받기"}
                         onClickCallback={sendCode}
                         isActive={isKaistEmail && !codeIsVerified && !isSendCodeSucces}
                         isLoading={isLoading}
@@ -120,9 +120,9 @@ const SignUpScreen = () => {
                         onChangeText={setUserCode}
                     />
                     <PrimeButton
-                        text="인증코드 확인"
+                        text={codeIsVerified ? "인증 완료" : "인증코드 확인"}
                         onClickCallback={verifyCode}
-                        isActive={code.length > 0 && isSendCodeSucces}
+                        isActive={code.length > 0 && isSendCodeSucces && !codeIsVerified && !isLoading}
                         isLoading={false}
                         styleOv={styles.smallButton}
                     ></PrimeButton>

@@ -17,6 +17,8 @@ import MajorSearchInput from "@/components/MajorSearchInput";
 import signup from "@/libs/apis/signup";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import Button from "@/components/Button";
+import theme from "@/shared/styles/theme";
+import KeywordInput from "@/components/KeywordInput";
 
 type Params = {
     email: string;
@@ -44,7 +46,7 @@ export default function ProfileCreateFormScreen() {
     const [majorModalVisible, setMajorModalVisible] = useState(false);
     const [isSignUpLoading, setIsSignUpLoading] = useState(false);
 
-    const handleSelect = (field: keyof api.Profile, value: string | number) => {
+    const handleSelect = (field: keyof api.Profile, value: string | number | string[]) => {
         setProfile((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -63,14 +65,15 @@ export default function ProfileCreateFormScreen() {
     }, [profile]);
 
     const verifyProfile = () => {
-        const { user_name, school, current_academic_degree, year, major1 } =
+        const { user_name, school, current_academic_degree, year, major1, keywords } =
             profile;
         setIsProfileVerified(
             user_name.length > 0 &&
                 school.length > 0 &&
                 current_academic_degree.length > 0 &&
                 year > 0 &&
-                major1.length > 0
+                major1.length > 0 &&
+                keywords.length > 1
         );
     };
 
@@ -84,7 +87,7 @@ export default function ProfileCreateFormScreen() {
 
             router.push({
                 pathname: "/signupCongratulate",
-                params: { user_name: profile.user_name },
+                params: { user_name: profile.user_name, email: email, password: password },
             });
         } catch (error) {
             console.error("회원가입 실패: ", error);
@@ -134,6 +137,16 @@ export default function ProfileCreateFormScreen() {
     const selectedMajors = [profile.major1, profile.major2]
         .filter((major) => major !== "")
         .filter((major) => major !== null);
+
+    const handleNewKeyword = (newKeyword: string) => {
+        if (newKeyword.trim()) {
+            handleSelect("keywords", [...profile.keywords, newKeyword]);
+        }
+    };
+
+    const handleRemoveKeyword = (index: number) => {
+        handleSelect("keywords", profile.keywords.filter((_, i) => i !== index));
+    };
 
     return (
         <View style={sharedStyles.container}>
@@ -203,11 +216,20 @@ export default function ProfileCreateFormScreen() {
                     onRemove={handleMajorRemove}
                 />
 
+                {/* Keywords */}
+                <Text style={[styles.semiTitle, {marginTop: 20}]}>관심사</Text>
+                <KeywordInput
+                    currentKeywordList={profile.keywords}
+                    onAdd={handleNewKeyword}
+                    onRemove={handleRemoveKeyword}
+                    placeholderText={"2개 이상 입력"}
+                />
+
                 {/* Button */}
                 <Button
                     text="완료"
                     onClickCallback={handleSignUp}
-                    isActive={isProfileVerified}
+                    isActive={isProfileVerified && !isSignUpLoading}
                     isLoading={isSignUpLoading}
                     style={{ marginTop: 32 }}
                 />

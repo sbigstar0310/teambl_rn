@@ -109,7 +109,7 @@ const ResetPasswordScreen = () => {
                         readOnly={codeIsVerified}
                     />
                     <PrimeButton
-                        text={isSendCodeSucces ? "전송됨" : "인증코드 받기"}
+                        text={isSendCodeSucces ? "전송 완료" : "인증코드 받기"}
                         onClickCallback={sendCode}
                         isActive={isKaistEmail && !codeIsVerified && !isSendCodeSucces}
                         isLoading={isSendCodeLoading}
@@ -127,9 +127,9 @@ const ResetPasswordScreen = () => {
                         onChangeText={setUserCode}
                     />
                     <PrimeButton
-                        text="인증코드 확인"
+                        text={codeIsVerified ? "인증 완료" : "인증코드 확인"}
                         onClickCallback={verifyCode}
-                        isActive={email.length > 0 && userCode.length > 0}
+                        isActive={email.length > 0 && userCode.length > 0 && !codeIsVerified && !isSendCodeLoading}
                         isLoading={false}
                         styleOv={styles.smallButton}
                     />

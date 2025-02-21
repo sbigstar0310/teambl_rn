@@ -43,41 +43,40 @@ const KeywordInput = (props: KeywordInputProps) => {
     }, [currentKeywordList]);
 
     return (
-        <View style={styles.container}>
-            {icon && icon}
-            {
-                (currentKeywordList.length === 0) &&
-                (!isKeywordInputOnFocus) &&
-                (
-                    <Text
-                        style={styles.placeholder}
-                        onPress={onAdd && handleOnFocus}
-                    >
-                        {placeholderText}
-                    </Text>
-                )
-            }
-            {
-                (currentKeywordList.length > 0) &&
-                currentKeywordList.map((keyword: string, index: number) => {
-                    return (
-                        <KeywordBadge
-                            key={index + keyword}
-                            keyword={keyword}
-                            onDelete={onRemove?.bind(null, index)}
-                        />
-                    );
-                })
-            }
-            {
-                onAdd &&
-                (currentKeywordList.length < maxNumber) &&
-                (isKeywordInputOnFocus) &&
-                <NewKeyboardInput
-                    onSubmit={handleAddKeyword}
-                />
-            }
-        </View>
+        <TouchableOpacity onPress={onAdd && handleOnFocus}>
+            <View style={styles.container}>
+                {icon && icon}
+                {
+                    (currentKeywordList.length === 0) &&
+                    (!isKeywordInputOnFocus) &&
+                    (
+                        <Text style={styles.placeholder}>
+                            {placeholderText}
+                        </Text>
+                    )
+                }
+                {
+                    (currentKeywordList.length > 0) &&
+                    currentKeywordList.map((keyword: string, index: number) => {
+                        return (
+                            <KeywordBadge
+                                key={index + keyword}
+                                keyword={keyword}
+                                onDelete={onRemove?.bind(null, index)}
+                            />
+                        );
+                    })
+                }
+                {
+                    onAdd &&
+                    (currentKeywordList.length < maxNumber) &&
+                    (isKeywordInputOnFocus) &&
+                    <NewKeyboardInput
+                        onSubmit={handleAddKeyword}
+                    />
+                }
+            </View>
+        </TouchableOpacity>
     );
 };
 
