@@ -23,7 +23,7 @@ const Container = styled.Pressable`
 
 const Placeholder = styled.Text`
   color: #a8a8a8;
-  font-family: "Pretendard";
+  font-family: "PretendardRegular";
   font-size: 16px;
 `;
 

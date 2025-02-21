@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
     StyleSheet,
     View,
     ViewStyle,
     TouchableOpacity,
-    Text,
     TextInput,
 } from "react-native";
 import BottomModal from "./BottomModal";
@@ -61,6 +60,7 @@ const MajorBottomModal: React.FC<Props> = ({
 }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const majors = KAIST_DEPARTMENTS;
+    const textInputRef = useRef<TextInput | null>(null);
 
     const body = (
         <View style={[style]}>
@@ -70,14 +70,17 @@ const MajorBottomModal: React.FC<Props> = ({
             </View>
 
             {/* 검색창 */}
-            <MajorSearchInput>
-                <SearchIcon width={15} height={15} />
-                <TextInput
-                    placeholder={"전공을 검색해주세요"}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                />
-            </MajorSearchInput>
+            <TouchableOpacity onPress={() => textInputRef.current?.focus()}>
+                <MajorSearchInput>
+                    <SearchIcon width={15} height={15} />
+                    <TextInput
+                        ref={textInputRef}
+                        placeholder={"전공을 검색해주세요"}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                </MajorSearchInput>
+            </TouchableOpacity>
 
             {/* 검색 결과 */}
             <MajorSearchResult>
