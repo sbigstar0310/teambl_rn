@@ -66,7 +66,6 @@ const SignUpCongradulateScreen = () => {
             // ✅ 로그인 성공 여부 확인 (true/false 반환)
             const _ = await useAuthStore.getState().login(email, password);
             console.log("✅ 로그인 성공!");
-            router.push("/home"); // ✅ 로그인 성공 시에만 이동
         } catch (error) {
             console.log(error);
         } finally {
