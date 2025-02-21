@@ -17,6 +17,9 @@ const ResetPasswordScreen = () => {
     const [codeIsVerified, setCodeIsVerified] = useState(false);
     const [passwordIsVerified, setPasswordIsVerified] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);  // 인증코드 확인 상태 추가
+    const [isSendCodeLoading, setIsSendCodeLoading] = useState(false);
+    const [isResetPasswordLoading, setIsResetPasswordLoading] = useState(false);
+    const [isSendCodeSucces, setIsSendCodeSucces] = useState(false);
 
     useEffect(() => {
         setPasswordIsVerified(
@@ -34,13 +37,18 @@ const ResetPasswordScreen = () => {
         setCode(generatedCode);
 
         try {
+            setIsSendCodeLoading(true);
+            setIsSendCodeSucces(true);
             const response = await sendCodeEmail({
                 email,
                 code: generatedCode,
             });
             console.log("인증코드 전송 결과: ", response);
         } catch (error) {
+            setIsSendCodeSucces(false);
             console.error("인증코드 전송 실패: ", error);
+        } finally {
+            setIsSendCodeLoading(false);
         }
     };
 
@@ -60,6 +68,7 @@ const ResetPasswordScreen = () => {
         }
 
         try {
+            setIsResetPasswordLoading(true);
             console.log("비밀번호 재설정 요청: ", newPassword);
 
             // 비밀번호 변경 API 호출
@@ -76,6 +85,8 @@ const ResetPasswordScreen = () => {
             // 오류 처리
             console.error("비밀번호 변경 실패: ", error);
             alert("비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.");
+        } finally {
+            setIsResetPasswordLoading(false);
         }
     };
 
@@ -98,10 +109,10 @@ const ResetPasswordScreen = () => {
                         readOnly={codeIsVerified}
                     />
                     <PrimeButton
-                        text="인증코드 받기"
+                        text={isSendCodeSucces ? "전송됨" : "인증코드 받기"}
                         onClickCallback={sendCode}
-                        isActive={isKaistEmail && !codeIsVerified}
-                        isLoading={false}
+                        isActive={isKaistEmail && !codeIsVerified && !isSendCodeSucces}
+                        isLoading={isSendCodeLoading}
                         styleOv={styles.smallButton}
                     />
                 </View>
@@ -134,7 +145,7 @@ const ResetPasswordScreen = () => {
                 <Text style={styles.label}>비밀번호</Text>
                 <View style={styles.inputRow}>
                     <TextInput
-                        style={[styles.input, styles.emailInput]}
+                        style={[styles.input]}
                         placeholder="새 비밀번호 입력"
                         placeholderTextColor="#A8A8A8"
                         secureTextEntry
@@ -146,7 +157,7 @@ const ResetPasswordScreen = () => {
                 <View style={styles.marginTop8} />
                 <View style={styles.inputRow}>
                     <TextInput
-                        style={[styles.input, styles.emailInput]}
+                        style={[styles.input]}
                         placeholder="새 비밀번호 확인"
                         placeholderTextColor="#A8A8A8"
                         secureTextEntry
@@ -168,7 +179,7 @@ const ResetPasswordScreen = () => {
                     text="재설정"
                     onClickCallback={resetPassword}
                     isActive={codeIsVerified && passwordIsVerified}
-                    isLoading={false}
+                    isLoading={isResetPasswordLoading}
                 />
             </View>
         </View>

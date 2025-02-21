@@ -42,6 +42,7 @@ export default function ProfileCreateFormScreen() {
     const [currentDegreeModalVisible, setCurrentDegreeModalVisible] =
         useState(false);
     const [majorModalVisible, setMajorModalVisible] = useState(false);
+    const [isSignUpLoading, setIsSignUpLoading] = useState(false);
 
     const handleSelect = (field: keyof api.Profile, value: string | number) => {
         setProfile((prev) => ({ ...prev, [field]: value }));
@@ -77,6 +78,7 @@ export default function ProfileCreateFormScreen() {
         console.log("회원가입 시도: ", email, password, profile);
 
         try {
+            setIsSignUpLoading(true);
             const response = await signup({ email, password, profile });
             console.log("회원가입 성공: ", response);
 
@@ -86,6 +88,8 @@ export default function ProfileCreateFormScreen() {
             });
         } catch (error) {
             console.error("회원가입 실패: ", error);
+        } finally {
+            setIsSignUpLoading(false);
         }
     };
 
@@ -116,7 +120,12 @@ export default function ProfileCreateFormScreen() {
 
     const handleMajorRemove = (major: string) => {
         if (profile.major1 === major) {
-            handleSelect("major1", "");
+            if (profile.major2) {
+                handleSelect("major1", profile.major2);
+                handleSelect("major2", "");
+            } else {
+                handleSelect("major1", "");
+            }
         } else if (profile.major2 === major) {
             handleSelect("major2", "");
         }
@@ -199,7 +208,7 @@ export default function ProfileCreateFormScreen() {
                     text="완료"
                     onClickCallback={handleSignUp}
                     isActive={isProfileVerified}
-                    isLoading={false}
+                    isLoading={isSignUpLoading}
                     style={{ marginTop: 32 }}
                 />
 

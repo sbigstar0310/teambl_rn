@@ -23,6 +23,8 @@ const SignUpScreen = () => {
     const [codeIsVerified, setCodeIsVerified] = useState(false);
     const [passwordIsVerified, setPasswordIsVerified] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);  // 인증코드 확인 상태 추가
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSendCodeSucces, setIsSendCodeSucces] = useState(false);
 
     useEffect(() => {
         verifyPassword();
@@ -36,10 +38,15 @@ const SignUpScreen = () => {
         console.log("인증코드: ", code);
         setCode(code.toString());
         try {
+            setIsLoading(true);
+            setIsSendCodeSucces(true);
             const response = await sendCodeEmail({ email, code });
             console.log("인증코드 전송 결과: ", response);
         } catch (error) {
+            setIsSendCodeSucces(false);
             console.error("인증코드 전송 실패: ", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -92,10 +99,10 @@ const SignUpScreen = () => {
                         readOnly={codeIsVerified}
                     />
                     <PrimeButton
-                        text="인증코드 받기"
+                        text={isSendCodeSucces ? "전송됨" : "인증코드 받기"}
                         onClickCallback={sendCode}
-                        isActive={isKaistEmail && !codeIsVerified}
-                        isLoading={false}
+                        isActive={isKaistEmail && !codeIsVerified && !isSendCodeSucces}
+                        isLoading={isLoading}
                         styleOv={styles.smallButton}
                     ></PrimeButton>
                 </View>
@@ -115,7 +122,7 @@ const SignUpScreen = () => {
                     <PrimeButton
                         text="인증코드 확인"
                         onClickCallback={verifyCode}
-                        isActive={code.length > 0}
+                        isActive={code.length > 0 && isSendCodeSucces}
                         isLoading={false}
                         styleOv={styles.smallButton}
                     ></PrimeButton>
@@ -133,7 +140,7 @@ const SignUpScreen = () => {
                 <Text style={styles.label}>비밀번호</Text>
                 <View style={styles.inputRow}>
                     <TextInput
-                        style={[styles.input, styles.emailInput]}
+                        style={styles.input}
                         placeholder="비밀번호 입력"
                         placeholderTextColor="#A8A8A8"
                         secureTextEntry
@@ -147,7 +154,7 @@ const SignUpScreen = () => {
 
                 <View style={styles.inputRow}>
                     <TextInput
-                        style={[styles.input, styles.emailInput]}
+                        style={styles.input}
                         placeholder="비밀번호 확인"
                         placeholderTextColor="#A8A8A8"
                         secureTextEntry
