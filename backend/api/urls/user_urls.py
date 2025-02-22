@@ -6,7 +6,7 @@ urlpatterns = [
     path("register-link/", views.CreateUserView.as_view(), name="register-link"),
     path("register-alone/", views.CreateUserAloneView.as_view(), name="register-alone"),
     path(
-        "register-experience/",
+        "register-project-card/",
         views.CreateUserByExperienceView.as_view(),
         name="register-experience",
     ),

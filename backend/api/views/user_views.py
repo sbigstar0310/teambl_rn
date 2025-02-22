@@ -4,7 +4,7 @@ from ..models import (
     Friend,
     InvitationLink,
     Notification,
-    Experience,
+    ProjectCard,
     Conversation,
     Message,
 )
@@ -159,13 +159,13 @@ class CreateUserByExperienceView(generics.CreateAPIView):
     authentication_classes = []  # 인증 비활성화
 
     def perform_create(self, serializer):
-        # 프론트엔드에서 보내온 inviter_id, experience_id 확인
+        # 프론트엔드에서 보내온 inviter_id, project_card_id 확인
         inviter_id = self.request.data.get("inviter_id")
-        experience_id = self.request.data.get("experience_id")
+        project_card_id = self.request.data.get("project_card_id")
         if inviter_id is None:
             raise ValueError("초대자 ID가 필요합니다.")
-        if experience_id is None:
-            raise ValueError("경험 ID가 필요합니다.")
+        if project_card_id is None:
+            raise ValueError("프로젝트 카드 ID가 필요합니다.")
 
         try:
             inviter = CustomUser.objects.get(id=inviter_id)
@@ -174,9 +174,9 @@ class CreateUserByExperienceView(generics.CreateAPIView):
             raise ValueError("유효하지 않은 초대자 ID입니다.")
 
         try:
-            experience = Experience.objects.get(id=experience_id)
-        except Experience.DoesNotExist:
-            raise ValueError("유효하지 않은 경험 ID입니다.")
+            project_card = ProjectCard.objects.get(id=project_card_id)
+        except ProjectCard.DoesNotExist:
+            raise ValueError("유효하지 않은 프로젝트 카드 ID입니다.")
 
         # 새 유저 저장 (회원가입 완료)
         invitee = serializer.save()
@@ -195,19 +195,19 @@ class CreateUserByExperienceView(generics.CreateAPIView):
         if not Notification.objects.filter(
             user=inviter,
             message=(
-                f"경험 {experience.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.\n"
+                f"경험 {project_card.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.\n"
                 f"{invitee.profile.user_name}님의 프로필을 지금 확인해보세요!"
             ),
-            notification_type="experience_register",
+            notification_type="experience_register", # TODO: Need to update to smth like project_card_register
             related_user_id=invitee.id,
         ).exists():
             Notification.objects.create(
                 user=inviter,
                 message=(
-                    f"경험 {experience.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.\n"
+                    f"경험 {project_card.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.\n"
                     f"{invitee.profile.user_name}님의 프로필을 지금 확인해보세요!"
                 ),
-                notification_type="experience_register",
+                notification_type="experience_register", # TODO: Need to update to smth like project_card_register
                 related_user_id=invitee.id,
             )
 
@@ -215,8 +215,8 @@ class CreateUserByExperienceView(generics.CreateAPIView):
         email_body_1 = f"""
                     <p>안녕하세요. 팀블입니다.</p>
                     <br>
-                    <p>신뢰기반의 팀빌딩 플랫폼에 오신 걸 환영합니다.</p>
-                    <p>팀블의 여러가지 기능들을 이용해보세요.</p>
+                    <p>신뢰 기반의 프로젝트 네트워크, 팀블!</p>
+                    <p>진행 중인 다양한 프로젝트를 살펴보고, 관심있는 프로젝트를 응원하며 소통을 시작해보세요!</p>
                     <br>
                     <p>감사합니다. <br> 팀블 드림.</p>
                     <p><a href="{settings.TEAMBL_URL}" target="_blank" style="color: #3498db; text-decoration: none;">팀블 바로가기</a></p>
@@ -235,14 +235,14 @@ class CreateUserByExperienceView(generics.CreateAPIView):
             email_body_2 = f"""
                         <p>안녕하세요. 팀블입니다.</p>
                         <br>
-                        <p>경험 {experience.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.</p>
+                        <p>프로젝트 {project_card.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.</p>
                         <p>{invitee.profile.user_name}님의 프로필을 지금 확인해보세요!</p>
                         <br>
                         <p>감사합니다. <br> 팀블 드림.</p>
                         <p><a href="{settings.TEAMBL_URL}" target="_blank" style="color: #3498db; text-decoration: none;">팀블 바로가기</a></p>
                         """
             send_mail(
-                f"[Teambl] 경험 {experience.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.",
+                f"[Teambl] 프로젝트 {project_card.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.",
                 "",  # 텍스트 메시지는 사용하지 않음.
                 "info@teambl.net",
                 [inviter.email],
