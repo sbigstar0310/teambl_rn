@@ -72,9 +72,8 @@ const styles = StyleSheet.create({
     },
     title: {
         color: "#121212",
-        fontFamily: "Pretendard",
+        fontFamily: "PretendardSemiBold",
         fontSize: 16,
-        fontWeight: "600",
     },
     iconContainer: {
         marginLeft: 10,

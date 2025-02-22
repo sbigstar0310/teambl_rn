@@ -3,7 +3,7 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    TouchableOpacity,
+    ScrollView,
     View,
 } from "react-native";
 import { router } from "expo-router";
@@ -86,7 +86,7 @@ const SignUpScreen = () => {
             {/* Shared Header */}
             <ScreenHeader title="회원가입" />
 
-            <View style={sharedStyles.horizontalPadding}>
+            <ScrollView style={sharedStyles.horizontalPadding}>
                 {/* 이메일 입력 */}
                 <Text style={styles.label}>학교 이메일</Text>
                 <View style={styles.inputRow}>
@@ -179,7 +179,7 @@ const SignUpScreen = () => {
                     isLoading={false}
                     style={{ height: 40, marginTop: 20 }}
                 ></Button>
-            </View>
+            </ScrollView>
         </View>
     );
 };

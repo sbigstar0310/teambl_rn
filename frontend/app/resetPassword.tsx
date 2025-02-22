@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View, ScrollView } from "react-native";
 import { router } from "expo-router";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import { sharedStyles } from "./_layout";
@@ -97,7 +97,7 @@ const ResetPasswordScreen = () => {
         <View style={sharedStyles.container}>
             <ScreenHeader title="비밀번호 재설정" />
 
-            <View style={sharedStyles.horizontalPadding}>
+            <ScrollView style={sharedStyles.horizontalPadding}>
                 <Text style={styles.label}>학교 이메일</Text>
                 <View style={styles.inputRow}>
                     <TextInput
@@ -181,7 +181,7 @@ const ResetPasswordScreen = () => {
                     isActive={codeIsVerified && passwordIsVerified}
                     isLoading={isResetPasswordLoading}
                 />
-            </View>
+            </ScrollView>
         </View>
     );
 };

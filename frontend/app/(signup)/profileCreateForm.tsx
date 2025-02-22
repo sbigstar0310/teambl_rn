@@ -1,5 +1,5 @@
 import {
-    Pressable,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -153,7 +153,7 @@ export default function ProfileCreateFormScreen() {
             {/* Screen header */}
             <ScreenHeader title={"프로필 작성하기"} />
 
-            <View style={sharedStyles.horizontalPadding}>
+            <ScrollView style={sharedStyles.horizontalPadding}>
                 {/* Name */}
                 <Text style={styles.semiTitle}>이름</Text>
                 <TextInput
@@ -257,7 +257,7 @@ export default function ProfileCreateFormScreen() {
                         profile.major2 || "",
                     ].filter((major) => major !== "")}
                 />
-            </View>
+            </ScrollView>
         </View>
     );
 }
