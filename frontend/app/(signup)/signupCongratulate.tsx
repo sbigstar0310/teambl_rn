@@ -55,7 +55,19 @@ const SignUpCongradulateScreen = () => {
 
     // 홈 이동 콜백
     const goHome = async () => {
-        router.push("/home");
+        setIsLoading(true);
+        console.log("로그인 시도: ", email, password);
+
+        try {
+            // ✅ 로그인 성공 여부 확인 (true/false 반환)
+            const _ = await useAuthStore.getState().login(email, password);
+            console.log("✅ 로그인 성공!");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+            router.push("/home");
+        }
     };
 
     const handleLogin = async () => {
@@ -104,8 +116,8 @@ const SignUpCongradulateScreen = () => {
             <Button
                 text="팀블 시작하기"
                 onClickCallback={goHome}
-                isActive={true}
-                isLoading={false}
+                isActive={!isLoading}
+                isLoading={isLoading}
                 style={{ width: "100%" }}
             />
         </Container>
