@@ -1,9 +1,9 @@
 import React from "react";
-import {Image, StyleSheet, Text, TouchableWithoutFeedback, View} from "react-native";
+import {Image, StyleSheet, Text, View} from "react-native";
 import DefaultProfile from "@/assets/DefaultProfile.svg";
 import theme from "@/shared/styles/theme";
 
-type UserSearchData = {
+type TagUserCardProps = {
     is_new_user: boolean;
     relation_degree: number | null;
     user: api.User;
@@ -11,7 +11,7 @@ type UserSearchData = {
     isKeywordsHidden?: boolean;
 };
 
-export default function TagUserCard(data: UserSearchData) {
+export default function TagUserCard(data: TagUserCardProps) {
     const profile = data.user.profile;
 
     return (
@@ -30,38 +30,28 @@ export default function TagUserCard(data: UserSearchData) {
             {/* 텍스트 정보 */}
             <View style={styles.textContainer}>
                 <View style={[styles.infoContainer, styles.nameAndRelation]}>
-                    <TouchableWithoutFeedback>
-                        <Text style={styles.userName}>{profile.user_name}</Text>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback>
-                        <Text style={styles.relation}>
-                            {data.relation_degree
-                                ? ` · ${data.relation_degree}촌`
-                                : " · 4촌 이상"}
-                        </Text>
-                    </TouchableWithoutFeedback>
+                    <Text style={styles.userName}>{profile.user_name}</Text>
+                    <Text style={styles.relation}>
+                        {data.relation_degree
+                            ? ` · ${data.relation_degree}촌`
+                            : " · 4촌 이상"}
+                    </Text>
                 </View>
                 <View style={styles.infoContainer}>
-                    <TouchableWithoutFeedback>
-                        <Text style={styles.infoText}>
-                            {profile.school} | {profile.current_academic_degree} |{" "}
-                            {profile.year % 100}학번
-                        </Text>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback>
-                        <Text style={styles.infoText}>
-                            {profile.major1}
-                            {profile.major2 ? ` · ${profile.major2}` : ""}
-                        </Text>
-                    </TouchableWithoutFeedback>
+                    <Text style={styles.infoText}>
+                        {profile.school} | {profile.current_academic_degree} |{" "}
+                        {profile.year % 100}학번
+                    </Text>
+                    <Text style={styles.infoText}>
+                        {profile.major1}
+                        {profile.major2 ? ` · ${profile.major2}` : ""}
+                    </Text>
                 </View>
                 {data.isKeywordsHidden === true && (
                     <View style={styles.infoContainer}>
-                        <TouchableWithoutFeedback>
-                            <Text style={styles.keywords}>
-                                {profile.keywords.join(" / ")}
-                            </Text>
-                        </TouchableWithoutFeedback>
+                        <Text style={styles.keywords}>
+                            {profile.keywords.join(" / ")}
+                        </Text>
                     </View>
                 )}
             </View>

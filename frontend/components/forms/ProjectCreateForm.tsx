@@ -1,15 +1,12 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import KeywordInput from "@/components/KeywordInput";
-import { useState } from "react";
+import {useState} from "react";
 import DropdownContent from "@/components/DropdownContent";
 import TextField from "@/components/TextField";
-import { sharedStyles } from "@/app/_layout";
+import {sharedStyles} from "@/app/_layout";
 import BottomModal from "@/components/BottomModal";
 import theme from "@/shared/styles/theme";
-import DateRangePicker, {
-    DateRange,
-    toDateRangeString,
-} from "@/components/DateRangePicker";
+import DateRangePicker, {DateRange, toDateRangeString,} from "@/components/DateRangePicker";
 import SearchUsersWidget from "@/components/search/SearchUsersWidget";
 import UserTagInput from "@/components/UserTagInput";
 
@@ -19,16 +16,16 @@ interface ProjectCreateFormProps {
 }
 
 export default function ProjectCreateForm(props: ProjectCreateFormProps) {
-    const { data, setData } = props;
+    const {data, setData} = props;
     const [isPeriodInputModalOpen, setIsPeriodInputModalOpen] = useState(false);
     const [isMentionsModalOpen, setIsMentionsModalOpen] = useState(false);
 
     const handleTitleChange = (value: string) => {
-        setData({ ...data, title: value });
+        setData({...data, title: value});
     };
 
     const handleNewKeyword = (newKeyword: string) => {
-        setData({ ...data, keywords: [...data.keywords, newKeyword] });
+        setData({...data, keywords: [...data.keywords, newKeyword]});
     };
 
     const handleKeywordRemove = (index: number) => {
@@ -39,7 +36,9 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
     };
 
     const handleNewMention = (newMention: api.User) => {
-        setData({ ...data, mentions: [...data.mentions, newMention] });
+        if (!data.mentions.some(mention => mention.id === newMention.id)) {
+            setData({...data, mentions: [...data.mentions, newMention]});
+        }
         setIsMentionsModalOpen(false);
     };
 
@@ -51,11 +50,11 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
     };
 
     const handleDescriptionChange = (value: string) => {
-        setData({ ...data, description: value });
+        setData({...data, description: value});
     };
 
     const handleTimePeriodChange = (value: DateRange) => {
-        setData({ ...data, timePeriod: value });
+        setData({...data, timePeriod: value});
         setIsPeriodInputModalOpen(false);
     };
 
@@ -76,7 +75,7 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
             <View style={styles.field}>
                 <View style={styles.row}>
                     <Text style={sharedStyles.primaryText}>제목</Text>
-                    <RequiredMark />
+                    <RequiredMark/>
                 </View>
                 <TextField
                     defaultValue={data.title}
@@ -88,7 +87,7 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
             <View style={styles.field}>
                 <View style={styles.row}>
                     <Text style={sharedStyles.primaryText}>키워드</Text>
-                    <RequiredMark />
+                    <RequiredMark/>
                     <Text style={styles.feedbackText}>최소 2개</Text>
                 </View>
                 <KeywordInput
@@ -114,7 +113,11 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                     heightPercentage={0.8}
                     visible={isMentionsModalOpen}
                     onClose={handleMentionsModalClose}
-                    body={<SearchUsersWidget onConfirm={handleNewMention} />}
+                    body={
+                        <SearchUsersWidget
+                            onConfirm={handleNewMention}
+                            hiddenUserIds={data.mentions.map(mention => mention.id)}
+                        />}
                 />
             </DropdownContent>
             {/* Time period */}

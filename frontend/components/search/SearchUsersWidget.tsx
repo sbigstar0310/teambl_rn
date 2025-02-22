@@ -1,11 +1,5 @@
-import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-import { useState } from "react";
+import {FlatList, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {useState} from "react";
 import TextField from "@/components/TextField";
 import TagUserCard from "@/components/search/TagUserCard";
 import PrimeButton from "@/components/PrimeButton";
@@ -14,6 +8,7 @@ import searchUserByName from "@/libs/apis/Search/searchUserByName";
 
 interface SearchUsersWidgetProps {
     onConfirm: (user: api.User) => void;
+    hiddenUserIds?: number[];
 }
 
 export default function SearchUsersWidget(props: SearchUsersWidgetProps) {
@@ -21,9 +16,13 @@ export default function SearchUsersWidget(props: SearchUsersWidgetProps) {
     const [results, setResults] = useState<api.UserSearchResult[]>([]);
 
     const updateResults = async (text: string) => {
-        const newResults: api.UserSearchResult[] = await searchUserByName({
+        let newResults: api.UserSearchResult[] = await searchUserByName({
             user_name: text,
         });
+        if (props.hiddenUserIds) {
+           newResults = newResults
+               .filter(({user}) => !props.hiddenUserIds?.includes(user.id));
+        }
 
         setResults(newResults);
     };
@@ -53,14 +52,14 @@ export default function SearchUsersWidget(props: SearchUsersWidgetProps) {
             <TextField
                 placeholder="사람 검색"
                 onChangeText={handleQueryInput}
-                icon={<SearchIcon width={15} height={15} />}
+                icon={<SearchIcon width={15} height={15}/>}
             />
             {/*Results*/}
             <FlatList
                 style={styles.list}
                 data={results}
                 keyExtractor={(_, i) => i.toString()}
-                renderItem={({ item, index }) => (
+                renderItem={({item, index}) => (
                     <TouchableOpacity onPress={handleSelect.bind(null, index)}>
                         <TagUserCard
                             is_new_user={item.is_new_user}
