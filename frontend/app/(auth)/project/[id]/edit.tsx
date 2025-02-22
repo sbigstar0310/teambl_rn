@@ -9,9 +9,9 @@ import {router, useLocalSearchParams} from "expo-router";
 import {sharedStyles} from "@/app/_layout";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import Popup from "@/components/Popup";
-import fetchMyProjectCard from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
 import updateProjectCard from "@/libs/apis/ProjectCard/updateProjectCard";
+import retrieveProjectCard from "@/libs/apis/ProjectCard/retrieveProjectCard";
 
 export default function EditProject() {
     const {id} = useLocalSearchParams();
@@ -54,8 +54,7 @@ export default function EditProject() {
 
     const fetchProjectData = async (projectId: number) => {
         try {
-            const myProjects = await fetchMyProjectCard();
-            const apiData = myProjects.find(p => p.id === projectId);
+            const apiData = await retrieveProjectCard(projectId);
             if (!apiData) {
                 router.back();
                 alert("이 프로젝트를 수정할 권한이 없습니다.");
