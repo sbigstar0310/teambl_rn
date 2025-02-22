@@ -40,8 +40,8 @@ class CreateUserAloneView(generics.CreateAPIView):
         email_body = f"""
                     <p>안녕하세요. 팀블입니다.</p>
                     <br>
-                    <p>신뢰기반의 팀빌딩 플랫폼에 오신 걸 환영합니다.</p>
-                    <p>팀블의 여러가지 기능들을 이용해보세요.</p>
+                    <p>신뢰 기반의 프로젝트 네트워크, 팀블!</p>
+                    <p>진행 중인 다양한 프로젝트를 살펴보고, 관심있는 프로젝트를 응원하며 소통을 시작해보세요!</p>
                     <br>
                     <p>감사합니다. <br> 팀블 드림.</p>
                     <p><a href="{settings.TEAMBL_URL}" target="_blank" style="color: #3498db; text-decoration: none;">팀블 바로가기</a></p>
@@ -114,8 +114,8 @@ class CreateUserView(generics.CreateAPIView):
         email_body_1 = f"""
                     <p>안녕하세요. 팀블입니다.</p>
                     <br>
-                    <p>신뢰기반의 팀빌딩 플랫폼에 오신 걸 환영합니다.</p>
-                    <p>팀블의 여러가지 기능들을 이용해보세요.</p>
+                    <p>신뢰 기반의 프로젝트 네트워크, 팀블!</p>
+                    <p>진행 중인 다양한 프로젝트를 살펴보고, 관심있는 프로젝트를 응원하며 소통을 시작해보세요!</p>
                     <br>
                     <p>감사합니다. <br> 팀블 드림.</p>
                     <p><a href="{settings.TEAMBL_URL}" target="_blank" style="color: #3498db; text-decoration: none;">팀블 바로가기</a></p>
