@@ -47,6 +47,7 @@ const updateProfile = async (params: RequestParams): Promise<Response> => {
         );
         return response.data;
     } catch (error) {
+        console.log(params);
         throw error;
     }
 };

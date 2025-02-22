@@ -129,10 +129,17 @@ const NewProfileHeader = (props: any) => {
         setIsImageUploadModalVisible(false);
         setIsLoading(true);
         // Upload the image
-        await updateProfile({
-            profile: { image: "" },
-            imageFile: undefined,
-        });
+        try {
+            await updateProfile({
+                profile: { image: null },
+                imageFile: undefined,
+            });
+        } catch (error) {
+            console.error("이미지 삭제 중 오류 발생:", error);
+        } finally {
+            setIsLoading(false);
+        }
+
         setIsLoading(false);
         setCurrentImageURL("");
     };
