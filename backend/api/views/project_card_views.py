@@ -179,6 +179,7 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
 
         # 1. 프로젝트 카드에 참여 중인지 확인
         if user not in project_card.accepted_users.all():
+            print("프로젝트 카드에 참여 중이 아닙니다.")
             raise ValidationError("프로젝트 카드에 참여 중이 아닙니다.")
 
         # 2. 프로젝트 카드 초대 이력 삭제
@@ -200,6 +201,7 @@ class ProjectCardLeaveView(generics.UpdateAPIView):
                 project_card.accepted_users.remove(user)
             else:  # 마지막 사용자일 경우 카드 삭제
                 project_card.delete()
+                return  # 삭제 후 바로 종료
         else:
             # 관리자가 아닌 경우 탈퇴 처리
             project_card.accepted_users.remove(user)
