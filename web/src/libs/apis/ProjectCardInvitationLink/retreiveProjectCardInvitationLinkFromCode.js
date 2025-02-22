@@ -1,10 +1,10 @@
 import api from "../../../api.js";
 
-const retreiveProjectCardInvitationLinkFromCode = async (params) => {
+const retrieveProjectCardInvitationLinkFromCode = async (code) => {
     try {
         const response = await api.get(
-            "project-card-invitation-link/retreive-from-code/",
-            { params }
+            "api/project-card-invitation-link/retrieve-from-code/",
+            { params: { code } }
         );
         return response.data;
     } catch (error) {
@@ -16,4 +16,4 @@ const retreiveProjectCardInvitationLinkFromCode = async (params) => {
     }
 };
 
-export default retreiveProjectCardInvitationLinkFromCode;
+export default retrieveProjectCardInvitationLinkFromCode;

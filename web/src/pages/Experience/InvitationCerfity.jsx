@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import "../../styles/Experience/Experience.css";
 import backIcon from "../../assets/Profile/left-arrow.svg";
-import { toastText } from '../../components/Toast/Toast';
+import {toastText} from '../../components/Toast/Toast';
 import api from '../../api';
 import InfoMessage from '../../components/InfoMessage';
 
 const InvitationCerfity = () => {
 
-    const { invitationCode, inviter } = useParams();
+    const {invitationCode, inviter} = useParams();
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -27,69 +27,6 @@ const InvitationCerfity = () => {
     const [generatedCode, setGeneratedCode] = useState("");
     const [inputPassword, setInputPassword] = useState("");
     const [reInputPassword, setReInputPassword] = useState("");
-
-    /** api */
-    const sendCode = async () => {
-        await setIsSendLoading(true);
-        /** check domain */
-        if (!isDomainValid(email)) {
-            toastText("\"kaist.ac.kr\"도메인만 가입이 가능해요.");
-            await setIsSendLoading(false);
-            return;
-        }
-        /** check duplication */
-        try {
-            await api.post("/api/check-email/", { email });
-        } catch (e) {
-            if (e.response && e.response.status === 400) {
-                toastText("이미 가입된 이메일이에요.");
-            } else {
-                console.log(e);
-                toastText("이메일 확인에 실패했습니다.");
-            }
-            await setIsSendLoading(false);
-            return;
-        }
-        /** generate code */
-        let newCode = Math.floor(100000 + Math.random() * 900000).toString();
-        /** send code */
-        try {
-            await api.post("/api/send-code-email/", {
-                email: email,
-                code: newCode
-            });
-            // debug
-            // console.log(newCode);
-            await setGeneratedCode(newCode);
-            await setIsCodeSent(true);
-            await setIsSendLoading(false);
-            toastText("인증코드가 전송됐어요.");
-        } catch (e) {
-            console.log(e);
-            toastText("인증코드 전송에 실패했습니다.");
-            await setIsSendLoading(false);
-            return;
-        }
-
-    };
-
-    /** utils */
-    const handleBack = () => {
-        navigate(`/experience/welcome/${invitationCode}`);
-    };
-
-    const isValidEmailFormat = (text) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(text);
-    };
-
-    const isDomainValid = (text) => {
-        return text.endsWith("@kaist.ac.kr") || text.endsWith("@alumni.kaist.ac.kr");
-    };
-
-    const checkCode = async () => {
-        await setIsCodeVerified(generatedCode === inputCode);
-    };
 
     /** effects */
     useEffect(() => {
@@ -120,11 +57,68 @@ const InvitationCerfity = () => {
         setIsPasswordSame(inputPassword === reInputPassword);
     }, [inputPassword, reInputPassword]);
 
+    /** api */
+    const sendCode = async () => {
+        await setIsSendLoading(true);
+        /** check domain */
+        if (!isDomainValid(email)) {
+            toastText("\"kaist.ac.kr\"도메인만 가입이 가능해요.");
+            await setIsSendLoading(false);
+            return;
+        }
+        /** check duplication */
+        try {
+            await api.post("/api/others/check-email/", {email});
+        } catch (e) {
+            if (e.response && e.response.status === 400) {
+                toastText("이미 가입된 이메일이에요.");
+            } else {
+                console.log(e);
+                toastText("이메일 확인에 실패했습니다.");
+            }
+            await setIsSendLoading(false);
+            return;
+        }
+        /** generate code */
+        let newCode = Math.floor(100000 + Math.random() * 900000).toString();
+        /** send code */
+        try {
+            await api.post("/api/others/send-code-email/", {email, code: newCode});
+            // debug
+            // console.log(newCode);
+            await setGeneratedCode(newCode);
+            await setIsCodeSent(true);
+            await setIsSendLoading(false);
+            toastText("인증코드가 전송됐어요.");
+        } catch (e) {
+            console.log(e);
+            toastText("인증코드 전송에 실패했습니다.");
+            await setIsSendLoading(false);
+            return;
+        }
+
+    };
+
+    /** utils */
+    const handleBack = () => {
+        navigate(`/project-card/welcome?code=${invitationCode}`);
+    };
+    const isValidEmailFormat = (text) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(text);
+    };
+    const isDomainValid = (text) => {
+        return text.endsWith("@kaist.ac.kr") || text.endsWith("@alumni.kaist.ac.kr");
+    };
+    const checkCode = async () => {
+        await setIsCodeVerified(generatedCode === inputCode);
+    };
+
     /** returns */
     if (!isValidFlow) {
         return (
             <div className="exp-loader-container">
-                <div className="exp-loader" />
+                <div className="exp-loader"/>
             </div>
         );
     }
@@ -138,7 +132,7 @@ const InvitationCerfity = () => {
                         className="exp-backbutton"
                         onClick={() => handleBack()}
                     >
-                        <img src={backIcon} />
+                        <img src={backIcon}/>
                     </button>
                 </div>
             </div>
@@ -186,7 +180,7 @@ const InvitationCerfity = () => {
                         }
                     </button>
                 </div>
-                <div className='exp-inv-cer-email-input-row'>
+                {isCodeSent && <div className='exp-inv-cer-email-input-row'>
                     <input
                         className='exp-inv-cer-email-input exp-inv-input-dynamic'
                         readOnly={((!isCodeSent) || (isCodeVerified) || (isSendLoading))}
@@ -211,7 +205,7 @@ const InvitationCerfity = () => {
                                 "인증코드 확인"
                         }
                     </button>
-                </div>
+                </div>}
                 {
                     (isCodeVerified != null) &&
                     <InfoMessage
@@ -236,7 +230,7 @@ const InvitationCerfity = () => {
                 }
             </div>
             {/** Password */}
-            <div className='exp-inv-cer-field-container mt-15'>
+            {isCodeVerified && <div className='exp-inv-cer-field-container mt-15'>
                 <span className='exp-inv-cer-field-title'>
                     {"비밀번호"}
                 </span>
@@ -282,15 +276,15 @@ const InvitationCerfity = () => {
                         {/** EMPTY */}
                     </div>
                 }
-            </div>
+            </div>}
             {/** next button */}
-            <div className='exp-inv-cer-field-container mt-20'>
+            {isCodeVerified && <div className='exp-inv-cer-field-container mt-20'>
                 <button
                     className={`exp-save-button no-mg${((!isCodeVerified) || (!isPasswordSame)) ? ' exp-btn-disabled' : ''}`}
                     onClick={() => {
                         if (isCodeVerified && isPasswordSame) {
-                            navigate(`/experience/invitation/register/${invitationCode}/${inviter}`, {
-                                state : {
+                            navigate(`/project-card/invitation/register/${invitationCode}/${inviter}`, {
+                                state: {
                                     ...location.state,
                                     isCertified: true,
                                     verifiedEmail: email,
@@ -303,7 +297,7 @@ const InvitationCerfity = () => {
                 >
                     {"다음"}
                 </button>
-            </div>
+            </div>}
         </div>
     );
 };

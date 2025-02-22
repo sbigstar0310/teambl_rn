@@ -10,7 +10,6 @@ import { toastBottomText } from '../../components/Toast/BottomToast';
 import CurrentAcademicDegreePopUp from '../ProfilePage/CurrentAcademicDegreePopUp';
 import api from '../../api';
 import ItemEditor from '../../components/ItemEditor';
-import InfoMessage from '../../components/InfoMessage';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 
 const InvitationRegister = () => {
@@ -37,111 +36,6 @@ const InvitationRegister = () => {
     const [year, setYear] = useState("");
     const [majorList, setMajorList] = useState([]);
     const [keywordList, setKeywordList] = useState([]);
-
-    /** api */
-    const registerUser = async () => {
-        await setIsSaveLoading(true);
-
-        try {
-            const res = await api.post(`/api/register-experience/`, craftRequestBody());
-            /** auto login */
-            try {
-                const res = await api.post('/api/token/', {
-                    email: passedEmail,
-                    password: passedPassword
-                });
-                await localStorage.setItem(ACCESS_TOKEN, res.data.access);
-                await localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-                await localStorage.setItem("userId", res.data.userId);
-                console.log("Stored userId:", localStorage.getItem("userId"));
-                navigate('/experience/invitation/register/welcome', {
-                    state: {
-                        ...location.state,
-                        isNewComer: true,
-                        newComerName: name,
-                        invitationCode: invitationCode,
-                        expTargetUser: res.data.id,
-                        autoLoginSuccess: true
-                    }
-                });
-            } catch (e) {
-                /** failed to auto login */
-                console.log(e);
-                navigate('/experience/invitation/register/welcome', {
-                    state: {
-                        ...location.state,
-                        isNewComer: true,
-                        newComerName: name,
-                        invitationCode: invitationCode,
-                        expTargetUser: res.data.id,
-                        autoLoginSuccess: false
-                    }
-                });
-            }
-        } catch (e) {
-            console.log(e);
-            toastText("가입에 실패했어요.");
-        } finally {
-            await setIsSaveLoading(false);
-        }
-    };
-
-    /** utils */
-    const handleBack = () => {
-        navigate(`/experience/invitation/certify/${invitationCode}/${inviter}`, {
-            state: {
-                ...location.state,
-                fromBack: true,
-                isFromExpInvitation: true,
-                verifiedEmail: passedEmail,
-                verifiedPassword: passedPassword,
-                verifiedCode: passedCode
-            }
-        });
-    };
-
-    const handleRemoveMajor = (majorToRemove) => {
-        setMajorList((prevMajors) =>
-            prevMajors.filter((major) => major !== majorToRemove)
-        );
-    };
-
-    const handleMajorChange = (selectedMajors) => {
-        if (selectedMajors.length <= 2) {
-            setMajorList(selectedMajors);
-        } else {
-            toastBottomText("전공은 최대 2개까지 선택할 수 있습니다.");
-        }
-    };
-
-    const checkIsValidYear = (value) => {
-        const year = Number(value);
-
-        if (isNaN(year) || year < 1000 || year > 9999) {
-            return false;
-        }
-
-        return Number.isInteger(year);
-    };
-
-    const craftRequestBody = () => {
-        let newRequestBody = {};
-        newRequestBody['inviter_id'] = inviter;
-        newRequestBody['email'] = passedEmail;
-        newRequestBody['password'] = passedPassword;
-        newRequestBody['profile'] = {
-            'user_name': name,
-            'school': school,
-            'current_academic_degree': academicDegree,
-            'year': year,
-            'major1': majorList[0],
-            'major2': (majorList.length > 1) ? majorList[1] : "",
-            'keywords': keywordList
-        };
-        newRequestBody['code'] = invitationCode;
-        newRequestBody['experience_id'] = location?.state?.expId;
-        return newRequestBody;
-    };
 
     /** effects */
     useEffect(() => {
@@ -186,6 +80,107 @@ const InvitationRegister = () => {
             isKeywordValid
         );
     }, [name, school, academicDegree, year, majorList, keywordList]);
+
+    /** api */
+    const registerUser = async () => {
+        await setIsSaveLoading(true);
+
+        try {
+            await api.post(`/api/user/register-project-card/`, craftRequestBody());
+            /** auto login */
+            try {
+                const res = await api.post('/api/token/', {
+                    email: passedEmail,
+                    password: passedPassword
+                });
+                await localStorage.setItem(ACCESS_TOKEN, res.data.access);
+                await localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+                await localStorage.setItem("userId", res.data.userId);
+                console.log("Stored userId:", localStorage.getItem("userId"));
+                navigate('/project-card/invitation/register/welcome', {
+                    state: {
+                        ...location.state,
+                        isNewComer: true,
+                        newComerName: name,
+                        invitationCode: invitationCode,
+                        expTargetUser: res.data.id,
+                        autoLoginSuccess: true
+                    }
+                });
+            } catch (e) {
+                /** failed to auto login */
+                console.log(e);
+                navigate('/project-card/invitation/register/welcome', {
+                    state: {
+                        ...location.state,
+                        isNewComer: true,
+                        newComerName: name,
+                        invitationCode: invitationCode,
+                        expTargetUser: res.data.id,
+                        autoLoginSuccess: false
+                    }
+                });
+            }
+        } catch (e) {
+            console.log(e);
+            toastText("가입에 실패했어요.");
+        } finally {
+            await setIsSaveLoading(false);
+        }
+    };
+
+    /** utils */
+    const handleBack = () => {
+        navigate(`/project-card/invitation/certify/${invitationCode}/${inviter}`, {
+            state: {
+                ...location.state,
+                fromBack: true,
+                isFromExpInvitation: true,
+                verifiedEmail: passedEmail,
+                verifiedPassword: passedPassword,
+                verifiedCode: passedCode
+            }
+        });
+    };
+    const handleRemoveMajor = (majorToRemove) => {
+        setMajorList((prevMajors) =>
+            prevMajors.filter((major) => major !== majorToRemove)
+        );
+    };
+    const handleMajorChange = (selectedMajors) => {
+        if (selectedMajors.length <= 2) {
+            setMajorList(selectedMajors);
+        } else {
+            toastBottomText("전공은 최대 2개까지 선택할 수 있습니다.");
+        }
+    };
+    const checkIsValidYear = (value) => {
+        const year = Number(value);
+
+        if (isNaN(year) || year < 1000 || year > 9999) {
+            return false;
+        }
+
+        return Number.isInteger(year);
+    };
+    const craftRequestBody = () => {
+        let newRequestBody = {};
+        newRequestBody['inviter_id'] = inviter;
+        newRequestBody['email'] = passedEmail;
+        newRequestBody['password'] = passedPassword;
+        newRequestBody['profile'] = {
+            'user_name': name,
+            'school': school,
+            'current_academic_degree': academicDegree,
+            'year': year,
+            'major1': majorList[0],
+            'major2': (majorList.length > 1) ? majorList[1] : "",
+            'keywords': keywordList
+        };
+        newRequestBody['code'] = invitationCode;
+        newRequestBody['project_card_id'] = location?.state?.expId;
+        return newRequestBody;
+    };
 
     /** returns */
     if (!isValidFlow) {

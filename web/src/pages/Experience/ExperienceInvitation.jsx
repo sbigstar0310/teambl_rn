@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import backIcon from "../../assets/Profile/left-arrow.svg";
-import api from '../../api';
 import "../../styles/Experience/Experience.css";
-import { toastText } from '../../components/Toast/Toast';
+import {toastText} from '../../components/Toast/Toast';
+import retrieveProjectCardInvitationLinkFromCode
+    from "../../libs/apis/ProjectCardInvitationLink/retreiveProjectCardInvitationLinkFromCode.js";
+import projectCardInvitationResponse from "../../libs/apis/ProjectCardInvitation/projectCardInvitationResponse.js";
 
 /** When accessing by the invitation link, but already signed in. */
-const ExperienceInvitation = ({ invitationCode }) => {
-
+const ExperienceInvitation = ({invitationCode}) => {
     const myId = parseInt(localStorage.getItem("userId"));
     const navigate = useNavigate();
     const location = useLocation();
@@ -25,25 +26,25 @@ const ExperienceInvitation = ({ invitationCode }) => {
         await setIsOnError(false);
 
         try {
-            const res = await api.get(`/api/experience-detail/${invitationCode}/`);
-            await setInvInfo(res.data);
+            const invitationData = await retrieveProjectCardInvitationLinkFromCode(invitationCode);
+            await setInvInfo(invitationData);
             /** check owner */
-            if (res.data['experience']['creator'] == myId) {
-                toastText("내가 생성한 경험이에요.");
+            if (invitationData['project_card']['creator'].id == myId) {
+                toastText("내가 생성한 프로젝트 카드이에요.");
                 navigate(`/profile/${myId}`, {
                     state: {
                         ...location.state,
-                        tempTargetExpId: res.data['experience']['id'],
+                        tempTargetExpId: invitationData['project_card']['id'],
                         AddExp: true
                     }
                 });
             }
             /** check already in */
-            let memberIdList = res.data.experience['accepted_users'];
-            res.data.experience['pending_invitations'].forEach(elem => {
-                if (!memberIdList.includes(elem['invitee'])) {
+            let memberIdList = invitationData.project_card['accepted_users'];
+            invitationData.project_card['pending_invitations']?.forEach(elem => {
+                if (!memberIdList.includes(elem['invitee_id'])) {
                     if (elem['status'] === 'accepted') {
-                        memberIdList.push(elem['invitee']);
+                        memberIdList.push(elem['invitee_id']);
                     }
                 }
             });
@@ -62,11 +63,11 @@ const ExperienceInvitation = ({ invitationCode }) => {
         } else {
             await setIsAcceptLoading(true);
             try {
-                await api.get(`/api/experience-after-invitation/${invitationCode}/`);
+                await projectCardInvitationResponse(invitationCode, "accepted");
                 navigate(`/profile/${myId}`, {
                     state: {
                         ...location.state,
-                        tempTargetExpId: invInfo['experience']['id'],
+                        tempTargetExpId: invInfo['project_card']['id'],
                         AddExp: true
                     }
                 });
@@ -79,6 +80,23 @@ const ExperienceInvitation = ({ invitationCode }) => {
         }
     };
 
+    const handleRefuse = async () => {
+        if (isAcceptLoading) {
+            return;
+        } else {
+            await setIsAcceptLoading(true);
+            try {
+                await projectCardInvitationResponse(invitationCode, "rejected");
+                navigate("/home");
+            } catch (e) {
+                console.log(e);
+                toastText("거부하지 못했습니다.");
+            } finally {
+                await setIsAcceptLoading(false);
+            }
+        }
+    }
+
     /** utils */
 
     /** add "조사" */
@@ -86,7 +104,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
         const isHangul = (char) => /[가-힣]/.test(char);
         const isEnglish = (char) => /[a-zA-Z]/.test(char);
         const charCode = text.charCodeAt(text.length - 1);
-        
+
         if (isHangul(text[text.length - 1])) {
             const consonantCode = (charCode - 44032) % 28;
             return consonantCode === 0 ? `를` : `을`;
@@ -94,14 +112,14 @@ const ExperienceInvitation = ({ invitationCode }) => {
             const consonantsWithBatchim = ['b', 'c', 'd', 'g', 'k', 'l', 'm', 'n', 'p', 'q', 't'];
             const lastChar = text[text.length - 1].toLowerCase();
             const secondLastChar = text.length > 1 ? text[text.length - 2].toLowerCase() : '';
-            
+
             if (text.length > 1 && secondLastChar === 'l' && lastChar === 'e') {
                 return `을`;
             }
-    
+
             return consonantsWithBatchim.includes(lastChar) ? `을` : `를`;
         }
-        
+
         return `를`;
     };
 
@@ -128,7 +146,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
         /** if states exists, delete */
         if ((location.state != null) && location.state.isExpProcess) {
             navigate(location.pathname, {
-                state : {
+                state: {
                     ...location.state,
                     isExpProcess: null,
                     expInvitationCode: null
@@ -140,7 +158,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
     if (isLoading || (isAlreadyIn == null)) {
         return (
             <div className="exp-loader-container">
-                <div className="exp-loader" />
+                <div className="exp-loader"/>
             </div>
         );
     }
@@ -155,7 +173,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
                             className="exp-backbutton"
                             onClick={() => handleBack()}
                         >
-                            <img src={backIcon} />
+                            <img src={backIcon}/>
                         </button>
                     </div>
                 </div>
@@ -176,7 +194,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
                             className="exp-backbutton"
                             onClick={() => handleBack()}
                         >
-                            <img src={backIcon} />
+                            <img src={backIcon}/>
                         </button>
                     </div>
                 </div>
@@ -184,9 +202,9 @@ const ExperienceInvitation = ({ invitationCode }) => {
                     className="exp-error-container"
                     style={{
                         marginTop: '20px'
-                    }}    
+                    }}
                 >
-                    {`이미 ${invInfo['user']['user_name']}님과의 ‘${invInfo['experience']['title']}’ 경험을 함께하고 있어요.`}
+                    {`이미 ${invInfo['inviter']['profile']['user_name']}님과의 ‘${invInfo['project_card']['title']}’ 프로젝트을 함께하고 있어요.`}
                 </div>
                 <div
                     className="exp-error-container"
@@ -197,13 +215,13 @@ const ExperienceInvitation = ({ invitationCode }) => {
                             navigate(`/profile/${myId}`, {
                                 state: {
                                     ...location.state,
-                                    tempTargetExpId: invInfo['experience']['id'],
+                                    tempTargetExpId: invInfo['project_card']['id'],
                                     AddExp: true
                                 }
                             });
                         }}
                     >
-                        {"경험 확인하기"}
+                        {"프로젝트 확인하기"}
                     </button>
                 </div>
             </div>
@@ -220,7 +238,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
                         className="exp-backbutton"
                         onClick={() => handleBack()}
                     >
-                        <img src={backIcon} />
+                        <img src={backIcon}/>
                     </button>
                 </div>
             </div>
@@ -230,7 +248,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
             >
                 <div className='exp-inv-title-row'>
                     <span className='exp-inv-title primary-color'>
-                        {`${invInfo['user']['user_name']}`}
+                        {`${invInfo['inviter']['profile']['user_name']}`}
                     </span>
                     <span className='exp-inv-title'>
                         {`님이 당신과 함께한`}
@@ -238,10 +256,10 @@ const ExperienceInvitation = ({ invitationCode }) => {
                 </div>
                 <div className='exp-inv-title-row'>
                     <span className='exp-inv-title primary-color'>
-                        {`‘${invInfo['experience']['title']}’`}
+                        {`‘${invInfo['project_card']['title']}’`}
                     </span>
                     <span className='exp-inv-title'>
-                        {`${appendChosa(invInfo['experience']['title'])} 공유하려 합니다.`}
+                        {`${appendChosa(invInfo['project_card']['title'])} 공유하려 합니다.`}
                     </span>
                 </div>
             </div>
@@ -254,7 +272,7 @@ const ExperienceInvitation = ({ invitationCode }) => {
             {/** caption */}
             <div className='exp-inv-caption-container'>
                 <span className='exp-inv-caption'>
-                    {"초대를 수락하면 경험을 함께하는 사람에 추가되고, 내 경험 카드에서도 확인할 수 있어요."}
+                    {"초대를 수락하면 프로젝트을 함께하는 사람에 추가되고, 내 프로젝트 카드에서도 확인할 수 있어요."}
                 </span>
             </div>
             {/** buttons */}
@@ -265,21 +283,31 @@ const ExperienceInvitation = ({ invitationCode }) => {
                 >
                     {
                         isAcceptLoading ?
-                        <div
-                            className="exp-button-loader"
-                            style={{
-                                display: 'inline-block'
-                            }}
-                        />
-                        :
-                        "수락하기"
+                            <div
+                                className="exp-button-loader"
+                                style={{
+                                    display: 'inline-block'
+                                }}
+                            />
+                            :
+                            "수락하기"
                     }
                 </button>
                 <button
                     className='exp-save-button no-mg exp-btn-disabled'
-                    onClick={() => navigate('/home')}
+                    onClick={handleRefuse}
                 >
-                    {"거절하기"}
+                    {
+                        isAcceptLoading ?
+                            <div
+                                className="exp-button-loader"
+                                style={{
+                                    display: 'inline-block'
+                                }}
+                            />
+                            :
+                            "거절하기"
+                    }
                 </button>
             </div>
         </div>

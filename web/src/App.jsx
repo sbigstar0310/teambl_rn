@@ -282,7 +282,7 @@ function App() {
         /> */}
         {/** This path may depend on the url the backend server have generated. */}
         <Route
-          path="/experience/welcome/:invitationCode"
+          path="/project-card/welcome"
           element={
             <ProtectedExpInvitationRoute>
               <ExperienceWelcome />
@@ -290,19 +290,19 @@ function App() {
           }
         />
         <Route
-          path="/experience/invitation/certify/:invitationCode/:inviter"
+          path="/project-card/invitation/certify/:invitationCode/:inviter"
           element={
             <InvitationCerfity />
           }
         />
         <Route
-          path="/experience/invitation/register/:invitationCode/:inviter"
+          path="/project-card/invitation/register/:invitationCode/:inviter"
           element={
             <InvitationRegister />
           }
         />
         <Route
-          path="/experience/invitation/register/welcome"
+          path="/project-card/invitation/register/welcome"
           element={
             <RegisterWelcome />
           }

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import api from '../../api';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
+import projectCardInvitationResponse from "../../libs/apis/ProjectCardInvitation/projectCardInvitationResponse.js";
 
 const RegisterWelcome = () => {
 
@@ -19,7 +19,7 @@ const RegisterWelcome = () => {
             /** already singed in */
             try {
                 /** auto accept */
-                await api.get(`/api/experience-after-invitation/${location?.state?.invitationCode}/`);
+                await projectCardInvitationResponse(location?.state?.invitationCode, "accepted");
                 navigate(`/profile/${localStorage.getItem("userId")}`, {
                     state: {
                         ...location.state,
@@ -29,11 +29,11 @@ const RegisterWelcome = () => {
             } catch (e) {
                 console.log(e);
                 /** failed to auto accept */
-                navigate(`/experience/welcome/${location?.state?.invitationCode}`);
+                navigate(`/project-card/welcome?code=${location?.state?.invitationCode}`);
             }
         } else {
             navigate(`/login`, {
-                state : {
+                state: {
                     ...location.state,
                     isExpProcess: true,
                     expInvitationCode: location?.state?.invitationCode,

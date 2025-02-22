@@ -50,7 +50,7 @@ function Register() {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const response = await api.post("/api/user/register-alone/", {
+      const response = await api.post("/api/user/register-link/", {
         email,
         password,
         profile: {

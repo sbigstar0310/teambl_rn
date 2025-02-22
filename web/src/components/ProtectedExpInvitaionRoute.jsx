@@ -1,19 +1,19 @@
-import {Navigate, useParams} from "react-router-dom";
+import {Navigate, useSearchParams} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import api from "../api";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
-import { useState, useEffect } from "react";
+import {useState, useEffect, useMemo} from "react";
 import "../styles/Experience/Experience.css";
 import ExperienceInvitation from "../pages/Experience/ExperienceInvitation";
 import ProtectedRoute from "./ProtectedRoute";
+import retrieveProjectCardInvitationLinkFromCode
+    from "../libs/apis/ProjectCardInvitationLink/retreiveProjectCardInvitationLinkFromCode.js";
 
 function ProtectedExpInvitationRoute({ children }) {
-
-    const { invitationCode } = useParams();
-
+    const [searchParams] = useSearchParams();
+    const invitationCode = useMemo(() => searchParams.get("code"), [searchParams]);
     /** checking loading */
     const [isLoading, setIsLoading] = useState(true);
-
     const [isAuthorized, setIsAuthorized] = useState(null);
     const [isCodeValid, setIsCodeValid] = useState(null);
 
@@ -60,7 +60,7 @@ function ProtectedExpInvitationRoute({ children }) {
     const checkInvitationCodeValidity = async () => {
         await setIsLoading(true);
         try {
-            await api.get(`/api/experience-detail/${invitationCode}/`);
+            await retrieveProjectCardInvitationLinkFromCode(invitationCode);
             await setIsCodeValid(true);
         } catch (e) {
             console.log(e);
@@ -72,14 +72,14 @@ function ProtectedExpInvitationRoute({ children }) {
     if ((isAuthorized == null) || isLoading || (isCodeValid == null)) {
         return (
             <div className="exp-loader-container">
-                <div className="exp-loader" />
+                <div className="exp-loader"/>
             </div>
         );
     }
 
     if (!isCodeValid) {
         alert("비정상적인 접근입니다.");
-        return (<Navigate to="/login" />);
+        return (<Navigate to="/login"/>);
     }
 
     if (isAuthorized) {
