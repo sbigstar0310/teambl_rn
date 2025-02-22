@@ -36,8 +36,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 16,
-        fontFamily: "Pretendard",
-        fontWeight: "400",
+        fontFamily: "PretendardRegular",
         marginBottom: 8,
         minWidth: 112,
         textAlign: "left",
@@ -49,6 +48,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#f5f5f5",
         borderRadius: 5,
         padding: 10,
+        fontFamily: "PretendardRegular",
         fontSize: 16,
     },
 });

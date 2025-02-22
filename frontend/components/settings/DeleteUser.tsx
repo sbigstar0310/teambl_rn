@@ -131,19 +131,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
     },
-    inputLabel: {
-        fontSize: 14,
-        color: "#121212",
-        marginBottom: 8,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 5,
-        padding: 10,
-        fontSize: 16,
-        backgroundColor: "#f5f5f5",
-    },
     infoMessage: {
         marginTop: 8,
         fontSize: 12,
