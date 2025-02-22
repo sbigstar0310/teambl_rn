@@ -43,7 +43,7 @@ export default function EditProject() {
                 description: projectData.description
             };
             if (projectData.start_date) {
-                data.timePeriod = {
+                defaultFormData.timePeriod = {
                     start: new Date(projectData.start_date),
                     end: projectData.end_date ? new Date(projectData.end_date) : undefined
                 }
