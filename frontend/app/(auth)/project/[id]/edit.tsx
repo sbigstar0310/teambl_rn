@@ -12,6 +12,7 @@ import Popup from "@/components/Popup";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
 import updateProjectCard from "@/libs/apis/ProjectCard/updateProjectCard";
 import retrieveProjectCard from "@/libs/apis/ProjectCard/retrieveProjectCard";
+import dayjs from "dayjs";
 
 export default function EditProject() {
     const {id} = useLocalSearchParams();
@@ -85,8 +86,8 @@ export default function EditProject() {
                 title: data.title,
                 description: data.description,
                 keywords: data.keywords,
-                start_date: data.timePeriod?.start ?? undefined,
-                end_date: data.timePeriod?.end ?? undefined,
+                start_date: data.timePeriod?.start ? dayjs(data.timePeriod.start).format("YYYY-MM-DD") : null,
+                end_date: data.timePeriod?.end ? dayjs(data.timePeriod.end).format("YYYY-MM-DD") : null,
                 accepted_users: data.mentions.map((user) => user.id)
             });
 

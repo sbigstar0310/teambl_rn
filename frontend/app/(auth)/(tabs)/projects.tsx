@@ -41,16 +41,14 @@ export default function ProjectsScreen() {
                 }
             );
 
-            console.log("KEYWORDS:", data.keywords);
-
             // Project Card Create API
             await createProjectCard({
                 title: data.title,
                 keywords: data.keywords,
                 accepted_users: data.mentions.map((user) => user.id),
                 creator: current_user_id,
-                start_date: data.timePeriod?.start ? dayjs(data.timePeriod.start).format("YYYY-MM-DD") : undefined,
-                end_date: data.timePeriod?.end ? dayjs(data.timePeriod.end).format("YYYY-MM-DD") : undefined,
+                start_date: data.timePeriod?.start ? dayjs(data.timePeriod.start).format("YYYY-MM-DD") : null,
+                end_date: data.timePeriod?.end ? dayjs(data.timePeriod.end).format("YYYY-MM-DD") : null,
                 description: data.description ?? "",
             });
 

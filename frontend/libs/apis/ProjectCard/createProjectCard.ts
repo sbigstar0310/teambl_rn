@@ -5,8 +5,8 @@ type RequestParams = {
     keywords: string[];
     accepted_users: number[];
     creator: number;
-    start_date?: string;
-    end_date?: string;
+    start_date?: string | null;
+    end_date?: string | null;
     description: string;
 };
 
