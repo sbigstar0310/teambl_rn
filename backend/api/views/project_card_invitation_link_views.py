@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from ..models import (
@@ -34,7 +34,8 @@ class ProjectCardInvitationLinkCreateView(generics.CreateAPIView):
 
 
 class ProjectCardInvitationLinkRetreiveFromCodeView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    authentication_classes = []  # 인증 비활성화
     serializer_class = ProjectCardInvitationLinkSerializer
 
     def get_object(self):
