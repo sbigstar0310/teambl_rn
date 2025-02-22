@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from ..models import (
     Friend,
     ProjectCard,
     ProjectCardInvitation,
+    ProjectCardInvitationLink,
     CustomUser,
     Notification,
 )
@@ -332,6 +334,48 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
 
         serializer.save()
 
+class ProjectCardInvitationResponseByCodeView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class=ProjectCardInvitationSerializer
+
+    def get_link_data(self):
+        code = self.request.query_params.get("code")
+        return get_object_or_404(ProjectCardInvitationLink, link__endswith=code)
+
+    def retrieve(self, request, *args, **kwargs):
+        link_data = self.get_link_data()
+
+        # 만료 날짜 계산
+        expired_date = link_data.created_at + timezone.timedelta(days=7)
+        current_date = timezone.now()
+
+        # 초대 링크가 만료된 경우
+        if current_date > expired_date:
+            link_data.status = "expired"
+            link_data.save()
+
+            return Response(
+                {
+                    "message": "Invitation link is expired",
+                    "error_type": "expired",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        invitation_status = request.query_params.get("status")
+        if invitation_status is None or (invitation_status != "accepted" and invitation_status != "rejected"):
+            return Response(
+                {"error": "Status parameter is required and must be either 'accepted' or 'rejected'"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # 초대 수락 처리
+        project_card_invitation = ProjectCardInvitation.objects.create(
+            project_card=link_data.project_card,
+            inviter=link_data.inviter,
+            invitee=self.request.user,
+            status=invitation_status,
+        )
+        return Response(project_card_invitation.id, status=status.HTTP_200_OK)
 
 class ProjectCardLinkView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]

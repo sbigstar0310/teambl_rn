@@ -63,5 +63,10 @@ urlpatterns += [
         views.ProjectCardInvitationResponseView.as_view(),
         name="project-card-invitation-response",
     ),
+    path(
+        "invitation/response-by-code/",
+        views.ProjectCardInvitationResponseByCodeView.as_view(),
+        name="project-card-invitation-with-link",
+    ),
     path("link/", views.ProjectCardLinkView.as_view(), name="project-card-link"),
 ]
