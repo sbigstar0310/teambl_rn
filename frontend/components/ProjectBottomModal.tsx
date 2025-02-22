@@ -5,9 +5,11 @@ import CircularIconButton from "./CircularIconButton";
 import InlineIconButton from "./InlineIconButton";
 import theme from "@/shared/styles/theme";
 import { router } from "expo-router";
+import * as Clipboard from 'expo-clipboard';
 
 import createProjectLink from "@/libs/apis/ProjectCard/createProjectLink";
 import leaveProjectCard from "@/libs/apis/ProjectCard/leaveProjectCard";
+import createProjectCardInvitationLink from "@/libs/apis/ProjectCardInvitationLink/createProjectCardInvitationLink";
 
 interface ProjectBottomModalProps {
     isVisible: boolean;
@@ -29,7 +31,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
 
             // projectLink는 프로젝트의 고유한 코드. 이를 이용해서 전체 링크를 만들어야 함.
 
-            await navigator.clipboard.writeText(projectLink);
+            await Clipboard.setStringAsync(projectLink);
             alert("프로젝트 링크가 클립보드에 복사되었습니다!");
         } catch (error) {
             console.error("프로젝트 링크 복사 실패:", error);
@@ -58,8 +60,18 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         }
     };
 
-    const handleInviteLinkCopy = () => {
-        // TODO : Copy invite link
+    const handleInviteLinkCopy = async () => {
+        try {
+            const inviteLink = await createProjectCardInvitationLink(projectId);
+            if (!inviteLink?.link) throw new Error("Server did not return invitation link");
+            await Clipboard.setStringAsync(inviteLink.link);
+            alert("프로젝트 초대 링크가 클립보드에 복사되었습니다!");
+        } catch (error) {
+            console.error("프로젝트 초대 링크 생성 실패:", error);
+            alert("프로젝트 초대 링크 생성 중 오류가 발생했습니다.");
+        } finally {
+            props.onClose();
+        }
     };
 
     const handleQRCodeShare = () => {
