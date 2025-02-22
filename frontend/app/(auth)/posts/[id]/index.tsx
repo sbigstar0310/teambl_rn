@@ -61,6 +61,7 @@ export default function PostView() {
     const [commentText, setCommentText] = useState("")
     const [loading, setLoading] = useState(true);
     const [isHeaderShown, setIsHeaderShown] = useState(false);
+    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
     const containerRef = useRef<ScrollView | null>(null)
     const isMyPost = useMemo(() => {
         if (!me || !authorData) return false;
@@ -182,6 +183,7 @@ export default function PostView() {
     const handleCommentSubmit = async () => {
         if (!postData || !me || !commentText.trim()) return; // 유효성 검사
         try {
+            setIsSubmittingComment(true);
             if (editingComment) {
                 // Edit existing comment content
                 await updateComment({comment_id: editingComment, content: commentText});
@@ -194,6 +196,7 @@ export default function PostView() {
                     parent_comment: replyingTo ?? undefined,  // 대댓글 여부 확인
                 });
             }
+            setIsSubmittingComment(false);
             if (replyingTo == null) {
                 // 스크롤을 최신 댓글로 이동
                 containerRef.current?.scrollToEnd();
@@ -202,6 +205,8 @@ export default function PostView() {
             handleInputUnfocus();
             await fetchComments(postData.id);
         } catch (error) {
+            alert("댓글 작성 중 오류가 발생했습니다.");
+            setIsSubmittingComment(false);
             console.error("Failed to submit comment:", error);
         }
     };
@@ -372,12 +377,18 @@ export default function PostView() {
                                     onChangeText={setCommentText}
                                 />
                                 <TouchableOpacity
-                                    style={styles.submitButton}
+                                    style={[styles.submitButton, isSubmittingComment && styles.disabledButton]}
                                     onPress={handleCommentSubmit}
+                                    disabled={isSubmittingComment}
                                 >
-                                    <Text style={styles.submitButtonText}>
-                                        {editingComment === null ? "댓글 추가" : "댓글 수정"}
-                                    </Text>
+                                    {isSubmittingComment
+                                        ? <Text style={styles.submitButtonText}>
+                                            {editingComment === null ? "추가 중..." : "수정 중..."}
+                                        </Text>
+                                        : <Text style={styles.submitButtonText}>
+                                            {editingComment === null ? "댓글 추가" : "댓글 수정"}
+                                        </Text>
+                                    }
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -568,7 +579,8 @@ const styles = StyleSheet.create({
     },
     submitButtonText: {
         color: theme.colors.main,
-        fontSize: 14
+        fontSize: 14,
+        textAlign: "center"
     },
     optionsContainer: {
         flex: 1,
@@ -585,5 +597,8 @@ const styles = StyleSheet.create({
     optionButtonWrapper: {
         alignItems: "center",
         gap: 4
+    },
+    disabledButton: {
+        opacity: 0.5
     }
 })
