@@ -1,6 +1,7 @@
 import {DEFAULT_TEXT_MAX_LENGTH, USER_ID} from "@/shared/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
+import {PostImage} from "@/components/forms/PostCreateForm";
 
 export function timeAgo(date: Date): string {
     const now = new Date();
@@ -107,4 +108,17 @@ export const getAddedCharIndex = (prevText: string, newText: string, character =
 
 export const createLinkToPost = (postId: number) => {
     return Linking.createURL(`posts/${postId}/`);
+}
+
+const extractImageName = (uri: string) => {
+    const parts = uri.split("/");
+    return parts[parts.length - 1];
+}
+
+export const convertApiImageToUIImage = (image: api.PostImage): PostImage => {
+    return {
+        uri: image.image,
+        type: "image",
+        name: extractImageName(image.image)
+    }
 }

@@ -9,6 +9,7 @@ import Popup from "@/components/Popup";
 import fetchPostById from "@/libs/apis/Post/fetchPostById";
 import updatePost from "@/libs/apis/Post/updatePost";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
+import {convertApiImageToUIImage} from "@/shared/utils";
 
 export default function EditPost() {
     const {id, project_title = ""} = useLocalSearchParams();
@@ -34,7 +35,7 @@ export default function EditPost() {
             setData({
                 content: postData.content,
                 tagged_users: taggedUsers,
-                images: []
+                images: postData.images.map(convertApiImageToUIImage)
             });
         } catch (error) {
             console.error('Failed to fetch post data', error);
