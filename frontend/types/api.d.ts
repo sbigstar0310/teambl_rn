@@ -116,7 +116,18 @@ declare module api {
         invitee: User; // 초대 받은 사람
         created_at: Date; // 초대 생성 시각
         status: "pending" | "accepted" | "rejected"; // 초대 상태
-    };    
+    };
+
+    // 프로젝트 카드의 초대 링크
+    type ProjectCardInvitationLink = {
+        id: number;
+        project_card: ProjectCard;
+        inviter: User;
+        invitee: User | null;
+        link: string;
+        created_at: Date;
+        status: "pending" | "accepted" | "rejected";
+    };
 
     type Friend = {
         id: number;
