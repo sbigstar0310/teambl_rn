@@ -14,7 +14,7 @@ import {sharedStyles} from "@/app/_layout";
 import {RequiredMark} from "@/components/forms/ProjectCreateForm";
 import ImageIcon from "@/assets/image-upload.svg";
 import MentionIcon from "@/assets/mention-at-sign.svg";
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import PostContent from "@/components/PostContent";
 import {getAddedCharIndex} from "@/shared/utils";
 import * as ImagePicker from "expo-image-picker";
@@ -39,6 +39,7 @@ export default function PostCreateForm(props: PostCreateFormProps) {
     const [cursorSelection, setCursorSelection] = useState<{ start: number, end: number }>({start: 0, end: 0});
     const [previewImageUri, setPreviewImageUri] = useState<string | null>(null)
     const [searchResults, setSearchResults] = useState<api.UserSearchResult[]>([]);
+    const canAttachImage = useMemo(() => data.images.length < 3, [data.images]);
 
     /* Content */
     const handleContentChange = (value: string) => {
@@ -105,6 +106,7 @@ export default function PostCreateForm(props: PostCreateFormProps) {
     }
     /* Image attachment */
     const handleImageAdd = async () => {
+        if (!canAttachImage) return alert("이미지는 최대 3개까지 첨부할 수 있습니다.");
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
@@ -209,7 +211,11 @@ export default function PostCreateForm(props: PostCreateFormProps) {
                 </ScrollView>
             </View>
             <View style={styles.footer}>
-                <TouchableOpacity onPress={handleImageAdd}>
+                <TouchableOpacity
+                    onPress={handleImageAdd}
+                    disabled={!canAttachImage}
+                    style={[!canAttachImage && styles.disabledButton]}
+                >
                     <ImageIcon/>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleMentionInsertion}>
@@ -275,6 +281,9 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         borderColor: theme.colors.achromatic04,
         borderWidth: 1
+    },
+    disabledButton: {
+        opacity: 0.3
     }
 })
 
