@@ -15,6 +15,7 @@ from .models import (
     Keyword,
     Profile,
     InvitationLink,
+    ProjectCardInvitationLink,
     Friend,
     Skill,
     Endorsement,
@@ -1314,6 +1315,59 @@ class ProjectCardInvitationSerializer(serializers.ModelSerializer):
             "status",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class ProjectCardInvitationLinkSerializer(serializers.ModelSerializer):
+    project_card = serializers.PrimaryKeyRelatedField(
+        queryset=ProjectCard.objects.all()
+    )
+    inviter = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+    )  # 초대한 유저
+    invitee = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(),
+        required=False,
+        allow_null=True,
+    )  # 초대받은 유저
+    link = serializers.CharField(read_only=True)  # 초대 링크
+
+    class Meta:
+        model = ProjectCardInvitationLink
+        fields = [
+            "id",
+            "project_card",
+            "inviter",
+            "invitee",
+            "link",
+            "created_at",
+            "status",
+        ]
+        read_only_fields = ["id", "inviter", "link", "created_at"]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        # project_card 처리
+        if instance.project_card is not None:
+            representation["project_card"] = ProjectCardSerializer(
+                instance.project_card
+            ).data
+        else:
+            representation["project_card"] = None
+
+        # inviter 처리
+        if instance.inviter is not None:
+            representation["inviter"] = CustomUserSerializer(instance.inviter).data
+        else:
+            representation["inviter"] = None
+
+        # invitee 처리 (🔥 핵심)
+        if instance.invitee is not None:
+            representation["invitee"] = CustomUserSerializer(instance.invitee).data
+        else:
+            representation["invitee"] = None
+
+        return representation
 
 
 class ReportSerializer(serializers.ModelSerializer):

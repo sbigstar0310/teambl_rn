@@ -595,6 +595,42 @@ class InvitationLink(models.Model):
         return self.link
 
 
+# ProjectCard 초대 링크 모델
+class ProjectCardInvitationLink(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("expired", "Expired"),
+    ]
+    project_card = models.ForeignKey(
+        ProjectCard, on_delete=models.CASCADE, related_name="invitation_links"
+    )
+    inviter = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="send_project_card_invitation_links",
+    )
+    invitee = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="received_project_card_invitation_links",
+        null=True,
+    )
+    link = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
+
+    class Meta:
+        unique_together = ("inviter", "link")
+
+    def __str__(self):
+        return self.link
+
+
 # 2명의 유저 간 1:1 대화방 = Conversation
 class Conversation(models.Model):
     user_1 = models.ForeignKey(

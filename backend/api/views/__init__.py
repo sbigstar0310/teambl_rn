@@ -16,3 +16,4 @@ from .endorsement_views import *
 from .search_history_views import *
 from .invitation_link_views import *
 from .report_views import *
+from .project_card_invitation_link_views import *

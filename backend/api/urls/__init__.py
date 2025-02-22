@@ -17,4 +17,8 @@ urlpatterns = [
     path("conversation/", include("api.urls.conversation_urls")),
     path("invitation-link/", include("api.urls.invitation_link_urls")),
     path("report/", include("api.urls.report_urls")),
+    path(
+        "project-card-invitation-link/",
+        include("api.urls.project_card_invitation_link_urls"),
+    ),
 ]
