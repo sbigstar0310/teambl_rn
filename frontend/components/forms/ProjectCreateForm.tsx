@@ -10,8 +10,8 @@ import DateRangePicker, {
     DateRange,
     toDateRangeString,
 } from "@/components/DateRangePicker";
-import SearchIcon from "@/assets/bottomtab/SearchIcon.svg";
 import SearchUsersWidget from "@/components/search/SearchUsersWidget";
+import UserTagInput from "@/components/UserTagInput";
 
 interface ProjectCreateFormProps {
     data: ProjectCreateFormData;
@@ -97,15 +97,16 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                     onAdd={handleNewKeyword}
                     onRemove={handleKeywordRemove}
                     placeholderText="프로젝트를 설명하는 키워드를 적어보세요."
+                    textInputPlaceholder="키워드를 입력해주세요"
                 />
             </View>
             {/* Project members */}
             <DropdownContent title="사람 태그">
                 <TouchableOpacity onPress={handleMentionsModalOpen}>
-                    <KeywordInput
-                        currentKeywordList={data.mentions.map(user => user.profile.user_name)}
-                        placeholderText="함께하는 사람을 태그하세요."
-                        icon={<SearchIcon width={15} height={15}/>}
+                    <UserTagInput
+                        selectedUsers={data.mentions.map(user => user.profile.user_name)}
+                        placeholder="함께하는 사람을 태그하세요."
+                        onPress={handleMentionsModalOpen}
                         onRemove={handleMentionRemove}
                     />
                 </TouchableOpacity>

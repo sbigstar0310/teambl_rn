@@ -59,7 +59,11 @@ const Button: FC<Props> = ({
             <Container
                 style={[{ backgroundColor: "#A8A8A8", height: 40 }, style]}
             >
-                <ButtonText style={textStyle}>{text}</ButtonText>
+                {isLoading ? (
+                    <LoadingIndicator color="#FFF" />
+                ) : (
+                    <ButtonText style={textStyle}>{text}</ButtonText>
+                )}
             </Container>
         );
     }

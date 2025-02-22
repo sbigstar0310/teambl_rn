@@ -217,12 +217,14 @@ export default function ProfileCreateFormScreen() {
                 />
 
                 {/* Keywords */}
-                <Text style={[styles.semiTitle, {marginTop: 20}]}>관심사</Text>
+                <View style={styles.row}>
+                    <Text style={styles.semiTitle}>관심사</Text>
+                    <Text style={styles.secondaryText}>최소 2개</Text>
+                </View>
                 <KeywordInput
                     currentKeywordList={profile.keywords}
                     onAdd={handleNewKeyword}
                     onRemove={handleRemoveKeyword}
-                    placeholderText={"2개 이상 입력"}
                 />
 
                 {/* Button */}
@@ -274,7 +276,6 @@ const styles = StyleSheet.create({
 
     // Semi Title 스타일
     semiTitle: {
-        width: "100%",
         height: 26,
         textAlign: "left",
         color: "#121212",
@@ -343,5 +344,17 @@ const styles = StyleSheet.create({
 
     marginBottom32: {
         marginBottom: 32,
+    },
+    row: {
+        flexDirection: "row",
+        gap: 6,
+        alignItems: "center",
+        marginTop: 20,
+    },
+    secondaryText: {
+        fontFamily: "PretendardRegular",
+        fontSize: 12,
+        color: "#595959",
+        marginBottom: 6,
     },
 });

@@ -1,6 +1,6 @@
 import theme from '@/shared/styles/theme';
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TextInput, TouchableOpacity, View, TouchableWithoutFeedback} from 'react-native';
 import DeleteIcon from '@/assets/delete-x-icon.svg';
 
 interface KeywordInputProps {
@@ -10,6 +10,7 @@ interface KeywordInputProps {
     placeholderText?: string;
     maxNumber?: number;
     icon?: React.ReactNode;
+    textInputPlaceholder?: string;
 }
 
 const KeywordInput = (props: KeywordInputProps) => {
@@ -19,7 +20,8 @@ const KeywordInput = (props: KeywordInputProps) => {
         onRemove,
         placeholderText = "본인을 나타내는 관심사를 입력해보세요",
         maxNumber = 5,
-        icon
+        icon,
+        textInputPlaceholder = "관심사를 입력해주세요"
     } = props;
 
     const [isKeywordInputOnFocus, setIsKeywordInputOnFocus] = useState(false);
@@ -43,40 +45,44 @@ const KeywordInput = (props: KeywordInputProps) => {
     }, [currentKeywordList]);
 
     return (
-        <TouchableOpacity onPress={onAdd && handleOnFocus}>
-            <View style={styles.container}>
-                {icon && icon}
-                {
-                    (currentKeywordList.length === 0) &&
-                    (!isKeywordInputOnFocus) &&
-                    (
+        <View style={styles.container}>
+            {icon && icon}
+            {
+                (currentKeywordList.length === 0) &&
+                (!isKeywordInputOnFocus) &&
+                (
+                    <TouchableOpacity
+                        style={{flex: 1}}
+                        onPress={onAdd && handleOnFocus}
+                    >
                         <Text style={styles.placeholder}>
                             {placeholderText}
                         </Text>
-                    )
-                }
-                {
-                    (currentKeywordList.length > 0) &&
-                    currentKeywordList.map((keyword: string, index: number) => {
-                        return (
-                            <KeywordBadge
-                                key={index + keyword}
-                                keyword={keyword}
-                                onDelete={onRemove?.bind(null, index)}
-                            />
-                        );
-                    })
-                }
-                {
-                    onAdd &&
-                    (currentKeywordList.length < maxNumber) &&
-                    (isKeywordInputOnFocus) &&
-                    <NewKeyboardInput
-                        onSubmit={handleAddKeyword}
-                    />
-                }
-            </View>
-        </TouchableOpacity>
+                    </TouchableOpacity>
+                )
+            }
+            {
+                (currentKeywordList.length > 0) &&
+                currentKeywordList.map((keyword: string, index: number) => {
+                    return (
+                        <KeywordBadge
+                            key={index + keyword}
+                            keyword={keyword}
+                            onDelete={onRemove?.bind(null, index)}
+                        />
+                    );
+                })
+            }
+            {
+                onAdd &&
+                (currentKeywordList.length < maxNumber) &&
+                (isKeywordInputOnFocus) &&
+                <NewKeyboardInput
+                    onSubmit={handleAddKeyword}
+                    textInputPlaceholder={textInputPlaceholder}
+                />
+            }
+        </View>
     );
 };
 
@@ -108,6 +114,7 @@ const KeywordBadge = (props: KeywordBadgeProps) => {
 
 interface NewKeyboardInputProps {
     onSubmit: (newKeyword: string) => void;
+    textInputPlaceholder: string;
 }
 
 const NewKeyboardInput = (props: NewKeyboardInputProps) => {
@@ -128,7 +135,7 @@ const NewKeyboardInput = (props: NewKeyboardInputProps) => {
                 onChangeText={setKeyword}
                 onSubmitEditing={handleSubmit}
                 onBlur={handleSubmit}
-                placeholder='새 관심사를 입력해주세요'
+                placeholder={props.textInputPlaceholder}
                 placeholderTextColor={theme.colors.achromatic04}
             />
         </View>
