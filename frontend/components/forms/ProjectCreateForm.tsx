@@ -89,7 +89,7 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                 <View style={styles.row}>
                     <Text style={sharedStyles.primaryText}>키워드</Text>
                     <RequiredMark />
-                    <Text style={sharedStyles.secondaryText}>최소 2개</Text>
+                    <Text style={styles.feedbackText}>최소 2개</Text>
                 </View>
                 <KeywordInput
                     maxNumber={3}
@@ -209,7 +209,13 @@ const styles = StyleSheet.create({
         color: "#A8A8A8"
     },
     descriptionTextField: {
-        height: 80
+        height: 80,
+        flex: 1,
+        fontSize: 16
+    },
+    feedbackText: {
+        fontSize: 14,
+        color: theme.colors.achromatic01
     }
 });
 
