@@ -32,6 +32,9 @@ const Start = () => {
         <label className="start-label2">
           문의하기: info@teambl.net
         </label>
+        <label className="start-label2">
+          (주)팀블, 대표이사 김종현
+        </label>
         <button type="button" className="start-loginBtn" onClick={handleLogin}>
           앱 다운로드
         </button>
