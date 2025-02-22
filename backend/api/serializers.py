@@ -692,7 +692,7 @@ class PostSerializer(serializers.ModelSerializer):
         if images_data:
             instance.images.all().delete()  # Clear existing images
             for image_data in images_data:
-                PostImage.objects.create(post=instance, **image_data)
+                PostImage.objects.create(post=instance, image=image_data)
 
         instance.update_like_count()  # Update like count
 
