@@ -150,6 +150,8 @@ export default function ProjectCreateForm(props: ProjectCreateFormProps) {
                     placeholder="프로젝트를 간단하게 소개해 보세요."
                     multiline={true}
                     numberOfLines={4}
+                    style={styles.descriptionTextField}
+                    textAlignVertical={"top"}
                 />
             </DropdownContent>
         </View>
@@ -205,6 +207,9 @@ const styles = StyleSheet.create({
     },
     buttonTextDisabled: {
         color: "#A8A8A8"
+    },
+    descriptionTextField: {
+        height: 80
     }
 });
 
