@@ -16,7 +16,6 @@ const createFriend = async (params: RequestParams): Promise<Response> => {
         const requestData: RequestParams = { status: "pending", ...params };
 
         // POST 요청으로 친구 추가
-        console.log(requestData);
         const response = await api.post("friend/create/", requestData);
 
         console.log("Friend request sent successfully:", response.data);

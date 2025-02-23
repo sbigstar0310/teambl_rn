@@ -624,47 +624,11 @@ class PostSerializer(serializers.ModelSerializer):
         for image_data in images_data:
             PostImage.objects.create(post=post, image=image_data)
 
-        # Post가 생성되었으므로, Project Card의 참여자들에게 생성 알림 보내기
-        users_in_project_card = post.project_card.accepted_users.all()
-
-        for user in users_in_project_card:
-            notification_exists = Notification.objects.filter(
-                user=user,
-                message=f"{self.context['request'].user.profile.user_name}님이 {post.project_card.title}에 새로운 게시물을 추가했습니다.",
-                notification_type="post_create_team",
-                related_post_id=post.id,
-                related_project_card_id=post.project_card.id,
-            ).exists()
-
-            if not notification_exists:
-                Notification.objects.create(
-                    user=user,
-                    message=f"{self.context['request'].user.profile.user_name}님이 {post.project_card.title}에 새로운 게시물을 추가했습니다.",
-                    notification_type="post_create_team",
-                    related_post_id=post.id,
-                    related_project_card_id=post.project_card.id,
-                )
+        # Post가 생성되었으므로, 자신 제외 Project Card의 참여자들에게 생성 알림 보내기
+        post.notify_project_card_accepted_users()
 
         # Post가 생성되었으므로, Project Card의 구독자(저장)들에게 생성 알림 보내기
-        bookmarked_users_in_project_card = post.project_card.bookmarked_users.all()
-
-        for user in bookmarked_users_in_project_card:
-            notification_exists = Notification.objects.filter(
-                user=user,
-                message=f"저장한 프로젝트 {post.project_card.title}에 새로운 게시물이 추가되었습니다.",
-                notification_type="post_create_save",
-                related_post_id=post.id,
-                related_project_card_id=post.project_card.id,
-            ).exists()
-
-            if not notification_exists:
-                Notification.objects.create(
-                    user=user,
-                    message=f"저장한 프로젝트 {post.project_card.title}에 새로운 게시물이 추가되었습니다.",
-                    notification_type="post_create_save",
-                    related_post_id=post.id,
-                    related_project_card_id=post.project_card.id,
-                )
+        post.notify_project_card_bookmarked_users()
 
         return post
 
@@ -726,46 +690,30 @@ class PostSerializer(serializers.ModelSerializer):
         instance.update_like_count()
 
         # Post가 수정되었으므로, Project Card의 참여자들에게 수정 알림 보내기
-        users_in_project_card = instance.project_card.accepted_users.all()
+        users_in_project_card = instance.project_card.accepted_users.exclude(
+            id=self.user.id
+        )
 
         for user in users_in_project_card:
-            notification_exists = Notification.objects.filter(
+            Notification.objects.create(
                 user=user,
                 message=f"{self.context['request'].user.profile.user_name}님이 {instance.project_card.title}의 게시물을 수정했습니다.",
                 notification_type="post_update_team",
                 related_post_id=instance.id,
                 related_project_card_id=instance.project_card.id,
-            ).exists()
-
-            if not notification_exists:
-                Notification.objects.create(
-                    user=user,
-                    message=f"{self.context['request'].user.profile.user_name}님이 {instance.project_card.title}의 게시물을 수정했습니다.",
-                    notification_type="post_update_team",
-                    related_post_id=instance.id,
-                    related_project_card_id=instance.project_card.id,
-                )
+            )
 
         # Post가 수정되었으므로, Project Card의 구독자(저장)들에게 수정 알림 보내기
         bookmarked_users_in_project_card = instance.project_card.bookmarked_users.all()
 
         for user in bookmarked_users_in_project_card:
-            notification_exists = Notification.objects.filter(
+            Notification.objects.create(
                 user=user,
                 message=f"저장한 프로젝트 {instance.project_card.title}의 게시물이 수정되었습니다.",
                 notification_type="post_update_save",
                 related_post_id=instance.id,
                 related_project_card_id=instance.project_card.id,
-            ).exists()
-
-            if not notification_exists:
-                Notification.objects.create(
-                    user=user,
-                    message=f"저장한 프로젝트 {instance.project_card.title}의 게시물이 수정되었습니다.",
-                    notification_type="post_update_save",
-                    related_post_id=instance.id,
-                    related_project_card_id=instance.project_card.id,
-                )
+            )
 
         instance.refresh_from_db()  # Refresh the instance to get the updated like count
 
@@ -1354,7 +1302,7 @@ class ProjectCardSerializer(serializers.ModelSerializer):
 
 class ProjectCardInvitationSerializer(serializers.ModelSerializer):
     project_card = serializers.PrimaryKeyRelatedField(
-         queryset=ProjectCard.objects.all()
+        queryset=ProjectCard.objects.all()
     )
     inviter = serializers.PrimaryKeyRelatedField(
         read_only=True,

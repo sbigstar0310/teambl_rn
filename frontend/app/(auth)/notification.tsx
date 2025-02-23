@@ -253,6 +253,7 @@ const Notification = () => {
         try {
             const notificationList = await fetchNotificationsAPI();
             setNotifications(notificationList);
+            console.log("fetched notifications: ", notificationList);
         } catch (error) {
             console.error("Failed to fetch notifications", error);
         } finally {
@@ -299,7 +300,7 @@ const Notification = () => {
     // // 알림 클릭 시 notification_type에 따라 다른 화면으로 이동
     // const handleNotificationPress = (notification: api.Notification) => {
     //     markAsRead(notification.is_read, notification.id);
-    
+
     //     switch (notification.notification_type) {
     //         case "invitation_register":
     //         case "friend_accept":

@@ -180,6 +180,34 @@ class Post(models.Model):
         self.like_count = self.liked_users.count()
         self.save(update_fields=["like_count"])
 
+    def notify_project_card_accepted_users(self):
+        """프로젝트 카드 참여자들에게 게시물 생성 알림 전송"""
+        users_in_project_card = self.project_card.accepted_users.exclude(
+            id=self.user.id
+        )
+
+        for user in users_in_project_card:
+            Notification.objects.create(
+                user=user,
+                message=f"{self.user.profile.user_name}님이 {self.project_card.title}에 새로운 게시물을 추가했습니다.",
+                notification_type="post_create_team",
+                related_post_id=self.id,
+                related_project_card_id=self.project_card.id,
+            )
+
+    def notify_project_card_bookmarked_users(self):
+        """프로젝트 카드를 저장한 사용자들에게 게시물 생성 알림 전송"""
+        bookmarked_users = self.project_card.bookmarked_users.all()
+
+        for user in bookmarked_users:
+            Notification.objects.create(
+                user=user,
+                message=f"저장한 프로젝트 {self.project_card.title}에 새로운 게시물이 추가되었습니다.",
+                notification_type="post_create_save",
+                related_post_id=self.id,
+                related_project_card_id=self.project_card.id,
+            )
+
 
 # New 게시물 이미지 모델
 class PostImage(models.Model):
@@ -743,6 +771,42 @@ class Friend(models.Model):
 
     def __str__(self):
         return f"{self.from_user.email} is friends with {self.to_user.email}, status: {self.status}"
+
+    def notify_friend_create(self):
+        """친구 요청 알림 생성"""
+        from_user = self.from_user
+        to_user = self.to_user
+
+        Notification.objects.create(
+            user=to_user,
+            message=f"{from_user.profile.user_name}님의 일촌 신청이 도착했습니다.\n일촌 리스트에서 확인해보세요!",
+            notification_type="friend_request",
+        )
+
+    def notify_friend_accept(self):
+        """친구 수락 알림 생성"""
+        from_user = self.from_user
+        to_user = self.to_user
+
+        # 친구 요청 수락 시 알림 생성
+        Notification.objects.create(
+            user=from_user,
+            message=f"{to_user.profile.user_name}님이 일촌 신청을 수락했습니다.\n{to_user.profile.user_name}님의 프로필을 확인해보세요!",
+            notification_type="friend_accept",
+            related_user_id=to_user.id,
+        )
+
+    def notify_friend_reject(self):
+        """친구 거절 알림 생성"""
+        from_user = self.from_user
+        to_user = self.to_user
+
+        # 친구 요청 거절 시 알림 생성
+        Notification.objects.create(
+            user=from_user,
+            message=f"{to_user.profile.user_name}님이 일촌 신청을 거절했습니다.",
+            notification_type="friend_reject",
+        )
 
 
 class Notification(models.Model):

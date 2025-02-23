@@ -51,7 +51,7 @@ export default function MyFriendsScreen() {
 
             // 친구 목록을 가져오는 API 호출
             const response = await fetchFriendList(current_user_id);
-            console.log("Fetched friends:", response[0].to_user);
+            // console.log("Fetched friends:", response);
 
             // API 응답(api.Friend[]) 전처리 과정 (해당 user, relation_degree, status를 가져온다)
             const processedFriends: FriendExtension[] = await Promise.all(
@@ -91,7 +91,7 @@ export default function MyFriendsScreen() {
                 .sort((a, b) =>
                     a.status === "pending" && b.status !== "pending" ? -1 : 1
                 );
-            console.log(myOneChoneFriends[0].to_user);
+            // console.log(myOneChoneFriends[0].to_user);
 
             // "내게 신청한" 친구 (status가 "pending"이면서 상대가 보낸 요청)
             const myRequestedFriends = processedFriends.filter(

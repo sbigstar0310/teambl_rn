@@ -5,9 +5,14 @@ import { ACCESS_TOKEN, REFRESH_TOKEN, USER_ID } from "@/shared/constants";
 type Response = api.Notification[];
 
 const fetchNotifications = async (): Promise<Response> => {
-    const response = await api.get<Response>("notification/list/");
-    console.log("RESPONSE:", response);
-    return response.data;
+    try {
+        const response = await api.get<Response>("notification/list/");
+        console.log("Fetched notifications:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error in fetching notifications", error);
+        throw error;
+    }
 };
 
 export default fetchNotifications;

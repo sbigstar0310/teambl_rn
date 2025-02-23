@@ -147,10 +147,6 @@ const NewProfileHeader = (props: any) => {
     const createFriendRequest = async () => {
         try {
             setIsFriendRequesting(true);
-
-            // Simulate network delay for testing (3 seconds)
-            // await new Promise((resolve) => setTimeout(resolve, 3000));
-
             // Send friend request
             await createFriend({ to_user: userId });
 
@@ -159,6 +155,7 @@ const NewProfileHeader = (props: any) => {
             console.error("Failed to create friend request:", error);
         } finally {
             setIsFriendRequesting(false);
+            router.replace(`/profiles/${userId}`); // 현재 페이지 다시 로드
         }
     };
 

@@ -44,6 +44,8 @@ class FriendCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         from_user = serializer.validated_data.get("from_user") or self.request.user
         to_user = serializer.validated_data.get("to_user")
+        print("from_user", from_user)
+        print("to_user", to_user)
 
         if not from_user:
             print("❌ 인증되지 않은 사용자입니다.")
@@ -74,13 +76,9 @@ class FriendCreateView(generics.CreateAPIView):
         friend_request = serializer.save(from_user=from_user)
 
         # 친구 추가 요청 알림 생성
-        if status == "pending":
-            user_profile = Profile.objects.get(user=from_user)
-            Notification.objects.create(
-                user=to_user,
-                message=f"{user_profile.user_name}님의 일촌 신청이 도착했습니다.\n일촌 리스트에서 확인해보세요!",
-                notification_type="friend_request",
-            )
+        if friend_request.status == "pending":
+            friend_request.notify_friend_create()
+            user_profile = friend_request.from_user.profile
 
             email_body = f"""
                     <p>안녕하세요. 팀블입니다.</p>
@@ -127,15 +125,10 @@ class FriendUpdateView(generics.UpdateAPIView):
         from_user = friend.from_user
         to_user = friend.to_user
 
-        user_profile = Profile.objects.get(user=to_user)
         if status == "accepted":
-            # 친구 요청 수락 시 알림 생성
-            Notification.objects.create(
-                user=from_user,
-                message=f"{user_profile.user_name}님이 일촌 신청을 수락했습니다.\n{user_profile.user_name}님의 프로필을 확인해보세요!",
-                notification_type="friend_accept",
-                related_user_id=to_user.id,
-            )
+            user_profile = friend.to_user.profile
+            friend.notify_friend_accept()  # 친구 수락 알림 보내기
+
             email_body = f"""
                     <p>안녕하세요. 팀블입니다.</p>
                     <br>
@@ -154,12 +147,8 @@ class FriendUpdateView(generics.UpdateAPIView):
                 html_message=email_body,  # HTML 형식 메시지 추가
             )
         elif status == "rejected":
-            # 친구 요청 거절 시 알림 생성
-            Notification.objects.create(
-                user=from_user,
-                message=f"{user_profile.user_name}님이 일촌 신청을 거절했습니다.",
-                notification_type="friend_reject",
-            )
+            user_profile = friend.to_user.profile
+            friend.notify_friend_reject()  # 친구 거절 알림 보내기
 
             email_body = f"""
                     <p>안녕하세요. 팀블입니다.</p>
