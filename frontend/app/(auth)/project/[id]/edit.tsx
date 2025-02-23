@@ -13,6 +13,8 @@ import getUserInfo from "@/libs/apis/User/getUserInfo";
 import updateProjectCard from "@/libs/apis/ProjectCard/updateProjectCard";
 import retrieveProjectCard from "@/libs/apis/ProjectCard/retrieveProjectCard";
 import dayjs from "dayjs";
+import deleteProjectCardInvitation from "@/libs/apis/ProjectCardInvitation/deleteProjectCardInvitation";
+import createProjectCardInvitation from "@/libs/apis/ProjectCardInvitation/createProjectCardInvitation";
 
 export default function EditProject() {
     const {id} = useLocalSearchParams();
@@ -36,7 +38,11 @@ export default function EditProject() {
 
     useEffect(() => {
         if (!projectData) return
-        fetchMentionedUsers(projectData.accepted_users).then(mentions => {
+        const mentionedUsers = [
+            ...(projectData.accepted_users ?? []),
+            ...(projectData.pending_invited_users ?? [])
+        ]
+        fetchMentionedUsers(mentionedUsers).then(mentions => {
             const defaultFormData: ProjectCreateFormData = {
                 title: projectData.title,
                 keywords: projectData.keywords,
@@ -82,15 +88,45 @@ export default function EditProject() {
         try {
             setIsLoading(true);
             // 업데이트할 데이터 (수정할 부분만 전달 가능)
+            const {
+                addedUsers,
+                removedPendingUsers,
+                removedAcceptedUsers
+            } = getTaggedUserDifference(
+                projectData.accepted_users,
+                projectData.pending_invited_users ?? [],
+                data.mentions
+            );
+            // Filter out removed users which previously accepted invitations
+            const accepted_users = projectData.accepted_users
+                .filter(id => !removedAcceptedUsers.includes(id));
             await updateProjectCard(projectData.id, {
                 title: data.title,
                 description: data.description,
                 keywords: data.keywords,
                 start_date: data.timePeriod?.start ? dayjs(data.timePeriod.start).format("YYYY-MM-DD") : null,
                 end_date: data.timePeriod?.end ? dayjs(data.timePeriod.end).format("YYYY-MM-DD") : null,
-                accepted_users: data.mentions.map((user) => user.id)
+                accepted_users
             });
-
+            // Send invitations to added users
+            addedUsers.forEach(async userId => {
+                try {
+                    await createProjectCardInvitation({
+                        project_card: projectData.id,
+                        invitee: userId
+                    });
+                } catch (error) {
+                    console.error("Failed to send project card invitation:", error);
+                }
+            })
+            // Cancel/Delete invitations to removed pending users
+            removedPendingUsers.forEach(async userId => {
+                try {
+                    deleteProjectCardInvitation(projectData.id, userId);
+                } catch (error) {
+                    console.error("Failed to delete project card invitation:", error);
+                }
+            })
             alert("프로젝트가 성공적으로 수정되었습니다!");
             // go Back
             setData(defaultProjectFormData);
@@ -101,6 +137,29 @@ export default function EditProject() {
             console.log(error);
         }
     };
+
+    const getTaggedUserDifference = (
+        originalAcceptedUsers: number[],
+        originalPendingInvitedUsers: number[],
+        newMentions: api.User[]
+    ) => {
+        const acceptedUsersSet = new Set(originalAcceptedUsers);
+        const pendingInvitedUsersSet = new Set(originalPendingInvitedUsers);
+        const originalUsersSet = new Set([...acceptedUsersSet, ...pendingInvitedUsersSet]);
+        const newUsersSet = new Set(newMentions.map(user => user.id));
+        // need to send invitations to addedUsers
+        const addedUsers = new Set([...newUsersSet].filter(id => !originalUsersSet.has(id)));
+        const removedUsers = new Set([...originalUsersSet].filter(id => !newUsersSet.has(id)));
+        // need to delete invitations to removedPendingUsers
+        const removedPendingUsers = new Set([...removedUsers].filter(id => pendingInvitedUsersSet.has(id)));
+        // need to remove differences from acceptedUsers
+        const removedAcceptedUsers = new Set([...removedUsers].filter(id => acceptedUsersSet.has(id)));
+        return {
+            addedUsers: Array.from(addedUsers),
+            removedPendingUsers: Array.from(removedPendingUsers),
+            removedAcceptedUsers: Array.from(removedAcceptedUsers)
+        }
+    }
 
     const handleBack = () => {
         setIsConfirmationPopupOpen(false);
