@@ -1,21 +1,50 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import Avatar from "@/components/common/Avatar";
 import theme from "@/shared/styles/theme";
-import {Fragment, useState} from "react";
+import {Fragment, useEffect, useMemo, useState} from "react";
 import UserListScreen from "@/components/user/UserList";
 import BottomModal from "@/components/BottomModal";
 import {router} from "expo-router";
+import getUserDistance from "@/libs/apis/getUserDistance";
 
 interface TaggedUserAvatarsProps {
     taggedUsers: api.User[];
 }
 
-export default function TaggedUserAvatars(props: TaggedUserAvatarsProps) {
-    const user1 = props.taggedUsers[0];
-    const user2 = props.taggedUsers[1];
-    const remainingUsersNum = Math.max(0, props.taggedUsers.length - 2);
+type UserWithRelation = {
+    user: api.User;
+    relation_degree: number;
+}
 
+export default function TaggedUserAvatars(props: TaggedUserAvatarsProps) {
+    const user1 = useMemo(() => props.taggedUsers[0], [props.taggedUsers]);
+    const user2 = useMemo(() => props.taggedUsers[1], [props.taggedUsers]);
+    const remainingUsersNum = useMemo(() => Math.max(0, props.taggedUsers.length - 2), [props.taggedUsers]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [taggedUsersWithRelations, setTaggedUsersWithRelations] = useState<UserWithRelation[]>([]);
+
+    useEffect(() => {
+        setTaggedUsersWithRelations(props.taggedUsers.map(user => ({user, relation_degree: 1})));
+        fetchRelations();
+    }, [props.taggedUsers]);
+
+    const fetchRelations = async () => {
+        // Fetch relations between tagged users and the current user
+        // and update the state
+        try {
+            const relationsData = await Promise.all(props.taggedUsers.map(async user => {
+                try {
+                    const distance = (await getUserDistance(user.id))?.distance || 4;
+                    return {user, relation_degree: distance};
+                } catch {
+                    return {user, relation_degree: 4};
+                }
+            }));
+            setTaggedUsersWithRelations(relationsData);
+        } catch (error) {
+            console.error("Failed to fetch relations:", error);
+        }
+    }
 
     const handleUserSelect = (userId: number) => {
         router.push(`/profiles/${userId}`);
@@ -50,7 +79,7 @@ export default function TaggedUserAvatars(props: TaggedUserAvatarsProps) {
                 body={
                     <UserListScreen
                         title="태그된 사용자"
-                        userList={props.taggedUsers.map(user => ({user, relation_degree: 1}))}
+                        userList={taggedUsersWithRelations}
                         hideBackButton={true}
                         onSelect={handleUserSelect}
                     />

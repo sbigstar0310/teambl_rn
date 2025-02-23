@@ -66,6 +66,10 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
     const [isOptionVisible, setIsOptionVisible] = useState(false);
     const [memberList, setMemberList] = useState<any[]>([]);
 
+    useEffect(() => {
+        fetchMemberProfile();
+    }, [projectInfo.accepted_users]);
+
     const formatDateToYearMonth = (date: Date) => {
         return dayjs(date).format("YYYY.MM");
     };
@@ -142,10 +146,6 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
             setIsLoading(false);
         }
     };
-
-    useEffect(() => {
-        fetchMemberProfile();
-    }, []);
 
     return (
         <View style={styles.container}>
