@@ -27,7 +27,7 @@ const PostBottomModal = (props: PostBottomModalProps) => {
                 createLinkToPost(props.postId)
             );
             onClose();
-            alert("프로젝트 링크가 클립보드에 복사되었습니다!");
+            alert("게시물 링크가 클립보드에 복사되었습니다!");
         } catch (error) {
             alert("링크를 복사하는 동안 오류가 발생했습니다.");
         }
