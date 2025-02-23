@@ -81,7 +81,6 @@ export default function PostView() {
         fetchProjectCard((postData.project_card as any) as number);
         fetchUser((postData.user as any) as number);
         fetchComments(postData.id);
-        fetchTaggedUsers((postData.tagged_users as any) as number[]);
     }, [postData]);
     useEffect(() => {
         const threads: Thread[] = commentsData
@@ -94,6 +93,11 @@ export default function PostView() {
     useEffect(() => {
         if (!projectData || !me) return;
         setIsSubscribed(projectData.bookmarked_users.includes(me.id));
+        const taggedUsersInProject = [
+            ...(projectData.accepted_users ?? []),
+            ...(projectData.pending_invited_users ?? [])
+        ]
+        fetchTaggedUsers(taggedUsersInProject);
     }, [projectData, me]);
 
     // 현재 로그인한 유저 정보 불러오기

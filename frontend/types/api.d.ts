@@ -88,6 +88,7 @@ declare module api {
         keywords: string[];
         accepted_users: number[];
         bookmarked_users: number[];
+        pending_invited_users: number[];
         creator: User;
         created_at: Date;
         start_date?: Date;
