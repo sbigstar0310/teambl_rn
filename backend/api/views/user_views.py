@@ -7,6 +7,7 @@ from ..models import (
     ProjectCard,
     Conversation,
     Message,
+    ProjectCardInvitation,
 )
 from ..serializers import CustomUserSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -57,7 +58,7 @@ class CreateUserAloneView(generics.CreateAPIView):
 
 
 # 초대링크를 통해 회원가입하는 View
-class CreateUserView(generics.CreateAPIView):
+class CreateUserByLinkView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]
@@ -151,8 +152,11 @@ class CreateUserView(generics.CreateAPIView):
 
 
 # 경험 id, 초대유저 id를 받아서 회원가입 후 1촌추가 해주는 View
-# 현재 경험을 통한 초대에서 사용
-class CreateUserByExperienceView(generics.CreateAPIView):
+# 프로젝트 카드를 통한 초대
+# (1) 회원가입 진행
+# (2) 프로젝트 카드 초대 생성
+# (3) 초대자와 새 유저의 1촌 관계 생성 (?)
+class CreateUserByProjectCardView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]
@@ -163,23 +167,32 @@ class CreateUserByExperienceView(generics.CreateAPIView):
         inviter_id = self.request.data.get("inviter_id")
         project_card_id = self.request.data.get("project_card_id")
         if inviter_id is None:
+            print("초대자 ID가 필요합니다.")
             raise ValueError("초대자 ID가 필요합니다.")
         if project_card_id is None:
+            print("프로젝트 카드 ID가 필요합니다.")
             raise ValueError("프로젝트 카드 ID가 필요합니다.")
 
         try:
             inviter = CustomUser.objects.get(id=inviter_id)
         except CustomUser.DoesNotExist:
             # 초대자가 존재하지 않을 경우 예외 처리
+            print("유효하지 않은 초대자 ID입니다.")
             raise ValueError("유효하지 않은 초대자 ID입니다.")
 
         try:
             project_card = ProjectCard.objects.get(id=project_card_id)
         except ProjectCard.DoesNotExist:
+            print("유효하지 않은 프로젝트 카드 ID입니다.")
             raise ValueError("유효하지 않은 프로젝트 카드 ID입니다.")
 
-        # 새 유저 저장 (회원가입 완료)
+        # 회원가입 진행 (초대 받은 사람)
         invitee = serializer.save()
+
+        # 프로젝트 카드 초대 생성 (status: pending)
+        ProjectCardInvitation.objects.create(
+            project_card=project_card, invitee=invitee, inviter=inviter
+        )
 
         # Friend 관계 추가
         if not Friend.objects.filter(
@@ -195,10 +208,10 @@ class CreateUserByExperienceView(generics.CreateAPIView):
         if not Notification.objects.filter(
             user=inviter,
             message=(
-                f"경험 {project_card.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.\n"
+                f"프로젝트 카드 {project_card.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.\n"
                 f"{invitee.profile.user_name}님의 프로필을 지금 확인해보세요!"
             ),
-            notification_type="experience_register", # TODO: Need to update to smth like project_card_register
+            notification_type="experience_register",  # TODO: Need to update to smth like project_card_register
             related_user_id=invitee.id,
         ).exists():
             Notification.objects.create(
@@ -207,7 +220,7 @@ class CreateUserByExperienceView(generics.CreateAPIView):
                     f"경험 {project_card.title}을 통해 {invitee.profile.user_name}님이 팀블에 가입했습니다.\n"
                     f"{invitee.profile.user_name}님의 프로필을 지금 확인해보세요!"
                 ),
-                notification_type="experience_register", # TODO: Need to update to smth like project_card_register
+                notification_type="experience_register",  # TODO: Need to update to smth like project_card_register
                 related_user_id=invitee.id,
             )
 

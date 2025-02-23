@@ -3,12 +3,12 @@ from .. import views
 
 # User
 urlpatterns = [
-    path("register-link/", views.CreateUserView.as_view(), name="register-link"),
+    path("register-link/", views.CreateUserByLinkView.as_view(), name="register-link"),
     path("register-alone/", views.CreateUserAloneView.as_view(), name="register-alone"),
     path(
         "register-project-card/",
-        views.CreateUserByExperienceView.as_view(),
-        name="register-experience",
+        views.CreateUserByProjectCardView.as_view(),
+        name="register-project-card",
     ),
     path("current/", views.CurrentUserView.as_view(), name="user-current"),
     path("current/delete/", views.DeleteUserView.as_view(), name="user-delete"),
