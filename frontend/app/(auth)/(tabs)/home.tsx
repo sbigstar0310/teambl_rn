@@ -138,18 +138,11 @@ export default function HomeScreen() {
                                     <View
                                         style={styles.postViewContainer}
                                     >
-                                        {
-                                            project.posts.map((post: any, index: number) => {
-                                                return (
-                                                    <PostInProjectPreview
-                                                        key={index}
-                                                        postInfo={post}
-                                                        myId={myId}
-                                                        onPostDelete={fetchHomeProjects}
-                                                    />
-                                                );
-                                            })
-                                        }
+                                        <PostInProjectPreview
+                                            postInfo={project.posts[project.posts.length-1]}
+                                            myId={myId}
+                                            onPostDelete={fetchHomeProjects}
+                                        />
                                     </View>
                                 }
                             </View>
