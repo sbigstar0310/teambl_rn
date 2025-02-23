@@ -14,7 +14,6 @@ import updateProjectCard from "@/libs/apis/ProjectCard/updateProjectCard";
 import retrieveProjectCard from "@/libs/apis/ProjectCard/retrieveProjectCard";
 import dayjs from "dayjs";
 import deleteProjectCardInvitation from "@/libs/apis/ProjectCardInvitation/deleteProjectCardInvitation";
-import createProjectCardInvitation from "@/libs/apis/ProjectCardInvitation/createProjectCardInvitation";
 
 export default function EditProject() {
     const {id} = useLocalSearchParams();
@@ -99,7 +98,8 @@ export default function EditProject() {
             );
             // Filter out removed users which previously accepted invitations
             const accepted_users = projectData.accepted_users
-                .filter(id => !removedAcceptedUsers.includes(id));
+                .filter(id => !removedAcceptedUsers.includes(id))
+                .concat(addedUsers);
             await updateProjectCard(projectData.id, {
                 title: data.title,
                 description: data.description,
@@ -108,17 +108,6 @@ export default function EditProject() {
                 end_date: data.timePeriod?.end ? dayjs(data.timePeriod.end).format("YYYY-MM-DD") : null,
                 accepted_users
             });
-            // Send invitations to added users
-            addedUsers.forEach(async userId => {
-                try {
-                    await createProjectCardInvitation({
-                        project_card: projectData.id,
-                        invitee: userId
-                    });
-                } catch (error) {
-                    console.error("Failed to send project card invitation:", error);
-                }
-            })
             // Cancel/Delete invitations to removed pending users
             removedPendingUsers.forEach(async userId => {
                 try {
