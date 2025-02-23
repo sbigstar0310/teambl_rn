@@ -131,6 +131,7 @@ export default function HomeScreen() {
                                 <ProjectPreview
                                     projectInfo={project}
                                     myId={myId}
+                                    isHome={true}
                                 />
                                 {/** post preview call */}
                                 {

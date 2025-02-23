@@ -56,6 +56,7 @@ const SubscribeButton = (props: SubscribeButtonProps) => {
 interface ProjectPreviewProps {
     projectInfo: api.ProjectCard;
     myId: number;
+    isHome?: Boolean;
 }
 
 const ProjectPreview = (props: ProjectPreviewProps) => {
@@ -172,7 +173,11 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                 </View>
             )}
             <View style={styles.descriptionContainer}>
-                <Text style={styles.descriptionText}>
+                <Text 
+                    style={styles.descriptionText}
+                    numberOfLines={props.isHome ? 3 : undefined}
+                    ellipsizeMode={props.isHome ? "tail" : undefined}
+                >
                     {projectInfo.description}
                 </Text>
             </View>
