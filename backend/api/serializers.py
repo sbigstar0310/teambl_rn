@@ -1186,6 +1186,9 @@ class ProjectCardSerializer(serializers.ModelSerializer):
     bookmarked_users = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CustomUser.objects.all(), required=False
     )  # 프로젝트 카드를 북마크한 사람들
+    pending_invited_users = (
+        serializers.SerializerMethodField()
+    )  # 프로젝트 카드에 초대되었지만 아직 수락하지 않은 유저들
     posts = PostSerializer(many=True, read_only=True)  # 프로젝트 카드의 게시글들
 
     class Meta:
@@ -1196,6 +1199,7 @@ class ProjectCardSerializer(serializers.ModelSerializer):
             "keywords",  # 프로젝트 카드의 키워드들
             "accepted_users",  # 프로젝트 카드에 참여된 사람들
             "bookmarked_users",  # 프로젝트 카드를 북마크한 사람들
+            "pending_invited_users",  # 프로젝트 카드에 초대되었지만 아직 수락하지 않은 유저들
             "creator",
             "created_at",
             "start_date",
@@ -1203,6 +1207,16 @@ class ProjectCardSerializer(serializers.ModelSerializer):
             "description",
             "posts",  # 프로젝트 카드의 게시물들
         ]
+
+    def get_pending_invited_users(self, obj):
+        """
+        프로젝트 카드에 초대되었지만 아직 수락하지 않은 유저들의 ID 리스트 반환
+        """
+        return list(
+            ProjectCardInvitation.objects.filter(
+                project_card=obj, status="pending"
+            ).values_list("invitee_id", flat=True)
+        )
 
     def get_keywords(self, obj):
         return [keyword.keyword for keyword in obj.keywords.all()]
@@ -1273,14 +1287,23 @@ class ProjectCardSerializer(serializers.ModelSerializer):
 
             # 새로 추가된 유저의 경우 ProjectCardInvitation 생성
             for new_user in new_added_accepted_users:
-                ProjectCardInvitation.objects.create(
+                invitation, created = ProjectCardInvitation.objects.get_or_create(
                     project_card=instance,
-                    inviter=instance.creator,
                     invitee=new_user,
+                    defaults={"inviter": instance.creator, "status": "pending"},
                 )
+
+                # 기존에 있던 초대라면 status를 pending으로 업데이트
+                if not created:
+                    invitation.status = "pending"
+                    invitation.save()
 
             # 삭제된 유저의 경우 기존 accepted_users에서 제외하기
             instance.accepted_users.remove(*new_deleted_accepted_users)
+            # 삭제된 유저의 초대 정보 삭제
+            ProjectCardInvitation.objects.filter(
+                project_card=instance, invitee__in=new_deleted_accepted_users
+            ).delete()
 
         # Bookmark Users 처리
         if bookmarked_users_data:

@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from staff_emails import STAFF_EMAILS
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -155,7 +155,7 @@ class CreateUserByLinkView(generics.CreateAPIView):
 # 프로젝트 카드를 통한 초대
 # (1) 회원가입 진행
 # (2) 프로젝트 카드 초대 생성
-# (3) 초대자와 새 유저의 1촌 관계 생성 (?)
+# (3) 초대자와 새 유저의 1촌 관계 생성
 class CreateUserByProjectCardView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
@@ -166,25 +166,23 @@ class CreateUserByProjectCardView(generics.CreateAPIView):
         # 프론트엔드에서 보내온 inviter_id, project_card_id 확인
         inviter_id = self.request.data.get("inviter_id")
         project_card_id = self.request.data.get("project_card_id")
+
         if inviter_id is None:
             print("초대자 ID가 필요합니다.")
-            raise ValueError("초대자 ID가 필요합니다.")
+            raise ValidationError("초대자 ID가 필요합니다.")
         if project_card_id is None:
             print("프로젝트 카드 ID가 필요합니다.")
-            raise ValueError("프로젝트 카드 ID가 필요합니다.")
+            raise ValidationError("프로젝트 카드 ID가 필요합니다.")
 
         try:
             inviter = CustomUser.objects.get(id=inviter_id)
         except CustomUser.DoesNotExist:
-            # 초대자가 존재하지 않을 경우 예외 처리
-            print("유효하지 않은 초대자 ID입니다.")
-            raise ValueError("유효하지 않은 초대자 ID입니다.")
+            raise NotFound("유효하지 않은 초대자 ID입니다.")
 
         try:
             project_card = ProjectCard.objects.get(id=project_card_id)
         except ProjectCard.DoesNotExist:
-            print("유효하지 않은 프로젝트 카드 ID입니다.")
-            raise ValueError("유효하지 않은 프로젝트 카드 ID입니다.")
+            raise NotFound("유효하지 않은 프로젝트 카드 ID입니다.")
 
         # 회원가입 진행 (초대 받은 사람)
         invitee = serializer.save()
@@ -194,11 +192,8 @@ class CreateUserByProjectCardView(generics.CreateAPIView):
             project_card=project_card, invitee=invitee, inviter=inviter
         )
 
-        # Friend 관계 추가
-        if not Friend.objects.filter(
-            from_user=inviter, to_user=invitee, status="accepted"
-        ).exists():
-            Friend.objects.create(from_user=inviter, to_user=invitee, status="accepted")
+        # Friend 관계 추가 (안전한 방법으로)
+        Friend.create_or_replace_friendship(inviter, invitee)
 
         # 초대자와 새 유저의 one_degree_count 업데이트
         update_profile_one_degree_count(inviter)

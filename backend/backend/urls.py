@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-# from backend.api.views import CreateUserView
-from api.views import CreateUserView, MyTokenObtainPairView
+from api.views import MyTokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView  # , TokenObtainPairView
 from django.conf import settings
 from django.conf.urls.static import static

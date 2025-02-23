@@ -47,6 +47,7 @@ class ProjectCardCreateViewTestCase(TestCase):
 
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["pending_invited_users"][0], self.testuser02.id)
         self.assertEqual(ProjectCard.objects.count(), 1)
         self.assertEqual(ProjectCard.objects.get().title, data.get("title"))
         self.assertEqual(
@@ -316,6 +317,11 @@ class ProjectCardUpdateViewTestCase(TestCase):
             end_date="2023-01-01",
         )
         self.project_card1.accepted_users.set([self.testuser01, self.testuser02])
+        ProjectCardInvitation.objects.create(
+            inviter=self.testuser01,
+            invitee=self.testuser02,
+            project_card=self.project_card1,
+        )
 
         self.project_card2 = ProjectCard.objects.create(
             title="Test Project Card 2",
@@ -349,6 +355,15 @@ class ProjectCardUpdateViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("title"), self.project_card1.title)
+        self.assertEqual(len(response.data.get("accepted_users")), 1)
+        self.assertEqual(response.data.get("accepted_users")[0], self.testuser01.id)
+        self.assertFalse(
+            ProjectCardInvitation.objects.filter(
+                inviter=self.testuser01,
+                invitee=self.testuser02,
+                project_card=self.project_card1,
+            ).exists()
+        )
 
     def test_update_project_card_creator(self):
         """
