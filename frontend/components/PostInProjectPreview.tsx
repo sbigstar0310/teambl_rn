@@ -55,7 +55,7 @@ const PostInProjectPreview = (props: PostInProjectPreviewProps) => {
 
     const handleToggleLike = async () => {
         try {
-            await toggleLikePost(postInfo.id, myId);
+            await toggleLikePost(postInfo.id);
         } catch (error) {
             console.log("Failed to toggle like:", error);
         }

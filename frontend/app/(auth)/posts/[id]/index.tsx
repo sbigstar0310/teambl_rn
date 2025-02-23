@@ -175,7 +175,7 @@ export default function PostView() {
     const handleLike = async (postId: number) => {
         try {
             if (!postId || !me?.id) return; // postId 또는 me.id가 없으면 실행 안 함
-            await toggleLikePost(postId, me.id);
+            await toggleLikePost(postId);
             await fetchPost(postId);
         } catch (error) {
             console.error("Failed to toggle like:", error);
