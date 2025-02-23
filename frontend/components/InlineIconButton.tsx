@@ -55,7 +55,7 @@ const InlineIconButton = (props: any) => {
             case "EDITPROJECT":
                 return "프로젝트 수정";
             case "DELETEPROJECT":
-                return "프로젝트 삭제";
+                return "프로젝트 나가기";
             default:
                 return "링크 복사";
         }
