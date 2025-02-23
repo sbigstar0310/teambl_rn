@@ -121,7 +121,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                     const relation_degree = await getUserDistance(user.id);
                     return {
                         user: { ...user },
-                        relation_degree, // Use the actual fetched relation degree
+                        relation_degree: relation_degree.distance, // Use the actual fetched relation degree
                     };
                 })
             );

@@ -33,8 +33,8 @@ export default function ProjectDetailsInPost(props: ProjectDetailsInPostProps) {
             >
                 {props.isSubscribed
                     ? <Fragment>
-                        <Text style={styles.buttonText}>구독됨</Text>
                         <TickIcon width={8} height={8}/>
+                        <Text style={styles.buttonText}>소식 받는 중</Text>
                     </Fragment>
                     : <Text style={styles.buttonText}>+ 소식 받기</Text>
                 }
