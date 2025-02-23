@@ -30,7 +30,7 @@ interface AddPostButtonProps {
     onPress: () => void;
 }
 
-const AddPostButton = (props: AddPostButtonProps) => {
+export const AddPostButton = (props: AddPostButtonProps) => {
     const {onPress} = props;
     return (
         <TouchableOpacity style={styles.addPostButton} onPress={onPress}>

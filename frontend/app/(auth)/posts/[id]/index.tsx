@@ -286,6 +286,7 @@ export default function PostView() {
                         onSubscribe={() => handleSubscribe(projectData?.id ?? 0)}
                         isSubscribed={isSubscribed}
                         isOnHeader={true}
+                        myId={me?.id ?? 0}
                     />}
             />
             {postData &&
@@ -311,6 +312,7 @@ export default function PostView() {
                                 taggedUsers={taggedUsers}
                                 onSubscribe={() => handleSubscribe(projectData?.id ?? 0)}
                                 isSubscribed={isSubscribed}
+                                myId={me?.id ?? 0}
                             />
                         }
                         {/* Post Content */}
