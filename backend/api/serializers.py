@@ -689,15 +689,13 @@ class PostSerializer(serializers.ModelSerializer):
             instance.liked_users.set(liked_users_data)
 
         # Update images: Clear existing and add new ones
+        instance.images.all().delete()  # Clear existing images
         if images_data:
-            instance.images.all().delete()  # Clear existing images
-            postImages = PostImage.objects.filter(post=instance)
-            for postImage in postImages:
-                postImage.image.delete(save=False)
             for image_data in images_data:
                 PostImage.objects.create(post=instance, image=image_data)
 
-        instance.update_like_count()  # Update like count
+        # Update like count
+        instance.update_like_count()
 
         # Post가 수정되었으므로, Project Card의 참여자들에게 수정 알림 보내기
         users_in_project_card = instance.project_card.accepted_users.all()
