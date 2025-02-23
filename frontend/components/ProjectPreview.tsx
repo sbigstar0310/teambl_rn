@@ -107,10 +107,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
     const fetchMemberProfile = async () => {
         setIsLoading(true);
         setMemberList([]);
-        const userIds = [
-            ...(projectInfo.accepted_users ?? []),
-            ...(projectInfo.pending_invited_users ?? [])
-        ];
+        const userIds = projectInfo.accepted_users ?? [];
 
         try {
             // Fetch user information

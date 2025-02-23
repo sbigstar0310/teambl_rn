@@ -93,10 +93,7 @@ export default function PostView() {
     useEffect(() => {
         if (!projectData || !me) return;
         setIsSubscribed(projectData.bookmarked_users.includes(me.id));
-        const taggedUsersInProject = [
-            ...(projectData.accepted_users ?? []),
-            ...(projectData.pending_invited_users ?? [])
-        ]
+        const taggedUsersInProject = projectData.accepted_users ?? [];
         fetchTaggedUsers(taggedUsersInProject);
     }, [projectData, me]);
 
