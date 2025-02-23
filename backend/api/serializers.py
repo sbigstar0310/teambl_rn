@@ -688,11 +688,39 @@ class PostSerializer(serializers.ModelSerializer):
         if liked_users_data is not None:
             instance.liked_users.set(liked_users_data)
 
-        # Update images: Clear existing and add new ones
-        instance.images.all().delete()  # Clear existing images
-        if images_data:
-            for image_data in images_data:
+        # 기존 이미지에서 파일명만 가져오기
+        existing_images = set(
+            image_path.split("/")[-1]
+            for image_path in instance.images.values_list("image", flat=True)
+        )
+
+        # 새로 추가한 이미지 파일명 가져오기
+        new_images = {
+            image_data.name for image_data in images_data
+        }  # 새로운 파일명 리스트
+
+        # ✅ 삭제해야 할 이미지 식별 후 삭제 (차집합 활용)
+        images_to_delete = existing_images - new_images
+        for image_to_delete in images_to_delete:
+            PostImage.objects.get(image__endswith=image_to_delete).delete()
+
+        # ✅ 추가해야 할 이미지 식별 후 추가 (차집합 활용)
+        images_to_add = new_images - existing_images
+
+        print("existing_images", existing_images)
+        print("new_images", new_images)
+        print("images_to_delete", images_to_delete)
+        print("images_to_add", images_to_add)
+
+        for image_data in images_data:
+            if image_data.name in images_to_add:
                 PostImage.objects.create(post=instance, image=image_data)
+
+        # Update images: Clear existing and add new ones
+        # instance.images.all().delete()  # Clear existing images
+        # if images_data:
+        #     for image_data in images_data:
+        #         PostImage.objects.create(post=instance, image=image_data)
 
         # Update like count
         instance.update_like_count()

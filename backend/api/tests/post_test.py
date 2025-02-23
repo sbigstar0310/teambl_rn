@@ -204,7 +204,6 @@ class PostLikedListViewTestCase(TestCase):
             post_images = PostImage.objects.filter(post=post)
             for image in post_images:
                 s3_key = image.image.name
-                print(f"Deleting S3 file: {s3_key}")
                 delete_s3_file(s3_key)
 
     def test_list_liked_posts(self):
