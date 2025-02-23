@@ -199,7 +199,7 @@ function NoMessagesFound() {
     return (
         <View style={[sharedStyles.container, sharedStyles.contentCentered]}>
             <Text style={[styles.text, styles.title]}>메시지가 없습니다.</Text>
-            <Text style={[styles.text]}>일촌에게 메시지를 보내보세요.</Text>
+            <Text style={[styles.text]}>메시지를 보내 대화를 시작해보세요.</Text>
         </View>
     )
 }
