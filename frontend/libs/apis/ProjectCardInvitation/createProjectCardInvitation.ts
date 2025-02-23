@@ -2,8 +2,7 @@ import api from "@/shared/api";
 
 type RequestParams = {
     project_card: number;
-    invited_users: number[];
-    message?: string;
+    invitee: number;
 };
 
 type Response = api.ProjectCardInvitation;

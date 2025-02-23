@@ -242,7 +242,9 @@ class ProjectCardInvitationCreateView(generics.CreateAPIView):
     #     return super().perform_create(serializer)
 
     def perform_create(self, serializer):
-        invitation = serializer.save()
+        invitation = serializer.save(
+            inviter=self.request.user,
+        )
 
         # Project Card에 초대받은 유저에게 알림 생성
         notification_exists = Notification.objects.filter(

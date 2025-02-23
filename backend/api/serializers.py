@@ -1353,9 +1353,11 @@ class ProjectCardSerializer(serializers.ModelSerializer):
 
 
 class ProjectCardInvitationSerializer(serializers.ModelSerializer):
-    project_card = ProjectCardSerializer()
+    project_card = serializers.PrimaryKeyRelatedField(
+         queryset=ProjectCard.objects.all()
+    )
     inviter = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all()
+        read_only=True,
     )  # 초대한 유저
     invitee = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all()
@@ -1371,7 +1373,7 @@ class ProjectCardInvitationSerializer(serializers.ModelSerializer):
             "created_at",
             "status",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "inviter", "created_at"]
 
 
 class ProjectCardInvitationLinkSerializer(serializers.ModelSerializer):
