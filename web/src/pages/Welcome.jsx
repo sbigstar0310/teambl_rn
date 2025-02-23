@@ -64,8 +64,10 @@ const Welcome = () => {
         return (
             <div className="loading-container">
                 <div className="loading-text">
-                    <div className="loading-subtext">팀원 찾기의 새로운 기준,</div>
-                    <div className="loading-highlight">팀블!</div>
+                    <div className="welcome-teambl">
+                        신뢰 기반의<br/> 
+                        프로젝트 네트워크, 팀블!
+                    </div>
                 </div>
             </div>
         );
@@ -145,18 +147,22 @@ const Welcome = () => {
         <div className="welcome">
             <div className="welcome-container">
                 <div className="welcome-intro">
-          <span className="welcome-name" style={{color: "#0000b3"}}>
-            {inviterName}
-          </span>
-                    <span className="welcome-name">님이&nbsp; </span>
                     <span className="welcome-name" style={{color: "#0000b3"}}>
-            {inviteeName}
-          </span>
+                        {inviterName}
+                    </span>
+                        <span className="welcome-name">님이&nbsp; </span>
+                        <span className="welcome-name" style={{color: "#0000b3"}}>
+                        {inviteeName}
+                    </span>
                     <span className="welcome-name">님을 팀블에 초대했습니다.</span>
                 </div>
-                <div className="welcome-teambl">팀원 찾기의 새로운 기준, 팀블!</div>
+                <div className="welcome-teambl">
+                    신뢰 기반의<br/> 
+                    프로젝트 네트워크, 팀블!
+                </div>
                 <label className="welcome-outro">
-                    지인 네트워크를 통해 최적의 팀원을 구하세요.
+                    진행 중인 다양한 프로젝트를 살펴보고,<br/> 
+                    관심 있는 프로젝트를 응원하며 소통을 시작해 보세요!
                 </label>
                 <button
                     type="button"
