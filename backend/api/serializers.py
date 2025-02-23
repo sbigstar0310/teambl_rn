@@ -888,18 +888,23 @@ class LikeSerializer(serializers.ModelSerializer):
 
 
 class InvitationLinkSerializer(serializers.ModelSerializer):
+    inviter_name = serializers.CharField(
+        source="inviter.profile.user_name", read_only=True
+    )
+
     class Meta:
         model = InvitationLink
         fields = [
             "id",
             "inviter",
+            "inviter_name",
             "invitee_name",
             "invitee_id",
             "link",
             "created_at",
             "status",
         ]
-        read_only_fields = ["id", "inviter", "created_at"]
+        read_only_fields = ["id", "inviter", "inviter_name", "created_at"]
 
 
 class FriendCreateSerializer(serializers.ModelSerializer):
