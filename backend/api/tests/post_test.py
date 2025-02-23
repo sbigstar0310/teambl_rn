@@ -9,7 +9,7 @@ from .utils import (
     get_image_from_url,
     delete_s3_file,
 )
-from ..models import CustomUser, Post, PostImage, ProjectCard
+from ..models import CustomUser, Notification, Post, PostImage, ProjectCard
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -18,9 +18,15 @@ class PostCreateViewTestCase(TestCase):
         self.client = APIClient()
         self.url = reverse("post-create")  # Dynamic URL mapping
 
-        # Create a test user
+        # Create a test users
         self.testuser01 = create_user_with_profile(
-            email="test@email.com", password="test", user_name="testuser1"
+            email="test01@email.com", password="test", user_name="testuser1"
+        )
+        self.testuser02 = create_user_with_profile(
+            email="test02@email.com", password="test", user_name="testuser2"
+        )
+        self.testuser03 = create_user_with_profile(
+            email="test03@email.com", password="test", user_name="testuser3"
         )
 
         # Create a project card (if required by the post)
@@ -31,6 +37,12 @@ class PostCreateViewTestCase(TestCase):
             end_date="2021-12-31",
             description="test1",
         )
+
+        # Set Accepted Users
+        self.project_card.accepted_users.add(self.testuser02)
+
+        # Set Bookmarked Users
+        self.project_card.bookmarked_users.add(self.testuser03)
 
         # Authenticate the user
         self.client.force_authenticate(user=self.testuser01)
@@ -64,6 +76,10 @@ class PostCreateViewTestCase(TestCase):
         # Verify database
         post = Post.objects.get(id=response.data.get("id"))
         self.assertEqual(post.images.count(), 2)
+
+        # Check Notifications
+        self.assertTrue(Notification.objects.filter(user=self.testuser02).exists())
+        self.assertTrue(Notification.objects.filter(user=self.testuser03).exists())
 
         # Delete the test image files
         post_images = PostImage.objects.filter(post=post)
@@ -221,10 +237,13 @@ class PostUpdateViewTestCase(TestCase):
 
         # Create a test user
         self.testuser01 = create_user_with_profile(
-            email="test@email.com", password="test", user_name="testuser1"
+            email="test1@email.com", password="test", user_name="testuser1"
         )
         self.testuser02 = create_user_with_profile(
             email="test2@email.com", password="test", user_name="testuser2"
+        )
+        self.testuser03 = create_user_with_profile(
+            email="test3@email.com", password="test", user_name="testuser3"
         )
 
         # Create a project card
@@ -243,6 +262,12 @@ class PostUpdateViewTestCase(TestCase):
             content="original content",
         )
 
+        # Set Accepted Users
+        self.project_card.accepted_users.add(self.testuser02)
+
+        # Set Bookmarked Users
+        self.project_card.bookmarked_users.add(self.testuser03)
+
         # Authenticate the user
         self.client.force_authenticate(user=self.testuser01)
 
@@ -258,21 +283,72 @@ class PostUpdateViewTestCase(TestCase):
         self.post.refresh_from_db()
         self.assertEqual(self.post.content, "updated content")
 
-    def test_update_post_add_like(self):
-        data = {"liked_users": [self.testuser02.id]}
-        response = self.client.put(self.url, data, format="json")
+        # Check Post Update Notifications
+        self.assertTrue(Notification.objects.filter(user=self.testuser02).exists())
+        self.assertTrue(Notification.objects.filter(user=self.testuser03).exists())
+
+
+class PostLikeToggleViewTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Create a test user
+        self.testuser01 = create_user_with_profile(
+            email="test1@email.com", password="test", user_name="testuser1"
+        )
+        self.testuser02 = create_user_with_profile(
+            email="test2@email.com", password="test", user_name="testuser2"
+        )
+        self.testuser03 = create_user_with_profile(
+            email="test3@email.com", password="test", user_name="testuser3"
+        )
+
+        # Create a project card
+        self.project_card = ProjectCard.objects.create(
+            title="test1",
+            creator=self.testuser02,
+            start_date="2021-01-01",
+            end_date="2021-12-31",
+            description="test1",
+        )
+
+        # Create a post
+        self.post = Post.objects.create(
+            user=self.testuser02,
+            project_card=self.project_card,
+            content="original content",
+        )
+
+        # Set Accepted Users
+        self.project_card.accepted_users.add(self.testuser02)
+
+        # Set Bookmarked Users
+        self.project_card.bookmarked_users.add(self.testuser03)
+
+        # Authenticate the user
+        self.client.force_authenticate(user=self.testuser01)
+
+        # URL for like toggle
+        self.url = reverse("post-like-toggle", args=[self.post.id])
+
+    def test_post_add_like(self):
+        response = self.client.post(self.url, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Check the like was added
         self.post.refresh_from_db()
         self.assertEqual(self.post.liked_users.count(), 1)
-        self.assertEqual(self.post.liked_users.first(), self.testuser02)
+        self.assertEqual(self.post.liked_users.first(), self.testuser01)
 
-    def test_update_post_remove_like(self):
-        self.post.liked_users.add(self.testuser02)
-        data = {"liked_users": []}
-        response = self.client.put(self.url, data, format="json")
+        # Check post like notification (for the creator)
+        self.assertTrue(
+            Notification.objects.filter(user=self.project_card.creator).exists()
+        )
+
+    def test_post_remove_like(self):
+        self.post.liked_users.add(self.testuser01)
+        response = self.client.post(self.url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Check the like was removed

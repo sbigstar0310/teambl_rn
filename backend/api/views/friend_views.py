@@ -44,8 +44,6 @@ class FriendCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         from_user = serializer.validated_data.get("from_user") or self.request.user
         to_user = serializer.validated_data.get("to_user")
-        print("from_user", from_user)
-        print("to_user", to_user)
 
         if not from_user:
             print("❌ 인증되지 않은 사용자입니다.")

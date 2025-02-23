@@ -691,7 +691,7 @@ class PostSerializer(serializers.ModelSerializer):
 
         # Post가 수정되었으므로, Project Card의 참여자들에게 수정 알림 보내기
         users_in_project_card = instance.project_card.accepted_users.exclude(
-            id=self.user.id
+            id=instance.user.id
         )
 
         for user in users_in_project_card:
@@ -718,6 +718,17 @@ class PostSerializer(serializers.ModelSerializer):
         instance.refresh_from_db()  # Refresh the instance to get the updated like count
 
         return instance
+
+    def to_representation(self, instance):
+        """출력 시 tagged_users, liked_users를 사용자 정보로 변환"""
+        representation = super().to_representation(instance)
+        representation["tagged_users"] = CustomUserSerializer(
+            instance.tagged_users.all(), many=True
+        ).data
+        representation["liked_users"] = CustomUserSerializer(
+            instance.liked_users.all(), many=True
+        ).data
+        return representation
 
 
 class ProjectImageSerializer(serializers.ModelSerializer):

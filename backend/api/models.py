@@ -180,6 +180,22 @@ class Post(models.Model):
         self.like_count = self.liked_users.count()
         self.save(update_fields=["like_count"])
 
+    def notify_post_like(self, like_user):
+        """프로젝트 카드 생성자에게 알림 전송"""
+        # 김종현님이 Colligolink의 게시물에 좋아요를 눌렀습니다! 확인해보세요!
+        if self.user == like_user:
+            # 자신의 게시물에 좋아요를 누른 경우 알림을 보내지 않음
+            return
+
+        Notification.objects.create(
+            user=self.user,  # 게시물 작성자
+            message=f"{like_user.profile.user_name}님이 {self.project_card.title}의 게시물을 좋아합니다.",
+            notification_type="post_like",
+            related_user_id=self.user.id,
+            related_project_card_id=self.project_card.id,
+            related_post_id=self.id,
+        )
+
     def notify_project_card_accepted_users(self):
         """프로젝트 카드 참여자들에게 게시물 생성 알림 전송"""
         users_in_project_card = self.project_card.accepted_users.exclude(

@@ -5,12 +5,20 @@ from .. import views
 urlpatterns = [
     path("create/", views.PostCreateView.as_view(), name="post-create"),
     path("list/", views.PostListView.as_view(), name="post-list"),
-    path("<int:project_card_id>/", views.PostByProjectView.as_view(), name="post-by-project-card-id"),
+    path(
+        "<int:project_card_id>/",
+        views.PostByProjectView.as_view(),
+        name="post-by-project-card-id",
+    ),
     path("detail/<int:pk>/", views.PostRetrieveView.as_view(), name="post-detail"),
     path("list/liked/", views.PostLikedListView.as_view(), name="post-liked-list"),
     path("<int:pk>/update/", views.PostUpdateView.as_view(), name="post-update"),
     path("<int:pk>/delete/", views.PostDeleteView.as_view(), name="post-delete"),
-    path("<int:post_id>/like/", views.PostLikeToggleView.as_view(), name="post-like-toggle"),
+    path(
+        "<int:post_id>/like/",
+        views.PostLikeToggleView.as_view(),
+        name="post-like-toggle",
+    ),
     # path("list-current/", views.ProjectListCreate.as_view(), name="post-list-current"),
     # path(
     #     "list-every/",
