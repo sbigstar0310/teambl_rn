@@ -59,6 +59,11 @@ urlpatterns += [
         name="project-card-invitation-create",
     ),
     path(
+        "<int:project_card_id>/invitation/<int:invitee_id>/delete/",
+        views.ProjectCardInvitationDeleteView.as_view(),
+        name="project-card-invitation-delete",
+    ),
+    path(
         "invitation/<int:pk>/response/",
         views.ProjectCardInvitationResponseView.as_view(),
         name="project-card-invitation-response",

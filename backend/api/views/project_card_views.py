@@ -261,6 +261,31 @@ class ProjectCardInvitationCreateView(generics.CreateAPIView):
             )
 
 
+class ProjectCardInvitationDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardInvitationSerializer
+
+    def get_object(self):
+        """
+        특정 초대 정보를 가져오고, 요청한 유저가 관리자인지 확인
+        """
+        project_card_id = self.kwargs.get("project_card_id")
+        invitee_id = self.kwargs.get("invitee_id")
+
+        try:
+            invitation = ProjectCardInvitation.objects.get(
+                project_card_id=project_card_id, invitee_id=invitee_id
+            )
+        except ProjectCardInvitation.DoesNotExist:
+            raise ValidationError("해당 초대가 존재하지 않습니다.")
+
+        # 🔥 삭제 권한 체크 (creator만 가능)
+        if invitation.project_card.creator != self.request.user:
+            raise ValidationError("관리자만 프로젝트 카드 초대를 삭제할 수 있습니다.")
+
+        return invitation
+
+
 class ProjectCardInvitationResponseView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardInvitationSerializer
@@ -334,9 +359,10 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
 
         serializer.save()
 
+
 class ProjectCardInvitationResponseByCodeView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class=ProjectCardInvitationSerializer
+    serializer_class = ProjectCardInvitationSerializer
 
     def get_link_data(self):
         code = self.request.query_params.get("code")
@@ -363,9 +389,13 @@ class ProjectCardInvitationResponseByCodeView(generics.RetrieveAPIView):
             )
 
         invitation_status = request.query_params.get("status")
-        if invitation_status is None or (invitation_status != "accepted" and invitation_status != "rejected"):
+        if invitation_status is None or (
+            invitation_status != "accepted" and invitation_status != "rejected"
+        ):
             return Response(
-                {"error": "Status parameter is required and must be either 'accepted' or 'rejected'"},
+                {
+                    "error": "Status parameter is required and must be either 'accepted' or 'rejected'"
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # 초대 수락 처리
@@ -376,6 +406,7 @@ class ProjectCardInvitationResponseByCodeView(generics.RetrieveAPIView):
             status=invitation_status,
         )
         return Response(project_card_invitation.id, status=status.HTTP_200_OK)
+
 
 class ProjectCardLinkView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
