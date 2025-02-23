@@ -691,6 +691,9 @@ class PostSerializer(serializers.ModelSerializer):
         # Update images: Clear existing and add new ones
         if images_data:
             instance.images.all().delete()  # Clear existing images
+            postImages = PostImage.objects.filter(post=instance)
+            for postImage in postImages:
+                postImage.image.delete(save=False)
             for image_data in images_data:
                 PostImage.objects.create(post=instance, image=image_data)
 
