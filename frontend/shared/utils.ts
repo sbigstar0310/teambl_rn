@@ -1,6 +1,7 @@
 import {DEFAULT_TEXT_MAX_LENGTH, USER_ID} from "@/shared/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
+import * as ExpoAsset from 'expo-asset';
 import {PostImage} from "@/components/forms/PostCreateForm";
 
 export function timeAgo(date: Date): string {
@@ -115,10 +116,18 @@ const extractImageName = (uri: string) => {
     return parts[parts.length - 1];
 }
 
-export const convertApiImageToUIImage = (image: api.PostImage): PostImage => {
-    return {
-        uri: image.image,
-        type: "image",
-        name: extractImageName(image.image)
+export const convertApiImageToUIImage = async (image: api.PostImage): Promise<PostImage | null> => {
+    try {
+        // Downloads the remote image to local (cache) and gives localUri
+        const source = ExpoAsset.Asset.fromURI(image.image);
+        await source.downloadAsync();
+        if (!source.localUri) throw new Error("Failed to download image");
+        return {
+            uri: source.localUri,
+            type: source.type,
+            name: extractImageName(image.image)
+        }
+    } catch {
+        return null;
     }
 }
