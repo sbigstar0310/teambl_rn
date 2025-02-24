@@ -1,4 +1,5 @@
 import KeywordInput from "@/components/KeywordInput";
+import Popup from "@/components/Popup";
 import PrimeButton from "@/components/PrimeButton";
 import { useScroll } from "@/components/provider/ScrollContext";
 import SkillInput from "@/components/SkillInput";
@@ -29,6 +30,7 @@ const MyProfileInfoView = () => {
     const [currentIntroduction, setCurrentIntroduction] = useState("");
 
     const [isSaveLoading, setIsSaveLoading] = useState(false);
+    const [isSavePopUpVisible, setIsSavePopUpVisible] = useState(false);
 
     const getProfileInfo = async () => {
         // Get user from Zustand store
@@ -77,6 +79,9 @@ const MyProfileInfoView = () => {
             const response = await updateProfile({
                 profile: newProfile,
             });
+
+            // 프로필 저장 완료 팝업
+            setIsSavePopUpVisible(true);
 
             console.log("Profile updated successfully!, response: ", response);
         } catch (error) {
@@ -162,6 +167,15 @@ const MyProfileInfoView = () => {
                         isActive={true}
                         isLoading={isSaveLoading}
                         styleOv={{ marginTop: 32 }}
+                    />
+                    {/** 프로필 저장 완료 팝업 */}
+                    <Popup
+                        title="저장되었습니다."
+                        isVisible={isSavePopUpVisible}
+                        closeLabel="확인"
+                        onClose={() => {
+                            setIsSavePopUpVisible(false);
+                        }}
                     />
                 </View>
             </View>

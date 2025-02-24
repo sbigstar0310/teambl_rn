@@ -17,10 +17,12 @@ import {
     View,
 } from "react-native";
 import { useAuthStore } from "@/store/authStore";
+import Popup from "@/components/Popup";
 
 const MyProfileEditView = () => {
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false);
-
+    const [isSavePopUpVisible, setIsSavePopUpVisible] =
+        useState<boolean>(false);
     const [isAcaDegreeModalVisible, setIsAcaDegreeModalVisible] =
         useState<boolean>(false);
 
@@ -80,7 +82,6 @@ const MyProfileEditView = () => {
         }
     };
 
-    /** TODO : backend */
     const saveInfo = async () => {
         try {
             setIsSaveLoading(true);
@@ -99,6 +100,9 @@ const MyProfileEditView = () => {
             });
 
             console.log("Profile updated successfully!");
+
+            //  프로필 저장 완료 팝업
+            setIsSavePopUpVisible(true);
         } catch (error) {
             console.error("Error saving profile:", error);
         } finally {
@@ -195,6 +199,16 @@ const MyProfileEditView = () => {
                     isActive={true}
                     isLoading={isSaveLoading}
                     styleOv={{ marginTop: 32 }}
+                />
+
+                {/** 프로필 저장 완료 팝업 */}
+                <Popup
+                    title="저장되었습니다."
+                    isVisible={isSavePopUpVisible}
+                    closeLabel="확인"
+                    onClose={() => {
+                        setIsSavePopUpVisible(false);
+                    }}
                 />
             </ScrollView>
         </View>
