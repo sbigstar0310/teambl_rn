@@ -7,6 +7,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
+    Modal,
+    ActivityIndicator,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import fetchMyProjectCardAPI from "@/libs/apis/ProjectCard/fetchMyProjectCard";
@@ -21,6 +23,7 @@ import ProjectPreview from "@/components/ProjectPreview";
 import { useAuthStore } from "@/store/authStore";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
 import fetchProjInvitationsAPI from "@/libs/apis/ProjectCardInvitation/fetchMyProjectCardInvitations";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 const { width, height } = Dimensions.get("window");
 
@@ -31,9 +34,12 @@ const MyProfileProjectView = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const carouselRef = useRef<ICarouselInstance>(null);
+    
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchMyProjectCard = async () => {
         try {
+            setIsLoading(true);
             // Fetch both APIs in parallel
             const [fetchedProjectCards, fetchProjInvitations] =
                 await Promise.all([
@@ -52,23 +58,26 @@ const MyProfileProjectView = () => {
                         invite.status === "pending" &&
                         invite.project_card !== null
                 )
-                .map((invite) => invite.project_card);
+                .map((invite) => ({
+                    ...invite.project_card,
+                    invite_id: invite.id // project_card의 invite_id를 id 값으로 설정
+                }));
 
             // Ensure pendingProjectCards are placed before fetchedProjectCards
             setProjectCards([...pendingProjectCards, ...fetchedProjectCards]);
-            // console.log("pending project cards: ", pendingProjectCards);
-            // console.log("fetched project cards: ", fetchedProjectCards);
-            // console.log("set project cards: ", [
-            //     ...pendingProjectCards,
-            //     ...fetchedProjectCards,
-            // ]);
         } catch (error) {
             console.log("Error in fetching my project cards: ", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
         fetchMyProjectCard();
+        eventEmitter.on("handleProjInvitation", fetchMyProjectCard);
+        return () => {
+            eventEmitter.off("handleProjInvitation", fetchMyProjectCard);
+        };
     }, []);
 
     const prevSlide = async () => {
@@ -108,6 +117,14 @@ const MyProfileProjectView = () => {
                 scrollEventThrottle={16}
                 keyboardShouldPersistTaps={"handled"}
             >
+                {/** loader */}
+                {isLoading && (
+                    <Modal visible={true} transparent>
+                        <View style={styles.loadingOverlay}>
+                            <ActivityIndicator size="large" color="#0000ff" />
+                        </View>
+                    </Modal>
+                )}
                 <View style={styles.cardContainer}>
                     {/** badge for the pagination */}
                     <View style={styles.indexPaginationContainer}>
@@ -249,6 +266,17 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: theme.colors.white,
         gap: 15,
+    },
+    loadingOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0)",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
     },
 });
 

@@ -13,6 +13,7 @@ import toggleBookmarkProjectCard from "@/libs/apis/ProjectCard/toggleBookmarkPro
 import getUserDistance from "@/libs/apis/getUserDistance";
 import projectCardInvitationResponse from "@/libs/apis/ProjectCardInvitation/projectCardInvitationResponse";
 import SmallButton from "./buttons/SmallButton";
+import eventEmitter from "@/libs/utils/eventEmitter";
 
 interface KeywordBadgeProps {
     keyword: string;
@@ -154,6 +155,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
             setIsLoading(true);
             if (projectInfo.invite_id !== undefined) {
                 await projectCardInvitationResponse(projectInfo.invite_id, {status});
+                await eventEmitter.emit("handleProjInvitation");
             } else {
                 console.error("invite_id is undefined");
             }
