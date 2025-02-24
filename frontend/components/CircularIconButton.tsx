@@ -1,35 +1,46 @@
-import theme from '@/shared/styles/theme';
-import React from 'react';
-import { StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native';
-import CopyLinkIcon from '@/assets/CopyLinkIcon.svg';
-import ReportIcon from '@/assets/ReportIcon.svg';
-import DeleteIcon from '@/assets/DeleteIcon.svg';
-import EditPencilIcon from '@/assets/EditPencilIcon.svg';
-import QrCodeIcon from '@/assets/QrCodeIcon.svg';
-import InviteLinkIcon from '@/assets/InviteLinkIcon.svg';
+import theme from "@/shared/styles/theme";
+import React from "react";
+import {
+    StyleSheet,
+    Text,
+    Touchable,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import CopyLinkIcon from "@/assets/CopyLinkIcon.svg";
+import ReportIcon from "@/assets/ReportIcon.svg";
+import DeleteIcon from "@/assets/DeleteIcon.svg";
+import LeaveIcon from "@/assets/LeaveIcon.svg";
+import EditPencilIcon from "@/assets/EditPencilIcon.svg";
+import QrCodeIcon from "@/assets/QrCodeIcon.svg";
+import InviteLinkIcon from "@/assets/InviteLinkIcon.svg";
 
 const options = [
-    "COPYLINK", "REPORT", "DELETE", "EDIT", "QRCODE", "INVITELINK"
+    "COPYLINK",
+    "REPORT",
+    "LEAVE",
+    "DELETE",
+    "EDIT",
+    "QRCODE",
+    "INVITELINK",
 ];
 
 const CircularIconButton = (props: any) => {
-
-    const {
-        type="COPYLINK",
-        onPress=()=>{}
-    } = props;
+    const { type = "COPYLINK", onPress = () => {} } = props;
 
     if (!options.includes(type)) {
         throw new Error("Invalid button type.");
     }
 
     const getColorTheme = (type: string) => {
-        switch(type) {
+        switch (type) {
             case "COPYLINK":
                 return styles.withBlack;
             case "REPORT":
                 return styles.withMessage2;
             case "DELETE":
+                return styles.withMessage2;
+            case "LEAVE":
                 return styles.withMessage2;
             case "EDIT":
                 return styles.withBlack;
@@ -43,13 +54,15 @@ const CircularIconButton = (props: any) => {
     };
 
     const getIcon = (type: string) => {
-        switch(type) {
+        switch (type) {
             case "COPYLINK":
                 return <CopyLinkIcon />;
             case "REPORT":
                 return <ReportIcon />;
             case "DELETE":
                 return <DeleteIcon />;
+            case "LEAVE":
+                return <LeaveIcon />;
             case "EDIT":
                 return <EditPencilIcon />;
             case "QRCODE":
@@ -62,13 +75,15 @@ const CircularIconButton = (props: any) => {
     };
 
     const getButtonText = (type: string) => {
-        switch(type) {
+        switch (type) {
             case "COPYLINK":
                 return "링크 복사";
             case "REPORT":
                 return "신고";
             case "DELETE":
                 return "삭제";
+            case "LEAVE":
+                return "나가기";
             case "EDIT":
                 return "수정";
             case "QRCODE":
@@ -81,24 +96,11 @@ const CircularIconButton = (props: any) => {
     };
 
     return (
-        <TouchableOpacity
-            style={[styles.container]}
-            onPress={onPress}
-        >
-            <View
-                style={[
-                    styles.circleContainer,
-                    getColorTheme(type)
-                ]}
-            >
+        <TouchableOpacity style={[styles.container]} onPress={onPress}>
+            <View style={[styles.circleContainer, getColorTheme(type)]}>
                 {getIcon(type)}
             </View>
-            <Text
-                style={[
-                    styles.buttonText,
-                    getColorTheme(type)
-                ]}
-            >
+            <Text style={[styles.buttonText, getColorTheme(type)]}>
                 {getButtonText(type)}
             </Text>
         </TouchableOpacity>
@@ -106,14 +108,14 @@ const CircularIconButton = (props: any) => {
 };
 
 const styles = StyleSheet.create({
-    container : {
+    container: {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: 8
+        gap: 8,
     },
-    circleContainer : {
+    circleContainer: {
         width: 46,
         height: 46,
         borderWidth: 1,
@@ -121,20 +123,20 @@ const styles = StyleSheet.create({
         borderRadius: 23,
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
-    withBlack : {
+    withBlack: {
         color: theme.colors.black,
-        borderColor: theme.colors.black
+        borderColor: theme.colors.black,
     },
-    withMessage2 : {
+    withMessage2: {
         color: theme.colors.message2,
-        borderColor: theme.colors.message2
+        borderColor: theme.colors.message2,
     },
-    buttonText : {
+    buttonText: {
         fontSize: theme.fontSizes.body2,
-        fontWeight: 400
-    }
+        fontWeight: 400,
+    },
 });
 
 export default CircularIconButton;
