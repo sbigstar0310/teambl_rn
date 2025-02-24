@@ -13,7 +13,7 @@ interface TaggedUserAvatarsProps {
 
 type UserWithRelation = {
     user: api.User;
-    relation_degree: number;
+    relation_degree: number | undefined;
 }
 
 export default function TaggedUserAvatars(props: TaggedUserAvatarsProps) {
@@ -34,10 +34,10 @@ export default function TaggedUserAvatars(props: TaggedUserAvatarsProps) {
         try {
             const relationsData = await Promise.all(props.taggedUsers.map(async user => {
                 try {
-                    const distance = (await getUserDistance(user.id))?.distance || 4;
+                    const distance = (await getUserDistance(user.id))?.distance;
                     return {user, relation_degree: distance};
                 } catch {
-                    return {user, relation_degree: 4};
+                    return {user, relation_degree: undefined};
                 }
             }));
             setTaggedUsersWithRelations(relationsData);
