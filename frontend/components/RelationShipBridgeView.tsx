@@ -1,20 +1,22 @@
 import theme from "@/shared/styles/theme";
 import React, { useRef, useState } from "react";
-import { FlatList, View, Text, StyleSheet, Dimensions, Animated } from "react-native";
+import {
+    FlatList,
+    View,
+    Text,
+    StyleSheet,
+    Dimensions,
+    Animated,
+} from "react-native";
 import DottedLine from "@/assets/DottedLine.svg";
 import ALine from "@/assets/ALine.svg";
 
 const ITEM_HEIGHT = 30;
 
 const RelationShipBridgeView = (props: any) => {
-    const {
-        startName,
-        endName,
-        relationShipList,
-        distance,
-        isLoading
-    } = props;
+    const { startName, endName, relationShipList, distance, isLoading } = props;
 
+    console.log("relationShipList", relationShipList);
 
     const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -40,9 +42,7 @@ const RelationShipBridgeView = (props: any) => {
         } else if (distance === 3) {
             return (
                 <Animated.View style={[styles.snapItem, { opacity }]}>
-                    <View
-                        style={styles.doubleItemContainer}
-                    >
+                    <View style={styles.doubleItemContainer}>
                         <Text style={styles.doubleItemText}>{item[0]}</Text>
                         <ALine />
                         <Text style={styles.doubleItemText}>{item[1]}</Text>
@@ -54,59 +54,29 @@ const RelationShipBridgeView = (props: any) => {
     };
 
     return (
-        <View
-            style={styles.container}
-        >
-            {
-                (distance === 2 || distance === 3) &&
-                <View
-                    style={styles.messageContainer}
-                >
-                    <Text
-                        style={styles.withBold}
-                    >
-                        {startName}
-                    </Text>
-                    <Text>
-                        {"님과 "}
-                    </Text>
-                    <Text
-                        style={styles.withBold}
-                    >
-                        {endName}
-                    </Text>
-                    <Text>
-                        {"님은 "}
-                    </Text>
-                    <Text
-                        style={styles.withPointColor}
-                    >
+        <View style={styles.container}>
+            {(distance === 2 || distance === 3) && (
+                <View style={styles.messageContainer}>
+                    <Text style={styles.withBold}>{startName}</Text>
+                    <Text>{"님과 "}</Text>
+                    <Text style={styles.withBold}>{endName}</Text>
+                    <Text>{"님은 "}</Text>
+                    <Text style={styles.withPointColor}>
                         {`${distance - 1}명`}
                     </Text>
-                    <Text>
-                        {"을 거치면 아는 사이입니다."}
-                    </Text>
+                    <Text>{"을 거치면 아는 사이입니다."}</Text>
                 </View>
-            }
-            {
-                (distance >= 4) &&
-                <View
-                    style={styles.messageContainer}
-                >
-                    <Text
-                        style={styles.withPointColor}
-                    >
-                        {`3명 이상`}
-                    </Text>
+            )}
+            {distance >= 4 && (
+                <View style={styles.messageContainer}>
+                    <Text style={styles.withPointColor}>{`3명 이상`}</Text>
                     <Text>
                         {"을 거쳐햐 하므로 관계도를 표시하지 않습니다."}
                     </Text>
                 </View>
-            }
-            <View style={styles.bridgeContainer} >
-                <View
-                    style={styles.endPointContainer}
-                >
+            )}
+            <View style={styles.bridgeContainer}>
+                <View style={styles.endPointContainer}>
                     <Text
                         style={[styles.endPointName, { marginRight: 12 }]}
                         numberOfLines={1}
@@ -118,8 +88,7 @@ const RelationShipBridgeView = (props: any) => {
                 </View>
                 <View style={styles.scrollAreaContainer}>
                     <View style={styles.scrollCenter} />
-                    {
-                        (distance === 2 || distance === 3) &&
+                    {(distance === 2 || distance === 3) && (
                         <Animated.FlatList
                             data={relationShipList}
                             keyExtractor={(item, index) => index.toString()}
@@ -129,7 +98,13 @@ const RelationShipBridgeView = (props: any) => {
                             snapToAlignment="start"
                             decelerationRate="fast"
                             onScroll={Animated.event(
-                                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                                [
+                                    {
+                                        nativeEvent: {
+                                            contentOffset: { y: scrollY },
+                                        },
+                                    },
+                                ],
                                 { useNativeDriver: true }
                             )}
                             contentContainerStyle={{
@@ -138,13 +113,10 @@ const RelationShipBridgeView = (props: any) => {
                             }}
                             style={{ height: 90 }}
                         />
-                    }
-                    {
-                        (distance >= 4) &&
-                        <Text style={styles.questionMark}>
-                            {"?"}
-                        </Text>
-                    }
+                    )}
+                    {distance >= 4 && (
+                        <Text style={styles.questionMark}>{"?"}</Text>
+                    )}
                 </View>
                 <View style={styles.endPointContainer}>
                     <DottedLine />
@@ -176,7 +148,7 @@ const styles = StyleSheet.create({
         flexWrap: "wrap",
         fontSize: theme.fontSizes.body2,
         color: theme.colors.black,
-        fontWeight: 400
+        fontWeight: 400,
     },
     bridgeContainer: {
         width: "100%",
@@ -190,7 +162,7 @@ const styles = StyleSheet.create({
     },
     endPointContainer: {
         height: 90,
-        maxWidth: '30%',
+        maxWidth: "30%",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
@@ -199,7 +171,7 @@ const styles = StyleSheet.create({
     endPointName: {
         fontSize: theme.fontSizes.body2,
         fontWeight: 600,
-        color: theme.colors.black
+        color: theme.colors.black,
     },
     scrollAreaContainer: {
         height: 90,
@@ -217,22 +189,22 @@ const styles = StyleSheet.create({
         borderRadius: 17,
     },
     withBold: {
-        fontWeight: 600
+        fontWeight: 600,
     },
     withPointColor: {
-        color: theme.colors.point
+        color: theme.colors.point,
     },
     snapItem: {
         height: ITEM_HEIGHT,
         justifyContent: "center",
         alignItems: "center",
-        paddingHorizontal: 22
+        paddingHorizontal: 22,
     },
     itemText: {
         fontSize: theme.fontSizes.body2,
         color: theme.colors.point,
         fontWeight: 600,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
     },
     doubleItemContainer: {
         height: 30,
@@ -241,7 +213,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         gap: 7,
-        padding: 0
+        padding: 0,
     },
     doubleItemText: {
         fontSize: theme.fontSizes.body2,
@@ -252,8 +224,8 @@ const styles = StyleSheet.create({
         fontSize: theme.fontSizes.body2,
         color: theme.colors.black,
         fontWeight: 600,
-        paddingHorizontal: 60
-    }
+        paddingHorizontal: 60,
+    },
 });
 
 export default RelationShipBridgeView;

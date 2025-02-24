@@ -433,9 +433,10 @@ const NewProfileHeader = (props: any) => {
                                     </Text>
                                     <RelationShipBridgeView
                                         startName={userInfo?.profile.user_name}
-                                        endName={userInfo?.chonInfoFromMe?.paths_name.findLast(
-                                            () => true
-                                        )}
+                                        endName={
+                                            useAuthStore.getState().user
+                                                ?.profile.user_name
+                                        }
                                         relationShipList={
                                             userInfo?.chonInfoFromMe?.paths_name
                                         }
@@ -468,7 +469,7 @@ const NewProfileHeader = (props: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
     },
     profileContainer: {
         flexDirection: "column",
