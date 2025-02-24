@@ -34,6 +34,10 @@ class CommentCreateView(generics.CreateAPIView):
                 Comment, pk=parent_comment_id
             )  # Validate the parent comment
 
+        # 부모 댓글의 부모 댓글이 있다면, 현재 부모 댓글은 부모 댓글의 부모 댓글로 대체 (대댓글까지만 가능)
+        if parent_comment and parent_comment.parent_comment:
+            parent_comment = parent_comment.parent_comment
+
         serializer.save(
             user=self.request.user, post=post, parent_comment=parent_comment
         )
