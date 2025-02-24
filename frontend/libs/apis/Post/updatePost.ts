@@ -26,6 +26,10 @@ const updatePost = async (postId: number, params: RequestParams): Promise<api.Po
         }
         if (params.images) {
             for (const image of params.images) {
+                // Prevents axios Network error by correctly setting mime type
+                if (!image.type.startsWith("image/")) {
+                    image.type = "image/" + image.type;
+                }
                 formData.append("images", image as any);
             }
         }

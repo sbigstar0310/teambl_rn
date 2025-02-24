@@ -1,7 +1,7 @@
 import {View} from "react-native";
 import {router, useLocalSearchParams} from "expo-router";
 import {useEffect, useMemo, useState} from "react";
-import PostCreateForm, {defaultPostFormData, PostCreateFormData} from "@/components/forms/PostCreateForm";
+import PostCreateForm, {defaultPostFormData, PostCreateFormData, PostImage} from "@/components/forms/PostCreateForm";
 import {sharedStyles} from "@/app/_layout";
 import ScreenHeader from "@/components/common/ScreenHeader";
 import {PostButton} from "@/components/forms/ProjectCreateForm";
@@ -14,6 +14,9 @@ import {convertApiImageToUIImage} from "@/shared/utils";
 export default function EditPost() {
     const {id, project_title = ""} = useLocalSearchParams();
     const [isConfirmationPopupOpen, setIsConfirmationPopupOpen] = useState(false);
+    const [postData, setPostData] = useState<api.Post>();
+    const [taggedUsers, setTaggedUsers] = useState<api.User[]>([]);
+    const [images, setImages] = useState<PostImage[]>([]);
     const [data, setData] = useState<PostCreateFormData>(defaultPostFormData);
     const [isLoading, setIsLoading] = useState(false);
     const isValid = useMemo<boolean>(
@@ -27,26 +30,46 @@ export default function EditPost() {
         fetchPost();
     }, []);
 
+    useEffect(() => {
+        if (!postData) return;
+        fetchTaggedUsers((postData.tagged_users as any) as number[]);
+        loadImages(postData.images);
+    }, [postData]);
+
+    useEffect(() => {
+        if (!postData) return;
+        setData({
+            content: postData.content,
+            tagged_users: taggedUsers,
+            images: images
+        });
+    }, [postData, taggedUsers, images]);
+
     const fetchPost = async () => {
         try {
             const postData = await fetchPostById(parseInt(id as string));
-            const taggedUsers = await fetchTaggedUsers((postData.tagged_users as any) as number[]);
-            if (!postData || !taggedUsers) throw new Error();
-            setData({
-                content: postData.content,
-                tagged_users: taggedUsers,
-                images: postData.images.map(convertApiImageToUIImage)
-            });
+            setPostData(postData);
         } catch (error) {
             console.error('Failed to fetch post data', error);
         }
     }
     const fetchTaggedUsers = async (userIds: number[]) => {
         try {
-            return await Promise.all(
+            const users = await Promise.all(
                 userIds.map(id => getUserInfo(id)));
+            setTaggedUsers(users);
         } catch (error) {
             console.error("Failed to fetch tagged users:", error);
+        }
+    }
+    const loadImages = async (apiImages: api.PostImage[]) => {
+        try {
+            const images = await Promise.all(
+                apiImages.map(convertApiImageToUIImage)
+            );
+            setImages(images.filter((image) => !!image));
+        } catch (error) {
+            console.error("Failed to load images", error);
         }
     }
 
