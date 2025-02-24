@@ -197,6 +197,16 @@ class SearchProjectCardsAPIView(generics.ListAPIView):
             | Q(description__icontains=query)  # 내용 필터링
         ).distinct()
 
+        # 포스트에서 검색된 프로젝트 가져오기
+        projectCardsFromPost = Post.objects.filter(
+            Q(content__icontains=query)  # 내용 필터링
+        ).values_list("project_card", flat=True)
+
+        # 포스트에서 검색된 프로젝트와 검색된 프로젝트를 합침
+        projectCards = projectCards.union(
+            ProjectCard.objects.filter(id__in=projectCardsFromPost)
+        )
+
         # 정렬 및 페이지네이션
         # 최신순으로 정렬
         projectCards = projectCards.order_by("-created_at")
