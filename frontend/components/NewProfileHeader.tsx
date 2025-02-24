@@ -224,7 +224,7 @@ const NewProfileHeader = (props: any) => {
     });
 
     return (
-        <>
+        <View style={styles.container}>
             {/** loader */}
             {isLoading && (
                 <Modal visible={true} transparent>
@@ -461,11 +461,15 @@ const NewProfileHeader = (props: any) => {
                 closeLabel="취소"
                 confirmLabel="신청하기"
             />
-        </>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#ffffff',
+    },
     profileContainer: {
         flexDirection: "column",
         paddingTop: 0,
