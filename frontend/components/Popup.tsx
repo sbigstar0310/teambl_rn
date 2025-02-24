@@ -94,8 +94,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     descriptionContainer: {
-        marginTop: 12,
-        width: '50%',
+        width: '90%',
         alignItems: 'center',
     },
     description: {

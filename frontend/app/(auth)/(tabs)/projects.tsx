@@ -92,7 +92,7 @@ export default function ProjectsScreen() {
                 onClose={setIsConfirmationPopupOpen.bind(null, false)}
                 onConfirm={handleBack}
                 title="작성 취소"
-                description="저장하지 않으면 내용이 삭제됩니다. 작성을 종료하시겠습니까?"
+                description={`저장하지 않으면 내용이 삭제됩니다.\n작성을 종료하시겠습니까?`}
                 confirmLabel="작성 종료"
                 closeLabel="계속 작성"
             />
