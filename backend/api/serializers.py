@@ -35,6 +35,7 @@ from .models import (
 )
 import os
 from django.db import transaction
+from django.db.models import Q
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -299,6 +300,11 @@ class ProfileCreateSerializer(serializers.ModelSerializer):
             keyword.keyword for keyword in instance.keywords.all()
         ]
         representation["skills"] = [skill.skill for skill in instance.skills.all()]
+        representation["one_degree_count"] = Friend.objects.filter(
+            (Q(from_user_id=instance.pk) | Q(to_user_id=instance.pk))
+            & Q(status="accepted")
+        ).count()
+
         return representation
 
     def create(self, validated_data):
