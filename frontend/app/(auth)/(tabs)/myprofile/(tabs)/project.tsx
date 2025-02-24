@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Animated, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+    View,
+    Animated,
+    Dimensions,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+} from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import fetchMyProjectCardAPI from "@/libs/apis/ProjectCard/fetchMyProjectCard";
 import { useScroll } from "@/components/provider/ScrollContext";
@@ -26,19 +34,38 @@ const MyProfileProjectView = () => {
 
     const fetchMyProjectCard = async () => {
         try {
-            const fetchedProjectCards = await fetchMyProjectCardAPI();
-            const fetchProjInvitations = await fetchProjInvitationsAPI();
-            const pendingProjectCards = fetchProjInvitations
-                .filter(invite => invite.status === "pending")
-                .map(invite => ({
-                    ...invite.project_card,
-                    invite_id: invite.id // project_card의 invite_id를 id 값으로 설정
-                }));
-            setProjectCards([, ...fetchedProjectCards]);//pendingProjectCards가 fetchedProjectCards 앞에 와야함.
+            // Fetch both APIs in parallel
+            const [fetchedProjectCards, fetchProjInvitations] =
+                await Promise.all([
+                    fetchMyProjectCardAPI(),
+                    fetchProjInvitationsAPI(),
+                ]);
+
+            // Extract pending invitations with a valid project_card
+            const pendingProjectCards: api.ProjectCard[] = fetchProjInvitations
+                .filter(
+                    (
+                        invite
+                    ): invite is api.ProjectCardInvitation & {
+                        project_card: api.ProjectCard;
+                    } =>
+                        invite.status === "pending" &&
+                        invite.project_card !== null
+                )
+                .map((invite) => invite.project_card);
+
+            // Ensure pendingProjectCards are placed before fetchedProjectCards
+            setProjectCards([...pendingProjectCards, ...fetchedProjectCards]);
+            // console.log("pending project cards: ", pendingProjectCards);
+            // console.log("fetched project cards: ", fetchedProjectCards);
+            // console.log("set project cards: ", [
+            //     ...pendingProjectCards,
+            //     ...fetchedProjectCards,
+            // ]);
         } catch (error) {
             console.log("Error in fetching my project cards: ", error);
         }
-    }; 
+    };
 
     useEffect(() => {
         fetchMyProjectCard();
@@ -47,14 +74,20 @@ const MyProfileProjectView = () => {
     const prevSlide = async () => {
         if (currentIndex > 0) {
             setCurrentIndex((prev) => prev - 1);
-            carouselRef.current?.scrollTo({ index: currentIndex - 1, animated: true });
+            carouselRef.current?.scrollTo({
+                index: currentIndex - 1,
+                animated: true,
+            });
         }
     };
 
     const nextSlide = async () => {
         if (currentIndex < projectCards.length - 1) {
             setCurrentIndex((prev) => prev + 1);
-            carouselRef.current?.scrollTo({ index: currentIndex + 1, animated: true });
+            carouselRef.current?.scrollTo({
+                index: currentIndex + 1,
+                animated: true,
+            });
         }
     };
 
@@ -64,7 +97,10 @@ const MyProfileProjectView = () => {
         return (
             <ScrollView
                 key={item.id}
-                contentContainerStyle={{ ...styles.cardScrollContainer, paddingVertical: 10 }}
+                contentContainerStyle={{
+                    ...styles.cardScrollContainer,
+                    paddingVertical: 10,
+                }}
                 onScroll={Animated.event(
                     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                     { useNativeDriver: false }
@@ -74,22 +110,17 @@ const MyProfileProjectView = () => {
             >
                 <View style={styles.cardContainer}>
                     {/** badge for the pagination */}
-                    <View
-                        style={styles.indexPaginationContainer}
-                    >
-                        <View
-                            style={styles.indexPagination}
-                        >
+                    <View style={styles.indexPaginationContainer}>
+                        <View style={styles.indexPagination}>
                             <TouchableOpacity
                                 onPress={prevSlide}
                                 style={{ paddingRight: 10 }}
                             >
-                                {
-                                    (currentIndex <= 0) ?
-                                        <LeftSmallArrowDisabled />
-                                        :
-                                        <LeftSmallArrow />
-                                }
+                                {currentIndex <= 0 ? (
+                                    <LeftSmallArrowDisabled />
+                                ) : (
+                                    <LeftSmallArrow />
+                                )}
                             </TouchableOpacity>
                             {/** text */}
                             <Text style={styles.indexText}>
@@ -99,67 +130,50 @@ const MyProfileProjectView = () => {
                                 onPress={nextSlide}
                                 style={{ paddingLeft: 10 }}
                             >
-                                {
-                                    (currentIndex >= projectCards.length - 1) ?
-                                        <RightSmallArrowDisabled />
-                                        :
-                                        <RightSmallArrow />
-                                }
+                                {currentIndex >= projectCards.length - 1 ? (
+                                    <RightSmallArrowDisabled />
+                                ) : (
+                                    <RightSmallArrow />
+                                )}
                             </TouchableOpacity>
                         </View>
                     </View>
                     {/** project preview call */}
-                    <ProjectPreview
-                        projectInfo={item}
-                        myId={myId}
-                    />
+                    <ProjectPreview projectInfo={item} myId={myId} />
                     {/** post preview call */}
-                    {
-                        item.posts.length > 0 &&
-                        <View
-                            style={styles.postViewContainer}
-                        >
-                            {
-                                item.posts.map((post: any, index: number) => {
-                                    return (
-                                        <PostInProjectPreview
-                                            key={index}
-                                            postInfo={post}
-                                            myId={myId}
-                                            onPostDelete={fetchMyProjectCard}
-                                        />
-                                    );
-                                })
-                            }
+                    {item.posts.length > 0 && (
+                        <View style={styles.postViewContainer}>
+                            {item.posts.map((post: any, index: number) => {
+                                return (
+                                    <PostInProjectPreview
+                                        key={index}
+                                        postInfo={post}
+                                        myId={myId}
+                                        onPostDelete={fetchMyProjectCard}
+                                    />
+                                );
+                            })}
                         </View>
-                    }
+                    )}
                 </View>
             </ScrollView>
-        )
+        );
     };
 
     if (myId === -99) {
         return (
             <View>
-                <Text>
-                    Error in getting user id
-                </Text>
+                <Text>Error in getting user id</Text>
             </View>
         );
     }
 
     if (projectCards.length === 0) {
-            return (
-                <View
-                    style={styles.noProjContainer}
-                >
-                    <Text
-                        style={styles.noProjText}
-                    >
-                        {"프로젝트가 없습니다."}
-                    </Text>
-                </View>
-            );
+        return (
+            <View style={styles.noProjContainer}>
+                <Text style={styles.noProjText}>{"프로젝트가 없습니다."}</Text>
+            </View>
+        );
     }
     return (
         <View style={styles.carouselContainer}>
@@ -177,7 +191,7 @@ const MyProfileProjectView = () => {
 };
 
 const styles = StyleSheet.create({
-    noProjContainer : {
+    noProjContainer: {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
@@ -185,7 +199,7 @@ const styles = StyleSheet.create({
     },
     noProjText: {
         fontSize: theme.fontSizes.body1,
-        color: theme.colors.achromatic01
+        color: theme.colors.achromatic01,
     },
     carouselContainer: {
         flexDirection: "column",
@@ -195,10 +209,10 @@ const styles = StyleSheet.create({
     },
     cardScrollContainer: {
         flexGrow: 1,
-        alignItems: "center"
+        alignItems: "center",
     },
     cardContainer: {
-        width: '100%',
+        width: "100%",
         backgroundColor: theme.colors.white,
         paddingVertical: 12,
         alignItems: "center",
@@ -208,7 +222,7 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
     indexPagination: {
         display: "flex",
@@ -219,7 +233,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 6,
         borderRadius: 24,
         backgroundColor: theme.colors.achromatic05,
-        marginBottom: 16
+        marginBottom: 16,
     },
     indexText: {
         fontSize: theme.fontSizes.caption,
@@ -227,15 +241,15 @@ const styles = StyleSheet.create({
         color: theme.colors.achromatic01,
     },
     postViewContainer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
         padding: 20,
         backgroundColor: theme.colors.white,
-        gap: 15
-    }
+        gap: 15,
+    },
 });
 
 export default MyProfileProjectView;

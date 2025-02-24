@@ -1356,6 +1356,31 @@ class ProjectCardInvitationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "inviter", "created_at"]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        # project_card 처리
+        if instance.project_card is not None:
+            representation["project_card"] = ProjectCardSerializer(
+                instance.project_card
+            ).data
+        else:
+            representation["project_card"] = None
+
+        # inviter 처리
+        if instance.inviter is not None:
+            representation["inviter"] = CustomUserSerializer(instance.inviter).data
+        else:
+            representation["inviter"] = None
+
+        # invitee 처리 (🔥 핵심)
+        if instance.invitee is not None:
+            representation["invitee"] = CustomUserSerializer(instance.invitee).data
+        else:
+            representation["invitee"] = None
+
+        return representation
+
 
 class ProjectCardInvitationLinkSerializer(serializers.ModelSerializer):
     project_card = serializers.PrimaryKeyRelatedField(

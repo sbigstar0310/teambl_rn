@@ -11,6 +11,7 @@ const fetchMyProjectCardInvitations = async (): Promise<Response> => {
         const response = await api.get<Response>(
             "project-card/invitation/list/current/"
         );
+        console.log("fetchMyProjectCardInvitations response: ", response.data);
         return response.data;
     } catch (error) {
         console.error(

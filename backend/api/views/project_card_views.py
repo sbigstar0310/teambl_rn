@@ -250,29 +250,18 @@ class ProjectCardInvitationCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardInvitationSerializer
 
-    # def perform_create(self, serializer):
-    #     return super().perform_create(serializer)
-
     def perform_create(self, serializer):
         invitation = serializer.save(
             inviter=self.request.user,
         )
 
         # Project Card에 초대받은 유저에게 알림 생성
-        notification_exists = Notification.objects.filter(
+        Notification.objects.create(
             user=invitation.invitee,
             message=f"{invitation.inviter.profile.user_name}님이 당신을 {invitation.project_card.title} 프로젝트에 초대했습니다.",
             notification_type="project_card_invite",
             related_project_card_id=invitation.project_card.id,
-        ).exists()
-
-        if not notification_exists:
-            Notification.objects.create(
-                user=invitation.invitee,
-                message=f"{invitation.inviter.profile.user_name}님이 당신을 {invitation.project_card.title} 프로젝트에 초대했습니다.",
-                notification_type="project_card_invite",
-                related_project_card_id=invitation.project_card.id,
-            )
+        )
 
 
 # 유저가 받은 프로젝트 카드 초대 목록을 불러오는 뷰

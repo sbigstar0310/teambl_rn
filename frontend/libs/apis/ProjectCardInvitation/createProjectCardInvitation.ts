@@ -7,9 +7,19 @@ type RequestParams = {
 
 type Response = api.ProjectCardInvitation;
 
-const createProjectCardInvitation = async (params: RequestParams): Promise<Response> => {
-    const response = await api.post<Response>("project-card/invitation/create/", params);
-    return response.data;
+const createProjectCardInvitation = async (
+    params: RequestParams
+): Promise<Response> => {
+    try {
+        const response = await api.post<Response>(
+            "project-card/invitation/create/",
+            params
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error creating project card invitation:", error);
+        throw error;
+    }
 };
 
 export default createProjectCardInvitation;
