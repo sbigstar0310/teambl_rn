@@ -1,4 +1,9 @@
-import {View} from "react-native";
+import {
+    View,
+    StyleSheet,
+    ActivityIndicator,
+    Modal,
+} from "react-native";
 import {router, useLocalSearchParams} from "expo-router";
 import {useEffect, useMemo, useState} from "react";
 import PostCreateForm, {defaultPostFormData, PostCreateFormData, PostImage} from "@/components/forms/PostCreateForm";
@@ -19,6 +24,7 @@ export default function EditPost() {
     const [images, setImages] = useState<PostImage[]>([]);
     const [data, setData] = useState<PostCreateFormData>(defaultPostFormData);
     const [isLoading, setIsLoading] = useState(false);
+    const [isFetchLoading, setIsFetchLoading] = useState(false);
     const isValid = useMemo<boolean>(
         () => data.content.length !== 0,
         [data]
@@ -47,29 +53,38 @@ export default function EditPost() {
 
     const fetchPost = async () => {
         try {
+            setIsFetchLoading(true);
             const postData = await fetchPostById(parseInt(id as string));
             setPostData(postData);
         } catch (error) {
             console.error('Failed to fetch post data', error);
+        } finally {
+            setIsFetchLoading(false);
         }
     }
     const fetchTaggedUsers = async (userIds: number[]) => {
         try {
+            setIsFetchLoading(true);
             const users = await Promise.all(
                 userIds.map(id => getUserInfo(id)));
             setTaggedUsers(users);
         } catch (error) {
             console.error("Failed to fetch tagged users:", error);
+        } finally {
+            setIsFetchLoading(false);
         }
     }
     const loadImages = async (apiImages: api.PostImage[]) => {
         try {
+            setIsFetchLoading(true);
             const images = await Promise.all(
                 apiImages.map(convertApiImageToUIImage)
             );
             setImages(images.filter((image) => !!image));
         } catch (error) {
             console.error("Failed to load images", error);
+        } finally {
+            setIsFetchLoading(false);
         }
     }
 
@@ -97,6 +112,13 @@ export default function EditPost() {
 
     return (
         <View style={sharedStyles.container}>
+            {/* 로딩 모달 */}
+            <Modal visible={isFetchLoading} transparent>
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            </Modal>
+
             <ScreenHeader
                 title="게시물 수정"
                 onBack={setIsConfirmationPopupOpen.bind(null, true)}
@@ -125,3 +147,12 @@ export default function EditPost() {
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    loadingOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+});
