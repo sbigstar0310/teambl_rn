@@ -3,6 +3,7 @@ from collections import defaultdict, deque
 from django.db.models import Q
 from hashids import Hashids
 from django.conf import settings
+import boto3
 
 # Hashids 초기화 (settings에서 키를 가져와 사용)
 hashids = Hashids(salt=settings.SECRET_KEY_FERNET, min_length=8)
@@ -213,3 +214,33 @@ def find_paths_to_target_user(start_user, target_user):
                 queue.append((friend, path_history + [friend]))
 
     return result_paths
+
+
+# ✅ AWS S3 클라이언트 생성
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    region_name=settings.AWS_S3_REGION_NAME,
+)
+
+
+# AWS S3에 저장되어 있는 이미지를 삭제하는 함수
+def delete_images_from_s3(images_to_delete: list):
+    """
+    주어진 이미지 리스트를 AWS S3에서만 삭제하는 함수.
+    (Django DB와 무관)
+
+    :param images_to_delete: 삭제할 이미지 경로 리스트 (예: ["uploads/img1.jpg", "uploads/img2.jpg"])
+    """
+    for image_path in images_to_delete:
+        try:
+            # ✅ AWS S3에서 이미지 삭제
+            s3_client.delete_object(
+                Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                Key=image_path,  # S3에서 직접 삭제
+            )
+            print(f"✅ Deleted from S3: {image_path}")
+
+        except Exception as e:
+            print(f"❌ Error deleting {image_path} from S3: {e}")

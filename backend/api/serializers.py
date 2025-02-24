@@ -4,6 +4,8 @@ from django.forms import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings
+
+from .HelperFuntions import delete_images_from_s3
 from .models import (
     CustomUser,
     Post,
@@ -658,40 +660,52 @@ class PostSerializer(serializers.ModelSerializer):
         if liked_users_data is not None:
             instance.liked_users.set(liked_users_data)
 
-        # 기존 이미지에서 파일명만 가져오기
+        # ✅ 기존 이미지에서 전체 경로 가져오기
         existing_images = set(
-            image_path.split("/")[-1]
-            for image_path in instance.images.values_list("image", flat=True)
-        )
+            instance.images.values_list("image", flat=True)
+        )  # 예: {'uploads/img1.jpg', 'uploads/img2.jpg'}
 
-        # 새로 추가한 이미지 파일명 가져오기
-        new_images = {
+        # ✅ 기존 이미지에서 파일명만 추출
+        existing_image_names = {
+            img.split("/")[-1] for img in existing_images
+        }  # {'img1.jpg', 'img2.jpg'}
+
+        # ✅ 새로 추가한 이미지 파일명 가져오기
+        new_image_names = {
             image_data.name for image_data in images_data
-        }  # 새로운 파일명 리스트
+        }  # {'img2.jpg', 'img3.jpg'}
 
-        # ✅ 삭제해야 할 이미지 식별 후 삭제 (차집합 활용)
-        images_to_delete = existing_images - new_images
+        # ✅ 삭제해야 할 이미지 식별 (차집합 적용)
+        images_to_delete_names = (
+            existing_image_names - new_image_names
+        )  # {'img1.jpg'} (삭제 대상 파일명)
+
+        # ✅ 전체 경로에서 삭제할 이미지 필터링
+        images_to_delete = {
+            img
+            for img in existing_images
+            if img.split("/")[-1] in images_to_delete_names
+        }
+        # 결과: {'uploads/img1.jpg'}
+
+        # ✅ AWS S3에서 삭제
         for image_to_delete in images_to_delete:
-            PostImage.objects.get(image__endswith=image_to_delete).delete()
+            PostImage.objects.get(
+                image__endswith=image_to_delete
+            ).delete()  # DB에서 삭제
+            delete_images_from_s3([image_to_delete])  # AWS S3에서 삭제
 
         # ✅ 추가해야 할 이미지 식별 후 추가 (차집합 활용)
-        images_to_add = new_images - existing_images
+        images_to_add = new_image_names - existing_image_names
 
-        print("existing_images", existing_images)
-        print("new_images", new_images)
+        print("existing_image_names", existing_image_names)
+        print("new_image_names", new_image_names)
         print("images_to_delete", images_to_delete)
         print("images_to_add", images_to_add)
 
         for image_data in images_data:
             if image_data.name in images_to_add:
                 PostImage.objects.create(post=instance, image=image_data)
-
-        # Update images: Clear existing and add new ones
-        # instance.images.all().delete()  # Clear existing images
-        # if images_data:
-        #     for image_data in images_data:
-        #         PostImage.objects.create(post=instance, image=image_data)
-
         # Update like count
         instance.update_like_count()
 
