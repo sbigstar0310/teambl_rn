@@ -275,6 +275,19 @@ class ProjectCardInvitationCreateView(generics.CreateAPIView):
             )
 
 
+# 유저가 받은 프로젝트 카드 초대 목록을 불러오는 뷰
+class ProjectCardInvitationCurrentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardInvitationSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        user = self.request.user
+        return ProjectCardInvitation.objects.filter(invitee=user).order_by(
+            "-created_at"
+        )
+
+
 class ProjectCardInvitationDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectCardInvitationSerializer
@@ -422,6 +435,7 @@ class ProjectCardInvitationResponseByCodeView(generics.RetrieveAPIView):
         return Response(project_card_invitation.id, status=status.HTTP_200_OK)
 
 
+# TODO: Deprecated, delete this API view
 class ProjectCardLinkView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 

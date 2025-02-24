@@ -58,6 +58,11 @@ urlpatterns = [
 # Project Card Invitation
 urlpatterns += [
     path(
+        "invitation/list/current/",
+        views.ProjectCardInvitationCurrentListView.as_view(),
+        name="project-card-invitation-current-list",
+    ),
+    path(
         "invitation/create/",
         views.ProjectCardInvitationCreateView.as_view(),
         name="project-card-invitation-create",
