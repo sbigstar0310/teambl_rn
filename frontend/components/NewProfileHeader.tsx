@@ -151,11 +151,13 @@ const NewProfileHeader = (props: any) => {
             await createFriend({ to_user: userId });
 
             console.log("Friend request sent successfully!");
+
+            // 사용자 정보 다시 불러오기
+            await fetchUserInfo();
         } catch (error) {
             console.error("Failed to create friend request:", error);
         } finally {
             setIsFriendRequesting(false);
-            router.replace(`/profiles/${userId}`); // 현재 페이지 다시 로드
         }
     };
 
