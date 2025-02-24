@@ -1,12 +1,12 @@
 import React from "react";
-import {Alert, StyleSheet, View} from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import BottomModal from "./BottomModal";
 import CircularIconButton from "./CircularIconButton";
 import deletePost from "@/libs/apis/Post/deletePost";
-import createReport from "@/libs/apis/createReport";
+import createReport from "@/libs/apis/Report/createReport";
 import * as Clipboard from "expo-clipboard";
-import {createLinkToPost} from "@/shared/utils";
-import {router} from "expo-router";
+import { createLinkToPost } from "@/shared/utils";
+import { router } from "expo-router";
 import retrieveProjectCard from "@/libs/apis/ProjectCard/retrieveProjectCard";
 
 interface PostBottomModalProps {
@@ -19,19 +19,17 @@ interface PostBottomModalProps {
 }
 
 const PostBottomModal = (props: PostBottomModalProps) => {
-    const {visible, onClose, isMyPost, postId, projectId, onDelete} = props;
+    const { visible, onClose, isMyPost, postId, projectId, onDelete } = props;
 
     const handleLinkCopy = async () => {
         try {
-            await Clipboard.setStringAsync(
-                createLinkToPost(props.postId)
-            );
+            await Clipboard.setStringAsync(createLinkToPost(props.postId));
             onClose();
             alert("게시물 링크가 클립보드에 복사되었습니다!");
         } catch (error) {
             alert("링크를 복사하는 동안 오류가 발생했습니다.");
         }
-    }
+    };
 
     const handleReport = async () => {
         try {
@@ -60,8 +58,8 @@ const PostBottomModal = (props: PostBottomModalProps) => {
             router.push({
                 pathname: `/posts/${postId}/edit`,
                 params: {
-                    project_title: result.title
-                }
+                    project_title: result.title,
+                },
             });
             onClose();
         } catch (error) {
@@ -72,15 +70,15 @@ const PostBottomModal = (props: PostBottomModalProps) => {
     const Body = () => {
         return (
             <View style={styles.container}>
-                <CircularIconButton type="COPYLINK" onPress={handleLinkCopy}/>
+                <CircularIconButton type="COPYLINK" onPress={handleLinkCopy} />
                 {isMyPost && (
-                    <CircularIconButton type="EDIT" onPress={handleEdit}/>
+                    <CircularIconButton type="EDIT" onPress={handleEdit} />
                 )}
                 {isMyPost && (
-                    <CircularIconButton type="DELETE" onPress={handleDelete}/>
+                    <CircularIconButton type="DELETE" onPress={handleDelete} />
                 )}
                 {!isMyPost && (
-                    <CircularIconButton type="REPORT" onPress={handleReport}/>
+                    <CircularIconButton type="REPORT" onPress={handleReport} />
                 )}
             </View>
         );
@@ -90,7 +88,7 @@ const PostBottomModal = (props: PostBottomModalProps) => {
         <BottomModal
             visible={visible}
             onClose={onClose}
-            body={<Body/>}
+            body={<Body />}
             heightPercentage={0.2}
         />
     );

@@ -1,15 +1,16 @@
 import React from "react";
 import BottomModal from "./BottomModal";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import CircularIconButton from "./CircularIconButton";
 import InlineIconButton from "./InlineIconButton";
 import theme from "@/shared/styles/theme";
 import { router } from "expo-router";
-import * as Clipboard from 'expo-clipboard';
+import * as Clipboard from "expo-clipboard";
 
 import createProjectLink from "@/libs/apis/ProjectCard/createProjectLink";
 import leaveProjectCard from "@/libs/apis/ProjectCard/leaveProjectCard";
 import createProjectCardInvitationLink from "@/libs/apis/ProjectCardInvitationLink/createProjectCardInvitationLink";
+import createReport from "@/libs/apis/Report/createReport";
 
 interface ProjectBottomModalProps {
     isVisible: boolean;
@@ -60,10 +61,23 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         }
     };
 
+    const handleReport = async () => {
+        try {
+            await createReport({
+                content: "신고합니다.",
+                related_project_card_id: projectId,
+            });
+            Alert.alert("신고가 접수되었습니다.");
+        } catch (error) {
+            console.error("Failed to report post with ID ${postId}:", error);
+        }
+    };
+
     const handleInviteLinkCopy = async () => {
         try {
             const inviteLink = await createProjectCardInvitationLink(projectId);
-            if (!inviteLink?.link) throw new Error("Server did not return invitation link");
+            if (!inviteLink?.link)
+                throw new Error("Server did not return invitation link");
             await Clipboard.setStringAsync(inviteLink.link);
             alert("프로젝트 초대 링크가 클립보드에 복사되었습니다!");
         } catch (error) {
@@ -125,7 +139,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         return (
             <View style={styles.otherContainer}>
                 <CircularIconButton type="COPYLINK" onPress={handleLinkCopy} />
-                <CircularIconButton type="DELETE" onPress={handleDelete} />
+                <CircularIconButton type="REPORT" onPress={handleReport} />
             </View>
         );
     };

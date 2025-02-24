@@ -1,29 +1,29 @@
-import theme from '@/shared/styles/theme';
-import React from 'react';
-import { StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native';
-import CopyLinkIcon from '@/assets/CopyLinkIcon.svg';
-import ReportIcon from '@/assets/ReportIcon.svg';
-import DeleteIcon from '@/assets/DeleteIcon.svg';
-import EditPencilIcon from '@/assets/EditPencilIcon.svg';
-import PlusPencilIcon from '@/assets/PlusPencilIcon.svg';
+import theme from "@/shared/styles/theme";
+import React from "react";
+import {
+    StyleSheet,
+    Text,
+    Touchable,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import CopyLinkIcon from "@/assets/CopyLinkIcon.svg";
+import ReportIcon from "@/assets/ReportIcon.svg";
+import DeleteIcon from "@/assets/DeleteIcon.svg";
+import EditPencilIcon from "@/assets/EditPencilIcon.svg";
+import PlusPencilIcon from "@/assets/PlusPencilIcon.svg";
 
-const options = [
-    "NEWPOST", "COPYLINK", "EDITPROJECT", "DELETEPROJECT"
-];
+const options = ["NEWPOST", "COPYLINK", "EDITPROJECT", "DELETEPROJECT"];
 
 const InlineIconButton = (props: any) => {
-
-    const {
-        type="COPYLINK",
-        onPress=()=>{}
-    } = props;
+    const { type = "COPYLINK", onPress = () => {} } = props;
 
     if (!options.includes(type)) {
         throw new Error("Invalid button type.");
     }
 
     const getColorTheme = (type: string) => {
-        switch(type) {
+        switch (type) {
             case "DELETEPROJECT":
                 return styles.withMessage2;
             default:
@@ -32,7 +32,7 @@ const InlineIconButton = (props: any) => {
     };
 
     const getIcon = (type: string) => {
-        switch(type) {
+        switch (type) {
             case "COPYLINK":
                 return <CopyLinkIcon />;
             case "NEWPOST":
@@ -41,13 +41,15 @@ const InlineIconButton = (props: any) => {
                 return <EditPencilIcon />;
             case "DELETEPROJECT":
                 return <DeleteIcon />;
+            case "REPORT":
+                return <ReportIcon />;
             default:
                 return <CopyLinkIcon />;
         }
     };
 
     const getButtonText = (type: string) => {
-        switch(type) {
+        switch (type) {
             case "COPYLINK":
                 return "링크 복사";
             case "NEWPOST":
@@ -56,27 +58,17 @@ const InlineIconButton = (props: any) => {
                 return "프로젝트 수정";
             case "DELETEPROJECT":
                 return "프로젝트 나가기";
+            case "REPORT":
+                return "신고";
             default:
                 return "링크 복사";
         }
     };
 
     return (
-        <TouchableOpacity
-            style={[styles.container]}
-            onPress={onPress}
-        >
-            <View
-                style={styles.circleContainer}
-            >
-                {getIcon(type)}
-            </View>
-            <Text
-                style={[
-                    styles.buttonText,
-                    getColorTheme(type)
-                ]}
-            >
+        <TouchableOpacity style={[styles.container]} onPress={onPress}>
+            <View style={styles.circleContainer}>{getIcon(type)}</View>
+            <Text style={[styles.buttonText, getColorTheme(type)]}>
                 {getButtonText(type)}
             </Text>
         </TouchableOpacity>
@@ -84,35 +76,35 @@ const InlineIconButton = (props: any) => {
 };
 
 const styles = StyleSheet.create({
-    container : {
+    container: {
         display: "flex",
-        width: '100%',
+        width: "100%",
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: "center",
         gap: 20,
         paddingVertical: 16,
     },
-    circleContainer : {
+    circleContainer: {
         width: 24,
         height: 24,
         padding: 0,
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
-    withBlack : {
+    withBlack: {
         color: theme.colors.black,
-        borderColor: theme.colors.black
+        borderColor: theme.colors.black,
     },
-    withMessage2 : {
+    withMessage2: {
         color: theme.colors.message2,
-        borderColor: theme.colors.message2
+        borderColor: theme.colors.message2,
     },
-    buttonText : {
+    buttonText: {
         fontSize: theme.fontSizes.body1,
-        fontWeight: 400
-    }
+        fontWeight: 400,
+    },
 });
 
 export default InlineIconButton;

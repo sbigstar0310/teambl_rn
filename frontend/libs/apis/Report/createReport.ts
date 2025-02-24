@@ -13,8 +13,13 @@ type RequestParams = {
 type Response = api.Report;
 
 const createReport = async (params: RequestParams): Promise<Response> => {
-    const response = await api.post<Response>("report/create/", params);
-    return response.data;
+    try {
+        const response = await api.post<api.Report>("report/create/", params);
+        return response.data;
+    } catch (error) {
+        console.error("Error in creating report:", error);
+        throw new Error("Failed to create report.");
+    }
 };
 
 export default createReport;
