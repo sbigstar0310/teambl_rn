@@ -27,6 +27,7 @@ import { useAuthStore } from "@/store/authStore";
 import deleteFriend from "@/libs/apis/Friend/deleteFriend";
 import fetchFriendList from "@/libs/apis/Friend/fetchFriendList";
 import isFriendRequested from "@/libs/apis/Friend/isFriendRequested";
+import Popup from "@/components/Popup";
 
 type UserInfo = {
     profile: api.Profile;
@@ -52,6 +53,9 @@ const NewProfileHeader = (props: any) => {
     const [isFriendCanceling, setIsFriendCanceling] = useState(false);
     const [userInfo, setUserInfo] = useState<UserInfo>();
     const [currentImageURL, setCurrentImageURL] = useState("");
+
+    // 1촌 신청 팝업
+    const [isOneChonRequested, setIsOneChonRequested] = useState(false);
 
     const fetchUserInfo = async () => {
         try {
@@ -386,8 +390,8 @@ const NewProfileHeader = (props: any) => {
                                     !userInfo?.isOneChonRequested && (
                                         <SmallButton
                                             text={"1촌 신청"}
-                                            onClickCallback={
-                                                createFriendRequest
+                                            onClickCallback={() =>
+                                                setIsOneChonRequested(true)
                                             }
                                             isLoading={isFriendRequesting}
                                         />
@@ -443,6 +447,20 @@ const NewProfileHeader = (props: any) => {
                     </View>
                 </View>
             </Animated.View>
+
+            {/* 1촌 신청 팝업 */}
+            <Popup
+                title={"1촌 신청"}
+                description={`${userInfo?.profile.user_name}님에게 1촌을 신청하시겠습니까?\n1촌 신청은 신뢰를 바탕으로 신중히 결정해 주세요.`}
+                isVisible={isOneChonRequested}
+                onClose={() => setIsOneChonRequested(false)}
+                onConfirm={() => {
+                    createFriendRequest();
+                    setIsOneChonRequested(false);
+                }}
+                closeLabel="취소"
+                confirmLabel="신청하기"
+            />
         </>
     );
 };
