@@ -95,6 +95,7 @@ declare module api {
         end_date?: Date;
         description: string;
         posts: Post[];
+        invite_id?: number;
     };
 
     type Post = {

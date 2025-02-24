@@ -12,6 +12,7 @@ import { ICarouselInstance } from "react-native-reanimated-carousel";
 import ProjectPreview from "@/components/ProjectPreview";
 import { useAuthStore } from "@/store/authStore";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
+import fetchProjInvitationsAPI from "@/libs/apis/ProjectCardInvitation/fetchMyProjectCardInvitations";
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,11 +27,18 @@ const MyProfileProjectView = () => {
     const fetchMyProjectCard = async () => {
         try {
             const fetchedProjectCards = await fetchMyProjectCardAPI();
-            setProjectCards(fetchedProjectCards);
+            const fetchProjInvitations = await fetchProjInvitationsAPI();
+            const pendingProjectCards = fetchProjInvitations
+                .filter(invite => invite.status === "pending")
+                .map(invite => ({
+                    ...invite.project_card,
+                    invite_id: invite.id // project_card의 invite_id를 id 값으로 설정
+                }));
+            setProjectCards([, ...fetchedProjectCards]);//pendingProjectCards가 fetchedProjectCards 앞에 와야함.
         } catch (error) {
             console.log("Error in fetching my project cards: ", error);
         }
-    };
+    }; 
 
     useEffect(() => {
         fetchMyProjectCard();

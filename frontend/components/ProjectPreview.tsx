@@ -11,6 +11,8 @@ import {router} from "expo-router";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
 import toggleBookmarkProjectCard from "@/libs/apis/ProjectCard/toggleBookmarkProjectCard";
 import getUserDistance from "@/libs/apis/getUserDistance";
+import projectCardInvitationResponse from "@/libs/apis/ProjectCardInvitation/projectCardInvitationResponse";
+import SmallButton from "./buttons/SmallButton";
 
 interface KeywordBadgeProps {
     keyword: string;
@@ -60,7 +62,7 @@ interface ProjectPreviewProps {
 }
 
 const ProjectPreview = (props: ProjectPreviewProps) => {
-    const {projectInfo, myId} = props;
+    const {projectInfo, myId, isHome} = props;
 
     const [isLoading, setIsLoading] = useState(true);
     const [isOptionVisible, setIsOptionVisible] = useState(false);
@@ -147,8 +149,42 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
         }
     };
 
+    const projInvitationResponse = async (status: "accepted" | "rejected") => {
+        try {
+            setIsLoading(true);
+            if (projectInfo.invite_id !== undefined) {
+                await projectCardInvitationResponse(projectInfo.invite_id, {status});
+            } else {
+                console.error("invite_id is undefined");
+            }
+        } catch (error) {
+            console.error("Failed to Response Invitation:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <View style={styles.container}>
+            {projectInfo.invite_id &&
+                <View style={styles.buttonContainer}>
+                    <SmallButton
+                        text={"초대 수락"}
+                        onClickCallback={() =>
+                            projInvitationResponse("accepted")
+                        }
+                        isLoading={isLoading}
+                    />
+                    <SmallButton
+                        text={"초대 거절"}
+                        onClickCallback={() =>
+                            projInvitationResponse("rejected")
+                        }
+                        isLoading={isLoading}
+                        type={"secondary"}
+                    />
+                </View>
+            }
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>{projectInfo.title}</Text>
                 <TouchableOpacity
@@ -172,8 +208,8 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
             <View style={styles.descriptionContainer}>
                 <Text 
                     style={styles.descriptionText}
-                    numberOfLines={props.isHome ? 3 : undefined}
-                    ellipsizeMode={props.isHome ? "tail" : undefined}
+                    numberOfLines={isHome ? 3 : undefined}
+                    ellipsizeMode={isHome ? "tail" : undefined}
                 >
                     {projectInfo.description}
                 </Text>
@@ -230,6 +266,15 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: 20,
+    },
+    buttonContainer: {
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 20,
+        gap: 20,
     },
     titleContainer: {
         width: "100%",
