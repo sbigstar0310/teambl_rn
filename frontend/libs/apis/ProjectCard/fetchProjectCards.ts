@@ -6,14 +6,11 @@ type RequestParams = {};
 
 type Response = api.ProjectCard[];
 
-const fetchOneDegreeProjectCard = async (
-    user_id: number
-): Promise<Response> => {
+const fetchProjectCards = async (user_id: Number): Promise<Response> => {
     try {
         const response = await api.get<Response>(
-            `project-card/list/${user_id}/one-degree/`
+            `project-card/list/${user_id}/`
         );
-        console.log("projectCardList: ", response.data);
         return response.data;
     } catch (error) {
         console.error("Error fetching project card list:", error);
@@ -21,4 +18,4 @@ const fetchOneDegreeProjectCard = async (
     }
 };
 
-export default fetchOneDegreeProjectCard;
+export default fetchProjectCards;

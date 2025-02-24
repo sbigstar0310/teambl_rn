@@ -20,11 +20,14 @@ import { ICarouselInstance } from "react-native-reanimated-carousel";
 import ProjectPreview from "@/components/ProjectPreview";
 import { useAuthStore } from "@/store/authStore";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
+import { useLocalSearchParams } from "expo-router";
+import fetchProjectCards from "@/libs/apis/ProjectCard/fetchProjectCards";
 
 const { width, height } = Dimensions.get("window");
 
 const OtherProfileProjectView = () => {
     const myId = useAuthStore.getState().user?.id || -99;
+    const { id } = useLocalSearchParams();
 
     const [projectCards, setProjectCards] = useState<api.ProjectCard[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,10 +36,11 @@ const OtherProfileProjectView = () => {
 
     const fetchProjectCardByUserId = async () => {
         try {
-            const fetchedProjectCards = (await fetchMyProjectCardAPI()).filter(
-                (projectCard: api.ProjectCard) => {
-                    projectCard.creator.id === myId; // 주인인 프로젝트만 필터링
-                }
+            let user_id_number = Number(id);
+            const fetchedProjectCards = await fetchProjectCards(user_id_number); // 유저가 참여하고 있는 프로젝트 카드 가져오기
+            console.log(
+                `Other Profile ${id} fetchedProjectCards: `,
+                fetchedProjectCards
             );
 
             setProjectCards(fetchedProjectCards);
