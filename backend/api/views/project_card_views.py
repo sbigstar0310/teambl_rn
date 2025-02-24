@@ -41,6 +41,18 @@ class ProjectCardCurrentListView(generics.ListAPIView):
         return ProjectCard.objects.filter(accepted_users=user).order_by("-created_at")
 
 
+# 해당 사용자의 id가 참여하고 있는 모든 프로젝트 카드를 불러옵니다.
+class ProjectCardListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProjectCardSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        user_id = self.kwargs["user_id"]
+        user = get_object_or_404(CustomUser, id=user_id)
+        return ProjectCard.objects.filter(accepted_users=user).order_by("-created_at")
+
+
 # 해당 사용자(user_id)의 1촌이 참여하고 있는 프로젝트 카드 리스트 뷰
 class ProjectCardOneDegreeListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]

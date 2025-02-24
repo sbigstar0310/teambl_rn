@@ -110,7 +110,6 @@ class ProjectCardRetrieveViewTestCase(TestCase):
 class ProjectCardListViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("project-card-list")  # Dynamic URL mapping
 
         # Create a test user
         self.testuser01 = create_user_with_profile(
@@ -128,6 +127,8 @@ class ProjectCardListViewTestCase(TestCase):
             start_date="2022-12-31",
             end_date="2023-01-01",
         )
+        self.project_card1.accepted_users.add(self.testuser01)
+
         self.project_card2 = ProjectCard.objects.create(
             title="Test Project Card 2",
             creator=self.testuser02,
@@ -135,19 +136,22 @@ class ProjectCardListViewTestCase(TestCase):
             start_date="2022-12-31",
             end_date="2023-01-01",
         )
+        self.project_card2.accepted_users.add(self.testuser02)
 
         # Authenticate the user
         self.client.force_authenticate(user=self.testuser01)
 
     def test_get_project_card_list(self):
         """
-        Ensure we can get a list of project card objects.
+        Ensure we can get a list of project card objects from user_id.
         """
-        response = self.client.get(self.url)
+        url = reverse(
+            "project-card-list", args=[self.testuser02.id]
+        )  # Dynamic URL mapping
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0].get("id"), self.project_card2.id)
-        self.assertEqual(response.data[1].get("id"), self.project_card1.id)
 
 
 class ProjectCardCurrentListViewTestCase(TestCase):

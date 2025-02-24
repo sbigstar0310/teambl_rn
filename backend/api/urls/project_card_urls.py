@@ -3,7 +3,11 @@ from .. import views
 
 # Project Cards
 urlpatterns = [
-    path("list/", views.ProjectCardListView.as_view(), name="project-card-list"),
+    path(
+        "list/<int:user_id>/",
+        views.ProjectCardListView.as_view(),
+        name="project-card-list",
+    ),
     path(
         "list/current/",
         views.ProjectCardCurrentListView.as_view(),
@@ -15,7 +19,7 @@ urlpatterns = [
         name="project-card-bookmarked-list",
     ),
     path(
-        "list/<int:user_id>/",
+        "list/<int:user_id>/one-degree/",
         views.ProjectCardOneDegreeListView.as_view(),
         name="project-card-one-degree-list",
     ),
