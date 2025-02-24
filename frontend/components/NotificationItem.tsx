@@ -111,7 +111,9 @@ const NotificationItem: FC<Props> = ({
                 if (item.related_user_id) {
                     router.push(`/profiles/${item.related_user_id}/project`);
                 } else {
-                    console.warn("related_user_id is missing, redirecting to home");
+                    console.warn(
+                        "related_user_id is missing, redirecting to home"
+                    );
                     router.push("/");
                 }
                 break;
@@ -134,7 +136,9 @@ const NotificationItem: FC<Props> = ({
                 if (item.related_project_card_id) {
                     router.push(`/project/${item.related_project_card_id}`);
                 } else {
-                    console.warn("related_project_card_id is missing, redirecting to home");
+                    console.warn(
+                        "related_project_card_id is missing, redirecting to home"
+                    );
                     router.push("/");
                 }
                 break;
@@ -150,15 +154,21 @@ const NotificationItem: FC<Props> = ({
                 if (item.related_post_id) {
                     router.push(`/posts/${item.related_post_id}`);
                 } else {
-                    console.warn("related_post_id is missing, redirecting to home");
+                    console.warn(
+                        "related_post_id is missing, redirecting to home"
+                    );
                     router.push("/");
                 }
                 break;
             case "new_message":
                 if (item.related_conversation_id) {
-                    router.push(`/conversations/${item.related_conversation_id}`);
+                    router.push(
+                        `/conversations/${item.related_conversation_id}`
+                    );
                 } else {
-                    console.warn("related_conversation_id is missing, redirecting to home");
+                    console.warn(
+                        "related_conversation_id is missing, redirecting to home"
+                    );
                     router.push("/");
                 }
                 break;

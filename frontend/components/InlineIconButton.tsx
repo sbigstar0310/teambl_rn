@@ -10,10 +10,17 @@ import {
 import CopyLinkIcon from "@/assets/CopyLinkIcon.svg";
 import ReportIcon from "@/assets/ReportIcon.svg";
 import DeleteIcon from "@/assets/DeleteIcon.svg";
+import LeaveIcon from "@/assets/LeaveIcon.svg";
 import EditPencilIcon from "@/assets/EditPencilIcon.svg";
 import PlusPencilIcon from "@/assets/PlusPencilIcon.svg";
 
-const options = ["NEWPOST", "COPYLINK", "EDITPROJECT", "DELETEPROJECT"];
+const options = [
+    "NEWPOST",
+    "COPYLINK",
+    "EDITPROJECT",
+    "LEAVEPROJECT",
+    "REPORT",
+];
 
 const InlineIconButton = (props: any) => {
     const { type = "COPYLINK", onPress = () => {} } = props;
@@ -25,6 +32,8 @@ const InlineIconButton = (props: any) => {
     const getColorTheme = (type: string) => {
         switch (type) {
             case "DELETEPROJECT":
+                return styles.withMessage2;
+            case "LEAVEPROJECT":
                 return styles.withMessage2;
             default:
                 return styles.withBlack;
@@ -39,8 +48,8 @@ const InlineIconButton = (props: any) => {
                 return <PlusPencilIcon />;
             case "EDITPROJECT":
                 return <EditPencilIcon />;
-            case "DELETEPROJECT":
-                return <DeleteIcon />;
+            case "LEAVEPROJECT":
+                return <LeaveIcon />;
             case "REPORT":
                 return <ReportIcon />;
             default:
@@ -56,7 +65,7 @@ const InlineIconButton = (props: any) => {
                 return "이 프로젝트에서 새 게시물 작성";
             case "EDITPROJECT":
                 return "프로젝트 수정";
-            case "DELETEPROJECT":
+            case "LEAVEPROJECT":
                 return "프로젝트 나가기";
             case "REPORT":
                 return "신고";

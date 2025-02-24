@@ -34,6 +34,10 @@ class CommentCreateView(generics.CreateAPIView):
                 Comment, pk=parent_comment_id
             )  # Validate the parent comment
 
+        # 부모 댓글의 부모 댓글이 있다면, 현재 부모 댓글은 부모 댓글의 부모 댓글로 대체 (대댓글까지만 가능)
+        if parent_comment and parent_comment.parent_comment:
+            parent_comment = parent_comment.parent_comment
+
         serializer.save(
             user=self.request.user, post=post, parent_comment=parent_comment
         )
@@ -42,20 +46,20 @@ class CommentCreateView(generics.CreateAPIView):
         if post.user != self.request.user:
             Notification.objects.create(
                 user=post.user,  # 프로젝트 작성자에게 알림
-                message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물에 새로운 댓글을 작성했습니다.",
+                message=f"{self.request.user.profile.user_name}님이 '{post.project_card.title}' 게시물에 새로운 댓글을 작성했습니다.",
                 notification_type="comment_create",
                 related_user_id=post.user.id,
-                related_project_card_id=post.post_id,
+                related_post_id=post.id,
             )
 
         # 부모 댓글 작성자가 본인이 아닌 경우에만 Notification 생성
         if parent_comment and parent_comment.user != self.request.user:
             Notification.objects.create(
                 user=parent_comment.user,  # 부모 댓글 작성자에게 알림
-                message=f"{self.request.user.profile.user_name}님이 '{post.title}' 게시물의 당신의 댓글에 답글을 남겼습니다.",
+                message=f"{self.request.user.profile.user_name}님이 '{post.project_card.title}' 게시물의 당신의 댓글에 답글을 남겼습니다.",
                 notification_type="comment_child_create",
                 related_user_id=parent_comment.user.id,
-                related_project_card_id=post.post_id,
+                related_post_id=post.id,
             )
 
 

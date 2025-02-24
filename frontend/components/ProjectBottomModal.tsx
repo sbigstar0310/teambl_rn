@@ -15,13 +15,21 @@ import createReport from "@/libs/apis/Report/createReport";
 interface ProjectBottomModalProps {
     isVisible: boolean;
     onClose: () => void;
-    isMyProject: boolean;
+    isMyProject: boolean; // 프로젝트의 Creator인지 여부
+    isJoined: boolean; // 프로젝트의 참여자인지 여부 (accepted_users에 포함되어 있는지 여부)
     projectId: number;
     projectTitle: string;
 }
 
 const ProjectBottomModal = (props: ProjectBottomModalProps) => {
-    const { isVisible, onClose, isMyProject, projectId, projectTitle } = props;
+    const {
+        isVisible,
+        onClose,
+        isMyProject,
+        isJoined,
+        projectId,
+        projectTitle,
+    } = props;
 
     const handleLinkCopy = async () => {
         try {
@@ -49,8 +57,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         router.push(`project/${projectId}/edit`);
     };
 
-    const handleDelete = async () => {
-        // TODO: 정책상 handleDelete 보다는 handleLeaveProject가 더 적절함.
+    const handleLeave = async () => {
         try {
             await leaveProjectCard(projectId);
         } catch (error) {
@@ -100,6 +107,7 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         });
     };
 
+    // 나의 프로젝트 경우
     const MyProject = () => {
         return (
             <View style={styles.myContainer}>
@@ -127,14 +135,26 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
                     />
                     <InlineIconButton type="EDITPROJECT" onPress={handleEdit} />
                     <InlineIconButton
-                        type="DELETEPROJECT"
-                        onPress={handleDelete}
+                        type="LEAVEPROJECT"
+                        onPress={handleLeave}
                     />
                 </View>
             </View>
         );
     };
 
+    // 프로젝트의 일반회원의 경우
+    const NormalProject = () => {
+        return (
+            <View style={styles.otherContainer}>
+                <CircularIconButton type="COPYLINK" onPress={handleLinkCopy} />
+                <CircularIconButton type="LEAVE" onPress={handleLeave} />
+                <CircularIconButton type="REPORT" onPress={handleReport} />
+            </View>
+        );
+    };
+
+    // 프로젝트 참여 회원 아닌 경우
     const OthersProject = () => {
         return (
             <View style={styles.otherContainer}>
@@ -148,7 +168,15 @@ const ProjectBottomModal = (props: ProjectBottomModalProps) => {
         <BottomModal
             visible={isVisible}
             onClose={onClose}
-            body={isMyProject ? <MyProject /> : <OthersProject />}
+            body={
+                isMyProject ? (
+                    <MyProject />
+                ) : isJoined ? (
+                    <NormalProject />
+                ) : (
+                    <OthersProject />
+                )
+            }
             heightPercentage={isMyProject ? 0.6 : 0.2}
             fixedHeight={isMyProject ? 430 : undefined}
         />

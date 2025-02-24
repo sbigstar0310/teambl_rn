@@ -1,13 +1,13 @@
 import theme from "@/shared/styles/theme";
-import React, {Fragment, useEffect, useState} from "react";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React, { Fragment, useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import ThreeDotsVertical from "@/assets/ThreeDotsVertical.svg";
 import VerticalBar from "@/assets/VerticalBar.svg";
 import AddPostIcon from "@/assets/AddPostIcon.svg";
 import ProfileImagePreviewer from "./ProfileImagePreviewer";
 import ProjectBottomModal from "./ProjectBottomModal";
 import dayjs from "dayjs";
-import {router} from "expo-router";
+import { router } from "expo-router";
 import getUserInfo from "@/libs/apis/User/getUserInfo";
 import toggleBookmarkProjectCard from "@/libs/apis/ProjectCard/toggleBookmarkProjectCard";
 import getUserDistance from "@/libs/apis/getUserDistance";
@@ -19,7 +19,7 @@ interface KeywordBadgeProps {
 }
 
 const KeywordBadge = (props: KeywordBadgeProps) => {
-    const {keyword} = props;
+    const { keyword } = props;
 
     return (
         <View style={styles.keywordBadge}>
@@ -33,10 +33,10 @@ interface AddPostButtonProps {
 }
 
 export const AddPostButton = (props: AddPostButtonProps) => {
-    const {onPress} = props;
+    const { onPress } = props;
     return (
         <TouchableOpacity style={styles.addPostButton} onPress={onPress}>
-            <AddPostIcon/>
+            <AddPostIcon />
             <Text style={styles.addPostText}>게시물 작성</Text>
         </TouchableOpacity>
     );
@@ -47,7 +47,7 @@ interface SubscribeButtonProps {
 }
 
 const SubscribeButton = (props: SubscribeButtonProps) => {
-    const {onPress} = props;
+    const { onPress } = props;
     return (
         <TouchableOpacity style={styles.subscribeButton} onPress={onPress}>
             <Text style={styles.subscribeText}>+ 소식 받기</Text>
@@ -78,7 +78,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
 
     const handleSubscribe = async () => {
         try {
-            await toggleBookmarkProjectCard({projectCardId: projectInfo.id});
+            await toggleBookmarkProjectCard({ projectCardId: projectInfo.id });
         } catch (error) {
             console.error("Failed to subscribe project:", error);
         }
@@ -95,7 +95,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
     const handleAddPost = () => {
         router.push({
             pathname: `/project/${projectInfo.id}/new_post`,
-            params: {project_title: projectInfo.title},
+            params: { project_title: projectInfo.title },
         });
     };
 
@@ -128,14 +128,14 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                     try {
                         const relation_degree = await getUserDistance(user.id);
                         return {
-                            user: {...user},
+                            user: { ...user },
                             relation_degree: relation_degree.distance, // Use the actual fetched relation degree
                         };
                     } catch {
                         return {
-                            user: {...user},
-                            relation_degree: 4 // Show relation_degree as 4 in case api request fails
-                        }
+                            user: { ...user },
+                            relation_degree: 4, // Show relation_degree as 4 in case api request fails
+                        };
                     }
                 })
             );
@@ -188,10 +188,10 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>{projectInfo.title}</Text>
                 <TouchableOpacity
-                    style={{paddingLeft: 10}}
+                    style={{ paddingLeft: 10 }}
                     onPress={() => setIsOptionVisible(true)}
                 >
-                    <ThreeDotsVertical/>
+                    <ThreeDotsVertical />
                 </TouchableOpacity>
             </View>
             {projectInfo.keywords.length > 0 && (
@@ -199,14 +199,14 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                     {projectInfo.keywords.map(
                         (keyword: string, index: number) => {
                             return (
-                                <KeywordBadge key={index} keyword={keyword}/>
+                                <KeywordBadge key={index} keyword={keyword} />
                             );
                         }
                     )}
                 </View>
             )}
             <View style={styles.descriptionContainer}>
-                <Text 
+                <Text
                     style={styles.descriptionText}
                     numberOfLines={isHome ? 3 : undefined}
                     ellipsizeMode={isHome ? "tail" : undefined}
@@ -230,7 +230,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                             </Text>
                         )}
                         <VerticalBar
-                            style={{marginLeft: 16, marginRight: 16}}
+                            style={{ marginLeft: 16, marginRight: 16 }}
                         />
                     </Fragment>
                 )}
@@ -239,11 +239,11 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                     onClick={handleMemberView}
                 />
                 {projectInfo.creator.id === myId && (
-                    <AddPostButton onPress={handleAddPost}/>
+                    <AddPostButton onPress={handleAddPost} />
                 )}
                 {/** 아래 true는 현재 로그인한 사용자가 해당 프로젝트를 구독했는지 여부의 negate로 수정 : TODO */}
                 {projectInfo.creator.id !== myId && (
-                    <SubscribeButton onPress={() => handleSubscribe()}/>
+                    <SubscribeButton onPress={() => handleSubscribe()} />
                 )}
             </View>
             {/** bottom sheet */}
@@ -251,6 +251,7 @@ const ProjectPreview = (props: ProjectPreviewProps) => {
                 isVisible={isOptionVisible}
                 onClose={() => setIsOptionVisible(false)}
                 isMyProject={`${projectInfo.creator.id}` === `${myId}`}
+                isJoined={projectInfo.accepted_users.includes(myId)}
                 projectId={projectInfo.id}
                 projectTitle={projectInfo.title}
             />

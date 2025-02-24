@@ -328,63 +328,48 @@ class ProjectCardInvitationResponseView(generics.UpdateAPIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        # 초대 수락 처리
-        if serializer.validated_data.get("status") == "accepted":
+        status_value = serializer.validated_data.get("status")
+
+        if status_value == "accepted":
             invitation.project_card.accepted_users.add(invitation.invitee)
+            serializer.save(status="accepted")
 
             # 프로젝트 카드 생성자에게 수락 알림 생성
-            notification_exists = Notification.objects.filter(
-                user=invitation.inviter,  # 초대한 사람에게 알림
+            Notification.objects.create(
+                user=invitation.inviter,
                 message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 수락했습니다.",
                 notification_type="project_card_accept",
                 related_user_id=invitation.invitee.id,
                 related_project_card_id=invitation.project_card.id,
-            ).exists()
-
-            if not notification_exists:
-                Notification.objects.create(
-                    user=invitation.inviter,
-                    message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 수락했습니다.",
-                    notification_type="project_card_accept",
-                    related_user_id=invitation.invitee.id,
-                    related_project_card_id=invitation.project_card.id,
-                )
+            )
 
             return Response(
-                {"message": "프로젝트 카드 초대를 수락했습니다."},
+                serializer.data,
                 status=status.HTTP_200_OK,
             )
-        elif serializer.validated_data.get("status") == "rejected":
+
+        if status_value == "rejected":
+            invitation.status = "rejected"
+            serializer.save(status="rejected")
 
             # 프로젝트 카드 생성자에게 거절 알림 생성
-            notification_exists = Notification.objects.filter(
-                user=invitation.inviter,  # 초대한 사람에게 알림
+            Notification.objects.create(
+                user=invitation.inviter,
                 message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 거절했습니다.",
                 notification_type="project_card_reject",
                 related_user_id=invitation.invitee.id,
                 related_project_card_id=invitation.project_card.id,
-            ).exists()
-
-            if not notification_exists:
-                Notification.objects.create(
-                    user=invitation.inviter,
-                    message=f"{invitation.invitee.profile.user_name}님이 당신의 프로젝트 초대를 거절했습니다.",
-                    notification_type="project_card_reject",
-                    related_user_id=invitation.invitee.id,
-                    related_project_card_id=invitation.project_card.id,
-                )
+            )
 
             return Response(
-                {"message": "프로젝트 카드 초대를 거절했습니다."},
+                serializer.data,
                 status=status.HTTP_200_OK,
             )
-        else:
-            return Response(
-                {"error": "올바르지 않은 응답입니다. (accepted 또는 rejected)"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
-        serializer.save()
+        return Response(
+            {"error": "올바르지 않은 응답입니다. (accepted 또는 rejected)"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class ProjectCardInvitationResponseByCodeView(generics.RetrieveAPIView):
