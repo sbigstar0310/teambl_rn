@@ -1,21 +1,28 @@
-import React, {useEffect, useState} from "react";
-import {FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import React, { useEffect, useState } from "react";
+import {
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import SearchHeader from "@/components/search/SearchHeader";
 import Tabs from "@/components/search/Tabs";
 import UserFilterTabs from "@/components/search/UserFilterTabs";
 import UserCard from "@/components/search/UserCard";
 import SurfingIcon from "@/assets/search/SurfingIcon.svg";
 import searchUser from "@/libs/apis/Search/searchUser";
-import {router} from "expo-router";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {USER_ID} from "@/shared/constants";
+import { USER_ID } from "@/shared/constants";
 import NoSearchResult from "@/components/common/NoSearchResult";
 import ProjFilterTabs from "@/components/search/ProjFilterTabs";
 import LoadingOverlay from "@/components/common/LoadingOverlay";
-import {mockPost1, mockPost2} from "@/shared/mock-data";
+import { mockPost1, mockPost2 } from "@/shared/mock-data";
 import ProjectPreview from "@/components/ProjectPreview";
-import {useAuthStore} from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
 import theme from "@/shared/styles/theme";
 import PostInProjectPreview from "@/components/PostInProjectPreview";
 import searchProjectCard from "@/libs/apis/Search/searchProjectCard";
@@ -106,11 +113,12 @@ export default function SearchScreen() {
     const fetchSearchResults = async (query: string) => {
         setLoading(true); // 로딩 시작
         try {
-            const response = await searchUser({q: query, degree: []});
+            const response = await searchUser({ q: query, degree: [] });
             setSearchData(response.results);
-            const searchedProjectCards = await searchProjectCard({q: query});
+            const searchedProjectCards = await searchProjectCard({ q: query });
             setResultProject(searchedProjectCards.results);
-            const searchedPosts = await searchPost({q: query});
+            const searchedPosts = await searchPost({ q: query });
+            console.log("searchedPosts", searchedPosts);
             setResultPosts(searchedPosts.results);
         } catch (error) {
             console.error("검색 API 호출 실패:", error);
@@ -144,13 +152,15 @@ export default function SearchScreen() {
 
     const ProjPostListView = () => {
         return (
-            <ScrollView contentContainerStyle={[
-                styles.projectContainer,
-                (!resultProject || resultProject.length === 0) && {
-                    backgroundColor: theme.colors.white,
-                    padding: 16,
-                },
-            ]}>
+            <ScrollView
+                contentContainerStyle={[
+                    styles.projectContainer,
+                    (!resultProject || resultProject.length === 0) && {
+                        backgroundColor: theme.colors.white,
+                        padding: 16,
+                    },
+                ]}
+            >
                 {!resultProject ||
                     (resultProject.length === 0 && (
                         <NoSearchResult
@@ -160,54 +170,58 @@ export default function SearchScreen() {
                     ))}
                 {resultProject &&
                     resultProject.length > 0 &&
-                    resultProject.map((project: api.ProjectCard, index: number) => {
-                        return (
-                            <View
-                                key={index}
-                                style={styles.projPostContainer}
-                            >
-                                {/** project preview call */}
-                                <ProjectPreview
-                                    projectInfo={project}
-                                    myId={myId}
-                                />
-                                {/** post preview call */}
-                                {
-                                    project.posts.length > 0 &&
-                                    <View
-                                        style={styles.postViewContainer}
-                                    >
-                                        {
-                                            project.posts.map((post: any, index: number) => {
-                                                return (
-                                                    <PostInProjectPreview
-                                                        key={index}
-                                                        postInfo={post}
-                                                        myId={myId}
-                                                        onPostDelete={() => fetchSearchResults(searchQuery)}
-                                                    />
-                                                );
-                                            })
-                                        }
-                                    </View>
-                                }
-                            </View>
-                        );
-                    })
-                }
+                    resultProject.map(
+                        (project: api.ProjectCard, index: number) => {
+                            return (
+                                <View
+                                    key={index}
+                                    style={styles.projPostContainer}
+                                >
+                                    {/** project preview call */}
+                                    <ProjectPreview
+                                        projectInfo={project}
+                                        myId={myId}
+                                    />
+                                    {/** post preview call */}
+                                    {project.posts.length > 0 && (
+                                        <View style={styles.postViewContainer}>
+                                            {project.posts.map(
+                                                (post: any, index: number) => {
+                                                    return (
+                                                        <PostInProjectPreview
+                                                            key={index}
+                                                            postInfo={post}
+                                                            myId={myId}
+                                                            onPostDelete={() =>
+                                                                fetchSearchResults(
+                                                                    searchQuery
+                                                                )
+                                                            }
+                                                        />
+                                                    );
+                                                }
+                                            )}
+                                        </View>
+                                    )}
+                                </View>
+                            );
+                        }
+                    )}
             </ScrollView>
         );
     };
 
     const ProjectListView = () => {
         return (
-            <ScrollView contentContainerStyle={[
-                styles.projectContainer,
-                (!resultProject || resultProject.length === 0) && {
-                    backgroundColor: theme.colors.white,
-                    padding: 16,
-                },
-            ]}>
+            <ScrollView
+                contentContainerStyle={[
+                    styles.projectContainer,
+                    (!resultProject || resultProject.length === 0) && {
+                        backgroundColor: theme.colors.white,
+                        padding: 16,
+                    },
+                ]}
+            >
                 {!resultProject ||
                     (resultProject.length === 0 && (
                         <NoSearchResult
@@ -226,7 +240,7 @@ export default function SearchScreen() {
                                 backgroundColor: theme.colors.white,
                             }}
                         >
-                            <ProjectPreview projectInfo={project} myId={myId}/>
+                            <ProjectPreview projectInfo={project} myId={myId} />
                         </View>
                     ))}
             </ScrollView>
@@ -255,13 +269,18 @@ export default function SearchScreen() {
                     resultPosts.length > 0 &&
                     resultPosts.map((post, index) => (
                         <View
-                            key={post.id + index}
+                            key={post.id}
                             style={{
                                 width: "100%",
                             }}
                         >
-                            <PostInProjectPreview postInfo={post} myId={myId}
-                                                  onPostDelete={() => fetchSearchResults(searchQuery)}/>
+                            <PostInProjectPreview
+                                postInfo={post}
+                                myId={myId}
+                                onPostDelete={() =>
+                                    fetchSearchResults(searchQuery)
+                                }
+                            />
                         </View>
                     ))}
             </ScrollView>
@@ -270,11 +289,11 @@ export default function SearchScreen() {
 
     return (
         <SafeAreaView
-            style={{flex: 1, backgroundColor: "#fff"}}
+            style={{ flex: 1, backgroundColor: "#fff" }}
             edges={["top"]}
         >
             {/* 로딩 모달 */}
-            <LoadingOverlay isLoading={loading}/>
+            <LoadingOverlay isLoading={loading} />
 
             {/* 상단 헤더 */}
             <SearchHeader
@@ -294,7 +313,7 @@ export default function SearchScreen() {
             {/* 탭 내용 */}
             <View style={[styles.contentContainer]}>
                 {activeTab === "사람" && (
-                    <View style={{flex: 1, padding: 16, paddingBottom: 0}}>
+                    <View style={{ flex: 1, padding: 16, paddingBottom: 0 }}>
                         {/* 필터 */}
                         <UserFilterTabs
                             activeFilter={activeUserFilter}
@@ -315,7 +334,7 @@ export default function SearchScreen() {
                             <FlatList
                                 data={filteredResults}
                                 keyExtractor={(item) => String(item.user.id)}
-                                renderItem={({item}) => (
+                                renderItem={({ item }) => (
                                     <UserCard {...item} />
                                 )}
                             />
@@ -323,7 +342,7 @@ export default function SearchScreen() {
                     </View>
                 )}
                 {activeTab === "프로젝트 + 게시물" && (
-                    <View style={{flex: 1}}>
+                    <View style={{ flex: 1 }}>
                         {/* 필터 */}
                         <View
                             style={{
@@ -336,13 +355,11 @@ export default function SearchScreen() {
                                 handleFilterChange={setActiveProjFilter}
                             />
                         </View>
-                        {activeProjFilter === null && (
-                            <ProjPostListView/>
-                        )}
+                        {activeProjFilter === null && <ProjPostListView />}
                         {`${activeProjFilter}` === `${1}` && (
-                            <ProjectListView/>
+                            <ProjectListView />
                         )}
-                        {`${activeProjFilter}` === `${2}` && <PostListView/>}
+                        {`${activeProjFilter}` === `${2}` && <PostListView />}
                     </View>
                 )}
             </View>
@@ -361,7 +378,7 @@ export default function SearchScreen() {
                     });
                 }}
             >
-                <SurfingIcon/>
+                <SurfingIcon />
             </TouchableOpacity>
         </SafeAreaView>
     );
@@ -387,7 +404,7 @@ const styles = StyleSheet.create({
         right: 20,
         justifyContent: "center",
         alignItems: "center",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
     },
@@ -399,11 +416,11 @@ const styles = StyleSheet.create({
     projPostContainer: {
         gap: 10,
         backgroundColor: theme.colors.white,
-        paddingVertical: 20
+        paddingVertical: 20,
     },
     postViewContainer: {
         paddingHorizontal: 16,
         backgroundColor: theme.colors.white,
-        gap: 15
-    }
+        gap: 15,
+    },
 });
